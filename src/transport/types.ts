@@ -12,8 +12,7 @@ export interface FirmwareIdentity {
 }
 
 export type FirmwareIdentityResult =
-  | { kind: 'ok'; identity: FirmwareIdentity }
-  | { kind: 'error'; error: string }
+  { kind: 'ok'; identity: FirmwareIdentity } | { kind: 'error'; error: string }
 
 export type PingResult = { kind: 'ok'; uptimeMs: number | null } | { kind: 'error'; error: string }
 

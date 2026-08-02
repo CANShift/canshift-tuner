@@ -4,11 +4,7 @@ import { BrandLockup } from '../brand/BrandLockup'
 import { MONO_FONT } from '../../lib/typography'
 
 export type HeaderStatus =
-  | 'connected'
-  | 'connecting'
-  | 'reconnecting'
-  | 'disconnected'
-  | 'simulation'
+  'connected' | 'connecting' | 'reconnecting' | 'disconnected' | 'simulation'
 
 export interface HeaderViewProps {
   tunerVersion: string

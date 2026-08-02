@@ -1,10 +1,5 @@
 import { useCallback, useMemo } from 'react'
-import {
-  HexColorSchema,
-  MAX_RAMP_STOPS,
-  SENSOR_DEFAULT_RAMPS,
-  colorAtValue,
-} from '@canshift/core'
+import { HexColorSchema, MAX_RAMP_STOPS, SENSOR_DEFAULT_RAMPS, colorAtValue } from '@canshift/core'
 import type { ColorRamp, ColorRampStop, HexColor, SensorKind } from '@canshift/core'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

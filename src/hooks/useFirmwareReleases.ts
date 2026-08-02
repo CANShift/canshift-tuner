@@ -3,9 +3,7 @@ import type { ReleaseInfo } from '@canshift/core'
 import { fetchReleases, ReleaseFetchFailed } from '../lib/firmware/releases'
 
 export type FirmwareReleasesState =
-  | { kind: 'loading' }
-  | { kind: 'ok'; releases: ReleaseInfo[] }
-  | { kind: 'error'; message: string }
+  { kind: 'loading' } | { kind: 'ok'; releases: ReleaseInfo[] } | { kind: 'error'; message: string }
 
 export interface UseFirmwareReleases {
   state: FirmwareReleasesState

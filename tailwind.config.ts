@@ -12,7 +12,7 @@ import {
   FONT_MONO_CSS_VAR,
   FONT_UI_CSS_VAR,
   brandNeutralCssVar,
-} from '@tmbk/canshift-core'
+} from '@canshift/core'
 
 const cssVarReference = (cssVar: string): string => `hsl(var(${cssVar}) / <alpha-value>)`
 const classNameFromCssVar = (cssVar: string): string => cssVar.replace(/^--/, '')
