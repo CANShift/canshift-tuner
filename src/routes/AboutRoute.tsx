@@ -7,9 +7,9 @@ import { BrandLockup } from '../components/brand/BrandLockup'
 import { HeapStatsPanel } from '../components/about/HeapStatsPanel'
 import { MONO_FONT } from '../lib/typography'
 
-const REPO_URL = 'https://github.com/tburkhalterr/CANShift'
+const REPO_URL = 'https://github.com/CANShift/canshift-tuner'
 const DOCS_URL = 'https://docs.canshift.tmbk.ch'
-const ISSUES_URL = 'https://github.com/tburkhalterr/CANShift/issues'
+const ISSUES_URL = 'https://github.com/CANShift/canshift-tuner/issues'
 
 const DiagnosticsToggle = () => {
   const enabled = useObservabilityStore((s) => s.enabled)
@@ -58,7 +58,7 @@ const AboutRoute = () => {
           <FactRow label="Status" value={prettyStatus(status, simulationMode)} />
           <FactRow label="Link" value={linkLabel} />
           <FactRow label="Supported panels" value={panels} />
-          <FactRow label="Licence" value="MIT · github.com/tburkhalterr/CANShift" last />
+          <FactRow label="Licence" value="MIT · github.com/CANShift" last />
         </div>
 
         <div style={{ display: 'flex', gap: 12 }}>

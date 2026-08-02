@@ -5,7 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url))
 const PKG_ROOT = resolve(SCRIPT_DIR, '..')
-const CORE_PKG_DIR = resolve(PKG_ROOT, 'node_modules', '@tmbk', 'canshift-core')
+const CORE_PKG_DIR = resolve(PKG_ROOT, 'node_modules', '@canshift', 'core')
 const CORE_TOKENS_JS = resolve(CORE_PKG_DIR, 'dist', 'design-tokens.js')
 const OUTPUT_PATH = resolve(PKG_ROOT, 'src', 'styles', 'tokens.generated.css')
 

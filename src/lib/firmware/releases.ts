@@ -1,7 +1,7 @@
 import type { ReleaseAsset, ReleaseInfo } from '@canshift/core'
 
-const GITHUB_OWNER = 'tburkhalterr'
-const GITHUB_REPO = 'CANShift'
+const GITHUB_OWNER = 'CANShift'
+const GITHUB_REPO = 'canshift-firmware'
 const RELEASES_PAGE_SIZE = 10
 const FETCH_TIMEOUT_MS = 8_000
 const MERGED_ASSET_SUFFIX = '-merged.bin'

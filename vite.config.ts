@@ -1,6 +1,6 @@
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { Readable } from 'node:stream'
 import type { ReadableStream as NodeReadableStream } from 'node:stream/web'
@@ -9,15 +9,19 @@ const pkg = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf8'))
   version: string
 }
 
-const firmwarePkg = JSON.parse(
-  readFileSync(resolve(__dirname, '../canshift-firmware/package.json'), 'utf8')
-) as { version: string }
-const firmwareMajor = Number(firmwarePkg.version.split('.')[0] ?? 0)
+const FIRMWARE_PKG_PATH = resolve(__dirname, '../canshift-firmware/package.json')
+const firmwareMajor = existsSync(FIRMWARE_PKG_PATH)
+  ? Number(
+      (JSON.parse(readFileSync(FIRMWARE_PKG_PATH, 'utf8')) as { version: string }).version.split(
+        '.'
+      )[0] ?? 0
+    )
+  : Number(readFileSync(resolve(__dirname, 'firmware-major.txt'), 'utf8').trim())
 
 const CORE_SRC_INDEX = resolve(__dirname, '../canshift-core/src/index.ts')
 
-const FIRMWARE_OWNER = 'tburkhalterr'
-const FIRMWARE_REPO = 'CANShift'
+const FIRMWARE_OWNER = 'CANShift'
+const FIRMWARE_REPO = 'canshift-firmware'
 const FIRMWARE_TAG_RE = /^v?\d+\.\d+\.\d+([.-][a-z0-9.-]+)?$/i
 const FIRMWARE_ASSET_RE = /^[a-z0-9._-]+\.bin$/i
 
@@ -75,7 +79,9 @@ export default defineConfig(({ command }) => ({
       '@stores': resolve(__dirname, 'src/stores'),
       '@services': resolve(__dirname, 'src/transport'),
       '@hooks': resolve(__dirname, 'src/hooks'),
-      ...(command === 'serve' ? { '@canshift/core': CORE_SRC_INDEX } : {}),
+      ...(command === 'serve' && existsSync(CORE_SRC_INDEX)
+        ? { '@canshift/core': CORE_SRC_INDEX }
+        : {}),
     },
   },
   build: {

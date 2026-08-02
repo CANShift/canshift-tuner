@@ -2,8 +2,8 @@ export const config = {
   runtime: 'edge',
 }
 
-const OWNER = 'tburkhalterr'
-const REPO = 'CANShift'
+const OWNER = 'CANShift'
+const REPO = 'canshift-firmware'
 
 const TAG_RE = /^v?\d+\.\d+\.\d+([.-][a-z0-9.-]+)?$/i
 const ASSET_RE = /^[a-z0-9._-]+\.bin$/i
