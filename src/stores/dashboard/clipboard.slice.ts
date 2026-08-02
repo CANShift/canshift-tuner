@@ -1,6 +1,6 @@
 import { current } from 'immer'
-import type { Widget } from '@tmbk/canshift-core'
-import { clampGridPlacement, placementsOverlap } from '@tmbk/canshift-core'
+import type { Widget } from '@canshift/core'
+import { clampGridPlacement, placementsOverlap } from '@canshift/core'
 import { autoPlace } from '../../utils/layout'
 import { pushHistory, toPlacement, widgetRef } from './helpers'
 import type { ClipboardSlice, SliceCreator } from './types'

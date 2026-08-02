@@ -1,4 +1,4 @@
-import type { PagePalette } from '@tmbk/canshift-core'
+import type { PagePalette } from '@canshift/core'
 import { FONT_FAMILY } from './widgetPreview.styles'
 
 const OUTER_PAD = 6

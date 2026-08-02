@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react'
 import { useMemo } from 'react'
-import { OBD2_MIN_INTERVAL_MS } from '@tmbk/canshift-core'
+import { OBD2_MIN_INTERVAL_MS } from '@canshift/core'
 import Obd2PollingPanel from '../components/obd2/Obd2PollingPanel'
 import { DtcPanel } from '../components/obd2/DtcPanel'
 import { useSignalStore } from '../stores/signal.store'

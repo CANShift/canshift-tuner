@@ -12,7 +12,7 @@ export type {
   UsbResult,
 } from './types'
 
-export type { ScreenSettings as ScreenSettingsPayload } from '@tmbk/canshift-core'
+export type { ScreenSettings as ScreenSettingsPayload } from '@canshift/core'
 
 export { humanizeTransportError } from './humanize-transport-error'
 export { usbService } from './usb-service'

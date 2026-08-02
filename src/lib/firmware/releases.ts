@@ -1,4 +1,4 @@
-import type { ReleaseAsset, ReleaseInfo } from '@tmbk/canshift-core'
+import type { ReleaseAsset, ReleaseInfo } from '@canshift/core'
 
 const GITHUB_OWNER = 'tburkhalterr'
 const GITHUB_REPO = 'CANShift'

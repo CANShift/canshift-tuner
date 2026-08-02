@@ -1,4 +1,4 @@
-import { MAX_CYCLE_STATES } from '@tmbk/canshift-core'
+import { MAX_CYCLE_STATES } from '@canshift/core'
 
 import { modePillStyle } from './shared'
 

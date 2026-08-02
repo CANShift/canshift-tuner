@@ -1,4 +1,4 @@
-import type { SensorIconName } from '@tmbk/canshift-core'
+import type { SensorIconName } from '@canshift/core'
 
 interface IconProps {
   size?: number

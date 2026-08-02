@@ -7,7 +7,7 @@ import {
   type CruiseControlOp,
   type PageConfig,
   type SingleActionButtonConfig,
-} from '@tmbk/canshift-core'
+} from '@canshift/core'
 
 export type CycleConfig = Exclude<ButtonWidgetConfig, SingleActionButtonConfig>
 export type CycleState = CycleConfig['states'][number]

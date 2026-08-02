@@ -1,6 +1,6 @@
 import type { ChangeEvent, CSSProperties } from 'react'
 import { useRef, useState } from 'react'
-import type { ReleaseInfo } from '@tmbk/canshift-core'
+import type { ReleaseInfo } from '@canshift/core'
 import type { FirmwareSelection } from '../../stores/firmware-selection.store'
 import type { FirmwareReleasesState } from '../../hooks/useFirmwareReleases'
 import { useFirmwareSelectionStore } from '../../stores/firmware-selection.store'

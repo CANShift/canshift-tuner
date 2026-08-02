@@ -1,4 +1,4 @@
-import type { Widget } from '@tmbk/canshift-core'
+import type { Widget } from '@canshift/core'
 import { thresholdPct } from '../widgetPreview.styles'
 
 const GRADIENT_GREEN = { r: 0x00, g: 0xcc, b: 0x44 }

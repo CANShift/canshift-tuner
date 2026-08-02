@@ -1,4 +1,4 @@
-import type { ButtonAction, ColorRampStop } from '@tmbk/canshift-core'
+import type { ButtonAction, ColorRampStop } from '@canshift/core'
 
 import { newId } from './id'
 

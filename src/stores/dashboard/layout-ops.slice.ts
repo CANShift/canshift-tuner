@@ -1,4 +1,4 @@
-import { clampGridPlacement } from '@tmbk/canshift-core'
+import { clampGridPlacement } from '@canshift/core'
 import { pushHistory } from './helpers'
 import type { LayoutOpsSlice, SliceCreator } from './types'
 

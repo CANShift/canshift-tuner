@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { ReleaseInfo } from '@tmbk/canshift-core'
+import type { ReleaseInfo } from '@canshift/core'
 import type { LocalFirmware } from '../lib/firmware/local-firmware'
 
 export type FirmwareSelection =

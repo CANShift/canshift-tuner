@@ -1,5 +1,5 @@
-import { HexColorSchema, SensorIconNameSchema } from '@tmbk/canshift-core'
-import type { SensorIconName, SignalDef, Widget, WidgetConfig } from '@tmbk/canshift-core'
+import { HexColorSchema, SensorIconNameSchema } from '@canshift/core'
+import type { SensorIconName, SignalDef, Widget, WidgetConfig } from '@canshift/core'
 import { SIZE_TOKENS } from './size-tokens'
 import { createId } from './id'
 

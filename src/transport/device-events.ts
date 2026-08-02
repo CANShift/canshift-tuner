@@ -4,7 +4,7 @@ import {
   LogFrameSchema,
   TeleFrameSchema,
   heapStatsFromWire,
-} from '@tmbk/canshift-core'
+} from '@canshift/core'
 
 import type { Handler, Unsubscribe } from './types'
 import { isRecord } from './types'

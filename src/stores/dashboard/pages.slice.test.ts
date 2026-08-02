@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import type { DashboardConfig } from '@tmbk/canshift-core'
+import type { DashboardConfig } from '@canshift/core'
 import { useDashboardStore } from '../dashboard.store'
 
 const makeConfig = (): DashboardConfig =>

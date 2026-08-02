@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { InputBinding } from '@tmbk/canshift-core'
+import type { InputBinding } from '@canshift/core'
 import { inputBindingsIpc } from '../transport'
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'

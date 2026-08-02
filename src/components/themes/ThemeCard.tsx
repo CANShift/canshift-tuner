@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import type { ThemePresetEntry } from '@tmbk/canshift-core'
+import type { ThemePresetEntry } from '@canshift/core'
 import { MONO_FONT } from '../../lib/typography'
 
 export type ThemeSlotBadge = 'night' | 'day' | null

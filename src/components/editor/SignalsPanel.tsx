@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react'
 import { useMemo } from 'react'
-import type { SignalDef } from '@tmbk/canshift-core'
+import type { SignalDef } from '@canshift/core'
 import { useSignalStore } from '../../stores/signal.store'
 import { useDeviceStore } from '../../stores/device.store'
 import { useCanScanStore } from '../../stores/can-scan/can-scan.store'

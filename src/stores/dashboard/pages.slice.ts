@@ -1,4 +1,4 @@
-import type { PageConfig } from '@tmbk/canshift-core'
+import type { PageConfig } from '@canshift/core'
 import { pageRef, pushHistory } from './helpers'
 import { createId } from '../../utils/id'
 import type { PagesSlice, SliceCreator } from './types'

@@ -1,5 +1,5 @@
 import { useEffect, type Dispatch, type RefObject, type SetStateAction } from 'react'
-import type { Widget } from '@tmbk/canshift-core'
+import type { Widget } from '@canshift/core'
 import { useDashboardStore } from '../stores/dashboard.store'
 import { useUndoToastStore } from '../stores/undo-toast.store'
 import { isEditableTarget } from '../utils/is-editable-target'

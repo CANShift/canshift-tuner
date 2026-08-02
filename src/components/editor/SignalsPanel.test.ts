@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { SignalDef } from '@tmbk/canshift-core'
+import type { SignalDef } from '@canshift/core'
 import type { CanFrameStats } from '../../stores/can-scan/accumulator'
 import { boundFrameIds, unboundFrames } from './SignalsPanel'
 import { parseHexFrameId } from '../../utils/frame-id'

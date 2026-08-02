@@ -1,4 +1,4 @@
-import { MIN_CYCLE_STATES } from '@tmbk/canshift-core'
+import { MIN_CYCLE_STATES } from '@canshift/core'
 
 import { IconTrash } from '../../../icons/Icon'
 import { inputStyle } from '../shared'

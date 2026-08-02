@@ -1,4 +1,4 @@
-import type { DashboardConfig } from '@tmbk/canshift-core'
+import type { DashboardConfig } from '@canshift/core'
 import { DAY_THEME_PRESET } from '../../constants/theme'
 import { DEFAULT_SIM_CONFIG } from '../../config/default-sim-config'
 import { pushHistory } from './helpers'

@@ -1,4 +1,4 @@
-import type { Widget } from '@tmbk/canshift-core'
+import type { Widget } from '@canshift/core'
 import { displayLabelForSignal } from '../../../utils/signal-labels'
 
 export interface BaseRendererProps {

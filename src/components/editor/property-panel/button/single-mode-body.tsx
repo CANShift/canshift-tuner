@@ -1,4 +1,4 @@
-import type { ButtonAction, SingleActionButtonConfig } from '@tmbk/canshift-core'
+import type { ButtonAction, SingleActionButtonConfig } from '@canshift/core'
 
 import { actionKey } from '../../../../utils/list-keys'
 import { newId } from '../../../../utils/id'

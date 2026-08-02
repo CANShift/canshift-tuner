@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import type { ReleaseInfo } from '@tmbk/canshift-core'
+import type { ReleaseInfo } from '@canshift/core'
 import { useFlashHistoryStore } from '../../stores/flash-history.store'
 
 export interface FirmwareSidePanelProps {

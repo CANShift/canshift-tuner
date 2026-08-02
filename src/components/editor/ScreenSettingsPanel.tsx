@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { SCREEN_SETTINGS_BOUNDS } from '@tmbk/canshift-core'
+import { SCREEN_SETTINGS_BOUNDS } from '@canshift/core'
 import { useScreenSettingsStore } from '../../stores/screen-settings.store'
 import { useLogStore } from '../../stores/log.store'
 import { useDeviceState } from '../../hooks/useDeviceState'

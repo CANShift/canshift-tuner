@@ -1,6 +1,6 @@
 import { memo } from 'react'
-import type { PageConfig, TopBarConfig } from '@tmbk/canshift-core'
-import { FIRMWARE_CAPS } from '@tmbk/canshift-core'
+import type { PageConfig, TopBarConfig } from '@canshift/core'
+import { FIRMWARE_CAPS } from '@canshift/core'
 import type { CSSProperties } from 'react'
 import { PageThumbnail } from '../../routes/PageThumbnail'
 import { MONO_FONT } from '../../lib/typography'

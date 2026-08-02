@@ -9,7 +9,7 @@ import type {
   TopBarConfig,
   Widget,
   WidgetLayout,
-} from '@tmbk/canshift-core'
+} from '@canshift/core'
 
 export type LoadFromDeviceOrDemoResult = 'device' | 'demo' | 'kept-edits' | 'staged'
 

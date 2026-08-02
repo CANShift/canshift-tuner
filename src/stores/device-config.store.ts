@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { DEFAULT_DEVICE_CONFIG, type DeviceConfig } from '@tmbk/canshift-core'
+import { DEFAULT_DEVICE_CONFIG, type DeviceConfig } from '@canshift/core'
 import { deviceConfigIpc } from '../transport'
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'

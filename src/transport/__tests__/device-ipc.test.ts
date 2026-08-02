@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { CURRENT_SCHEMA_VERSION } from '@tmbk/canshift-core'
+import { CURRENT_SCHEMA_VERSION } from '@canshift/core'
 
 import { DEFAULT_SIM_CONFIG } from '../../config/default-sim-config'
 import { deviceIpc } from '../device-ipc'

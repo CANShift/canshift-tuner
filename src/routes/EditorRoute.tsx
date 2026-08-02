@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { DEFAULT_PAGE_PALETTE, FIRMWARE_CAPS, HexColorSchema } from '@tmbk/canshift-core'
+import { DEFAULT_PAGE_PALETTE, FIRMWARE_CAPS, HexColorSchema } from '@canshift/core'
 import { useDashboardStore } from '../stores/dashboard.store'
 import { PageStrip } from '../components/editor/PageStrip'
 import { PageContextMenu } from './PageContextMenu'

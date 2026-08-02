@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { STALE_PLACEHOLDER } from '@tmbk/canshift-core'
+import { STALE_PLACEHOLDER } from '@canshift/core'
 import { FONT_FAMILY } from '../widgetPreview.styles'
 import type { BaseRendererProps } from './shared'
 

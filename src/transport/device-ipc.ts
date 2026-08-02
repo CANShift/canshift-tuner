@@ -1,5 +1,5 @@
-import type { DashboardConfig } from '@tmbk/canshift-core'
-import { CURRENT_SCHEMA_VERSION, DashboardConfigSchema, migrateConfig } from '@tmbk/canshift-core'
+import type { DashboardConfig } from '@canshift/core'
+import { CURRENT_SCHEMA_VERSION, DashboardConfigSchema, migrateConfig } from '@canshift/core'
 
 import { CMD_GET_CONFIG } from './opcodes'
 import type { DeviceConfigResult } from './types'

@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react'
-import type { ThemePreset } from '@tmbk/canshift-core'
+import type { ThemePreset } from '@canshift/core'
 import { MONO_FONT } from '../../lib/typography'
 
 export interface ThemeTokensRailProps {

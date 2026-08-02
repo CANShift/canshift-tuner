@@ -1,6 +1,6 @@
 import { useCallback, useRef, type MouseEvent as ReactMouseEvent, type RefObject } from 'react'
-import type { Widget } from '@tmbk/canshift-core'
-import { LAYOUT_GRID, clampGridPlacement } from '@tmbk/canshift-core'
+import type { Widget } from '@canshift/core'
+import { LAYOUT_GRID, clampGridPlacement } from '@canshift/core'
 import { useDashboardStore } from '../stores/dashboard.store'
 
 interface DraggingWidget {

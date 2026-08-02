@@ -1,4 +1,4 @@
-import type { ReleaseAsset } from '@tmbk/canshift-core'
+import type { ReleaseAsset } from '@canshift/core'
 import { computeSha256Hex } from './hash'
 import { verifyImageMagic } from './image'
 import { FIRMWARE_MAX_BYTES, LocalFirmwareError } from './local-firmware'

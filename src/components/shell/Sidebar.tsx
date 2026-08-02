@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { resolveScreenProfile } from '@tmbk/canshift-core'
+import { resolveScreenProfile } from '@canshift/core'
 import { SidebarView, type SidebarLinkProps } from './SidebarView'
 import { useConnectionStore } from '../../stores/connection.store'
 import { useDashboardStore } from '../../stores/dashboard.store'

@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react'
-import { SCREEN_PROFILES } from '@tmbk/canshift-core'
+import { SCREEN_PROFILES } from '@canshift/core'
 import { useDeviceStore } from '../stores/device.store'
 import { useObservabilityStore } from '../stores/observability.store'
 import { useConnectionStore } from '../stores/connection.store'

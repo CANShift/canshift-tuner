@@ -1,5 +1,5 @@
-import { CURRENT_SCHEMA_VERSION, DashboardConfigSchema, migrateConfig } from '@tmbk/canshift-core'
-import type { DashboardConfig } from '@tmbk/canshift-core'
+import { CURRENT_SCHEMA_VERSION, DashboardConfigSchema, migrateConfig } from '@canshift/core'
+import type { DashboardConfig } from '@canshift/core'
 
 export const AUTOSAVE_KEY = 'canshift.tuner.autosave'
 export const AUTOSAVE_DEBOUNCE_MS = 500

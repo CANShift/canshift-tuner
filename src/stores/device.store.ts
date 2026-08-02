@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { DashboardConfig } from '@tmbk/canshift-core'
+import type { DashboardConfig } from '@canshift/core'
 
 export type ConnectionStatus = 'disconnected' | 'connected' | 'burning' | 'error'
 

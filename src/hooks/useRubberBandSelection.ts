@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState, type RefObject } from 'react'
-import type { GridRect } from '@tmbk/canshift-core'
-import { resolveGridRect, resolveScreenProfile } from '@tmbk/canshift-core'
+import type { GridRect } from '@canshift/core'
+import { resolveGridRect, resolveScreenProfile } from '@canshift/core'
 import { useDashboardStore } from '../stores/dashboard.store'
 
 export const RB_THRESHOLD = 4

@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import type { SignalDef } from '@tmbk/canshift-core'
+import type { SignalDef } from '@canshift/core'
 import { MONO_FONT } from '../../lib/typography'
 
 export interface SignalPreviewTableProps {

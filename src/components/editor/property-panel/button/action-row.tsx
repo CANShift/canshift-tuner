@@ -1,4 +1,4 @@
-import type { ButtonAction } from '@tmbk/canshift-core'
+import type { ButtonAction } from '@canshift/core'
 
 import { IconTrash } from '../../../icons/Icon'
 import { ActionEditor } from './action-editor'

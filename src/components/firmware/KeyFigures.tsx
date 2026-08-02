@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import type { ReleaseInfo } from '@tmbk/canshift-core'
+import type { ReleaseInfo } from '@canshift/core'
 import type { FirmwareSelection } from '../../stores/firmware-selection.store'
 import { findMergedAsset } from '../../lib/firmware/releases'
 import { formatBytes } from '../../lib/format'

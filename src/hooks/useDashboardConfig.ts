@@ -1,5 +1,5 @@
 import { useShallow } from 'zustand/react/shallow'
-import type { DashboardConfig, PageConfig, ScreenProfileId, Widget } from '@tmbk/canshift-core'
+import type { DashboardConfig, PageConfig, ScreenProfileId, Widget } from '@canshift/core'
 import { useDashboardStore } from '../stores/dashboard.store'
 
 export interface DashboardConfigBundle {

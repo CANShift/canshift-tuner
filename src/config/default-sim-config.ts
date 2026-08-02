@@ -1,9 +1,9 @@
-import type { DashboardConfig } from '@tmbk/canshift-core'
+import type { DashboardConfig } from '@canshift/core'
 import {
   DEFAULT_PAGE_PALETTE,
   CURRENT_SCHEMA_VERSION,
   DashboardConfigSchema,
-} from '@tmbk/canshift-core'
+} from '@canshift/core'
 
 const PARSED_SIM_CONFIG = DashboardConfigSchema.parse({
   version: CURRENT_SCHEMA_VERSION,

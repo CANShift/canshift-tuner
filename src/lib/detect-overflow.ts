@@ -1,5 +1,5 @@
-import type { DashboardConfig, Widget } from '@tmbk/canshift-core'
-import { isSpanOverflowing } from '@tmbk/canshift-core'
+import type { DashboardConfig, Widget } from '@canshift/core'
+import { isSpanOverflowing } from '@canshift/core'
 
 export interface OverflowingWidget {
   pageId: string

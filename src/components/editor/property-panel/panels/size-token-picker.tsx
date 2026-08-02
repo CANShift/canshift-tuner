@@ -1,4 +1,4 @@
-import type { Widget } from '@tmbk/canshift-core'
+import type { Widget } from '@canshift/core'
 
 import { SIZE_TOKENS, STANDARD_TOKEN_IDS, tokenFromSpans } from '../../../../utils/size-tokens'
 import { Field } from '../shared'

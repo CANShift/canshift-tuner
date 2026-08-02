@@ -1,4 +1,4 @@
-import { CRUISE_CONTROL_OPS, type ButtonAction, type CruiseControlOp } from '@tmbk/canshift-core'
+import { CRUISE_CONTROL_OPS, type ButtonAction, type CruiseControlOp } from '@canshift/core'
 
 import { inputStyle, numberInputStyle } from '../shared'
 import { CRUISE_STEP_OPS, HEX_FRAME_ID_REGEX } from './shared'

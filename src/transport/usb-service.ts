@@ -1,5 +1,5 @@
-import type { DashboardConfig, ScreenSettings } from '@tmbk/canshift-core'
-import { validateDashboard } from '@tmbk/canshift-core'
+import type { DashboardConfig, ScreenSettings } from '@canshift/core'
+import { validateDashboard } from '@canshift/core'
 
 import {
   CMD_CALIBRATE_TOUCH,

@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { GAUGE_ARC, GAUGE_TRACK_COLORS, STALE_PLACEHOLDER } from '@tmbk/canshift-core'
+import { GAUGE_ARC, GAUGE_TRACK_COLORS, STALE_PLACEHOLDER } from '@canshift/core'
 import { BLINK_ANIM, FONT_FAMILY, paletteFillColor, thresholdPct } from '../widgetPreview.styles'
 import {
   FRAC_FONT_SCALE,

@@ -3,8 +3,8 @@ import {
   PROJECT_FILE_VERSION,
   ProjectSchema,
   migrateConfig,
-} from '@tmbk/canshift-core'
-import type { Project, ProjectMeta } from '@tmbk/canshift-core'
+} from '@canshift/core'
+import type { Project, ProjectMeta } from '@canshift/core'
 
 export const PROJECT_INDEX_KEY = 'canshift.tuner.projects'
 const PROJECT_KEY_PREFIX = 'canshift.tuner.project.'

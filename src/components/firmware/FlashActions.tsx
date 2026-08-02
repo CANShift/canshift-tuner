@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react'
 import { useEffect, useRef, useState } from 'react'
-import type { ReleaseInfo } from '@tmbk/canshift-core'
+import type { ReleaseInfo } from '@canshift/core'
 import type { FirmwareSelection } from '../../stores/firmware-selection.store'
 import { useFirmwareSelectionStore } from '../../stores/firmware-selection.store'
 import { useFlashHistoryStore } from '../../stores/flash-history.store'

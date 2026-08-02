@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
-import type { HexColor, SignalDef, Widget, WidgetType } from '@tmbk/canshift-core'
-import { HexColorSchema } from '@tmbk/canshift-core'
+import type { HexColor, SignalDef, Widget, WidgetType } from '@canshift/core'
+import { HexColorSchema } from '@canshift/core'
 
 import { useLogStore } from '../../../../stores/log.store'
 import { IconTrash } from '../../../icons/Icon'

@@ -1,4 +1,4 @@
-import type { DashboardConfig, Widget } from '@tmbk/canshift-core'
+import type { DashboardConfig, Widget } from '@canshift/core'
 import { SIGNAL_CONSUMING_TYPES } from './default-widget'
 
 export const isUnboundWidget = (widget: Widget): boolean =>

@@ -1,4 +1,4 @@
-import { sensorOkColor, sensorWarningColor, type SensorIconName } from '@tmbk/canshift-core'
+import { sensorOkColor, sensorWarningColor, type SensorIconName } from '@canshift/core'
 
 export const FONT_FAMILY = "'JetBrains Mono', ui-monospace, monospace"
 

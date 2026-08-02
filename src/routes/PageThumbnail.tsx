@@ -1,6 +1,6 @@
 import { memo } from 'react'
-import type { PageConfig, ScreenProfile, TopBarConfig } from '@tmbk/canshift-core'
-import { DEFAULT_PAGE_PALETTE, resolveGridRect, resolveScreenProfile } from '@tmbk/canshift-core'
+import type { PageConfig, ScreenProfile, TopBarConfig } from '@canshift/core'
+import { DEFAULT_PAGE_PALETTE, resolveGridRect, resolveScreenProfile } from '@canshift/core'
 import { useDashboardStore } from '../stores/dashboard.store'
 import { CruiseControlPreview } from '../components/editor/CruiseControlPreview'
 import { WidgetPreview } from '../components/editor/WidgetPreview'

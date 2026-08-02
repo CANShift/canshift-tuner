@@ -1,10 +1,10 @@
-import type { DeviceConfig } from '@tmbk/canshift-core'
+import type { DeviceConfig } from '@canshift/core'
 import {
   DeviceConfigSchema,
   DeviceConfigWireSchema,
   deviceConfigFromWire,
   deviceConfigToWire,
-} from '@tmbk/canshift-core'
+} from '@canshift/core'
 
 import { CMD_GET_DEVICE_CONFIG, CMD_PUT_DEVICE_CONFIG } from './opcodes'
 import { getSerialClient } from './webserial-client'

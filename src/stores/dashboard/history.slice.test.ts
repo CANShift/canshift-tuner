@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { HexColorSchema } from '@tmbk/canshift-core'
-import type { DashboardConfig, ScreenProfileId } from '@tmbk/canshift-core'
+import { HexColorSchema } from '@canshift/core'
+import type { DashboardConfig, ScreenProfileId } from '@canshift/core'
 import { useDashboardStore } from '../dashboard.store'
 
 const makeConfig = (): DashboardConfig =>

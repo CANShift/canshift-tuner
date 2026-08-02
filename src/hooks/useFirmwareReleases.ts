@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { ReleaseInfo } from '@tmbk/canshift-core'
+import type { ReleaseInfo } from '@canshift/core'
 import { fetchReleases, ReleaseFetchFailed } from '../lib/firmware/releases'
 
 export type FirmwareReleasesState =

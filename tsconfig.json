@@ -23,7 +23,7 @@
       "@stores/*": ["src/stores/*"],
       "@services/*": ["src/transport/*"],
       "@hooks/*": ["src/hooks/*"],
-      "@tmbk/canshift-core": ["../canshift-core/src/index.ts"]
+      "@canshift/core": ["../canshift-core/src/index.ts"]
     }
   },
   "include": ["src/**/*", "../canshift-core/src/**/*"],

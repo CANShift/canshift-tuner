@@ -1,4 +1,4 @@
-import { SHIFT_LIGHT_SEGMENT_COUNT } from '@tmbk/canshift-core'
+import { SHIFT_LIGHT_SEGMENT_COUNT } from '@canshift/core'
 import { ConfigFieldsProps, Field, Row, numberInputStyle } from './shared'
 
 export const ShiftLightFields = ({ widget, onChange }: ConfigFieldsProps) => {

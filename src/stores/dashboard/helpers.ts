@@ -1,6 +1,6 @@
 import { current } from 'immer'
-import type { DashboardConfig, PageConfig, Widget } from '@tmbk/canshift-core'
-import { resolveScreenProfile } from '@tmbk/canshift-core'
+import type { DashboardConfig, PageConfig, Widget } from '@canshift/core'
+import { resolveScreenProfile } from '@canshift/core'
 import type { IdentifiedPlacement } from '../../utils/layout'
 
 export const HISTORY_LIMIT = 100

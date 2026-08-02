@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { GridPlacement } from '@tmbk/canshift-core'
-import { placementsOverlap } from '@tmbk/canshift-core'
+import type { GridPlacement } from '@canshift/core'
+import { placementsOverlap } from '@canshift/core'
 import { autoPlace, resolveCollisions, type IdentifiedPlacement } from './layout'
 
 const placement = (col: number, colSpan: number, row: number, rowSpan: number): GridPlacement => ({

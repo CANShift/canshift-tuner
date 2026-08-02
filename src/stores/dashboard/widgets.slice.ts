@@ -1,5 +1,5 @@
-import type { Widget } from '@tmbk/canshift-core'
-import { clampGridPlacement, isSpanOverflowing, placementsOverlap } from '@tmbk/canshift-core'
+import type { Widget } from '@canshift/core'
+import { clampGridPlacement, isSpanOverflowing, placementsOverlap } from '@canshift/core'
 import { autoPlace, resolveCollisions } from '../../utils/layout'
 import { pushHistory, toPlacement, widgetRef } from './helpers'
 import type { SliceCreator, WidgetsSlice } from './types'

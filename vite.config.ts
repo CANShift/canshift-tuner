@@ -75,7 +75,7 @@ export default defineConfig(({ command }) => ({
       '@stores': resolve(__dirname, 'src/stores'),
       '@services': resolve(__dirname, 'src/transport'),
       '@hooks': resolve(__dirname, 'src/hooks'),
-      ...(command === 'serve' ? { '@tmbk/canshift-core': CORE_SRC_INDEX } : {}),
+      ...(command === 'serve' ? { '@canshift/core': CORE_SRC_INDEX } : {}),
     },
   },
   build: {
@@ -98,7 +98,7 @@ export default defineConfig(({ command }) => ({
           if (id.includes('node_modules/zustand') || id.includes('node_modules/immer')) {
             return 'vendor-state'
           }
-          if (id.includes('@tmbk/canshift-core')) {
+          if (id.includes('@canshift/core')) {
             return 'vendor-core'
           }
           return undefined

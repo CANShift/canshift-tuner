@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import type { WidgetType, SensorIconName } from '@tmbk/canshift-core'
+import type { WidgetType, SensorIconName } from '@canshift/core'
 import { useDashboardStore } from '../../stores/dashboard.store'
 import { SensorIcon } from '../icons/SensorIcons'
 import { SIZE_TOKENS } from '../../utils/size-tokens'

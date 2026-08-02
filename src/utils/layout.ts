@@ -1,5 +1,5 @@
-import type { GridPlacement } from '@tmbk/canshift-core'
-import { LAYOUT_GRID, clampGridPlacement, placementsOverlap } from '@tmbk/canshift-core'
+import type { GridPlacement } from '@canshift/core'
+import { LAYOUT_GRID, clampGridPlacement, placementsOverlap } from '@canshift/core'
 
 export interface IdentifiedPlacement extends GridPlacement {
   id: string

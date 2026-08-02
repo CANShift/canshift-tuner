@@ -1,4 +1,4 @@
-import type { DashboardConfig } from '@tmbk/canshift-core'
+import type { DashboardConfig } from '@canshift/core'
 
 export interface UsbResult {
   success: boolean

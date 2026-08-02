@@ -1,4 +1,4 @@
-import type { HexColor, Widget } from '@tmbk/canshift-core'
+import type { HexColor, Widget } from '@canshift/core'
 
 import { Field, Row } from '../shared'
 

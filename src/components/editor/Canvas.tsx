@@ -1,13 +1,13 @@
 import { useRef, useCallback, useMemo, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
-import type { PageConfig, PagePalette, TopBarConfig, Widget } from '@tmbk/canshift-core'
+import type { PageConfig, PagePalette, TopBarConfig, Widget } from '@canshift/core'
 import {
   LAYOUT_GRID,
   isSpanOverflowing,
   placementsOverlap,
   resolveGridRect,
   resolveScreenProfile,
-} from '@tmbk/canshift-core'
+} from '@canshift/core'
 import { useDashboardStore } from '../../stores/dashboard.store'
 import { useDeviceStore } from '../../stores/device.store'
 import { useSignalStore } from '../../stores/signal.store'
@@ -30,7 +30,7 @@ import { useClipboardWidgets } from '../../hooks/useClipboardWidgets'
 import { useRubberBandSelection } from '../../hooks/useRubberBandSelection'
 import { useRevLimiterFlash } from '../../hooks/useRevLimiterFlash'
 import { useSwipeGestures } from '../../hooks/useSwipeGestures'
-import { DEFAULT_PAGE_PALETTE } from '@tmbk/canshift-core'
+import { DEFAULT_PAGE_PALETTE } from '@canshift/core'
 
 import { DAY_PALETTE_DEFAULT, DAY_BG_DEFAULT } from '../../constants/theme'
 import { MONO_FONT } from '../../lib/typography'

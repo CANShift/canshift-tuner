@@ -4,8 +4,8 @@ import {
   MAX_RAMP_STOPS,
   SENSOR_DEFAULT_RAMPS,
   colorAtValue,
-} from '@tmbk/canshift-core'
-import type { ColorRamp, ColorRampStop, HexColor, SensorKind } from '@tmbk/canshift-core'
+} from '@canshift/core'
+import type { ColorRamp, ColorRampStop, HexColor, SensorKind } from '@canshift/core'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'

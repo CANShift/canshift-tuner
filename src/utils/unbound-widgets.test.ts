@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { DashboardConfig, Widget } from '@tmbk/canshift-core'
+import type { DashboardConfig, Widget } from '@canshift/core'
 import { isUnboundWidget, unboundWidgetCount } from './unbound-widgets'
 
 const widget = (type: string, signal: string): Widget => ({ type, signal }) as Widget

@@ -1,12 +1,12 @@
 import type { CSSProperties } from 'react'
-import type { Obd2Mode01PidEntry, Obd2Polling, SignalDef } from '@tmbk/canshift-core'
+import type { Obd2Mode01PidEntry, Obd2Polling, SignalDef } from '@canshift/core'
 import {
   OBD2_DEFAULT_INTERVAL_MS,
   OBD2_MAX_INTERVAL_MS,
   OBD2_MIN_INTERVAL_MS,
   OBD2_MODE01_PIDS,
   obd2PidLookup,
-} from '@tmbk/canshift-core'
+} from '@canshift/core'
 import { useLiveSignals } from '../../hooks/useLiveSignals'
 import { useSignalStore } from '../../stores/signal.store'
 import { MONO_FONT } from '../../lib/typography'

@@ -1,4 +1,4 @@
-import { MAX_CYCLE_STATES, MIN_CYCLE_STATES } from '@tmbk/canshift-core'
+import { MAX_CYCLE_STATES, MIN_CYCLE_STATES } from '@canshift/core'
 
 import type { ConfigFieldsProps } from '../shared'
 import { CycleStateRow } from './cycle-state-row'

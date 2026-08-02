@@ -5,7 +5,7 @@ import {
   WIDGET_TOP_RULE,
   valueUnitFontSize,
   widgetTopRulePx,
-} from '@tmbk/canshift-core'
+} from '@canshift/core'
 import { BLINK_ANIM, FONT_FAMILY } from '../widgetPreview.styles'
 import { FRAC_FONT_SCALE, effectiveValue, splitDecimal } from './gauge-math'
 import { type BaseRendererProps, formatSignalLabel } from './shared'

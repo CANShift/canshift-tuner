@@ -1,6 +1,6 @@
 import { create } from 'zustand'
-import { PROJECT_FILE_VERSION, PROJECT_NAME_MAX } from '@tmbk/canshift-core'
-import type { DashboardConfig, Project, ProjectMeta } from '@tmbk/canshift-core'
+import { PROJECT_FILE_VERSION, PROJECT_NAME_MAX } from '@canshift/core'
+import type { DashboardConfig, Project, ProjectMeta } from '@canshift/core'
 import { createId } from '../../utils/id'
 import { captureFlowEvent } from '../../lib/posthog'
 import { useDashboardStore } from '../dashboard.store'

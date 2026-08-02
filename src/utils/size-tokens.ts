@@ -1,4 +1,4 @@
-import type { GaugeDisplayStyle } from '@tmbk/canshift-core'
+import type { GaugeDisplayStyle } from '@canshift/core'
 
 export type SizeTokenId = 'XXL' | 'XL' | 'L' | 'H-XL' | 'H-FULL' | 'V' | 'V-M'
 

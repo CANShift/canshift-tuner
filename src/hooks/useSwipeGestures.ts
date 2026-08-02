@@ -1,5 +1,5 @@
 import { useRef, type Dispatch, type RefObject, type SetStateAction } from 'react'
-import type { PageConfig } from '@tmbk/canshift-core'
+import type { PageConfig } from '@canshift/core'
 import { RB_THRESHOLD, type RubberBand } from './useRubberBandSelection'
 
 export interface UseSwipeGesturesOptions {

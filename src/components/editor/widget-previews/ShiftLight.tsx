@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { SHIFT_LIGHT, shiftLightLitSegments } from '@tmbk/canshift-core'
+import { SHIFT_LIGHT, shiftLightLitSegments } from '@canshift/core'
 import { useDashboardStore } from '../../../stores/dashboard.store'
 import { effectiveValue } from './gauge-math'
 import { type BaseRendererProps } from './shared'

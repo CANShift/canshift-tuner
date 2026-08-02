@@ -1,6 +1,6 @@
 import { create } from 'zustand'
-import type { SignalDef } from '@tmbk/canshift-core'
-import { DEFAULT_PROFILE_ID, ECU_PROFILES } from '@tmbk/canshift-core'
+import type { SignalDef } from '@canshift/core'
+import { DEFAULT_PROFILE_ID, ECU_PROFILES } from '@canshift/core'
 
 const FALLBACK_PROFILE_ID = 'maxxecu-street'
 const FALLBACK_SIGNALS: SignalDef[] =

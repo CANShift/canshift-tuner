@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { CSSProperties } from 'react'
-import type { SignalDef } from '@tmbk/canshift-core'
+import type { SignalDef } from '@canshift/core'
 import { useCanScanner } from '../hooks/useCanScanner'
 import type { CanFrameStats } from '../hooks/useCanScanner'
 import { CanFrameTable } from '../components/can-bus/CanFrameTable'

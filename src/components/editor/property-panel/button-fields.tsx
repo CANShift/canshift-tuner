@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import type { ButtonWidgetConfig } from '@tmbk/canshift-core'
-import { resolveGridRect, resolveScreenProfile } from '@tmbk/canshift-core'
+import type { ButtonWidgetConfig } from '@canshift/core'
+import { resolveGridRect, resolveScreenProfile } from '@canshift/core'
 
 import { Checkbox } from '@/components/ui/checkbox'
 import { useDashboardStore } from '../../../stores/dashboard.store'

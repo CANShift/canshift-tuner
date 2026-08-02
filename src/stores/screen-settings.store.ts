@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { ScreenSettings } from '@tmbk/canshift-core'
+import type { ScreenSettings } from '@canshift/core'
 
 export type RotationOffset = NonNullable<ScreenSettings['rotation']>
 

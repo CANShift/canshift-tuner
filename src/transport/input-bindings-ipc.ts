@@ -1,10 +1,10 @@
-import type { InputBindingsConfig } from '@tmbk/canshift-core'
+import type { InputBindingsConfig } from '@canshift/core'
 import {
   InputBindingsConfigSchema,
   InputBindingsConfigWireSchema,
   inputBindingsFromWire,
   inputBindingsToWire,
-} from '@tmbk/canshift-core'
+} from '@canshift/core'
 
 import { CMD_GET_INPUT_BINDINGS, CMD_PUT_INPUT_BINDINGS } from './opcodes'
 import { getSerialClient } from './webserial-client'

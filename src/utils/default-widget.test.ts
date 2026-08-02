@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { WidgetSchema } from '@tmbk/canshift-core'
-import type { DashboardConfig, SignalDef } from '@tmbk/canshift-core'
+import { WidgetSchema } from '@canshift/core'
+import type { DashboardConfig, SignalDef } from '@canshift/core'
 import { useDashboardStore } from '../stores/dashboard.store'
 import {
   defaultWidgetForSignal,

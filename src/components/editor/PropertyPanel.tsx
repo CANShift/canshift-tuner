@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import type { Widget } from '@tmbk/canshift-core'
+import type { Widget } from '@canshift/core'
 
 import { useDashboardConfig } from '../../hooks/useDashboardConfig'
 import { useSignalStore } from '../../stores/signal.store'

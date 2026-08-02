@@ -1,6 +1,6 @@
 import { useRef, type PointerEvent } from 'react'
-import type { TopBarConfig, TopBarItem } from '@tmbk/canshift-core'
-import { DEFAULT_TOP_BAR_LAYOUT, TopBarMetrics } from '@tmbk/canshift-core'
+import type { TopBarConfig, TopBarItem } from '@canshift/core'
+import { DEFAULT_TOP_BAR_LAYOUT, TopBarMetrics } from '@canshift/core'
 
 const SWIPE_DOWN_THRESHOLD = 18
 

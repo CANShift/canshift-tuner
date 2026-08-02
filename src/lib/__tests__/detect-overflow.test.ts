@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { DashboardConfig } from '@tmbk/canshift-core'
+import type { DashboardConfig } from '@canshift/core'
 import { detectOverflow } from '../detect-overflow'
 
 interface SpanWidget {

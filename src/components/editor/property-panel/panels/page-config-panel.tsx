@@ -8,7 +8,7 @@ import {
   type DashboardConfig,
   type PageConfig,
   type ScreenProfileId,
-} from '@tmbk/canshift-core'
+} from '@canshift/core'
 
 import { CruiseControlOverCapDialog } from '../../CruiseControlOverCapDialog'
 

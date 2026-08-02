@@ -1,6 +1,6 @@
 import { memo, type DragEvent, type MouseEvent } from 'react'
-import type { PagePalette, Widget } from '@tmbk/canshift-core'
-import { resolveGridRect } from '@tmbk/canshift-core'
+import type { PagePalette, Widget } from '@canshift/core'
+import { resolveGridRect } from '@canshift/core'
 import { WidgetPreview } from './WidgetPreview'
 import { SIGNAL_CONSUMING_TYPES, SIGNAL_DRAG_MIME } from '../../utils/default-widget'
 
