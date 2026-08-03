@@ -90,6 +90,46 @@ describe('scan accumulator', () => {
     expect(acc.snapshot(10).learn).toBeNull()
   })
 
+  it('keeps a stable stats object identity for an unchanged frame so memoized rows bail out', () => {
+    const acc = createScanAccumulator()
+    acc.ingest({ id: 0x100, len: 1, data: [1] }, 0)
+    acc.ingest({ id: 0x200, len: 1, data: [2] }, 0)
+
+    const snap1 = acc.snapshot(100)
+    acc.ingest({ id: 0x100, len: 1, data: [3] }, 150)
+    const snap2 = acc.snapshot(200)
+
+    expect(snap2.frames.get(0x200)).toBe(snap1.frames.get(0x200))
+    expect(snap2.frames.get(0x100)).not.toBe(snap1.frames.get(0x100))
+  })
+
+  it('emits a fresh stats object while a stopped frame rate decays, then settles to a stable identity', () => {
+    const acc = createScanAccumulator()
+    acc.ingest({ id: 0x100, len: 1, data: [1] }, 0)
+
+    const live = acc.snapshot(100)
+    expect(live.frames.get(0x100)?.rateHz).toBe(1)
+
+    const decayed = acc.snapshot(RATE_WINDOW_MS + 100)
+    expect(decayed.frames.get(0x100)).not.toBe(live.frames.get(0x100))
+    expect(decayed.frames.get(0x100)?.rateHz).toBe(0)
+
+    const settled = acc.snapshot(RATE_WINDOW_MS + 200)
+    expect(settled.frames.get(0x100)).toBe(decayed.frames.get(0x100))
+  })
+
+  it('drops cached identity on reset', () => {
+    const acc = createScanAccumulator()
+    acc.ingest({ id: 0x100, len: 1, data: [1] }, 0)
+    const before = acc.snapshot(100)
+    acc.reset()
+    acc.ingest({ id: 0x100, len: 1, data: [1] }, 200)
+    const after = acc.snapshot(300)
+
+    expect(after.frames.get(0x100)).not.toBe(before.frames.get(0x100))
+    expect(after.frames.get(0x100)?.count).toBe(1)
+  })
+
   it('truncates payloads beyond 8 bytes', () => {
     const acc = createScanAccumulator()
     acc.ingest({ id: 0x2, len: 10, data: Array.from({ length: 10 }, (_, i) => i) }, 0)

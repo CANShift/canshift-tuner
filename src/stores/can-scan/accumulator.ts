@@ -40,6 +40,7 @@ interface MutableFrameStats {
   lastDlc: number
   lastPayload: number[]
   byteValueCounts: Map<number, number>[]
+  dirty: boolean
 }
 
 export interface ScanAccumulator {
@@ -66,6 +67,7 @@ const payloadsDiffer = (a: readonly number[], b: readonly number[]): boolean =>
 
 export const createScanAccumulator = (): ScanAccumulator => {
   let frames = new Map<number, MutableFrameStats>()
+  let emitted = new Map<number, CanFrameStats>()
   let total = 0
   let totalRecent: number[] = []
   let startedAt: number | null = null
@@ -97,6 +99,7 @@ export const createScanAccumulator = (): ScanAccumulator => {
             { length: MAX_PAYLOAD_BYTES },
             () => new Map<number, number>()
           ),
+          dirty: true,
         }
         frames.set(frame.id, stats)
       }
@@ -114,6 +117,7 @@ export const createScanAccumulator = (): ScanAccumulator => {
       stats.lastDlc = frame.len
       stats.lastPayload = incoming
       stats.recentMs.push(nowMs)
+      stats.dirty = true
       for (let i = 0; i < frame.data.length && i < MAX_PAYLOAD_BYTES; i++) {
         const byte = frame.data[i]
         if (byte === undefined) continue
@@ -128,17 +132,25 @@ export const createScanAccumulator = (): ScanAccumulator => {
       const next = new Map<number, CanFrameStats>()
       for (const [id, m] of frames) {
         trimRecent(m.recentMs, nowMs)
-        next.set(id, {
-          id: m.id,
-          firstSeenMs: m.firstSeenMs,
-          lastSeenMs: m.lastSeenMs,
-          count: m.count,
-          rateHz: m.recentMs.length,
-          lastDlc: m.lastDlc,
-          lastPayload: m.lastPayload.slice(),
-          byteValueCounts: m.byteValueCounts.map((counts) => new Map(counts)),
-        })
+        const rateHz = m.recentMs.length
+        const previous = emitted.get(id)
+        const unchanged = previous !== undefined && !m.dirty && previous.rateHz === rateHz
+        const stats = unchanged
+          ? previous
+          : {
+              id: m.id,
+              firstSeenMs: m.firstSeenMs,
+              lastSeenMs: m.lastSeenMs,
+              count: m.count,
+              rateHz,
+              lastDlc: m.lastDlc,
+              lastPayload: m.lastPayload.slice(),
+              byteValueCounts: m.byteValueCounts.map((counts) => new Map(counts)),
+            }
+        next.set(id, stats)
+        m.dirty = false
       }
+      emitted = next
       return {
         startedAt,
         totalFrames: total,
@@ -170,6 +182,7 @@ export const createScanAccumulator = (): ScanAccumulator => {
 
     reset: () => {
       frames = new Map()
+      emitted = new Map()
       total = 0
       totalRecent = []
       startedAt = null

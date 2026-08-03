@@ -32,6 +32,7 @@
     "@radix-ui/react-select": "^2.3.0",
     "@radix-ui/react-switch": "^1.2.6",
     "@sentry/react": "^10.69.0",
+    "@tanstack/react-virtual": "3.14.9",
     "@vercel/analytics": "^2.0.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
