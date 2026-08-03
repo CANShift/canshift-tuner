@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { captureFeedback, isPostHogReady } from '../../lib/posthog'
+import { submitFeedback } from '../../lib/feedback'
 
 const STORAGE_KEY = 'canshift:feedback-dismissed-hint'
 const LEGACY_STORAGE_KEY = 'tuner.feedback.dismissed-hint'
@@ -16,24 +16,27 @@ const readDismissed = (): boolean => {
   return false
 }
 
-type Status = 'idle' | 'sending' | 'sent'
+type Status = 'idle' | 'sending' | 'sent' | 'error'
+
+const SEND_LABELS: Record<Status, string> = {
+  idle: 'Send',
+  sending: 'Sending…',
+  sent: 'Send',
+  error: 'Retry',
+}
 
 const FeedbackButton = () => {
-  const [ready, setReady] = useState(false)
   const [showHint, setShowHint] = useState(false)
   const [open, setOpen] = useState(false)
   const [message, setMessage] = useState('')
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<Status>('idle')
+  const [errorMessage, setErrorMessage] = useState('')
   const location = useLocation()
 
   useEffect(() => {
-    if (!isPostHogReady()) return
-    setReady(true)
     setShowHint(!readDismissed())
   }, [])
-
-  if (!ready) return null
 
   const dismissHint = () => {
     setShowHint(false)
@@ -51,21 +54,28 @@ const FeedbackButton = () => {
     setMessage('')
     setEmail('')
     setStatus('idle')
+    setErrorMessage('')
   }
 
-  const submit = () => {
+  const submit = async () => {
     const trimmed = message.trim()
     if (trimmed.length === 0) return
     setStatus('sending')
+    setErrorMessage('')
     const trimmedEmail = email.trim()
-    captureFeedback({
+    const result = await submitFeedback({
       message: trimmed,
       route: location.pathname,
       tunerVersion: __TUNER_VERSION__,
       ...(trimmedEmail.length > 0 ? { email: trimmedEmail } : {}),
     })
-    setStatus('sent')
-    setTimeout(closeDialog, 1500)
+    if (result.ok) {
+      setStatus('sent')
+      setTimeout(closeDialog, 1500)
+      return
+    }
+    setStatus('error')
+    setErrorMessage(result.error)
   }
 
   return (
@@ -115,6 +125,7 @@ const FeedbackButton = () => {
                 }}
                 placeholder="Describe the bug or your suggestion…"
                 rows={4}
+                maxLength={1900}
                 autoFocus
                 style={{
                   background: 'hsl(var(--brand-neutral-100))',
@@ -144,6 +155,11 @@ const FeedbackButton = () => {
                   fontFamily: 'inherit',
                 }}
               />
+              {status === 'error' && (
+                <div role="alert" style={{ fontSize: 12, color: 'hsl(var(--brand-accent))' }}>
+                  Couldn’t send your feedback ({errorMessage}). Please try again.
+                </div>
+              )}
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
                 <button
                   type="button"
@@ -162,7 +178,9 @@ const FeedbackButton = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={submit}
+                  onClick={() => {
+                    void submit()
+                  }}
                   disabled={status === 'sending' || message.trim().length === 0}
                   style={{
                     background:
@@ -176,7 +194,7 @@ const FeedbackButton = () => {
                     cursor: message.trim().length === 0 ? 'not-allowed' : 'pointer',
                   }}
                 >
-                  {status === 'sending' ? 'Sending…' : 'Send'}
+                  {SEND_LABELS[status]}
                 </button>
               </div>
             </>
