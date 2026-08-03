@@ -20,6 +20,8 @@ const firmwareMajor = existsSync(FIRMWARE_PKG_PATH)
   : Number(readFileSync(resolve(__dirname, 'firmware-major.txt'), 'utf8').trim())
 
 const CORE_SRC_INDEX = resolve(__dirname, '../canshift-core/src/index.ts')
+const CORE_SIBLING_READY =
+  existsSync(CORE_SRC_INDEX) && existsSync(resolve(__dirname, '../canshift-core/node_modules'))
 
 const FIRMWARE_OWNER = 'CANShift'
 const FIRMWARE_REPO = 'canshift-firmware'
@@ -95,9 +97,7 @@ export default defineConfig(({ command }) => ({
       '@stores': resolve(__dirname, 'src/stores'),
       '@services': resolve(__dirname, 'src/transport'),
       '@hooks': resolve(__dirname, 'src/hooks'),
-      ...(command === 'serve' && existsSync(CORE_SRC_INDEX)
-        ? { '@canshift/core': CORE_SRC_INDEX }
-        : {}),
+      ...(command === 'serve' && CORE_SIBLING_READY ? { '@canshift/core': CORE_SRC_INDEX } : {}),
     },
   },
   build: {

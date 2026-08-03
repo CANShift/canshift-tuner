@@ -22,10 +22,9 @@
       "@components/*": ["src/components/*"],
       "@stores/*": ["src/stores/*"],
       "@services/*": ["src/transport/*"],
-      "@hooks/*": ["src/hooks/*"],
-      "@canshift/core": ["../canshift-core/src/index.ts"]
+      "@hooks/*": ["src/hooks/*"]
     }
   },
-  "include": ["src/**/*", "../canshift-core/src/**/*"],
-  "exclude": ["node_modules", "dist", "../canshift-core/dist", "../canshift-core/src/__tests__/**"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
