@@ -11,7 +11,6 @@ interface ScreenSettingsState extends StoredScreenSettings {
 
 const DEFAULTS: StoredScreenSettings = {
   brightness: 80,
-  sleep: 0,
   rotation: 0,
 }
 

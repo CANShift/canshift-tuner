@@ -33,7 +33,6 @@ interface ScreenSettingsPanelProps {
 
 const ScreenSettingsPanel = ({ scale }: ScreenSettingsPanelProps) => {
   const brightness = useScreenSettingsStore((s) => s.brightness)
-  const sleep = useScreenSettingsStore((s) => s.sleep)
   const rotation = useScreenSettingsStore((s) => s.rotation)
   const updateScreenSettings = useScreenSettingsStore((s) => s.update)
   const { connected, simulationMode, isDayMode, setIsDayMode } = useDeviceState()
@@ -51,7 +50,6 @@ const ScreenSettingsPanel = ({ scale }: ScreenSettingsPanelProps) => {
     if (simulationMode || !connected) return
     const result = await usbService.pushScreenSettings({
       brightness,
-      sleep,
       rotation: nextRotation,
     })
     if (result.success) {
