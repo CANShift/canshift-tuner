@@ -37,13 +37,3 @@ export const captureFlowEvent = (name: string, props: Record<string, unknown> = 
 }
 
 export const isPostHogReady = (): boolean => initialized
-
-export const captureFeedback = (props: {
-  message: string
-  email?: string
-  route: string
-  tunerVersion: string
-}): void => {
-  if (!initialized) return
-  posthog.capture('feedback_submitted', props)
-}
