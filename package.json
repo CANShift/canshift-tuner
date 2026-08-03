@@ -65,7 +65,7 @@
     "vite": "^7.3.2",
     "vitest": "^4.1.5",
     "husky": "^9.1.7",
-    "lint-staged": "^15.5.2"
+    "lint-staged": "^17.2.0"
   },
   "lint-staged": {
     "*.{ts,tsx,css,json,md,yml,yaml,html}": "prettier --write --ignore-unknown",
