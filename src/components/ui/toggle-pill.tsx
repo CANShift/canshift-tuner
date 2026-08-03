@@ -22,7 +22,7 @@ const accentPillStyle = (active: boolean, accentColor: string): CSSProperties =>
 
 const basePillClasses = (active: boolean): string =>
   cn(
-    'cursor-pointer border px-3 py-[3px] text-[11px] font-semibold uppercase tracking-[0.04em] transition-colors',
+    'cursor-pointer border px-3 py-[3px] text-[11px] font-semibold uppercase tracking-[0.04em] transition-colors active:brightness-95',
     active
       ? 'border-brand-accent bg-brand-accent/15 text-brand-accent'
       : 'border-border bg-transparent text-text-dim hover:border-brand-accent'
