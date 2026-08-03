@@ -8,14 +8,14 @@ export interface CanFrame {
 }
 
 export interface CanFrameStats {
-  id: number
-  firstSeenMs: number
-  lastSeenMs: number
-  count: number
-  rateHz: number
-  lastDlc: number
-  lastPayload: readonly number[]
-  byteValueCounts: ReadonlyArray<ReadonlyMap<number, number>>
+  readonly id: number
+  readonly firstSeenMs: number
+  readonly lastSeenMs: number
+  readonly count: number
+  readonly rateHz: number
+  readonly lastDlc: number
+  readonly lastPayload: readonly number[]
+  readonly byteValueCounts: ReadonlyArray<ReadonlyMap<number, number>>
 }
 
 export interface LearnWindow {
