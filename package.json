@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "CANShift Tuner \u2014 Betaflight-style web configurator. Talks to the firmware via WebSerial over the CH340 UART; hosted on Vercel.",
+  "description": "CANShift Tuner — Betaflight-style web configurator. Talks to the firmware via WebSerial over the CH340 UART; hosted on Vercel.",
   "scripts": {
     "predev": "npm run tokens:gen",
     "dev": "vite",
@@ -32,6 +32,7 @@
     "@radix-ui/react-select": "^2.3.0",
     "@radix-ui/react-switch": "^1.2.6",
     "@sentry/react": "^10.69.0",
+    "@vercel/analytics": "^2.0.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "esptool-js": "^0.6.0",
@@ -55,6 +56,8 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.2.0",
     "postcss": "^8.5.25",
     "prettier": "^3.8.4",
     "tailwindcss": "^3.4.19",
@@ -63,9 +66,7 @@
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.61.0",
     "vite": "^7.3.2",
-    "vitest": "^4.1.5",
-    "husky": "^9.1.7",
-    "lint-staged": "^17.2.0"
+    "vitest": "^4.1.5"
   },
   "lint-staged": {
     "*.{ts,tsx,css,json,md,yml,yaml,html}": "prettier --write --ignore-unknown",
