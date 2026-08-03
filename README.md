@@ -32,10 +32,7 @@ the upload / serial port.
 ## Dev
 
 ```bash
-# canshift-core must be built first — the tuner resolves its dist/
-cd ../canshift-core && npm install && npm run build && cd ../canshift-tuner
-
-npm install
+npm install    # @canshift/core comes from npm
 npm run dev          # vite — http://localhost:5173 (simulation mode without a device)
 npm run typecheck
 npm run test         # vitest
