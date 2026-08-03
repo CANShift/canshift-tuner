@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import type { CSSProperties } from 'react'
 import type { SignalDef } from '@canshift/core'
 import { useCanScanner } from '../hooks/useCanScanner'
@@ -11,8 +11,6 @@ import { useSignalStore } from '../stores/signal.store'
 import { useLogStore } from '../stores/log.store'
 import { parseHexFrameId } from '../utils/frame-id'
 
-const NOW_TICK_MS = 250
-
 const CanBusRoute = () => {
   const connected = useDeviceStore((s) => s.connected)
   const simulationMode = useDeviceStore((s) => s.simulationMode)
@@ -21,16 +19,6 @@ const CanBusRoute = () => {
   const log = useLogStore((s) => s.push)
   const scanner = useCanScanner()
   const [sortKey, setSortKey] = useState<SortKey>('id')
-  const [nowMs, setNowMs] = useState(() => performance.now())
-
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      setNowMs(performance.now())
-    }, NOW_TICK_MS)
-    return () => {
-      window.clearInterval(id)
-    }
-  }, [])
 
   const learn = scanner.snapshot.learn
 
@@ -91,7 +79,6 @@ const CanBusRoute = () => {
       />
       <CanFrameTable
         frames={sortedFrames}
-        nowMs={nowMs}
         mappedTo={mappedTo}
         learnScores={learn?.scores ?? null}
         onPromote={promote}

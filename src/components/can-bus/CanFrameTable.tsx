@@ -1,25 +1,67 @@
 import type { CSSProperties } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { CanFrameRow } from './CanFrameRow'
+import { CanHistogramRow } from './CanHistogramRow'
 import type { CanFrameStats } from '../../hooks/useCanScanner'
 
 export interface CanFrameTableProps {
   frames: readonly CanFrameStats[]
-  nowMs: number
   mappedTo: ReadonlyMap<number, string>
   learnScores: ReadonlyMap<number, number> | null
   onPromote: (id: number) => void
 }
 
+type VisualRow =
+  { kind: 'main'; frame: CanFrameStats } | { kind: 'histogram'; frame: CanFrameStats }
+
 const COLUMN_WIDTHS = [110, 70, null, 100, 110, 180] as const
 const COLUMN_WIDTHS_LEARN = [110, 70, null, 100, 110, 100, 180] as const
+const ESTIMATED_ROW_HEIGHT = 45
+const OVERSCAN_ROWS = 16
 
-export const CanFrameTable = ({
-  frames,
-  nowMs,
-  mappedTo,
-  learnScores,
-  onPromote,
-}: CanFrameTableProps) => {
+const visualRowKey = (row: VisualRow): string =>
+  `${row.kind === 'main' ? 'm' : 'h'}${String(row.frame.id)}`
+
+export const CanFrameTable = ({ frames, mappedTo, learnScores, onPromote }: CanFrameTableProps) => {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [expandedIds, setExpandedIds] = useState<ReadonlySet<number>>(() => new Set())
+
+  const toggle = useCallback((id: number) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }, [])
+
+  const visualRows = useMemo<VisualRow[]>(() => {
+    const rows: VisualRow[] = []
+    for (const frame of frames) {
+      rows.push({ kind: 'main', frame })
+      if (expandedIds.has(frame.id)) rows.push({ kind: 'histogram', frame })
+    }
+    return rows
+  }, [frames, expandedIds])
+
+  const virtualizer = useVirtualizer({
+    count: visualRows.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => ESTIMATED_ROW_HEIGHT,
+    overscan: OVERSCAN_ROWS,
+    getItemKey: (index) => visualRowKey(visualRows[index] as VisualRow),
+  })
+
+  const colCount = learnScores !== null ? 7 : 6
+  const columnWidths = learnScores !== null ? COLUMN_WIDTHS_LEARN : COLUMN_WIDTHS
+  const virtualItems = virtualizer.getVirtualItems()
+  const paddingTop = virtualItems.length > 0 ? (virtualItems[0]?.start ?? 0) : 0
+  const paddingBottom =
+    virtualItems.length > 0
+      ? virtualizer.getTotalSize() - (virtualItems[virtualItems.length - 1]?.end ?? 0)
+      : 0
+
   if (frames.length === 0) {
     return (
       <div style={emptyStyle}>
@@ -29,10 +71,10 @@ export const CanFrameTable = ({
   }
 
   return (
-    <div style={wrapperStyle}>
+    <div ref={scrollRef} style={wrapperStyle}>
       <table style={tableStyle}>
         <colgroup>
-          {(learnScores !== null ? COLUMN_WIDTHS_LEARN : COLUMN_WIDTHS).map((width, i) => (
+          {columnWidths.map((width, i) => (
             <col key={i} style={width === null ? undefined : { width }} />
           ))}
         </colgroup>
@@ -48,16 +90,43 @@ export const CanFrameTable = ({
           </tr>
         </thead>
         <tbody>
-          {frames.map((f) => (
-            <CanFrameRow
-              key={f.id}
-              frame={f}
-              nowMs={nowMs}
-              mappedName={mappedTo.get(f.id) ?? null}
-              learnScore={learnScores === null ? null : (learnScores.get(f.id) ?? 0)}
-              onPromote={onPromote}
-            />
-          ))}
+          {paddingTop > 0 && (
+            <tr aria-hidden style={{ height: paddingTop }}>
+              <td colSpan={colCount} style={spacerCellStyle} />
+            </tr>
+          )}
+          {virtualItems.map((item) => {
+            const row = visualRows[item.index] as VisualRow
+            if (row.kind === 'histogram') {
+              return (
+                <CanHistogramRow
+                  key={item.key}
+                  ref={virtualizer.measureElement}
+                  dataIndex={item.index}
+                  frame={row.frame}
+                  colSpan={colCount}
+                />
+              )
+            }
+            return (
+              <CanFrameRow
+                key={item.key}
+                ref={virtualizer.measureElement}
+                dataIndex={item.index}
+                frame={row.frame}
+                mappedName={mappedTo.get(row.frame.id) ?? null}
+                learnScore={learnScores === null ? null : (learnScores.get(row.frame.id) ?? 0)}
+                expanded={expandedIds.has(row.frame.id)}
+                onToggle={toggle}
+                onPromote={onPromote}
+              />
+            )
+          })}
+          {paddingBottom > 0 && (
+            <tr aria-hidden style={{ height: paddingBottom }}>
+              <td colSpan={colCount} style={spacerCellStyle} />
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
@@ -93,6 +162,11 @@ const thStyle: CSSProperties = {
 const thFirstStyle: CSSProperties = {
   ...thStyle,
   paddingLeft: 20,
+}
+
+const spacerCellStyle: CSSProperties = {
+  padding: 0,
+  border: 0,
 }
 
 const emptyStyle: CSSProperties = {

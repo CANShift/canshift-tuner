@@ -1,76 +1,83 @@
 import type { CSSProperties } from 'react'
-import { useState } from 'react'
-import { CanByteHistogram } from './CanByteHistogram'
+import { forwardRef, memo, useEffect, useState } from 'react'
 import type { CanFrameStats } from '../../hooks/useCanScanner'
 import { MONO_FONT } from '../../lib/typography'
 
 export interface CanFrameRowProps {
   frame: CanFrameStats
-  nowMs: number
   mappedName: string | null
   learnScore: number | null
+  expanded: boolean
+  dataIndex: number
+  onToggle: (id: number) => void
   onPromote: (id: number) => void
 }
 
 const STALE_AFTER_MS = 2_000
 
-export const CanFrameRow = ({
-  frame,
-  nowMs,
-  mappedName,
-  learnScore,
-  onPromote,
-}: CanFrameRowProps) => {
-  const [expanded, setExpanded] = useState(false)
-  const idHex = formatCanId(frame.id)
-  const stale = nowMs - frame.lastSeenMs > STALE_AFTER_MS
+const isStale = (lastSeenMs: number): boolean => performance.now() - lastSeenMs > STALE_AFTER_MS
 
-  return (
-    <>
-      <tr style={rowStyle(stale)}>
-        <td style={idCellStyle}>
-          <button
-            type="button"
-            onClick={() => {
-              setExpanded((v) => !v)
-            }}
-            style={expandButtonStyle}
-            aria-label={expanded ? 'Collapse byte histogram' : 'Expand byte histogram'}
-          >
-            <span style={{ display: 'inline-block', width: 10 }}>{expanded ? '▾' : '▸'}</span>
-            {idHex}
-          </button>
-        </td>
-        <td style={dlcCellStyle}>{String(frame.lastDlc)}</td>
-        <td style={dataCellStyle}>{formatPayload(frame.lastPayload, frame.lastDlc)}</td>
-        <td style={dimCellStyle}>{String(frame.rateHz)} Hz</td>
-        <td style={dimCellStyle}>{formatCount(frame.count)}</td>
-        {learnScore !== null && <td style={dimCellStyle}>{formatCount(learnScore)}</td>}
-        <td style={mappedCellStyle}>
-          {mappedName ?? (
+export const CanFrameRow = memo(
+  forwardRef<HTMLTableRowElement, CanFrameRowProps>(
+    ({ frame, mappedName, learnScore, expanded, dataIndex, onToggle, onPromote }, ref) => {
+      const [stale, setStale] = useState(() => isStale(frame.lastSeenMs))
+      const idHex = formatCanId(frame.id)
+
+      useEffect(() => {
+        const remaining = STALE_AFTER_MS - (performance.now() - frame.lastSeenMs)
+        if (remaining <= 0) {
+          setStale(true)
+          return
+        }
+        setStale(false)
+        const timer = window.setTimeout(() => {
+          setStale(true)
+        }, remaining)
+        return () => {
+          window.clearTimeout(timer)
+        }
+      }, [frame.lastSeenMs])
+
+      return (
+        <tr ref={ref} data-index={dataIndex} style={rowStyle(stale)}>
+          <td style={idCellStyle}>
             <button
               type="button"
-              className="editor-ghost-accent"
               onClick={() => {
-                onPromote(frame.id)
+                onToggle(frame.id)
               }}
-              style={promoteButtonStyle}
+              style={expandButtonStyle}
+              aria-label={expanded ? 'Collapse byte histogram' : 'Expand byte histogram'}
             >
-              PROMOTE
+              <span style={{ display: 'inline-block', width: 10 }}>{expanded ? '▾' : '▸'}</span>
+              {idHex}
             </button>
-          )}
-        </td>
-      </tr>
-      {expanded && (
-        <tr>
-          <td colSpan={learnScore !== null ? 7 : 6} style={expandedCellStyle}>
-            <CanByteHistogram frame={frame} />
+          </td>
+          <td style={dlcCellStyle}>{String(frame.lastDlc)}</td>
+          <td style={dataCellStyle}>{formatPayload(frame.lastPayload, frame.lastDlc)}</td>
+          <td style={dimCellStyle}>{String(frame.rateHz)} Hz</td>
+          <td style={dimCellStyle}>{formatCount(frame.count)}</td>
+          {learnScore !== null && <td style={dimCellStyle}>{formatCount(learnScore)}</td>}
+          <td style={mappedCellStyle}>
+            {mappedName ?? (
+              <button
+                type="button"
+                className="editor-ghost-accent"
+                onClick={() => {
+                  onPromote(frame.id)
+                }}
+                style={promoteButtonStyle}
+              >
+                PROMOTE
+              </button>
+            )}
           </td>
         </tr>
-      )}
-    </>
+      )
+    }
   )
-}
+)
+CanFrameRow.displayName = 'CanFrameRow'
 
 const formatCanId = (id: number): string => {
   const extended = id > 0x7ff
@@ -157,9 +164,4 @@ const expandButtonStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   gap: 6,
-}
-
-const expandedCellStyle: CSSProperties = {
-  padding: '0 0 0 20px',
-  borderBottom: '1px solid hsl(var(--brand-neutral-300))',
 }
