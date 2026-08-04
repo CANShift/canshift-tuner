@@ -121,6 +121,10 @@ describe('project store', () => {
     const json = useProjectStore.getState().exportProject(originalId)
     expect(json).not.toBeNull()
 
+    const envelope = JSON.parse(json ?? '{}') as { format: string; formatVersion: number }
+    expect(envelope.format).toBe('canshift')
+    expect(envelope.formatVersion).toBeGreaterThanOrEqual(1)
+
     const result = useProjectStore.getState().importProject(json ?? '')
     expect(result.ok).toBe(true)
     if (!result.ok) return
@@ -135,23 +139,40 @@ describe('project store', () => {
     expect(imported?.signals).toEqual(original?.signals)
   })
 
-  it('rejects malformed or non-project files on import', () => {
+  it('reports a distinct readable error for each kind of bad import', () => {
     bootstrapProjects()
-    expect(useProjectStore.getState().importProject('not json').ok).toBe(false)
-    expect(useProjectStore.getState().importProject('{"foo":1}').ok).toBe(false)
+    const activeId = useProjectStore.getState().activeProjectId ?? ''
+    const envelope = useProjectStore.getState().exportProject(activeId) ?? ''
+    const bumped = JSON.parse(envelope) as { formatVersion: number }
+    bumped.formatVersion = 999
+
+    const invalidJson = useProjectStore.getState().importProject('not json')
+    const notCanshift = useProjectStore.getState().importProject('{"foo":1}')
+    const tooNew = useProjectStore.getState().importProject(JSON.stringify(bumped))
+
+    expect(invalidJson.ok).toBe(false)
+    expect(notCanshift.ok).toBe(false)
+    expect(tooNew.ok).toBe(false)
+    if (invalidJson.ok || notCanshift.ok || tooNew.ok) return
+
+    expect(notCanshift.error).toContain('.canshift file')
+    expect(notCanshift.error).not.toBe(invalidJson.error)
+    expect(tooNew.error).toContain('Update CANShift')
     expect(useProjectStore.getState().projects).toHaveLength(1)
   })
 
-  it('export flushes pending editor edits before serializing', () => {
+  it('export flushes pending editor edits into the envelope before serializing', () => {
     bootstrapProjects()
     const id = useProjectStore.getState().activeProjectId ?? ''
     useDashboardStore.getState().updatePage(DEFAULT_SIM_CONFIG.defaultPageId, { visible: false })
 
     const json = useProjectStore.getState().exportProject(id)
     const parsed = JSON.parse(json ?? '{}') as {
-      dashboard: { pages: { id: string; visible: boolean }[] }
+      project: { dashboard: { pages: { id: string; visible: boolean }[] } }
     }
-    const page = parsed.dashboard.pages.find((p) => p.id === DEFAULT_SIM_CONFIG.defaultPageId)
+    const page = parsed.project.dashboard.pages.find(
+      (p) => p.id === DEFAULT_SIM_CONFIG.defaultPageId
+    )
     expect(page?.visible).toBe(false)
   })
 })

@@ -1,5 +1,6 @@
-export const PROJECT_FILE_EXTENSION = 'canshift'
-export const PROJECT_FILE_ACCEPT = '.canshift,application/json'
+import { CANSHIFT_FILE_EXTENSION, CANSHIFT_FILE_MIME } from '@canshift/core'
+
+export const PROJECT_FILE_ACCEPT = `${CANSHIFT_FILE_EXTENSION},${CANSHIFT_FILE_MIME}`
 
 const sanitizeFileName = (name: string): string =>
   name
@@ -9,10 +10,10 @@ const sanitizeFileName = (name: string): string =>
     .toLowerCase() || 'project'
 
 export const projectFileName = (name: string): string =>
-  `${sanitizeFileName(name)}.${PROJECT_FILE_EXTENSION}`
+  `${sanitizeFileName(name)}${CANSHIFT_FILE_EXTENSION}`
 
 export const downloadProjectFile = (name: string, json: string): void => {
-  const blob = new Blob([json], { type: 'application/json' })
+  const blob = new Blob([json], { type: CANSHIFT_FILE_MIME })
   const url = URL.createObjectURL(blob)
   const anchor = document.createElement('a')
   anchor.href = url
