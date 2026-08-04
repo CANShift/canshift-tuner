@@ -30,6 +30,7 @@ const CanBusRoute = lazy(() => import('./routes/CanBusRoute'))
 const CliRoute = lazy(() => import('./routes/CliRoute'))
 const EcuRoute = lazy(() => import('./routes/EcuRoute'))
 const FirmwareRoute = lazy(() => import('./routes/FirmwareRoute'))
+const BoardConfigRoute = lazy(() => import('./routes/BoardConfigRoute'))
 const LiveDataRoute = lazy(() => import('./routes/LiveDataRoute'))
 const LogsRoute = lazy(() => import('./routes/LogsRoute'))
 const Obd2Route = lazy(() => import('./routes/Obd2Route'))
@@ -66,11 +67,19 @@ const ROUTE_ELEMENTS: Record<RoutePath, ReactNode> = {
   '/live': <LiveDataRoute />,
   '/logs': <LogsRoute />,
   '/cli': <CliRoute />,
+  '/board': <BoardConfigRoute />,
   '/firmware': <FirmwareRoute />,
   '/about': <AboutRoute />,
 }
 
-const DISCONNECTED_ALLOWED_PATHS = new Set(['/', '/firmware', '/about', '/logs', '/themes'])
+const DISCONNECTED_ALLOWED_PATHS = new Set([
+  '/',
+  '/board',
+  '/firmware',
+  '/about',
+  '/logs',
+  '/themes',
+])
 
 const DisconnectedGuard = ({ children }: { children: ReactNode }) => {
   const status = useConnectionStore((s) => s.status)
