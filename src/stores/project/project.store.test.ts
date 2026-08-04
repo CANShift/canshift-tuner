@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
+import { ECU_PROFILES } from '@canshift/core'
 import { DEFAULT_SIM_CONFIG } from '../../config/default-sim-config'
+import { buildNewProjectDashboard } from '../../lib/new-project'
 import { useDashboardStore } from '../dashboard.store'
 import { useSignalStore } from '../signal.store'
 import { bootstrapProjects, useProjectStore } from './project.store'
@@ -112,6 +114,34 @@ describe('project store', () => {
     const copy = readProject(copyId ?? '')
     expect(copy?.name).toBe(`${originalName} copy`)
     expect(copy?.dashboard.defaultPageId).toBe(DEFAULT_SIM_CONFIG.defaultPageId)
+  })
+
+  it('createProject applies a provided ECU profile to the new project without touching the outgoing one', () => {
+    bootstrapProjects()
+    const firstId = useProjectStore.getState().activeProjectId ?? ''
+    const firstSignalCount = useSignalStore.getState().signals.length
+
+    const maxx = ECU_PROFILES.find((p) => p.id === 'maxxecu-street')
+    expect(maxx).toBeDefined()
+    if (!maxx) return
+
+    const dashboard = buildNewProjectDashboard({
+      name: 'Track car',
+      targetProfile: 'crowpanel-28',
+      pageSetId: 'blank',
+    })
+    const newId = useProjectStore.getState().createProject('Track car', dashboard, {
+      key: 'builtin:maxxecu-street',
+      signals: maxx.signals,
+    })
+
+    const created = readProject(newId)
+    expect(created?.name).toBe('Track car')
+    expect(created?.ecuProfileKey).toBe('builtin:maxxecu-street')
+    expect(created?.signals).toHaveLength(maxx.signals.length)
+    expect(created?.dashboard.pages).toHaveLength(1)
+
+    expect(readProject(firstId)?.signals).toHaveLength(firstSignalCount)
   })
 
   it('exports and re-imports a project as a new copy without data loss', () => {
