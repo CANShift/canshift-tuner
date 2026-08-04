@@ -50,6 +50,18 @@ describe('board-config store', () => {
     expect(readSelectedBoard()).toEqual({ source: 'catalog', boardId: first.boardId })
   })
 
+  it('rejects selecting an unknown catalog id without touching state or storage', () => {
+    useBoardConfigStore.getState().selectCatalog('not_a_real_board')
+    expect(useBoardConfigStore.getState().selected).toBeNull()
+    expect(readSelectedBoard()).toBeNull()
+  })
+
+  it('rejects selecting an unknown custom id without touching state or storage', () => {
+    useBoardConfigStore.getState().selectCustom('board_missing')
+    expect(useBoardConfigStore.getState().selected).toBeNull()
+    expect(readSelectedBoard()).toBeNull()
+  })
+
   it('saves a valid custom board, persists it, and selects it', () => {
     const result = useBoardConfigStore.getState().saveCustom('Custom One', validDraft())
     expect(result.ok).toBe(true)
