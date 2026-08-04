@@ -18,7 +18,9 @@ export const downloadProjectFile = (name: string, json: string): void => {
   anchor.href = url
   anchor.download = projectFileName(name)
   anchor.click()
-  URL.revokeObjectURL(url)
+  setTimeout(() => {
+    URL.revokeObjectURL(url)
+  }, 10_000)
 }
 
 export const readProjectFileText = (file: File): Promise<string> => file.text()

@@ -83,7 +83,13 @@ export const ProjectSwitcher = () => {
     const file = event.target.files?.[0]
     event.target.value = ''
     if (!file) return
-    const raw = await readProjectFileText(file)
+    let raw: string
+    try {
+      raw = await readProjectFileText(file)
+    } catch {
+      log('error', 'Could not read the selected file.')
+      return
+    }
     const result = importProject(raw)
     if (result.ok) log('success', `Imported “${result.name}”.`)
     else log('error', result.error)
