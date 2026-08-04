@@ -8,6 +8,7 @@ export const CMD_CALIBRATE_TOUCH = 0x08
 export const CMD_SET_DAY_NIGHT = 0x09
 export const CMD_GET_INPUT_BINDINGS = 0x0b
 export const CMD_PUT_INPUT_BINDINGS = 0x0c
+export const CMD_SET_BOARD_PROFILE = 0x0d
 export const CMD_QUERY_VERSION = 0x10
 export const CMD_PING = 0x11
 export const CMD_CAN_SCAN_START = 0x20
@@ -57,6 +58,11 @@ export const KNOWN_OPCODES: readonly KnownOpcode[] = [
     id: CMD_PUT_INPUT_BINDINGS,
     name: 'CMD_PUT_INPUT_BINDINGS',
     description: 'Write input bindings',
+  },
+  {
+    id: CMD_SET_BOARD_PROFILE,
+    name: 'CMD_SET_BOARD_PROFILE',
+    description: 'Persist board profile to NVS (reboots)',
   },
   {
     id: CMD_QUERY_VERSION,

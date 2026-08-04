@@ -1,4 +1,4 @@
-import type { DashboardConfig, ScreenSettings } from '@canshift/core'
+import type { BoardProfileBlob, DashboardConfig, ScreenSettings } from '@canshift/core'
 import { validateDashboard } from '@canshift/core'
 
 import {
@@ -9,11 +9,16 @@ import {
   CMD_QUERY_VERSION,
   CMD_REBOOT,
   CMD_SCREEN_SETTINGS,
+  CMD_SET_BOARD_PROFILE,
   CMD_SET_DAY_NIGHT,
   CMD_TOGGLE_DAY_NIGHT,
 } from './opcodes'
 import type { FirmwareIdentityResult, PingResult, RawAck, UsbResult } from './types'
 import { toUsbResult } from './types'
+import {
+  interpretBoardProfileAck,
+  type BoardProfileWriteResult,
+} from '../lib/firmware/board-provision'
 import { getSerialClient } from './webserial-client'
 
 const OK: UsbResult = { success: true }
@@ -52,6 +57,15 @@ export const usbService = {
   pushScreenSettings: async (settings: ScreenSettings): Promise<UsbResult> => {
     const result = await getSerialClient().send(CMD_SCREEN_SETTINGS, { ...settings })
     return toUsbResult(result)
+  },
+
+  setBoardProfile: async (blob: BoardProfileBlob): Promise<BoardProfileWriteResult> => {
+    const result = await getSerialClient().send(
+      CMD_SET_BOARD_PROFILE,
+      { payload: blob },
+      { scaleWithPayload: true, timeoutMs: 5_000 }
+    )
+    return interpretBoardProfileAck(result)
   },
 
   ping: async (timeoutMs = 1_500): Promise<PingResult> => {

@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { BuildChooser } from '../components/firmware/BuildChooser'
 import { BoardSelector } from '../components/firmware/BoardSelector'
+import { BoardProfileProvision } from '../components/firmware/BoardProfileProvision'
 import { FirmwareSidePanel } from '../components/firmware/FirmwareSidePanel'
 import { FlashActions } from '../components/firmware/FlashActions'
 import { KeyFigures } from '../components/firmware/KeyFigures'
@@ -112,6 +113,7 @@ const FirmwareRoute = () => {
             mergedAsset={mergedAsset}
             {...(expectedChip !== undefined ? { expectedChip } : {})}
           />
+          <BoardProfileProvision />
         </div>
         <FirmwareSidePanel
           release={
