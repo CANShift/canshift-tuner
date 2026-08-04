@@ -11,6 +11,7 @@ export type SidebarRoute =
   | '/live'
   | '/logs'
   | '/cli'
+  | '/board'
   | '/firmware'
   | '/about'
 
@@ -53,6 +54,7 @@ export const SIDEBAR_GROUPS: readonly NavGroup[] = [
   {
     label: 'DEVICE',
     items: [
+      { to: '/board', label: 'Board config' },
       { to: '/firmware', label: 'Firmware' },
       { to: '/about', label: 'About' },
     ],

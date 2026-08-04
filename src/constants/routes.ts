@@ -8,6 +8,7 @@ export const ROUTE_PATHS = [
   '/live',
   '/logs',
   '/cli',
+  '/board',
   '/firmware',
   '/about',
 ] as const
