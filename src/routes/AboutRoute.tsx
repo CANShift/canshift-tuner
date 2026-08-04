@@ -8,7 +8,7 @@ import { HeapStatsPanel } from '../components/about/HeapStatsPanel'
 import { MONO_FONT } from '../lib/typography'
 
 const REPO_URL = 'https://github.com/CANShift/canshift-tuner'
-const DOCS_URL = 'https://docs.canshift.tmbk.ch'
+const DOCS_URL = 'https://canshift.app'
 const ISSUES_URL = 'https://github.com/CANShift/canshift-tuner/issues'
 
 const DiagnosticsToggle = () => {
