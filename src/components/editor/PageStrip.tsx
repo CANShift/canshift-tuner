@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import type { PageConfig, TopBarConfig } from '@canshift/core'
 import { FIRMWARE_CAPS } from '@canshift/core'
-import type { CSSProperties } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { PageThumbnail } from '../../routes/PageThumbnail'
 import { MONO_FONT } from '../../lib/typography'
 
@@ -13,6 +13,7 @@ export interface PageStripProps {
   selectedPageId: string | null
   defaultPageId: string | undefined
   atCap: boolean
+  newPageControl?: ReactNode
   onSelect: (pageId: string) => void
   onAdd: () => void
   onDragStart: (index: number) => void
@@ -28,6 +29,7 @@ const PageStripImpl = ({
   selectedPageId,
   defaultPageId,
   atCap,
+  newPageControl,
   onSelect,
   onAdd,
   onDragStart,
@@ -70,20 +72,22 @@ const PageStripImpl = ({
             onContextMenu={onContextMenu}
           />
         ))}
-        <button
-          type="button"
-          className="shell-nav-item"
-          disabled={atCap}
-          onClick={onAdd}
-          title={
-            atCap
-              ? `Firmware accepts at most ${String(FIRMWARE_CAPS.MAX_PAGES)} pages — remove one to add another`
-              : 'Add a new page'
-          }
-          style={addButtonStyle(atCap)}
-        >
-          + PAGE
-        </button>
+        {newPageControl ?? (
+          <button
+            type="button"
+            className="shell-nav-item"
+            disabled={atCap}
+            onClick={onAdd}
+            title={
+              atCap
+                ? `Firmware accepts at most ${String(FIRMWARE_CAPS.MAX_PAGES)} pages — remove one to add another`
+                : 'Add a new page'
+            }
+            style={addButtonStyle(atCap)}
+          >
+            + PAGE
+          </button>
+        )}
       </div>
     </div>
   )

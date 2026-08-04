@@ -1,20 +1,36 @@
 import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react'
 import { useShallow } from 'zustand/react/shallow'
+import type { PageConfig } from '@canshift/core'
 import { DEFAULT_PAGE_PALETTE, FIRMWARE_CAPS, HexColorSchema } from '@canshift/core'
 import { useDashboardStore } from '../stores/dashboard.store'
 import { PageStrip } from '../components/editor/PageStrip'
+import { NewPageMenu } from '../components/editor/NewPageMenu'
+import { SaveTemplateDialog } from '../components/editor/SaveTemplateDialog'
+import { ManageTemplatesDialog } from '../components/editor/ManageTemplatesDialog'
 import { PageContextMenu } from './PageContextMenu'
 import { RightSidebar } from './RightSidebar'
 import { ErrorBoundary } from '../components/ErrorBoundary'
 import { createId } from '../utils/id'
+import { instantiateTemplate } from '../lib/page-template'
+import { useTemplateStore } from '../stores/template/template.store'
+import type { PageTemplateEntry } from '../stores/template/storage'
 import { isEditableTarget } from '../utils/is-editable-target'
 import { useUndoToastStore } from '../stores/undo-toast.store'
 import { UndoToast } from '../components/editor/UndoToast'
-import {} from '@/components/ui/alert-dialog'
 
 const Canvas = lazy(() => import('../components/editor/Canvas'))
 
 const NEW_PAGE_BG = HexColorSchema.parse('#000000')
+
+const buildBlankPage = (): PageConfig => ({
+  id: createId('page'),
+  backgroundImage: null,
+  backgroundColor: NEW_PAGE_BG,
+  palette: { ...DEFAULT_PAGE_PALETTE },
+  showTopBar: true,
+  visible: true,
+  widgets: [],
+})
 
 const CanvasFallback = () => {
   return (
@@ -58,6 +74,10 @@ const EditorRoute = () => {
     x: number
     y: number
   } | null>(null)
+
+  const saveTemplate = useTemplateStore((s) => s.saveTemplate)
+  const [saveTemplatePageId, setSaveTemplatePageId] = useState<string | null>(null)
+  const [manageOpen, setManageOpen] = useState(false)
 
   const dragFromIndex = useRef<number | null>(null)
 
@@ -146,18 +166,23 @@ const EditorRoute = () => {
       selectedPageId={selectedPageId}
       defaultPageId={defaultPageId}
       atCap={atCap}
+      newPageControl={
+        <NewPageMenu
+          atCap={atCap}
+          onAddBlank={() => {
+            if (!atCap) addPage(buildBlankPage())
+          }}
+          onInsertTemplate={(entry: PageTemplateEntry) => {
+            if (!atCap) addPage(instantiateTemplate(entry))
+          }}
+          onManage={() => {
+            setManageOpen(true)
+          }}
+        />
+      }
       onSelect={selectPage}
       onAdd={() => {
-        if (atCap) return
-        addPage({
-          id: createId('page'),
-          backgroundImage: null,
-          backgroundColor: NEW_PAGE_BG,
-          palette: { ...DEFAULT_PAGE_PALETTE },
-          showTopBar: true,
-          visible: true,
-          widgets: [],
-        })
+        if (!atCap) addPage(buildBlankPage())
       }}
       onDragStart={handlePageDragStart}
       onDrop={handlePageDrop}
@@ -209,6 +234,9 @@ const EditorRoute = () => {
           onDuplicate={() => {
             duplicatePage(contextMenu.pageId)
           }}
+          onSaveAsTemplate={() => {
+            setSaveTemplatePageId(contextMenu.pageId)
+          }}
           onSetDefault={() => {
             setDefaultPage(contextMenu.pageId)
           }}
@@ -221,6 +249,23 @@ const EditorRoute = () => {
           }}
         />
       )}
+
+      <SaveTemplateDialog
+        open={saveTemplatePageId !== null}
+        defaultName={
+          saveTemplatePageId
+            ? `Page ${String(pages.findIndex((p) => p.id === saveTemplatePageId) + 1)}`
+            : ''
+        }
+        onOpenChange={(open) => {
+          if (!open) setSaveTemplatePageId(null)
+        }}
+        onSave={(name) => {
+          const page = pages.find((p) => p.id === saveTemplatePageId)
+          if (page) saveTemplate(name, page)
+        }}
+      />
+      <ManageTemplatesDialog open={manageOpen} onOpenChange={setManageOpen} />
 
       <UndoToast />
     </div>

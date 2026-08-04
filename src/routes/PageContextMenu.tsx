@@ -9,6 +9,7 @@ export interface PageContextMenuProps {
   canDelete: boolean
   onClose: () => void
   onDuplicate: () => void
+  onSaveAsTemplate: () => void
   onSetDefault: () => void
   onToggleVisible: () => void
   onDelete: () => void
@@ -22,6 +23,7 @@ export const PageContextMenu = ({
   canDelete,
   onClose,
   onDuplicate,
+  onSaveAsTemplate,
   onSetDefault,
   onToggleVisible,
   onDelete,
@@ -68,6 +70,7 @@ export const PageContextMenu = ({
     disabled?: boolean
   }[] = [
     { label: 'Duplicate', action: onDuplicate },
+    { label: 'Save as template', action: onSaveAsTemplate },
     {
       label: isDefault ? 'Default ★' : 'Set as default',
       action: onSetDefault,
