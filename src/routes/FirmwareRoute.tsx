@@ -1,13 +1,18 @@
 import type { CSSProperties } from 'react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { BuildChooser } from '../components/firmware/BuildChooser'
+import { BoardSelector } from '../components/firmware/BoardSelector'
 import { FirmwareSidePanel } from '../components/firmware/FirmwareSidePanel'
 import { FlashActions } from '../components/firmware/FlashActions'
 import { KeyFigures } from '../components/firmware/KeyFigures'
 import { WriteAndPreflight } from '../components/firmware/WriteAndPreflight'
 import { useFirmwareReleases } from '../hooks/useFirmwareReleases'
+import { useFirmwareManifest } from '../hooks/useFirmwareManifest'
 import { useDeviceStore } from '../stores/device.store'
 import { useFirmwareSelectionStore } from '../stores/firmware-selection.store'
+import { resolveBoardSelection } from '../lib/firmware/board-resolution'
+import { findBoard } from '../lib/firmware/manifest'
+import { findAssetByName, findMergedAsset } from '../lib/firmware/releases'
 import { MONO_FONT } from '../lib/typography'
 
 const FirmwareRoute = () => {
@@ -17,7 +22,9 @@ const FirmwareRoute = () => {
   const connected = useDeviceStore((s) => s.connected)
   const simulationMode = useDeviceStore((s) => s.simulationMode)
   const installedVersion = useDeviceStore((s) => s.firmwareVersion)
+  const rawBoardId = useDeviceStore((s) => s.boardId)
   const [pickedTag, setPickedTag] = useState<string | null>(null)
+  const [boardOverride, setBoardOverride] = useState<string | null>(null)
 
   const releases = useMemo(
     () => (releasesState.kind === 'ok' ? releasesState.releases : []),
@@ -34,6 +41,27 @@ const FirmwareRoute = () => {
   )
 
   const linked = connected && !simulationMode
+
+  const manifestState = useFirmwareManifest(pickedRelease)
+  const manifest = manifestState.kind === 'ok' ? manifestState.manifest : null
+  const detectedBoardId = linked ? rawBoardId : null
+  const resolution = resolveBoardSelection(manifest, detectedBoardId)
+
+  useEffect(() => {
+    setBoardOverride(null)
+  }, [effectiveTag])
+
+  const selectedBoardId = boardOverride ?? resolution.selectedId
+  const selectedBoard = manifest && selectedBoardId ? findBoard(manifest, selectedBoardId) : null
+  const boardDetected = resolution.source === 'detected' && boardOverride === null
+  const expectedChip = selectedBoard?.chip
+
+  const mergedAsset =
+    pickedRelease === null
+      ? null
+      : selectedBoard
+        ? findAssetByName(pickedRelease, selectedBoard.artifacts.merged)
+        : findMergedAsset(pickedRelease)
 
   const pickRelease = (tag: string) => {
     if (selection.kind === 'local') clearSelection()
@@ -70,8 +98,20 @@ const FirmwareRoute = () => {
             onLocalPicked={localPicked}
             onRefresh={refresh}
           />
+          <BoardSelector
+            manifestState={manifestState}
+            boards={resolution.boards}
+            selectedId={selectedBoardId}
+            detected={boardDetected}
+            onSelect={setBoardOverride}
+          />
           <WriteAndPreflight selection={selection} />
-          <FlashActions selection={selection} pickedRelease={pickedRelease} />
+          <FlashActions
+            selection={selection}
+            pickedRelease={pickedRelease}
+            mergedAsset={mergedAsset}
+            {...(expectedChip !== undefined ? { expectedChip } : {})}
+          />
         </div>
         <FirmwareSidePanel
           release={

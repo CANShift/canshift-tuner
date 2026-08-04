@@ -1,3 +1,5 @@
+import { chipFamiliesMatch } from './board-resolution'
+
 const FLASH_BAUD = 460_800
 const MERGED_FLASH_OFFSET = 0x0
 
@@ -45,6 +47,7 @@ export type FlashLog = (line: string) => void
 export interface FlashOptions {
   port: SerialPort
   bytes: Uint8Array
+  expectedChip?: string
   onProgress: FlashProgress
   onLog: FlashLog
 }
@@ -82,6 +85,7 @@ const ROM_BOOTLOADER_CONNECT_ATTEMPTS = 15
 export const flashFirmware = async ({
   port,
   bytes,
+  expectedChip,
   onProgress,
   onLog,
 }: FlashOptions): Promise<void> => {
@@ -130,6 +134,11 @@ export const flashFirmware = async ({
 
     const detectedChip = loader.chip.CHIP_NAME
     onLog(`Detected chip: ${detectedChip}`)
+    if (expectedChip !== undefined && !chipFamiliesMatch(expectedChip, detectedChip)) {
+      onLog(
+        `Warning: selected board expects ${expectedChip}, but esptool detected ${detectedChip}. Continuing — double-check you picked the right board.`
+      )
+    }
     if (!SUPPORTED_CHIPS.includes(detectedChip)) {
       throw new UnsupportedChipError(detectedChip)
     }

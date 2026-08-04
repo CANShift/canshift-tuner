@@ -148,3 +148,9 @@ export const findFirmwareAsset = (release: ReleaseInfo): ReleaseAsset | null =>
   release.assets.find(
     (a) => a.name.endsWith(FIRMWARE_ASSET_SUFFIX) && !a.name.endsWith(MERGED_ASSET_SUFFIX)
   ) ?? null
+
+export const findManifestAsset = (release: ReleaseInfo): ReleaseAsset | null =>
+  release.assets.find((a) => a.name === 'manifest.json') ?? null
+
+export const findAssetByName = (release: ReleaseInfo, name: string): ReleaseAsset | null =>
+  release.assets.find((a) => a.name === name) ?? null

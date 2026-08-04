@@ -11,7 +11,7 @@ export type DownloadProgress = (loaded: number, total: number) => void
 
 const PROXY_PATH = '/api/firmware-download'
 
-const buildProxyUrl = (downloadUrl: string): string => {
+export const firmwareAssetProxyUrl = (downloadUrl: string): string => {
   const u = new URL(downloadUrl)
   const parts = u.pathname.split('/').filter(Boolean)
   const tag = parts[4]
@@ -34,7 +34,7 @@ export const downloadFirmwareAsset = async (
     )
   }
 
-  const proxyUrl = buildProxyUrl(asset.downloadUrl)
+  const proxyUrl = firmwareAssetProxyUrl(asset.downloadUrl)
 
   const controller = new AbortController()
   const timer = setTimeout(() => {

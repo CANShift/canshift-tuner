@@ -9,6 +9,7 @@ export interface FirmwareIdentity {
   version: string
   protocol: number
   isDay: boolean
+  boardId?: string
 }
 
 export type FirmwareIdentityResult =

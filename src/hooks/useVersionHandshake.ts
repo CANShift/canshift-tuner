@@ -8,6 +8,7 @@ export const useVersionHandshake = (): void => {
   const transport = useDeviceStore((s) => s.transport)
   const simulationMode = useDeviceStore((s) => s.simulationMode)
   const setFirmwareVersion = useDeviceStore((s) => s.setFirmwareVersion)
+  const setBoardId = useDeviceStore((s) => s.setBoardId)
   const setFirmwareCompat = useDeviceStore((s) => s.setFirmwareCompat)
   const setIsDayMode = useDeviceStore((s) => s.setIsDayMode)
   const log = useLogStore((s) => s.push)
@@ -22,8 +23,9 @@ export const useVersionHandshake = (): void => {
         setFirmwareCompat({ kind: 'unknown' })
         return
       }
-      const { version, protocol, isDay } = result.identity
+      const { version, protocol, isDay, boardId } = result.identity
       setFirmwareVersion(version)
+      setBoardId(boardId ?? null)
       setIsDayMode(isDay)
       const reportedMajor = Number(version.split('.')[0] ?? 0)
       if (reportedMajor !== __EXPECTED_FIRMWARE_MAJOR__) {
@@ -50,6 +52,7 @@ export const useVersionHandshake = (): void => {
     simulationMode,
     transport,
     setFirmwareVersion,
+    setBoardId,
     setFirmwareCompat,
     setIsDayMode,
     log,
