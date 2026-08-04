@@ -13,6 +13,7 @@ export interface HeaderViewProps {
   lastSavedAt?: number | null
   portLabel?: string | null
   activityPulse?: boolean
+  projectSwitcher?: ReactNode
   firmwareSlot?: ReactNode
   themeToggle?: ReactNode
   burnButton?: ReactNode
@@ -49,6 +50,7 @@ export const HeaderView = ({
   lastSavedAt = null,
   portLabel,
   activityPulse = false,
+  projectSwitcher,
   firmwareSlot,
   themeToggle,
   burnButton,
@@ -63,7 +65,8 @@ export const HeaderView = ({
       </div>
 
       <div style={middleZoneStyle}>
-        {projectName !== null && <span style={projectNameStyle}>{projectName}</span>}
+        {projectSwitcher ??
+          (projectName !== null && <span style={projectNameStyle}>{projectName}</span>)}
         <AutosavePill lastSavedAt={lastSavedAt} />
         <span style={statusPillStyle(visual.color)}>
           <span

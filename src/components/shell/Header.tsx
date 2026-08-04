@@ -8,6 +8,7 @@ import { useDeviceStore } from '../../stores/device.store'
 import { useThemeStore } from '../../stores/theme.store'
 import { useUiStore } from '../../stores/ui.store'
 import { ThemeToggleButton } from './ThemeToggleButton'
+import { ProjectSwitcher } from '../project/ProjectSwitcher'
 import { useBurnDashboard } from '../../hooks/useBurnDashboard'
 import { deviceEvents } from '../../transport'
 import {
@@ -119,6 +120,7 @@ const Header = () => {
       lastSavedAt={lastSavedAt}
       portLabel={portLabel}
       activityPulse={pulsing}
+      projectSwitcher={<ProjectSwitcher />}
       firmwareSlot={<UiFirmwareSlot version={firmwareVersion} compat={firmwareCompat} />}
       themeToggle={<ThemeToggle />}
       burnButton={<BurnButton />}
