@@ -1,16 +1,20 @@
 import { create } from 'zustand'
-import { PROJECT_FILE_VERSION, PROJECT_NAME_MAX } from '@canshift/core'
+import {
+  PROJECT_FILE_VERSION,
+  PROJECT_NAME_MAX,
+  describeCanshiftFileError,
+  parseCanshiftFile,
+  serializeCanshiftFile,
+} from '@canshift/core'
 import type { DashboardConfig, Project, ProjectMeta } from '@canshift/core'
 import { createId } from '../../utils/id'
 import { captureFlowEvent } from '../../lib/posthog'
 import { useDashboardStore } from '../dashboard.store'
 import { useSignalStore, DEFAULT_PROFILE_KEY } from '../signal.store'
 import {
-  deserializeProject,
   readProject,
   readProjectIndex,
   removeProject,
-  serializeProject,
   writeProject,
   writeProjectIndex,
 } from './storage'
@@ -177,11 +181,11 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
   },
 
   importProject: (raw) => {
-    const parsed = deserializeProject(raw)
-    if (!parsed) return { ok: false, error: 'That file is not a valid .canshift project.' }
+    const result = parseCanshiftFile(raw)
+    if (result.kind !== 'ok') return { ok: false, error: describeCanshiftFileError(result) }
     get().saveActiveProject()
     const newId = createId('proj')
-    const imported: Project = { ...parsed, id: newId, updatedAt: nowIso() }
+    const imported: Project = { ...result.project, id: newId, updatedAt: nowIso() }
     if (!writeProject(imported)) return { ok: false, error: 'Could not save the imported project.' }
     const nextProjects = upsertMeta(get().projects, {
       id: newId,
@@ -199,7 +203,7 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
   exportProject: (id) => {
     if (id === get().activeProjectId) get().saveActiveProject()
     const project = readProject(id)
-    return project ? serializeProject(project) : null
+    return project ? serializeCanshiftFile(project) : null
   },
 }))
 

@@ -92,8 +92,6 @@ export const deserializeProject = (raw: string): Project | null => {
   return parsed.success ? parsed.data : null
 }
 
-export const serializeProject = (project: Project): string => JSON.stringify(project, null, 2)
-
 export const readProject = (id: string): Project | null => {
   const raw = safeGet(projectStorageKey(id))
   if (raw === null) return null
