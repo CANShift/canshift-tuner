@@ -61,6 +61,18 @@ export class FlashError extends Error {
   }
 }
 
+export const assertChipMatchesBoard = (
+  expectedChip: string | undefined,
+  detectedChip: string
+): void => {
+  if (expectedChip !== undefined && !chipFamiliesMatch(expectedChip, detectedChip)) {
+    throw new FlashError(
+      `Refusing to flash — you picked a ${expectedChip} board but esptool detected ${detectedChip}. Writing a ${expectedChip} image onto a ${detectedChip} would brick it. Select the matching board and retry.`,
+      null
+    )
+  }
+}
+
 export class UnsupportedChipError extends Error {
   readonly detectedChip: string
   constructor(detectedChip: string) {
@@ -134,11 +146,7 @@ export const flashFirmware = async ({
 
     const detectedChip = loader.chip.CHIP_NAME
     onLog(`Detected chip: ${detectedChip}`)
-    if (expectedChip !== undefined && !chipFamiliesMatch(expectedChip, detectedChip)) {
-      onLog(
-        `Warning: selected board expects ${expectedChip}, but esptool detected ${detectedChip}. Continuing — double-check you picked the right board.`
-      )
-    }
+    assertChipMatchesBoard(expectedChip, detectedChip)
     if (!SUPPORTED_CHIPS.includes(detectedChip)) {
       throw new UnsupportedChipError(detectedChip)
     }
