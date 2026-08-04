@@ -1,4 +1,4 @@
-import { useRef, type ChangeEvent } from 'react'
+import { useRef, useState, type ChangeEvent } from 'react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,6 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { NewProjectWizard } from './NewProjectWizard'
 import { DEFAULT_PROJECT_NAME, useProjectStore } from '../../stores/project/project.store'
 import { useDashboardStore } from '../../stores/dashboard.store'
 import { useLogStore } from '../../stores/log.store'
@@ -45,6 +46,7 @@ export const ProjectSwitcher = () => {
   const dashboardName = useDashboardStore((s) => s.config?.name ?? null)
   const log = useLogStore((s) => s.push)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [wizardOpen, setWizardOpen] = useState(false)
 
   const activeMeta = projects.find((p) => p.id === activeProjectId) ?? null
   const activeName = activeMeta?.name ?? dashboardName ?? DEFAULT_PROJECT_NAME
@@ -127,6 +129,13 @@ export const ProjectSwitcher = () => {
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem
+            onSelect={() => {
+              setWizardOpen(true)
+            }}
+          >
+            New project…
+          </DropdownMenuItem>
+          <DropdownMenuItem
             disabled={activeProjectId === null}
             onSelect={() => {
               handleDuplicate()
@@ -160,6 +169,7 @@ export const ProjectSwitcher = () => {
         }}
         style={{ display: 'none' }}
       />
+      <NewProjectWizard open={wizardOpen} onOpenChange={setWizardOpen} />
     </>
   )
 }

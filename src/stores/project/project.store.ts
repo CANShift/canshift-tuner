@@ -6,7 +6,7 @@ import {
   parseCanshiftFile,
   serializeCanshiftFile,
 } from '@canshift/core'
-import type { DashboardConfig, Project, ProjectMeta } from '@canshift/core'
+import type { DashboardConfig, Project, ProjectMeta, SignalDef } from '@canshift/core'
 import { createId } from '../../utils/id'
 import { captureFlowEvent } from '../../lib/posthog'
 import { useDashboardStore } from '../dashboard.store'
@@ -23,10 +23,19 @@ export const DEFAULT_PROJECT_NAME = 'My dashboard'
 
 export type ImportResult = { ok: true; id: string; name: string } | { ok: false; error: string }
 
+export interface ProjectEcuProfile {
+  key: string
+  signals: SignalDef[]
+}
+
 interface ProjectState {
   projects: ProjectMeta[]
   activeProjectId: string | null
-  createProject: (name: string, dashboard: DashboardConfig) => string
+  createProject: (
+    name: string,
+    dashboard: DashboardConfig,
+    ecuProfile?: ProjectEcuProfile
+  ) => string
   switchProject: (id: string) => boolean
   renameProject: (id: string, name: string) => void
   deleteProject: (id: string) => boolean
@@ -87,7 +96,7 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
     persistIndex(nextProjects, activeProjectId)
   },
 
-  createProject: (name, dashboard) => {
+  createProject: (name, dashboard, ecuProfile) => {
     get().saveActiveProject()
     const id = createId('proj')
     const createdAt = nowIso()
@@ -99,8 +108,8 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
       createdAt,
       updatedAt: createdAt,
       dashboard,
-      ecuProfileKey: signalState.selectedProfileKey || DEFAULT_PROFILE_KEY,
-      signals: signalState.signals,
+      ecuProfileKey: ecuProfile?.key ?? (signalState.selectedProfileKey || DEFAULT_PROFILE_KEY),
+      signals: ecuProfile?.signals ?? signalState.signals,
     }
     if (!writeProject(project)) return get().activeProjectId ?? ''
     const nextProjects = upsertMeta(get().projects, {
