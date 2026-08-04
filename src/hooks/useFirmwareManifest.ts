@@ -13,22 +13,38 @@ export type ManifestState =
   | { kind: 'ok'; manifest: BoardManifest }
   | { kind: 'error'; message: string }
 
+interface ScopedManifest {
+  tag: string | null
+  state: ManifestState
+}
+
+export const resolveManifestForRelease = (
+  requestedTag: string | null,
+  scoped: ScopedManifest
+): ManifestState => {
+  if (requestedTag !== scoped.tag) {
+    return requestedTag === null ? { kind: 'idle' } : { kind: 'loading' }
+  }
+  return scoped.state
+}
+
 export const useFirmwareManifest = (release: ReleaseInfo | null): ManifestState => {
-  const [state, setState] = useState<ManifestState>({ kind: 'idle' })
+  const [scoped, setScoped] = useState<ScopedManifest>({ tag: null, state: { kind: 'idle' } })
 
   useEffect(() => {
     if (!release) {
-      setState({ kind: 'idle' })
+      setScoped({ tag: null, state: { kind: 'idle' } })
       return
     }
+    const tag = release.tag
     const asset = findManifestAsset(release)
     if (!asset) {
-      setState({ kind: 'none' })
+      setScoped({ tag, state: { kind: 'none' } })
       return
     }
 
     let cancelled = false
-    setState({ kind: 'loading' })
+    setScoped({ tag, state: { kind: 'loading' } })
     const controller = new AbortController()
     const timer = setTimeout(() => {
       controller.abort()
@@ -42,17 +58,21 @@ export const useFirmwareManifest = (release: ReleaseInfo | null): ManifestState 
       .then((text) => {
         if (cancelled) return
         const manifest = parseManifest(text)
-        if (!manifest) {
-          setState({ kind: 'error', message: 'The release manifest was malformed.' })
-          return
-        }
-        setState({ kind: 'ok', manifest })
+        setScoped({
+          tag,
+          state: manifest
+            ? { kind: 'ok', manifest }
+            : { kind: 'error', message: 'The release manifest was malformed.' },
+        })
       })
       .catch((err: unknown) => {
         if (cancelled) return
-        setState({
-          kind: 'error',
-          message: err instanceof Error ? err.message : 'Manifest fetch failed.',
+        setScoped({
+          tag,
+          state: {
+            kind: 'error',
+            message: err instanceof Error ? err.message : 'Manifest fetch failed.',
+          },
         })
       })
       .finally(() => {
@@ -66,5 +86,5 @@ export const useFirmwareManifest = (release: ReleaseInfo | null): ManifestState 
     }
   }, [release])
 
-  return state
+  return resolveManifestForRelease(release?.tag ?? null, scoped)
 }
