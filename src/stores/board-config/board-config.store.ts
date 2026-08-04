@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { BoardProfile } from '@canshift/core'
+import { getBoardProfile, type BoardProfile } from '@canshift/core'
 import { validateBoardProfile } from '../../lib/board-profile'
 import { createId } from '../../utils/id'
 import { captureFlowEvent } from '../../lib/posthog'
@@ -33,12 +33,14 @@ export const useBoardConfigStore = create<BoardConfigState>()((set, get) => ({
   selected: readSelectedBoard(),
 
   selectCatalog: (boardId) => {
+    if (!getBoardProfile(boardId)) return
     const selected: SelectedBoard = { source: 'catalog', boardId }
     set({ selected })
     writeSelectedBoard(selected)
   },
 
   selectCustom: (id) => {
+    if (!get().customBoards.some((b) => b.id === id)) return
     const selected: SelectedBoard = { source: 'custom', boardId: id }
     set({ selected })
     writeSelectedBoard(selected)
