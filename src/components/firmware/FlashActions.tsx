@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react'
 import { useEffect, useRef, useState } from 'react'
-import type { ReleaseInfo } from '@canshift/core'
+import type { ReleaseAsset, ReleaseInfo } from '@canshift/core'
 import type { FirmwareSelection } from '../../stores/firmware-selection.store'
 import { useFirmwareSelectionStore } from '../../stores/firmware-selection.store'
 import { useFlashHistoryStore } from '../../stores/flash-history.store'
@@ -8,13 +8,14 @@ import { useFlasher } from '../../hooks/useFlasher'
 import type { FlasherState } from '../../hooks/useFlasher'
 import { useLogStore } from '../../stores/log.store'
 import { downloadFirmwareAsset } from '../../lib/firmware/download'
-import { findMergedAsset } from '../../lib/firmware/releases'
 import { formatBytes } from '../../lib/format'
 import { MONO_FONT } from '../../lib/typography'
 
 export interface FlashActionsProps {
   selection: FirmwareSelection
   pickedRelease: ReleaseInfo | null
+  mergedAsset: ReleaseAsset | null
+  expectedChip?: string
 }
 
 const selectionLabel = (selection: FirmwareSelection): string =>
@@ -40,7 +41,12 @@ const useFlashHistoryRecorder = (
   }, [state, flashedLabel, record])
 }
 
-export const FlashActions = ({ selection, pickedRelease }: FlashActionsProps) => {
+export const FlashActions = ({
+  selection,
+  pickedRelease,
+  mergedAsset,
+  expectedChip,
+}: FlashActionsProps) => {
   const setReleaseFirmware = useFirmwareSelectionStore((s) => s.setReleaseFirmware)
   const log = useLogStore((s) => s.push)
   const { state, canFlash, flash, reset } = useFlasher()
@@ -49,7 +55,7 @@ export const FlashActions = ({ selection, pickedRelease }: FlashActionsProps) =>
 
   const handleFlash = () => {
     flashedLabelRef.current = selectionLabel(selection)
-    flash()
+    flash(expectedChip)
   }
 
   const [downloading, setDownloading] = useState(false)
@@ -57,7 +63,7 @@ export const FlashActions = ({ selection, pickedRelease }: FlashActionsProps) =>
   const [loadedBytes, setLoadedBytes] = useState(0)
   const [downloadError, setDownloadError] = useState<string | null>(null)
 
-  const pickedAsset = pickedRelease ? findMergedAsset(pickedRelease) : null
+  const pickedAsset = mergedAsset
   const pickedIsDownloaded =
     selection.kind === 'release' &&
     pickedRelease !== null &&

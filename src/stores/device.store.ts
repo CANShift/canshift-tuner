@@ -35,6 +35,7 @@ interface DeviceState {
   portPath: string | null
   transport: Transport | null
   firmwareVersion: string | null
+  boardId: string | null
   lastSyncAt: Date | null
   errorMessage: string | null
 
@@ -59,6 +60,7 @@ interface DeviceState {
   setError: (message: string) => void
   clearError: () => void
   setFirmwareVersion: (version: string | null) => void
+  setBoardId: (boardId: string | null) => void
   setFirmwareCompat: (compat: FirmwareCompat) => void
   setFirmwareLiveness: (liveness: FirmwareLiveness) => void
   pushHeapStats: (entry: Omit<HeapStatsEntry, 'receivedAt'>) => void
@@ -82,6 +84,7 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
   portPath: null,
   transport: null,
   firmwareVersion: null,
+  boardId: null,
   lastSyncAt: null,
   errorMessage: null,
   connected: false,
@@ -117,6 +120,7 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
       syncing: false,
       isDayMode: null,
       firmwareVersion: null,
+      boardId: null,
       firmwareCompat: { kind: 'unknown' },
       firmwareLiveness: { kind: 'unknown' },
       heapStats: [],
@@ -151,6 +155,10 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
 
   setFirmwareVersion: (version) => {
     set({ firmwareVersion: version })
+  },
+
+  setBoardId: (boardId) => {
+    set({ boardId })
   },
 
   setFirmwareCompat: (compat) => {

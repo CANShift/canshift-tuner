@@ -44,7 +44,7 @@ const acquirePort = async (
 export interface UseFlasher {
   state: FlasherState
   canFlash: boolean
-  flash: () => void
+  flash: (expectedChip?: string) => void
   reset: () => void
 }
 
@@ -56,7 +56,7 @@ export const useFlasher = (): UseFlasher => {
 
   const canFlash = selection.kind !== 'none' && state.kind !== 'flashing' && isWebSerialAvailable()
 
-  const flash = () => {
+  const flash = (expectedChip?: string) => {
     if (selection.kind === 'none') return
     if (!isWebSerialAvailable()) {
       setState({ kind: 'error', message: 'WebSerial unavailable in this browser.' })
@@ -65,7 +65,7 @@ export const useFlasher = (): UseFlasher => {
     const name = selection.kind === 'release' ? selection.release.tag : selection.firmware.name
     log('info', `Flash requested — ${name}`)
 
-    void runFlash(selection, log, setState).catch((err: unknown) => {
+    void runFlash(selection, log, setState, expectedChip).catch((err: unknown) => {
       const message =
         err instanceof FlashError || err instanceof OtaError
           ? err.message
@@ -106,7 +106,8 @@ const resolveOtaBytes = async (
 const runFlash = async (
   selection: Exclude<FirmwareSelection, { kind: 'none' }>,
   log: ReturnType<typeof useLogStore.getState>['push'],
-  setState: (next: FlasherState) => void
+  setState: (next: FlasherState) => void,
+  expectedChip?: string
 ): Promise<void> => {
   const conn = useConnectionStore.getState()
   const canUseOta = conn.status === 'connected'
@@ -136,6 +137,7 @@ const runFlash = async (
   await flashFirmware({
     port,
     bytes,
+    ...(expectedChip !== undefined ? { expectedChip } : {}),
     onProgress: (written, total) => {
       setState({ kind: 'flashing', written, total })
     },

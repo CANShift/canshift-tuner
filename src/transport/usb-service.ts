@@ -78,6 +78,7 @@ export const usbService = {
         version: d.version,
         protocol: d.protocol,
         isDay: d.is_day === 1,
+        ...(typeof d.board_id === 'string' ? { boardId: d.board_id } : {}),
       },
     }
   },
