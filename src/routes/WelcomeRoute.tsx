@@ -5,7 +5,7 @@ import { useConnectionStore } from '../stores/connection.store'
 import { useDeviceStore } from '../stores/device.store'
 import { humanizeTransportError } from '../transport/humanize-transport-error'
 
-const SUPPORT_EMAIL = 'support@canshift.tmbk.ch'
+const SUPPORT_EMAIL = 'support@canshift.app'
 
 const isWebSerialAvailable = (): boolean => {
   return typeof navigator !== 'undefined' && 'serial' in navigator
@@ -67,7 +67,7 @@ const WelcomeRoute = () => {
           </Link>
           <span style={dotSeparatorStyle}>·</span>
           <a
-            href="https://docs.canshift.tmbk.ch/user-guide/install/boot-issues/"
+            href="https://canshift.app/user-guide/install/boot-issues/"
             target="_blank"
             rel="noreferrer"
             style={linkStyle}
