@@ -6,14 +6,18 @@ import { captureFlowEvent } from '../../lib/posthog'
 import { useDashboardStore } from '../dashboard.store'
 import { useSignalStore, DEFAULT_PROFILE_KEY } from '../signal.store'
 import {
+  deserializeProject,
   readProject,
   readProjectIndex,
   removeProject,
+  serializeProject,
   writeProject,
   writeProjectIndex,
 } from './storage'
 
 export const DEFAULT_PROJECT_NAME = 'My dashboard'
+
+export type ImportResult = { ok: true; id: string; name: string } | { ok: false; error: string }
 
 interface ProjectState {
   projects: ProjectMeta[]
@@ -22,8 +26,13 @@ interface ProjectState {
   switchProject: (id: string) => boolean
   renameProject: (id: string, name: string) => void
   deleteProject: (id: string) => boolean
+  duplicateProject: (id: string) => string | null
+  importProject: (raw: string) => ImportResult
+  exportProject: (id: string) => string | null
   saveActiveProject: () => void
 }
+
+const duplicateName = (name: string): string => `${name} copy`.slice(0, PROJECT_NAME_MAX)
 
 const nowIso = (): string => new Date().toISOString()
 
@@ -138,6 +147,59 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
     set({ projects: nextProjects })
     persistIndex(nextProjects, get().activeProjectId)
     return true
+  },
+
+  duplicateProject: (id) => {
+    get().saveActiveProject()
+    const source = readProject(id)
+    if (!source) return null
+    const newId = createId('proj')
+    const createdAt = nowIso()
+    const copy: Project = {
+      ...source,
+      id: newId,
+      name: duplicateName(source.name),
+      createdAt,
+      updatedAt: createdAt,
+    }
+    if (!writeProject(copy)) return null
+    const nextProjects = upsertMeta(get().projects, {
+      id: newId,
+      name: copy.name,
+      createdAt,
+      updatedAt: createdAt,
+    })
+    set({ projects: nextProjects, activeProjectId: newId })
+    persistIndex(nextProjects, newId)
+    loadProjectIntoStores(copy)
+    captureFlowEvent('project_duplicated')
+    return newId
+  },
+
+  importProject: (raw) => {
+    const parsed = deserializeProject(raw)
+    if (!parsed) return { ok: false, error: 'That file is not a valid .canshift project.' }
+    get().saveActiveProject()
+    const newId = createId('proj')
+    const imported: Project = { ...parsed, id: newId, updatedAt: nowIso() }
+    if (!writeProject(imported)) return { ok: false, error: 'Could not save the imported project.' }
+    const nextProjects = upsertMeta(get().projects, {
+      id: newId,
+      name: imported.name,
+      createdAt: imported.createdAt,
+      updatedAt: imported.updatedAt,
+    })
+    set({ projects: nextProjects, activeProjectId: newId })
+    persistIndex(nextProjects, newId)
+    loadProjectIntoStores(imported)
+    captureFlowEvent('project_imported')
+    return { ok: true, id: newId, name: imported.name }
+  },
+
+  exportProject: (id) => {
+    if (id === get().activeProjectId) get().saveActiveProject()
+    const project = readProject(id)
+    return project ? serializeProject(project) : null
   },
 }))
 
