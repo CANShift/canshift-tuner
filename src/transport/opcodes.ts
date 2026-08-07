@@ -13,6 +13,8 @@ export const CMD_QUERY_VERSION = 0x10
 export const CMD_PING = 0x11
 export const CMD_CAN_SCAN_START = 0x20
 export const CMD_CAN_SCAN_STOP = 0x21
+export const CMD_OBD_READ_DTC = 0x22
+export const CMD_OBD_CLEAR_DTC = 0x23
 export const CMD_OTA_BEGIN = 0x30
 export const CMD_OTA_WRITE = 0x31
 export const CMD_OTA_END = 0x32
@@ -72,5 +74,11 @@ export const KNOWN_OPCODES: readonly KnownOpcode[] = [
   { id: CMD_PING, name: 'CMD_PING', description: 'Liveness probe — replies with uptime_ms' },
   { id: CMD_CAN_SCAN_START, name: 'CMD_CAN_SCAN_START', description: 'Start CAN scan' },
   { id: CMD_CAN_SCAN_STOP, name: 'CMD_CAN_SCAN_STOP', description: 'Stop CAN scan' },
+  {
+    id: CMD_OBD_READ_DTC,
+    name: 'CMD_OBD_READ_DTC',
+    description: 'Read stored DTCs (OBD-II Mode 03)',
+  },
+  { id: CMD_OBD_CLEAR_DTC, name: 'CMD_OBD_CLEAR_DTC', description: 'Clear DTCs (OBD-II Mode 04)' },
   { id: CMD_REBOOT, name: 'CMD_REBOOT', description: 'Reboot the dash' },
 ]
