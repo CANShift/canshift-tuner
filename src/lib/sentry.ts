@@ -1,18 +1,9 @@
 import * as Sentry from '@sentry/react'
-import { isObservabilityEnabled, useObservabilityStore } from '../stores/observability.store'
+import { isObservabilityEnabled } from '../stores/observability.store'
 import { useDeviceStore } from '../stores/device.store'
-
-const HEX_PAYLOAD = /\b(?:[0-9A-Fa-f]{2}[\s:]){3,}[0-9A-Fa-f]{2}\b/g
-const FRAME_ID = /\b0[xX][0-9A-Fa-f]{1,8}\b/g
-const QUOTED_NAME = /"[^"]{1,120}"|'[^']{1,120}'|\u201C[^\u201D]{1,120}\u201D/g
+import { scrubText } from './scrub'
 
 let initialized = false
-
-export const scrubText = (text: string): string =>
-  text
-    .replace(HEX_PAYLOAD, '[payload]')
-    .replace(FRAME_ID, '[frame-id]')
-    .replace(QUOTED_NAME, '[name]')
 
 export const scrubEvent = (event: Sentry.ErrorEvent): Sentry.ErrorEvent => {
   delete event.request
@@ -39,20 +30,15 @@ export const initSentry = (): void => {
     dsn,
     release: `canshift-tuner@${__TUNER_VERSION__}`,
     environment: import.meta.env.MODE,
-    enabled: isObservabilityEnabled(),
     sendDefaultPii: false,
-    beforeSend: scrubEvent,
-    beforeBreadcrumb: scrubBreadcrumb,
+    beforeSend: (event) => (isObservabilityEnabled() ? scrubEvent(event) : null),
+    beforeBreadcrumb: (breadcrumb) =>
+      isObservabilityEnabled() ? scrubBreadcrumb(breadcrumb) : null,
   })
   initialized = true
 
   useDeviceStore.subscribe((state) => {
     Sentry.setTag('firmware.version', state.firmwareVersion ?? 'disconnected')
-  })
-
-  useObservabilityStore.subscribe((state) => {
-    const client = Sentry.getClient()
-    if (client) client.getOptions().enabled = state.enabled
   })
 }
 

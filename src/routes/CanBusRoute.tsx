@@ -1,15 +1,14 @@
 import { useCallback, useMemo, useState } from 'react'
 import type { CSSProperties } from 'react'
-import type { SignalDef } from '@canshift/core'
 import { useCanScanner } from '../hooks/useCanScanner'
-import type { CanFrameStats } from '../hooks/useCanScanner'
 import { CanFrameTable } from '../components/can-bus/CanFrameTable'
 import { CanScanToolbar } from '../components/can-bus/CanScanToolbar'
 import type { SortKey } from '../components/can-bus/SortBar'
 import { useDeviceStore } from '../stores/device.store'
 import { useSignalStore } from '../stores/signal.store'
 import { useLogStore } from '../stores/log.store'
-import { parseHexFrameId } from '../utils/frame-id'
+import { formatFrameIdHex, parseHexFrameId } from '../utils/frame-id'
+import { buildDraftSignal, sortFrames } from '../utils/can-frames'
 
 const CanBusRoute = () => {
   const connected = useDeviceStore((s) => s.connected)
@@ -85,57 +84,6 @@ const CanBusRoute = () => {
       />
     </div>
   )
-}
-
-const sortFrames = (
-  frames: CanFrameStats[],
-  key: SortKey,
-  learnScores: ReadonlyMap<number, number> | null
-): CanFrameStats[] => {
-  const sorted = frames.slice()
-  switch (key) {
-    case 'id':
-      sorted.sort((a, b) => a.id - b.id)
-      break
-    case 'lastSeen':
-      sorted.sort((a, b) => b.lastSeenMs - a.lastSeenMs)
-      break
-    case 'rate':
-      sorted.sort((a, b) => b.rateHz - a.rateHz)
-      break
-    case 'count':
-      sorted.sort((a, b) => b.count - a.count)
-      break
-    case 'activity':
-      sorted.sort(
-        (a, b) => (learnScores?.get(b.id) ?? 0) - (learnScores?.get(a.id) ?? 0) || a.id - b.id
-      )
-      break
-  }
-  return sorted
-}
-
-const formatFrameIdHex = (id: number): string => {
-  const extended = id > 0x7ff
-  const width = extended ? 8 : 3
-  return `0x${id.toString(16).toUpperCase().padStart(width, '0')}`
-}
-
-const buildDraftSignal = (id: number, existingCount: number): SignalDef => {
-  return {
-    name: `scan_signal_${String(existingCount + 1)}`,
-    canFrameId: formatFrameIdHex(id),
-    startByte: 0,
-    byteLength: 1,
-    bigEndian: false,
-    signed: false,
-    scale: 1,
-    offset: 0,
-    unit: '',
-    min: 0,
-    max: 255,
-    timeoutMs: 2_000,
-  }
 }
 
 const containerStyle: CSSProperties = {
