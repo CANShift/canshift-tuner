@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react'
 import { forwardRef, memo, useEffect, useState } from 'react'
 import type { CanFrameStats } from '../../hooks/useCanScanner'
 import { MONO_FONT } from '../../lib/typography'
+import { formatFrameIdHex } from '../../utils/frame-id'
 
 export interface CanFrameRowProps {
   frame: CanFrameStats
@@ -21,7 +22,7 @@ export const CanFrameRow = memo(
   forwardRef<HTMLTableRowElement, CanFrameRowProps>(
     ({ frame, mappedName, learnScore, expanded, dataIndex, onToggle, onPromote }, ref) => {
       const [stale, setStale] = useState(() => isStale(frame.lastSeenMs))
-      const idHex = formatCanId(frame.id)
+      const idHex = formatFrameIdHex(frame.id)
 
       useEffect(() => {
         const remaining = STALE_AFTER_MS - (performance.now() - frame.lastSeenMs)
@@ -78,12 +79,6 @@ export const CanFrameRow = memo(
   )
 )
 CanFrameRow.displayName = 'CanFrameRow'
-
-const formatCanId = (id: number): string => {
-  const extended = id > 0x7ff
-  const width = extended ? 8 : 3
-  return `0x${id.toString(16).toUpperCase().padStart(width, '0')}`
-}
 
 const formatCount = (n: number): string => {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`

@@ -4,9 +4,9 @@ const STORAGE_KEY = 'canshift.tuner.observability'
 
 export const readStoredObservability = (): boolean => {
   try {
-    return localStorage.getItem(STORAGE_KEY) !== 'off'
+    return localStorage.getItem(STORAGE_KEY) === 'on'
   } catch {
-    return true
+    return false
   }
 }
 

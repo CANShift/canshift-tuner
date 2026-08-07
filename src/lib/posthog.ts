@@ -1,5 +1,6 @@
 import posthog from 'posthog-js'
 import { isObservabilityEnabled, useObservabilityStore } from '../stores/observability.store'
+import { scrubProps } from './scrub'
 
 let initialized = false
 
@@ -33,7 +34,11 @@ export const initPostHog = (): void => {
 
 export const captureFlowEvent = (name: string, props: Record<string, unknown> = {}): void => {
   if (!initialized || !isObservabilityEnabled()) return
-  posthog.capture(name, { ...props, app: 'canshift-tuner', tunerVersion: __TUNER_VERSION__ })
+  posthog.capture(name, {
+    ...scrubProps(props),
+    app: 'canshift-tuner',
+    tunerVersion: __TUNER_VERSION__,
+  })
 }
 
 export const isPostHogReady = (): boolean => initialized

@@ -28,11 +28,11 @@ const memoryStorage = (): Storage => {
 describe('observability store', () => {
   beforeEach(() => {
     globalThis.localStorage = memoryStorage()
-    useObservabilityStore.setState({ enabled: true })
+    useObservabilityStore.setState({ enabled: false })
   })
 
-  it('reads enabled from empty storage (default)', () => {
-    expect(readStoredObservability()).toBe(true)
+  it('defaults to disabled on empty storage (opt-in, #29.2)', () => {
+    expect(readStoredObservability()).toBe(false)
   })
 
   it('rehydrates a stored opt-out on startup', () => {

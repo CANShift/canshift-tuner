@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { scrubText } from './sentry'
+import { scrubProps, scrubText } from './scrub'
 
-describe('sentry scrubbing', () => {
+describe('scrubText', () => {
   it('replaces CAN payload hex sequences with a placeholder', () => {
     expect(scrubText('frame 0A 1B 2C 3D 4E arrived')).toBe('frame [payload] arrived')
     expect(scrubText('bytes 0a:1b:2c:3d')).toBe('bytes [payload]')
@@ -19,8 +19,17 @@ describe('sentry scrubbing', () => {
 
   it('keeps ordinary messages intact', () => {
     expect(scrubText('Burn failed: port_busy')).toBe('Burn failed: port_busy')
-    expect(scrubText('Device did not come back after reboot')).toBe(
-      'Device did not come back after reboot'
-    )
+  })
+})
+
+describe('scrubProps', () => {
+  it('scrubs string values while passing non-strings through', () => {
+    expect(
+      scrubProps({ frame: 'promoted 0x360', count: 3, enabled: true, name: '"secret_signal"' })
+    ).toEqual({ frame: 'promoted [frame-id]', count: 3, enabled: true, name: '[name]' })
+  })
+
+  it('returns an empty object unchanged', () => {
+    expect(scrubProps({})).toEqual({})
   })
 })

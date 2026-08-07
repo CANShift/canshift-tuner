@@ -11,6 +11,7 @@ import { XmlImportZone } from '../components/ecu/XmlImportZone'
 import { SignalPreviewTable } from '../components/ecu/SignalPreviewTable'
 import { ApplyConfirmDialog } from '../components/ecu/ApplyConfirmDialog'
 import { MONO_FONT } from '../lib/typography'
+import { prettyProfileKey } from '../utils/profile-key'
 
 type Source =
   | { kind: 'none' }
@@ -209,11 +210,6 @@ const EcuRoute = () => {
       />
     </div>
   )
-}
-
-const prettyProfileKey = (key: string): string => {
-  const [, rest = key] = key.split(':')
-  return rest.replace(/[-_]/g, ' ')
 }
 
 const containerStyle: CSSProperties = {
