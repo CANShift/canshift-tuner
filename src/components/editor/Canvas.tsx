@@ -1,6 +1,6 @@
 import { useRef, useCallback, useMemo, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
-import type { PageConfig, PagePalette, TopBarConfig, Widget } from '@canshift/core'
+import type { PageConfig, TopBarConfig, Widget } from '@canshift/core'
 import {
   LAYOUT_GRID,
   isSpanOverflowing,
@@ -9,7 +9,6 @@ import {
   resolveScreenProfile,
 } from '@canshift/core'
 import { useDashboardStore } from '../../stores/dashboard.store'
-import { useDeviceStore } from '../../stores/device.store'
 import { useSignalStore } from '../../stores/signal.store'
 import { defaultWidgetForSignal, SIGNAL_DRAG_MIME } from '../../utils/default-widget'
 import { autoPlace } from '../../utils/layout'
@@ -30,9 +29,9 @@ import { useClipboardWidgets } from '../../hooks/useClipboardWidgets'
 import { useRubberBandSelection } from '../../hooks/useRubberBandSelection'
 import { useRevLimiterFlash } from '../../hooks/useRevLimiterFlash'
 import { useSwipeGestures } from '../../hooks/useSwipeGestures'
-import { DEFAULT_PAGE_PALETTE } from '@canshift/core'
+import { useEffectivePalette } from '../../hooks/useEffectivePalette'
+import { useCanvasDialogs } from '../../hooks/useCanvasDialogs'
 
-import { DAY_PALETTE_DEFAULT, DAY_BG_DEFAULT } from '../../constants/theme'
 import { MONO_FONT } from '../../lib/typography'
 
 const SCALE = 1.5
@@ -74,11 +73,8 @@ const Canvas = ({ page, topBar, pageIndex, pageStrip, inspector }: CanvasProps) 
   const redoLabel = useDashboardStore((s) => s.future[0]?.label)
   const canRedo = useDashboardStore((s) => s.future.length > 0)
 
-  const dayTheme = useDashboardStore((s) => s.config?.dayTheme)
-  const nightTheme = useDashboardStore((s) => s.config?.nightTheme)
   const pages = useDashboardStore((s) => s.config?.pages ?? EMPTY_PAGES)
 
-  const deviceIsDayMode = useDeviceStore((s) => s.isDayMode)
   const containerRef = useRef<HTMLDivElement>(null)
   const zoomRef = useRef<number>(1)
   zoomRef.current = zoom
@@ -104,22 +100,14 @@ const Canvas = ({ page, topBar, pageIndex, pageStrip, inspector }: CanvasProps) 
   const kbdRef = useRef({ pageId: page.id, pageWidgets: page.widgets })
   kbdRef.current = { pageId: page.id, pageWidgets: page.widgets }
 
-  const activeDayMode = deviceIsDayMode ?? false
+  const {
+    isDayMode: activeDayMode,
+    palette: effectivePalette,
+    bgColor: effectiveBgColor,
+  } = useEffectivePalette(page)
 
-  const effectivePalette: PagePalette = useMemo(
-    () =>
-      activeDayMode
-        ? (dayTheme?.palette ?? DAY_PALETTE_DEFAULT)
-        : (nightTheme?.palette ?? page.palette ?? DEFAULT_PAGE_PALETTE),
-    [activeDayMode, dayTheme?.palette, nightTheme?.palette, page.palette]
-  )
-  const effectiveBgColor: string = activeDayMode
-    ? (dayTheme?.bgColor ?? DAY_BG_DEFAULT)
-    : (nightTheme?.bgColor ?? page.backgroundColor)
-
-  const [settingsOpen, setSettingsOpen] = useState(false)
-  const [diagOpen, setDiagOpen] = useState(false)
-  const [shortcutsOpen, setShortcutsOpen] = useState(false)
+  const { settingsOpen, diagOpen, shortcutsOpen, setSettingsOpen, setDiagOpen, setShortcutsOpen } =
+    useCanvasDialogs()
 
   const { revLimiting, flashPhase, startRevLimiter } = useRevLimiterFlash()
 
