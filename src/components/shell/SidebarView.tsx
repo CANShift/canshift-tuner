@@ -1,5 +1,6 @@
 import type { ComponentType, CSSProperties, ReactNode } from 'react'
 import { MONO_FONT } from '../../lib/typography'
+import { CollapseButton } from './CollapseRail'
 
 export type SidebarRoute =
   | '/'
@@ -77,6 +78,7 @@ export interface SidebarViewProps {
   targetLabel: string | null
   firmwareVersion: string | null
   LinkComponent?: ComponentType<SidebarLinkProps>
+  onCollapse?: () => void
 }
 
 const DefaultLink: ComponentType<SidebarLinkProps> = ({
@@ -97,8 +99,14 @@ export const SidebarView = ({
   targetLabel,
   firmwareVersion,
   LinkComponent = DefaultLink,
+  onCollapse,
 }: SidebarViewProps) => (
   <nav aria-label="Primary" style={navStyle}>
+    {onCollapse && (
+      <div style={collapseHeaderStyle}>
+        <CollapseButton side="left" label="Menu" onCollapse={onCollapse} />
+      </div>
+    )}
     <div style={scrollAreaStyle}>
       {SIDEBAR_GROUPS.map((group, groupIdx) => (
         <div key={group.label ?? 'top'}>
@@ -173,6 +181,12 @@ const navStyle: CSSProperties = {
   borderRight: '2px solid var(--brand-divider)',
   display: 'flex',
   flexDirection: 'column',
+}
+
+const collapseHeaderStyle: CSSProperties = {
+  display: 'flex',
+  justifyContent: 'flex-end',
+  padding: '8px 8px 0',
 }
 
 const scrollAreaStyle: CSSProperties = {

@@ -1,9 +1,11 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { resolveScreenProfile } from '@canshift/core'
 import { SidebarView, type SidebarLinkProps } from './SidebarView'
+import { CollapseRail } from './CollapseRail'
 import { useConnectionStore } from '../../stores/connection.store'
 import { useDashboardStore } from '../../stores/dashboard.store'
 import { useDeviceStore } from '../../stores/device.store'
+import { useUiStore } from '../../stores/ui.store'
 
 const RouterLink = ({ to, style, className, children, title }: SidebarLinkProps) => (
   <NavLink to={to} end={to === '/'} style={style} className={className ?? ''} title={title}>
@@ -17,8 +19,14 @@ const Sidebar = () => {
   const firmwareVersion = useDeviceStore((s) => s.firmwareVersion)
   const targetProfile = useDashboardStore((s) => s.config?.targetProfile)
   const location = useLocation()
+  const collapsed = useUiStore((s) => s.leftNavCollapsed)
+  const toggleLeftNav = useUiStore((s) => s.toggleLeftNav)
   const offline = status !== 'connected' && !simulationMode
   const targetLabel = resolveScreenProfile(targetProfile).name
+
+  if (collapsed) {
+    return <CollapseRail side="left" label="Menu" onExpand={toggleLeftNav} />
+  }
 
   return (
     <SidebarView
@@ -27,6 +35,7 @@ const Sidebar = () => {
       targetLabel={targetLabel}
       firmwareVersion={firmwareVersion}
       LinkComponent={RouterLink}
+      onCollapse={toggleLeftNav}
     />
   )
 }

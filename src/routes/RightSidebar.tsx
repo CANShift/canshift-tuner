@@ -1,5 +1,7 @@
 import { lazy, Suspense, useState } from 'react'
 import type { CSSProperties } from 'react'
+import { CollapseRail, CollapseButton } from '../components/shell/CollapseRail'
+import { useUiStore } from '../stores/ui.store'
 
 const PropertyPanel = lazy(() => import('../components/editor/PropertyPanel'))
 const SignalsPanel = lazy(() => import('../components/editor/SignalsPanel'))
@@ -25,55 +27,66 @@ const PanelFallback = () => <div style={fallbackStyle}>Loading…</div>
 
 export const RightSidebar = ({ pageId }: RightSidebarProps) => {
   const [tab, setTab] = useState<Tab>('properties')
+  const collapsed = useUiStore((s) => s.inspectorCollapsed)
+  const toggleInspector = useUiStore((s) => s.toggleInspector)
+
+  if (collapsed) {
+    return <CollapseRail side="right" label="Inspector" onExpand={toggleInspector} />
+  }
 
   return (
     <aside style={asideStyle}>
-      <div role="tablist" aria-label="Editor sidebar tabs" style={tabListStyle}>
-        {TABS.map((t) => {
-          const isActive = tab === t.id
-          return (
-            <button
-              key={t.id}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => {
-                setTab(t.id)
-              }}
-              className={isActive ? undefined : 'shell-nav-item'}
-              style={tabStyle(isActive)}
-            >
-              {t.label}
-              {isActive && <span aria-hidden="true" style={tabBarStyle} />}
-            </button>
-          )
-        })}
+      <div style={gutterStyle}>
+        <CollapseButton side="right" label="Inspector" onCollapse={toggleInspector} />
       </div>
-      {tab === 'properties' && pageId !== undefined && (
-        <Suspense fallback={<PanelFallback />}>
-          <PropertyPanel pageId={pageId} />
-        </Suspense>
-      )}
-      {tab === 'widgets' && pageId !== undefined && (
-        <Suspense fallback={<PanelFallback />}>
-          <WidgetListPanel pageId={pageId} />
-        </Suspense>
-      )}
-      {tab === 'signals' && (
-        <Suspense fallback={<PanelFallback />}>
-          <SignalsPanel pageId={pageId} />
-        </Suspense>
-      )}
-      {tab === 'library' && pageId !== undefined && (
-        <Suspense fallback={<PanelFallback />}>
-          <WidgetPalette pageId={pageId} />
-        </Suspense>
-      )}
-      {tab === 'history' && (
-        <Suspense fallback={<PanelFallback />}>
-          <HistoryPanel />
-        </Suspense>
-      )}
+      <div style={contentColStyle}>
+        <div role="tablist" aria-label="Editor sidebar tabs" style={tabListStyle}>
+          {TABS.map((t) => {
+            const isActive = tab === t.id
+            return (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => {
+                  setTab(t.id)
+                }}
+                className={isActive ? undefined : 'shell-nav-item'}
+                style={tabStyle(isActive)}
+              >
+                {t.label}
+                {isActive && <span aria-hidden="true" style={tabBarStyle} />}
+              </button>
+            )
+          })}
+        </div>
+        {tab === 'properties' && pageId !== undefined && (
+          <Suspense fallback={<PanelFallback />}>
+            <PropertyPanel pageId={pageId} />
+          </Suspense>
+        )}
+        {tab === 'widgets' && pageId !== undefined && (
+          <Suspense fallback={<PanelFallback />}>
+            <WidgetListPanel pageId={pageId} />
+          </Suspense>
+        )}
+        {tab === 'signals' && (
+          <Suspense fallback={<PanelFallback />}>
+            <SignalsPanel pageId={pageId} />
+          </Suspense>
+        )}
+        {tab === 'library' && pageId !== undefined && (
+          <Suspense fallback={<PanelFallback />}>
+            <WidgetPalette pageId={pageId} />
+          </Suspense>
+        )}
+        {tab === 'history' && (
+          <Suspense fallback={<PanelFallback />}>
+            <HistoryPanel />
+          </Suspense>
+        )}
+      </div>
     </aside>
   )
 }
@@ -82,6 +95,25 @@ const asideStyle: CSSProperties = {
   width: 320,
   flexShrink: 0,
   borderLeft: '2px solid var(--brand-divider)',
+  display: 'flex',
+  flexDirection: 'row',
+  minHeight: 0,
+  overflow: 'hidden',
+}
+
+const gutterStyle: CSSProperties = {
+  flexShrink: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  paddingTop: 8,
+  borderRight: '1px solid var(--brand-divider)',
+  background: 'hsl(var(--brand-neutral-100))',
+}
+
+const contentColStyle: CSSProperties = {
+  flex: 1,
+  minWidth: 0,
   display: 'flex',
   flexDirection: 'column',
   minHeight: 0,
