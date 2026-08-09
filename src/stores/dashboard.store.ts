@@ -8,7 +8,7 @@ import { createPagesSlice } from './dashboard/pages.slice'
 import { createSelectionSlice } from './dashboard/selection.slice'
 import { createThemeSlice } from './dashboard/theme.slice'
 import { createWidgetsSlice } from './dashboard/widgets.slice'
-import { readAutosave, startAutosave } from './dashboard/autosave'
+import { isRestorable, readAutosave, startAutosave } from './dashboard/autosave'
 import type { DashboardState } from './dashboard/types'
 
 export type { AlignDirection, DashboardState, LoadFromDeviceOrDemoResult } from './dashboard/types'
@@ -27,7 +27,7 @@ export const useDashboardStore = create<DashboardState>()(
 )
 
 const restored = readAutosave()
-if (restored) {
+if (isRestorable(restored)) {
   useDashboardStore.setState({
     config: restored.config,
     isDirty: restored.isDirty,

@@ -104,6 +104,9 @@ export const readAutosave = (): AutosavePayload | null => {
   return payload
 }
 
+export const isRestorable = (payload: AutosavePayload | null): payload is AutosavePayload =>
+  payload !== null && payload.isDirty
+
 interface AutosaveStore {
   getState: () => AutosaveSource & { markAutosaved: (ts: number) => void }
   subscribe: (listener: () => void) => () => void
