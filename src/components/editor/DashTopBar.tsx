@@ -177,7 +177,7 @@ export const DashTopBar = ({
               whiteSpace: 'nowrap',
             }}
           >
-            LAP 4 · 1:38.42
+            {'LAP 4\u00A0\u00A0\u00A01:38.42'}
           </span>
         )
     }
