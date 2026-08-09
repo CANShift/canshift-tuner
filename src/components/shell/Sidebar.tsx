@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { resolveScreenProfile } from '@canshift/core'
 import { SidebarView, type SidebarLinkProps } from './SidebarView'
+import { resolveTargetLabel } from './target-label'
 import { CollapseRail } from './CollapseRail'
 import { useConnectionStore } from '../../stores/connection.store'
 import { useDashboardStore } from '../../stores/dashboard.store'
@@ -22,7 +22,7 @@ const Sidebar = () => {
   const collapsed = useUiStore((s) => s.leftNavCollapsed)
   const toggleLeftNav = useUiStore((s) => s.toggleLeftNav)
   const offline = status !== 'connected' && !simulationMode
-  const targetLabel = resolveScreenProfile(targetProfile).name
+  const targetLabel = resolveTargetLabel(offline, targetProfile)
 
   if (collapsed) {
     return <CollapseRail side="left" label="Menu" onExpand={toggleLeftNav} />
