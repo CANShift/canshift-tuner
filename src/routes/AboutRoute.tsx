@@ -24,8 +24,8 @@ const DiagnosticsToggle = () => {
         }}
       />
       <span>
-        Share anonymous diagnostics — crash reports and feature usage, never dashboards or CAN data.
-        Applies immediately.
+        Share anonymous diagnostics — feature usage, never dashboards or CAN data. Applies
+        immediately.
       </span>
     </label>
   )

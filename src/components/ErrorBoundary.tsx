@@ -1,6 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 import { useLogStore } from '../stores/log.store'
-import { captureBoundaryError } from '../lib/sentry'
 
 interface Props {
   children: ReactNode
@@ -24,7 +23,6 @@ export class ErrorBoundary extends Component<Props, State> {
     useLogStore
       .getState()
       .push('error', `Render crash: ${error.message}\n${stack}`, this.props.scope)
-    captureBoundaryError(error, this.props.scope ?? 'app')
   }
 
   reset = (): void => {

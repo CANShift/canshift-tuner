@@ -1,5 +1,4 @@
 import { defineConfig, type Plugin } from 'vite'
-import { sentryVitePlugin } from '@sentry/vite-plugin'
 import react from '@vitejs/plugin-react'
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -73,22 +72,7 @@ export default defineConfig(({ command }) => ({
     __TUNER_VERSION__: JSON.stringify(pkg.version),
     __EXPECTED_FIRMWARE_MAJOR__: JSON.stringify(firmwareMajor),
   },
-  plugins: [
-    react(),
-    firmwareDownloadDevProxy(),
-    ...(process.env.SENTRY_AUTH_TOKEN
-      ? [
-          sentryVitePlugin({
-            org: 'tmbk',
-            project: 'canshift-tuner',
-            url: 'https://de.sentry.io',
-            authToken: process.env.SENTRY_AUTH_TOKEN,
-            release: { name: `canshift-tuner@${pkg.version}` },
-            sourcemaps: { filesToDeleteAfterUpload: 'dist/**/*.map' },
-          }),
-        ]
-      : []),
-  ],
+  plugins: [react(), firmwareDownloadDevProxy()],
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
@@ -103,7 +87,7 @@ export default defineConfig(({ command }) => ({
   build: {
     outDir: 'dist',
     target: 'es2022',
-    sourcemap: process.env.SENTRY_AUTH_TOKEN ? ('hidden' as const) : false,
+    sourcemap: false,
     reportCompressedSize: true,
     rollupOptions: {
       output: {
