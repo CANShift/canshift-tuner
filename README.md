@@ -26,8 +26,8 @@ the upload / serial port.
   switch as one unit; the CAN scan and Learn mode keep running across views.
 - Burn gate — unbound widgets render the device's `--` placeholder, are
   counted in the toolbar, and prompt once before burning.
-- Observability with a visible opt-out (About view): Sentry crash reports and
-  PostHog flow events; payloads, frame ids and names are scrubbed client-side.
+- Observability with a visible opt-out (About view): PostHog flow events;
+  payloads, frame ids and names are scrubbed client-side.
 
 ## Dev
 
@@ -41,8 +41,8 @@ npm run format:check # enforced in CI
 npm run build
 ```
 
-Optional env: `VITE_POSTHOG_KEY` / `VITE_POSTHOG_HOST` (analytics) and
-`VITE_SENTRY_DSN` (crash reports) — both no-op when unset.
+Optional env: `VITE_POSTHOG_KEY` / `VITE_POSTHOG_HOST` (analytics) — no-op when
+unset.
 
 WebSerial requires Chrome / Edge / Brave / Opera. Firefox + Safari users get
 a friendly fallback message.

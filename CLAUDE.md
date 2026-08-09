@@ -14,7 +14,7 @@ Browser configurator for CANShift dashes (org: github.com/CANShift). Vite + Reac
 - Components live under `src/components/<area>/` with a props interface; check `src/components/ui/` (shadcn) before writing bespoke UI. Arrow functions, no comments, no nested ifs.
 - Zero comments policy; TS strict; wire-format JSON stays snake_case via boundary mappers.
 - Never write "RealDash" outside the literal `<RealDashCAN>` parser tag.
-- Observability: Sentry + PostHog live behind env (`VITE_SENTRY_DSN`, `VITE_POSTHOG_KEY`); scrub car data (payloads, frame ids, names) from anything sent; opt-out must keep working.
+- Observability: PostHog lives behind env (`VITE_POSTHOG_KEY`); scrub car data (payloads, frame ids, names) from anything sent; opt-out must keep working.
 - Flasher reads releases from CANShift/canshift-firmware.
 
 ## Workflow
