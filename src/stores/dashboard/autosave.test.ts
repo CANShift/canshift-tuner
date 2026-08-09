@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { CURRENT_SCHEMA_VERSION } from '@canshift/core'
-import { parseAutosave, serializeAutosave } from './autosave'
+import { isRestorable, parseAutosave, serializeAutosave } from './autosave'
 import { DEFAULT_SIM_CONFIG } from '../../config/default-sim-config'
 
 const source = () => ({
@@ -49,5 +49,16 @@ describe('autosave (#1849)', () => {
   it('keeps the current schema version after migration passthrough', () => {
     const restored = parseAutosave(serializeAutosave(source(), 1) ?? '')
     expect(restored?.config.version).toBe(CURRENT_SCHEMA_VERSION)
+  })
+
+  it('only restores a snapshot that holds unsaved work', () => {
+    const dirty = parseAutosave(serializeAutosave(source(), 1) ?? '')
+    expect(isRestorable(dirty)).toBe(true)
+
+    const clean = parseAutosave(serializeAutosave({ ...source(), isDirty: false }, 1) ?? '')
+    expect(clean).not.toBeNull()
+    expect(isRestorable(clean)).toBe(false)
+
+    expect(isRestorable(null)).toBe(false)
   })
 })
