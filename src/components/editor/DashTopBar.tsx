@@ -11,6 +11,7 @@ const PREVIEW_SIGNAL_VALUES: Record<string, number> = {
   coolant_temp_c: 88,
   oil_press_bar: 4.2,
   oil_temp_c: 95,
+  map_number: 1,
 }
 
 const formatPreviewSignal = (signal: string, format?: string): string => {
@@ -49,6 +50,7 @@ export const DashTopBar = ({
   const px = Math.round(h * TopBarMetrics.paddingRatio)
   const flagSquare = Math.round(TopBarMetrics.flagSquarePx * scale)
   const flagGap = Math.round(TopBarMetrics.flagGapPx * scale)
+  const dim = isDayMode ? '#5A5A5A' : '#BABABA'
 
   const handlePointerDown = (e: PointerEvent) => {
     swipeStartY.current = e.clientY
@@ -108,8 +110,8 @@ export const DashTopBar = ({
             key={key}
             style={{
               fontSize: fs,
-              color: '#666666',
-              letterSpacing: '0.04em',
+              color: dim,
+              letterSpacing: '0.1em',
               lineHeight: 1,
             }}
           >
@@ -122,8 +124,20 @@ export const DashTopBar = ({
         )
       case 'signal':
         return (
-          <span key={key} style={{ fontSize: fs, color: '#777777', lineHeight: 1 }}>
+          <span
+            key={key}
+            style={{ fontSize: fs, color: dim, letterSpacing: '0.1em', lineHeight: 1 }}
+          >
             {formatPreviewSignal(item.signal, item.format)}
+          </span>
+        )
+      case 'canRate':
+        return (
+          <span
+            key={key}
+            style={{ fontSize: fs, color: dim, letterSpacing: '0.1em', lineHeight: 1 }}
+          >
+            842 Hz
           </span>
         )
       case 'bleIcon':
@@ -152,7 +166,20 @@ export const DashTopBar = ({
       case 'modeFlag':
         return renderFlagBadge(key, item.text)
       case 'trackBadge':
-        return renderFlagBadge(key, 'TRACK')
+        return (
+          <span
+            key={key}
+            style={{
+              fontSize: fs,
+              color: dim,
+              letterSpacing: '0.1em',
+              lineHeight: 1,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            LAP 4 · 1:38.42
+          </span>
+        )
     }
   }
 
