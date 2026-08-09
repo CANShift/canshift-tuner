@@ -2,6 +2,7 @@ import { chipFamiliesMatch } from './board-resolution'
 
 const FLASH_BAUD = 460_800
 const MERGED_FLASH_OFFSET = 0x0
+const NVS_FLASH_OFFSET = 0x9000
 
 const SUPPORTED_CHIPS: readonly string[] = ['ESP32']
 
@@ -48,9 +49,21 @@ export interface FlashOptions {
   port: SerialPort
   bytes: Uint8Array
   expectedChip?: string
+  nvsImage?: Uint8Array
   onProgress: FlashProgress
   onLog: FlashLog
 }
+
+export const flashFileArray = (
+  bytes: Uint8Array,
+  nvsImage?: Uint8Array
+): { data: Uint8Array; address: number }[] =>
+  nvsImage
+    ? [
+        { data: bytes, address: MERGED_FLASH_OFFSET },
+        { data: nvsImage, address: NVS_FLASH_OFFSET },
+      ]
+    : [{ data: bytes, address: MERGED_FLASH_OFFSET }]
 
 export class FlashError extends Error {
   readonly cause: unknown
@@ -98,6 +111,7 @@ export const flashFirmware = async ({
   port,
   bytes,
   expectedChip,
+  nvsImage,
   onProgress,
   onLog,
 }: FlashOptions): Promise<void> => {
@@ -152,8 +166,11 @@ export const flashFirmware = async ({
     }
 
     try {
+      if (nvsImage) {
+        onLog(`Baking board profile into NVS at 0x${NVS_FLASH_OFFSET.toString(16)}`)
+      }
       await loader.writeFlash({
-        fileArray: [{ data: bytes, address: MERGED_FLASH_OFFSET }],
+        fileArray: flashFileArray(bytes, nvsImage),
         flashMode: 'keep',
         flashFreq: 'keep',
         flashSize: 'keep',

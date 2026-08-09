@@ -1,4 +1,6 @@
 import { flashFirmware, FlashError } from '../lib/firmware/flash'
+import { boardProfileNvsImage } from '../lib/firmware/board-provision'
+import { useResolvedBoardProfile } from './useResolvedBoardProfile'
 import { downloadFirmwareAsset } from '../lib/firmware/download'
 import { flashFirmwareOta, OtaError } from '../lib/firmware/ota'
 import { findFirmwareAsset } from '../lib/firmware/releases'
@@ -50,6 +52,7 @@ export interface UseFlasher {
 
 export const useFlasher = (): UseFlasher => {
   const selection = useFirmwareSelectionStore((s) => s.selection)
+  const resolvedBoard = useResolvedBoardProfile()
   const log = useLogStore((s) => s.push)
   const state = useFlasherStore((s) => s.state)
   const setState = useFlasherStore((s) => s.setState)
@@ -65,16 +68,18 @@ export const useFlasher = (): UseFlasher => {
     const name = selection.kind === 'release' ? selection.release.tag : selection.firmware.name
     log('info', `Flash requested — ${name}`)
 
-    void runFlash(selection, log, setState, expectedChip).catch((err: unknown) => {
-      const message =
-        err instanceof FlashError || err instanceof OtaError
-          ? err.message
-          : err instanceof Error
+    void runFlash(selection, log, setState, expectedChip, resolvedBoard?.blob).catch(
+      (err: unknown) => {
+        const message =
+          err instanceof FlashError || err instanceof OtaError
             ? err.message
-            : String(err)
-      setState({ kind: 'error', message })
-      log('error', `Flash failed: ${message}`)
-    })
+            : err instanceof Error
+              ? err.message
+              : String(err)
+        setState({ kind: 'error', message })
+        log('error', `Flash failed: ${message}`)
+      }
+    )
   }
 
   const reset = () => {
@@ -107,7 +112,8 @@ const runFlash = async (
   selection: Exclude<FirmwareSelection, { kind: 'none' }>,
   log: ReturnType<typeof useLogStore.getState>['push'],
   setState: (next: FlasherState) => void,
-  expectedChip?: string
+  expectedChip?: string,
+  boardProfileBlob?: string
 ): Promise<void> => {
   const conn = useConnectionStore.getState()
   const canUseOta = conn.status === 'connected'
@@ -134,10 +140,16 @@ const runFlash = async (
   const bytes = selection.firmware.bytes
   const port = await acquirePort(log)
   setState({ kind: 'flashing', written: 0, total: bytes.byteLength })
+  const nvsImage =
+    boardProfileBlob === undefined ? undefined : boardProfileNvsImage(boardProfileBlob)
+  if (nvsImage) {
+    log('info', 'Cold provision — board profile will be written in the same esptool session')
+  }
   await flashFirmware({
     port,
     bytes,
     ...(expectedChip !== undefined ? { expectedChip } : {}),
+    ...(nvsImage !== undefined ? { nvsImage } : {}),
     onProgress: (written, total) => {
       setState({ kind: 'flashing', written, total })
     },
