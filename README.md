@@ -1,10 +1,5 @@
 # canshift-tuner
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/icons/tuner-dark.svg">
-  <img src=".github/icons/tuner.svg" alt="" height="72">
-</picture>
-
 Betaflight-style web configurator for CANShift dashes. Hosted on Vercel, talks
 to the firmware via **WebSerial** over the CH340 UART that already serves as
 the upload / serial port.
