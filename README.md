@@ -26,7 +26,8 @@ the upload / serial port.
   switch as one unit; the CAN scan and Learn mode keep running across views.
 - Burn gate — unbound widgets render the device's `--` placeholder, are
   counted in the toolbar, and prompt once before burning.
-- Observability with a visible opt-out (About view): PostHog flow events;
+- Observability is opt-in (About view, off by default): nothing is loaded or
+  requested until the toggle is on. Once on, PostHog flow events only —
   payloads, frame ids and names are scrubbed client-side.
 
 ## Dev
@@ -42,7 +43,7 @@ npm run build
 ```
 
 Optional env: `VITE_POSTHOG_KEY` / `VITE_POSTHOG_HOST` (analytics) — no-op when
-unset.
+unset, and no-op until the user opts in.
 
 WebSerial requires Chrome / Edge / Brave / Opera. Firefox + Safari users get
 a friendly fallback message.
