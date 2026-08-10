@@ -11,8 +11,14 @@ interface FakePort {
   closeCalls: number
 }
 
+const closeOnce = (state: { controller: ReadableStreamDefaultController<Uint8Array> | null }) => {
+  const controller = state.controller
+  state.controller = null
+  controller?.close()
+}
+
 const makeFakePort = (): FakePort => {
-  let readableController: ReadableStreamDefaultController<Uint8Array> | null = null
+  const rx = { controller: null as ReadableStreamDefaultController<Uint8Array> | null }
   const written: string[] = []
   const decoder = new TextDecoder()
   const state = {
@@ -23,7 +29,7 @@ const makeFakePort = (): FakePort => {
 
   const readable = new ReadableStream<Uint8Array>({
     start(controller) {
-      readableController = controller
+      rx.controller = controller
     },
   })
 
@@ -40,9 +46,7 @@ const makeFakePort = (): FakePort => {
     close: vi.fn(async () => {
       state.closeCalls++
       state.closed = true
-      try {
-        readableController?.close()
-      } catch {}
+      closeOnce(rx)
     }),
     readable,
     writable,
@@ -52,12 +56,10 @@ const makeFakePort = (): FakePort => {
     port,
     pushBytes: (bytes) => {
       const encoded = typeof bytes === 'string' ? new TextEncoder().encode(bytes) : bytes
-      readableController?.enqueue(encoded)
+      rx.controller?.enqueue(encoded)
     },
     closeReader: () => {
-      try {
-        readableController?.close()
-      } catch {}
+      closeOnce(rx)
     },
     get written() {
       return written
@@ -362,17 +364,17 @@ describe('SerialClient — send queue', () => {
 })
 
 const makeReopenablePort = (): { port: SerialPort; dropConnection: () => void } => {
-  let controller: ReadableStreamDefaultController<Uint8Array> | null = null
+  const rx = { controller: null as ReadableStreamDefaultController<Uint8Array> | null }
   let readable = new ReadableStream<Uint8Array>({
     start(c) {
-      controller = c
+      rx.controller = c
     },
   })
   let writable = new WritableStream<Uint8Array>()
   const arm = (): void => {
     readable = new ReadableStream<Uint8Array>({
       start(c) {
-        controller = c
+        rx.controller = c
       },
     })
     writable = new WritableStream<Uint8Array>()
@@ -382,9 +384,7 @@ const makeReopenablePort = (): { port: SerialPort; dropConnection: () => void } 
       arm()
     }),
     close: vi.fn(async () => {
-      try {
-        controller?.close()
-      } catch {}
+      closeOnce(rx)
     }),
     get readable() {
       return readable
@@ -396,9 +396,7 @@ const makeReopenablePort = (): { port: SerialPort; dropConnection: () => void } 
   return {
     port,
     dropConnection: () => {
-      try {
-        controller?.close()
-      } catch {}
+      closeOnce(rx)
     },
   }
 }
