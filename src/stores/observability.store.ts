@@ -1,10 +1,11 @@
 import { create } from 'zustand'
+import { readItem, writeItem, STORAGE_KEYS } from '../lib/local-storage'
 
-const STORAGE_KEY = 'canshift.tuner.observability'
+const STORAGE_KEY = STORAGE_KEYS.observability
 
 export const readStoredObservability = (): boolean => {
   try {
-    return localStorage.getItem(STORAGE_KEY) === 'on'
+    return readItem(STORAGE_KEY) === 'on'
   } catch {
     return false
   }
@@ -12,7 +13,7 @@ export const readStoredObservability = (): boolean => {
 
 const writeStored = (enabled: boolean): void => {
   try {
-    localStorage.setItem(STORAGE_KEY, enabled ? 'on' : 'off')
+    writeItem(STORAGE_KEY, enabled ? 'on' : 'off')
   } catch {
     void 0
   }

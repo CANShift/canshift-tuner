@@ -1,29 +1,13 @@
 import type { PageConfig } from '@canshift/core'
+import { readItem, writeItem, STORAGE_KEYS } from '../../lib/local-storage'
 
-export const PAGE_TEMPLATES_KEY = 'canshift.tuner.page-templates'
+export const PAGE_TEMPLATES_KEY = STORAGE_KEYS.pageTemplates
 
 export interface PageTemplateEntry {
   id: string
   name: string
   createdAt: string
   page: PageConfig
-}
-
-const safeGet = (key: string): string | null => {
-  try {
-    return localStorage.getItem(key)
-  } catch {
-    return null
-  }
-}
-
-const safeSet = (key: string, value: string): boolean => {
-  try {
-    localStorage.setItem(key, value)
-    return true
-  } catch {
-    return false
-  }
 }
 
 const isEntry = (value: unknown): value is PageTemplateEntry => {
@@ -39,7 +23,7 @@ const isEntry = (value: unknown): value is PageTemplateEntry => {
 }
 
 export const readTemplates = (): PageTemplateEntry[] => {
-  const raw = safeGet(PAGE_TEMPLATES_KEY)
+  const raw = readItem(PAGE_TEMPLATES_KEY)
   if (raw === null) return []
   let parsed: unknown
   try {
@@ -52,4 +36,4 @@ export const readTemplates = (): PageTemplateEntry[] => {
 }
 
 export const writeTemplates = (templates: PageTemplateEntry[]): boolean =>
-  safeSet(PAGE_TEMPLATES_KEY, JSON.stringify(templates))
+  writeItem(PAGE_TEMPLATES_KEY, JSON.stringify(templates))

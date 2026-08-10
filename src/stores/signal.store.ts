@@ -1,12 +1,13 @@
 import { create } from 'zustand'
 import type { SignalDef } from '@canshift/core'
 import { DEFAULT_PROFILE_ID, ECU_PROFILES } from '@canshift/core'
+import { readItem, writeItem, STORAGE_KEYS } from '../lib/local-storage'
 
 const FALLBACK_PROFILE_ID = 'maxxecu-street'
 const FALLBACK_SIGNALS: SignalDef[] =
   ECU_PROFILES.find((p) => p.id === FALLBACK_PROFILE_ID)?.signals ?? []
 
-const STORAGE_KEY = 'canshift:signal-store-v1'
+const STORAGE_KEY = STORAGE_KEYS.signals
 export const DEFAULT_PROFILE_KEY = `builtin:${DEFAULT_PROFILE_ID}`
 
 interface StoredState {
@@ -16,7 +17,7 @@ interface StoredState {
 
 const readStored = (): StoredState | null => {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const raw = readItem(STORAGE_KEY)
     if (!raw) return null
     const parsed: unknown = JSON.parse(raw)
     if (
@@ -34,7 +35,7 @@ const readStored = (): StoredState | null => {
 
 const writeStored = (state: StoredState): void => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+    writeItem(STORAGE_KEY, JSON.stringify(state))
   } catch {
     void 0
   }

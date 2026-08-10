@@ -1,11 +1,12 @@
 import { create } from 'zustand'
+import { readItem, writeItem, STORAGE_KEYS } from '../lib/local-storage'
 
-const LEFT_NAV_KEY = 'cs-left-nav-collapsed'
-const INSPECTOR_KEY = 'cs-inspector-collapsed'
+const LEFT_NAV_KEY = STORAGE_KEYS.leftNavCollapsed
+const INSPECTOR_KEY = STORAGE_KEYS.inspectorCollapsed
 
 const readCollapsed = (key: string): boolean => {
   try {
-    return localStorage.getItem(key) === '1'
+    return readItem(key) === '1'
   } catch {
     return false
   }
@@ -13,7 +14,7 @@ const readCollapsed = (key: string): boolean => {
 
 const writeCollapsed = (key: string, value: boolean): void => {
   try {
-    localStorage.setItem(key, value ? '1' : '0')
+    writeItem(key, value ? '1' : '0')
   } catch {
     return
   }

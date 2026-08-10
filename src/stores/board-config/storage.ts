@@ -1,7 +1,8 @@
 import type { BoardProfile } from '@canshift/core'
+import { readItem, writeItem, removeItem, STORAGE_KEYS } from '../../lib/local-storage'
 
-export const CUSTOM_BOARDS_KEY = 'canshift.tuner.board-profiles'
-export const SELECTED_BOARD_KEY = 'canshift.tuner.selected-board'
+export const CUSTOM_BOARDS_KEY = STORAGE_KEYS.boardProfiles
+export const SELECTED_BOARD_KEY = STORAGE_KEYS.selectedBoard
 
 export interface CustomBoardEntry {
   id: string
@@ -11,23 +12,6 @@ export interface CustomBoardEntry {
 }
 
 export type SelectedBoard = { source: 'catalog' | 'custom'; boardId: string }
-
-const safeGet = (key: string): string | null => {
-  try {
-    return localStorage.getItem(key)
-  } catch {
-    return null
-  }
-}
-
-const safeSet = (key: string, value: string): boolean => {
-  try {
-    localStorage.setItem(key, value)
-    return true
-  } catch {
-    return false
-  }
-}
 
 const isEntry = (value: unknown): value is CustomBoardEntry => {
   if (typeof value !== 'object' || value === null) return false
@@ -44,7 +28,7 @@ const isEntry = (value: unknown): value is CustomBoardEntry => {
 }
 
 export const readCustomBoards = (): CustomBoardEntry[] => {
-  const raw = safeGet(CUSTOM_BOARDS_KEY)
+  const raw = readItem(CUSTOM_BOARDS_KEY)
   if (raw === null) return []
   let parsed: unknown
   try {
@@ -56,10 +40,10 @@ export const readCustomBoards = (): CustomBoardEntry[] => {
 }
 
 export const writeCustomBoards = (entries: CustomBoardEntry[]): boolean =>
-  safeSet(CUSTOM_BOARDS_KEY, JSON.stringify(entries))
+  writeItem(CUSTOM_BOARDS_KEY, JSON.stringify(entries))
 
 export const readSelectedBoard = (): SelectedBoard | null => {
-  const raw = safeGet(SELECTED_BOARD_KEY)
+  const raw = readItem(SELECTED_BOARD_KEY)
   if (raw === null) return null
   let parsed: unknown
   try {
@@ -76,12 +60,8 @@ export const readSelectedBoard = (): SelectedBoard | null => {
 
 export const writeSelectedBoard = (selected: SelectedBoard | null): void => {
   if (selected === null) {
-    try {
-      localStorage.removeItem(SELECTED_BOARD_KEY)
-    } catch {
-      void 0
-    }
+    removeItem(SELECTED_BOARD_KEY)
     return
   }
-  safeSet(SELECTED_BOARD_KEY, JSON.stringify(selected))
+  writeItem(SELECTED_BOARD_KEY, JSON.stringify(selected))
 }

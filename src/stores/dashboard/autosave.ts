@@ -1,7 +1,8 @@
 import { CURRENT_SCHEMA_VERSION, DashboardConfigSchema, migrateConfig } from '@canshift/core'
 import type { DashboardConfig } from '@canshift/core'
+import { readItem, writeItem, removeItem, STORAGE_KEYS } from '../../lib/local-storage'
 
-export const AUTOSAVE_KEY = 'canshift.tuner.autosave'
+export const AUTOSAVE_KEY = STORAGE_KEYS.autosave
 export const AUTOSAVE_DEBOUNCE_MS = 500
 
 export interface AutosavePayload {
@@ -86,21 +87,10 @@ export const parseAutosave = (raw: string): AutosavePayload | null => {
 
 export const readAutosave = (): AutosavePayload | null => {
   if (typeof window === 'undefined') return null
-  let raw: string | null
-  try {
-    raw = window.localStorage.getItem(AUTOSAVE_KEY)
-  } catch {
-    return null
-  }
+  const raw = readItem(AUTOSAVE_KEY)
   if (raw === null) return null
   const payload = parseAutosave(raw)
-  if (payload === null) {
-    try {
-      window.localStorage.removeItem(AUTOSAVE_KEY)
-    } catch {
-      void 0
-    }
-  }
+  if (payload === null) removeItem(AUTOSAVE_KEY)
   return payload
 }
 
@@ -142,11 +132,7 @@ export const startAutosave = (store: AutosaveStore): (() => void) => {
     const savedAt = Date.now()
     const raw = serializeAutosave(s, savedAt)
     if (raw === null) return
-    try {
-      window.localStorage.setItem(AUTOSAVE_KEY, raw)
-    } catch {
-      return
-    }
+    if (!writeItem(AUTOSAVE_KEY, raw)) return
     lastWritten = s
     store.getState().markAutosaved(savedAt)
   }

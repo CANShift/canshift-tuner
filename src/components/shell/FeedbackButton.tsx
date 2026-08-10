@@ -1,20 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { submitFeedback } from '../../lib/feedback'
+import { readItem, writeItem, STORAGE_KEYS } from '../../lib/local-storage'
 
-const STORAGE_KEY = 'canshift:feedback-dismissed-hint'
-const LEGACY_STORAGE_KEY = 'tuner.feedback.dismissed-hint'
+const STORAGE_KEY = STORAGE_KEYS.feedbackDismissedHint
 
-const readDismissed = (): boolean => {
-  if (localStorage.getItem(STORAGE_KEY) === '1') return true
-  if (localStorage.getItem(LEGACY_STORAGE_KEY) === '1') {
-    localStorage.setItem(STORAGE_KEY, '1')
-    localStorage.removeItem(LEGACY_STORAGE_KEY)
-    return true
-  }
-  localStorage.removeItem(LEGACY_STORAGE_KEY)
-  return false
-}
+const readDismissed = (): boolean => readItem(STORAGE_KEY) === '1'
 
 type Status = 'idle' | 'sending' | 'sent' | 'error'
 
@@ -40,7 +31,7 @@ const FeedbackButton = () => {
 
   const dismissHint = () => {
     setShowHint(false)
-    localStorage.setItem(STORAGE_KEY, '1')
+    writeItem(STORAGE_KEY, '1')
   }
 
   const openDialog = () => {

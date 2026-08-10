@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { readItem, writeItem, STORAGE_KEYS } from '../lib/local-storage'
 
 export interface FlashHistoryEntry {
   label: string
@@ -6,13 +7,13 @@ export interface FlashHistoryEntry {
   ok: boolean
 }
 
-const STORAGE_KEY = 'canshift.tuner.flash-history'
+const STORAGE_KEY = STORAGE_KEYS.flashHistory
 const HISTORY_CAP = 20
 
 const readStoredHistory = (): FlashHistoryEntry[] => {
   if (typeof window === 'undefined') return []
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
+    const raw = readItem(STORAGE_KEY)
     if (raw === null) return []
     const parsed: unknown = JSON.parse(raw)
     if (!Array.isArray(parsed)) return []
@@ -32,7 +33,7 @@ const readStoredHistory = (): FlashHistoryEntry[] => {
 const writeStoredHistory = (entries: FlashHistoryEntry[]): void => {
   if (typeof window === 'undefined') return
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(entries))
+    writeItem(STORAGE_KEY, JSON.stringify(entries))
   } catch {
     void 0
   }
