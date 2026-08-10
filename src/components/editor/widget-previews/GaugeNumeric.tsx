@@ -6,9 +6,10 @@ import {
   valueUnitFontSize,
   widgetTopRulePx,
 } from '@canshift/core'
-import { BLINK_ANIM, FONT_FAMILY } from '../widgetPreview.styles'
+import { BLINK_ANIM } from '../widgetPreview.styles'
 import { FRAC_FONT_SCALE, effectiveValue, splitDecimal } from './gauge-math'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
+import { MONO_FONT, uiLabelAtSize } from '../../../lib/typography'
 
 export interface GaugeNumericRendererProps extends BaseRendererProps {
   danger: boolean
@@ -112,8 +113,7 @@ export const GaugeNumericPreview = memo(function GaugeNumericPreview({
           position: 'absolute',
           top: 4,
           left: 4,
-          fontSize: 9,
-          fontFamily: FONT_FAMILY,
+          ...uiLabelAtSize(9),
           fontWeight: 500,
           color: '#888888',
           lineHeight: 1,
@@ -147,7 +147,7 @@ export const GaugeNumericPreview = memo(function GaugeNumericPreview({
             <span
               style={{
                 color: valueColor,
-                fontFamily: FONT_FAMILY,
+                fontFamily: MONO_FONT,
                 fontWeight: 800,
                 lineHeight: 1,
                 whiteSpace: 'nowrap',
@@ -170,7 +170,7 @@ export const GaugeNumericPreview = memo(function GaugeNumericPreview({
             style={{
               color: '#888888',
               fontSize: valueUnitFontSize(Math.round(fontSize)),
-              fontFamily: FONT_FAMILY,
+              fontFamily: MONO_FONT,
               fontWeight: 500,
               lineHeight: 1,
               whiteSpace: 'nowrap',

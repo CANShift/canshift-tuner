@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { STALE_PLACEHOLDER } from '@canshift/core'
-import { FONT_FAMILY } from '../widgetPreview.styles'
 import type { BaseRendererProps } from './shared'
+import { MONO_FONT } from '../../../lib/typography'
 
 interface GearRendererProps extends BaseRendererProps {
   unbound?: boolean
@@ -45,7 +45,7 @@ export const GearPreview = memo(function GearPreview({
             color: st.primaryColor,
             fontSize,
             fontWeight: 800,
-            fontFamily: FONT_FAMILY,
+            fontFamily: MONO_FONT,
             lineHeight: 1,
             textAlign: 'center',
             width: '100%',

@@ -1,7 +1,5 @@
 import { sensorOkColor, sensorWarningColor, type SensorIconName } from '@canshift/core'
 
-export const FONT_FAMILY = "'JetBrains Mono', ui-monospace, monospace"
-
 export const FONT_WEIGHT_VALUE = 900
 
 export const BLINK_ANIM = 'canshift-blink 0.7s step-end infinite'

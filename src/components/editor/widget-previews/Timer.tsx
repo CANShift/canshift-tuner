@@ -1,6 +1,6 @@
 import { memo } from 'react'
-import { FONT_FAMILY } from '../widgetPreview.styles'
 import type { BaseRendererProps } from './shared'
+import { MONO_FONT, uiLabelAtSize } from '../../../lib/typography'
 
 const DEMO_MMSS = '01:23'
 const DEMO_SS_MMM = '12.847'
@@ -30,7 +30,7 @@ export const TimerPreview = memo(function TimerPreview({ widget, w, h }: BaseRen
           color: st.textColor,
           fontSize,
           fontWeight: fontSize >= 32 ? 900 : 700,
-          fontFamily: FONT_FAMILY,
+          fontFamily: MONO_FONT,
           letterSpacing: '0.06em',
           fontVariantNumeric: 'tabular-nums',
         }}
@@ -42,8 +42,7 @@ export const TimerPreview = memo(function TimerPreview({ widget, w, h }: BaseRen
           position: 'absolute',
           top: 2,
           left: 3,
-          fontSize: sigFontSize,
-          fontFamily: FONT_FAMILY,
+          ...uiLabelAtSize(sigFontSize),
           fontWeight: 500,
           color: '#888888',
           lineHeight: 1,
