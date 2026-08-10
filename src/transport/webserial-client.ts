@@ -18,6 +18,8 @@ const STABLE_UPTIME_MS = 10_000
 
 const SEND_QUEUE_CAPACITY = 8
 
+const RX_BUFFER_MAX_CHARS = 64 * 1024
+
 export type SerialStatus = 'disconnected' | 'connecting' | 'connected' | 'reconnecting'
 
 export interface SerialClientOptions {
@@ -60,6 +62,12 @@ interface Subscription {
   handler: Handler<unknown>
 }
 
+interface PortHandles {
+  port: SerialPort
+  reader: ReadableStreamDefaultReader<Uint8Array>
+  writer: WritableStreamDefaultWriter<Uint8Array>
+}
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null
 
@@ -76,6 +84,14 @@ const safeJsonParse = (line: string): unknown => {
   }
 }
 
+const bestEffort = async (label: string, op: () => unknown): Promise<void> => {
+  try {
+    await op()
+  } catch (err) {
+    console.warn(`[serial] ${label} failed during teardown — continuing`, err)
+  }
+}
+
 export const putConfigTimeoutMs = (payloadBytes: number): number => {
   const sizeKB = payloadBytes / BYTES_PER_KB
   const scaled = Math.ceil(sizeKB * PUT_CONFIG_PER_KB_MS) + PUT_CONFIG_BASE_TIMEOUT_MS
@@ -83,11 +99,10 @@ export const putConfigTimeoutMs = (payloadBytes: number): number => {
 }
 
 export class SerialClient {
-  private port: SerialPort | null = null
-  private reader: ReadableStreamDefaultReader<Uint8Array> | null = null
-  private writer: WritableStreamDefaultWriter<Uint8Array> | null = null
+  private active: PortHandles | null = null
   private readLoop: Promise<void> | null = null
   private rxBuffer = ''
+  private rxResyncing = false
   private readonly decoder = new TextDecoder()
   private readonly encoder = new TextEncoder()
   private readonly baudRate: number
@@ -118,7 +133,7 @@ export class SerialClient {
   }
 
   getPort(): SerialPort | null {
-    return this.port
+    return this.active?.port ?? null
   }
 
   onStatus(listener: StatusListener): Unsubscribe {
@@ -153,7 +168,7 @@ export class SerialClient {
     this.reconnectDelay = RECONNECT_INITIAL_MS
     this.successUptimeStartedAt = null
 
-    if (this.port) {
+    if (this.active) {
       this.suppressNextReconnect = true
       await this.teardownPort()
     }
@@ -175,10 +190,9 @@ export class SerialClient {
     this.failPendingAck('disconnected')
     this.clearStaleAckFlush()
     this.drainQueueWithError('disconnected')
-    const reader = this.reader
     const readLoopPromise = this.readLoop
-    if (reader) {
-      reader.cancel().catch(() => undefined)
+    if (this.active) {
+      this.active.reader.cancel().catch(() => undefined)
     }
     void (readLoopPromise ?? Promise.resolve()).finally(() => {
       this.setStatus('disconnected')
@@ -190,7 +204,7 @@ export class SerialClient {
     fields: Record<string, unknown> = {},
     opts: SendOptions = {}
   ): Promise<AckResult> {
-    if (!this.writer || this.status !== 'connected') {
+    if (!this.active || this.status !== 'connected') {
       return Promise.resolve({ ok: false, error: 'not_connected' })
     }
     if (this.pendingAck || this.staleAckDiscards > 0) {
@@ -253,27 +267,26 @@ export class SerialClient {
       throw new Error(msg)
     }
 
-    const reader = port.readable.getReader()
-    const writer = port.writable.getWriter()
-    this.port = port
-    this.reader = reader
-    this.writer = writer
+    const own: PortHandles = {
+      port,
+      reader: port.readable.getReader(),
+      writer: port.writable.getWriter(),
+    }
+    this.active = own
     this.rxBuffer = ''
+    this.rxResyncing = false
     this.clearStaleAckFlush()
     this.successUptimeStartedAt = Date.now()
     this.lastError = undefined
     this.setStatus('connected')
 
-    this.readLoop = this.runReadLoop(port, reader).catch(() => undefined)
+    this.readLoop = this.runReadLoop(own).catch(() => undefined)
   }
 
-  private async runReadLoop(
-    ownPort: SerialPort,
-    reader: ReadableStreamDefaultReader<Uint8Array>
-  ): Promise<void> {
+  private async runReadLoop(own: PortHandles): Promise<void> {
     try {
       while (true) {
-        const { value, done } = await reader.read()
+        const { value, done } = await own.reader.read()
         if (done) break
         if (value && value.byteLength > 0) {
           this.rxBuffer += this.decoder.decode(value, { stream: true })
@@ -286,43 +299,56 @@ export class SerialClient {
       const tail = this.decoder.decode()
       if (tail) this.rxBuffer += tail
       this.drainFrames()
-      try {
-        await reader.cancel()
-      } catch (err) {
-        console.warn('[serial] reader.cancel after readLoop failed', err)
-      }
-      try {
-        reader.releaseLock()
-      } catch (err) {
-        console.warn('[serial] reader.releaseLock after readLoop failed', err)
-      }
-      const writerSnapshot = this.writer
-      if (writerSnapshot) {
-        try {
-          await writerSnapshot.abort()
-        } catch (err) {
-          console.warn('[serial] writer.abort after readLoop failed', err)
-        }
-        try {
-          writerSnapshot.releaseLock()
-        } catch (err) {
-          console.warn('[serial] writer.releaseLock after abort failed', err)
-        }
-      }
-      if (this.port === ownPort || this.port === null) {
-        this.handleClose(ownPort)
-      }
+      await this.releaseHandles(own)
+      if (!this.isSuperseded(own)) this.handleClose(own)
     }
   }
 
+  private isSuperseded(own: PortHandles): boolean {
+    return this.active !== null && this.active !== own
+  }
+
+  private async releaseHandles(own: PortHandles): Promise<void> {
+    await bestEffort('reader.cancel', () => own.reader.cancel())
+    await bestEffort('reader.releaseLock', () => {
+      own.reader.releaseLock()
+    })
+    await bestEffort('writer.abort', () => own.writer.abort())
+    await bestEffort('writer.releaseLock', () => {
+      own.writer.releaseLock()
+    })
+  }
+
   private drainFrames(): void {
+    for (const line of this.takeCompleteLines()) this.onFrame(line)
+    if (this.rxBuffer.length > RX_BUFFER_MAX_CHARS) this.beginRxResync()
+  }
+
+  private takeCompleteLines(): string[] {
+    const lines: string[] = []
     let nl = this.rxBuffer.indexOf('\n')
     while (nl !== -1) {
-      const line = this.rxBuffer.slice(0, nl).replace(/\r$/, '')
+      lines.push(this.rxBuffer.slice(0, nl).replace(/\r$/, ''))
       this.rxBuffer = this.rxBuffer.slice(nl + 1)
-      if (line.length > 0) this.onFrame(line)
       nl = this.rxBuffer.indexOf('\n')
     }
+    return this.dropResyncRemnant(lines).filter((line) => line.length > 0)
+  }
+
+  private dropResyncRemnant(lines: string[]): string[] {
+    if (!this.rxResyncing || lines.length === 0) return lines
+    this.rxResyncing = false
+    return lines.slice(1)
+  }
+
+  private beginRxResync(): void {
+    const alreadyResyncing = this.rxResyncing
+    this.rxBuffer = ''
+    this.rxResyncing = true
+    if (alreadyResyncing) return
+    console.warn(
+      `[serial] rx buffer passed ${String(RX_BUFFER_MAX_CHARS)} chars with no frame terminator — discarding until the next newline`
+    )
   }
 
   private onFrame(raw: string): void {
@@ -379,7 +405,7 @@ export class SerialClient {
 
       this.pendingAck = { resolve, timer }
 
-      const writer = this.writer
+      const writer = this.active?.writer
       if (!writer) {
         clearTimeout(timer)
         this.pendingAck = null
@@ -407,7 +433,7 @@ export class SerialClient {
     if (this.pendingAck || this.staleAckDiscards > 0) return
     const next = this.pendingSends.shift()
     if (!next) return
-    if (!this.writer || this.status !== 'connected') {
+    if (!this.active || this.status !== 'connected') {
       next.resolve({ ok: false, error: 'not_connected' })
       this.drainPendingSends()
       return
@@ -454,29 +480,14 @@ export class SerialClient {
     ack.resolve({ ok: false, error: reason })
   }
 
-  private handleClose(ownPort: SerialPort): void {
-    const reader = this.reader
-    if (reader) {
-      try {
-        reader.releaseLock()
-      } catch (err) {
-        console.warn('[serial] reader.releaseLock failed', err)
-      }
-    }
-    const writer = this.writer
-    if (writer) {
-      try {
-        writer.releaseLock()
-      } catch (err) {
-        console.warn('[serial] writer.releaseLock failed', err)
-      }
-    }
-    void this.safeClose(ownPort)
+  private handleClose(own: PortHandles): void {
+    void this.safeClose(own.port)
 
-    if (this.suppressNextReconnect || (this.port !== null && this.port !== ownPort)) {
+    if (this.suppressNextReconnect) {
       this.suppressNextReconnect = false
       return
     }
+    if (this.isSuperseded(own)) return
 
     this.failPendingAck('connection_closed')
     this.clearStaleAckFlush()
@@ -484,9 +495,7 @@ export class SerialClient {
     const wasConnected = this.status === 'connected'
     const openedAt = this.successUptimeStartedAt
     this.successUptimeStartedAt = null
-    this.reader = null
-    this.writer = null
-    this.port = null
+    this.active = null
     this.readLoop = null
 
     if (this.intentionalDisconnect) {
@@ -499,7 +508,7 @@ export class SerialClient {
       if (openedAt !== null && Date.now() - openedAt >= STABLE_UPTIME_MS) {
         this.reconnectDelay = RECONNECT_INITIAL_MS
       }
-      this.scheduleReconnect(ownPort)
+      this.scheduleReconnect(own.port)
     }
   }
 
@@ -526,46 +535,18 @@ export class SerialClient {
   }
 
   private async teardownPort(): Promise<void> {
-    const reader = this.reader
-    const writer = this.writer
-    const port = this.port
-    this.reader = null
-    this.writer = null
-    this.port = null
+    const own = this.active
+    if (!own) return
+    this.active = null
+    const loop = this.readLoop
+    this.readLoop = null
 
-    if (reader) {
-      try {
-        await reader.cancel()
-      } catch (err) {
-        console.warn('[serial] reader.cancel failed', err)
-      }
-      try {
-        reader.releaseLock()
-      } catch (err) {
-        console.warn('[serial] reader.releaseLock failed', err)
-      }
-    }
-    if (writer) {
-      try {
-        await writer.close()
-      } catch (err) {
-        console.warn('[serial] writer.close failed', err)
-      }
-      try {
-        writer.releaseLock()
-      } catch (err) {
-        console.warn('[serial] writer.releaseLock failed', err)
-      }
-    }
-    if (port) await this.safeClose(port)
+    await bestEffort('reader.cancel', () => own.reader.cancel())
+    await loop
   }
 
   private async safeClose(port: SerialPort): Promise<void> {
-    try {
-      await port.close()
-    } catch (err) {
-      console.warn('[serial] port.close failed', err)
-    }
+    await bestEffort('port.close', () => port.close())
   }
 
   private setStatus(next: SerialStatus, error?: string): void {
