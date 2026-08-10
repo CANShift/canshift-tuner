@@ -251,6 +251,57 @@ describe('SerialClient — single-instance behaviour', () => {
 
     client.disconnect()
   })
+
+  it('leaves the new connection able to send after a connect over an open one', async () => {
+    const first = makeFakePort()
+    const second = makeFakePort()
+    const client = new SerialClient({ disableReconnect: true })
+
+    await client.connect(first.port)
+    await client.connect(second.port)
+    await flush()
+
+    const pending = client.send(1, { foo: 'bar' })
+    await flush()
+    second.pushBytes('{"status":"ok"}\n')
+
+    await expect(pending).resolves.toEqual(expect.objectContaining({ ok: true }))
+    expect(second.written.join('')).toContain('"cmd":1')
+    expect(first.written).toEqual([])
+
+    client.disconnect()
+  })
+})
+
+describe('SerialClient — rx buffer overflow', () => {
+  it('drops a newline-free flood and resyncs on the next complete frame', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const fake = makeFakePort()
+    const client = new SerialClient({ disableReconnect: true })
+    const seen: unknown[] = []
+
+    await client.connect(fake.port)
+    client.subscribe('log', (event) => {
+      seen.push(event)
+    })
+
+    for (let i = 0; i < 16; i++) {
+      fake.pushBytes('x'.repeat(64 * 1024))
+      await flush()
+    }
+
+    expect(
+      warn.mock.calls.filter(([msg]) => typeof msg === 'string' && msg.includes('rx buffer passed'))
+    ).toHaveLength(1)
+
+    fake.pushBytes('tail-of-the-garbage\n{"log":"back"}\n')
+    await flush()
+
+    expect(seen).toEqual([{ log: 'back' }])
+
+    client.disconnect()
+    warn.mockRestore()
+  })
 })
 
 describe('SerialClient — send queue', () => {
