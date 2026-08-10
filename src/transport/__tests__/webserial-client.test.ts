@@ -273,6 +273,33 @@ describe('SerialClient — single-instance behaviour', () => {
   })
 })
 
+describe('SerialClient — status listener isolation', () => {
+  it('keeps notifying the remaining listeners when one throws', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const fake = makeFakePort()
+    const client = new SerialClient({ disableReconnect: true })
+    const seen: string[] = []
+
+    client.onStatus(() => {
+      throw new Error('listener blew up')
+    })
+    client.onStatus((status) => {
+      seen.push(status)
+    })
+
+    await client.connect(fake.port)
+    await flush()
+
+    expect(seen).toContain('connected')
+    expect(
+      warn.mock.calls.filter(([msg]) => typeof msg === 'string' && msg.includes('status listener'))
+    ).not.toHaveLength(0)
+
+    client.disconnect()
+    warn.mockRestore()
+  })
+})
+
 describe('SerialClient — rx buffer overflow', () => {
   it('drops a newline-free flood and resyncs on the next complete frame', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)

@@ -88,7 +88,7 @@ const bestEffort = async (label: string, op: () => unknown): Promise<void> => {
   try {
     await op()
   } catch (err) {
-    console.warn(`[serial] ${label} failed during teardown — continuing`, err)
+    console.warn(`[serial] ${label} failed — continuing`, err)
   }
 }
 
@@ -191,9 +191,8 @@ export class SerialClient {
     this.clearStaleAckFlush()
     this.drainQueueWithError('disconnected')
     const readLoopPromise = this.readLoop
-    if (this.active) {
-      this.active.reader.cancel().catch(() => undefined)
-    }
+    const own = this.active
+    if (own) void bestEffort('reader.cancel', () => own.reader.cancel())
     void (readLoopPromise ?? Promise.resolve()).finally(() => {
       this.setStatus('disconnected')
     })
@@ -228,11 +227,9 @@ export class SerialClient {
       }
     ).setSignals
     if (typeof setSignals !== 'function') return
-    try {
-      await setSignals.call(port, { dataTerminalReady: false, requestToSend: false })
-    } catch (err) {
-      console.warn('[serial] setSignals failed', err)
-    }
+    await bestEffort('setSignals', () =>
+      setSignals.call(port, { dataTerminalReady: false, requestToSend: false })
+    )
   }
 
   private async requestPort(): Promise<SerialPort | null> {
@@ -280,7 +277,7 @@ export class SerialClient {
     this.lastError = undefined
     this.setStatus('connected')
 
-    this.readLoop = this.runReadLoop(own).catch(() => undefined)
+    this.readLoop = bestEffort('readLoop', () => this.runReadLoop(own))
   }
 
   private async runReadLoop(own: PortHandles): Promise<void> {
@@ -554,11 +551,9 @@ export class SerialClient {
     this.status = next
     if (error !== undefined) this.lastError = error
     for (const listener of this.statusListeners) {
-      try {
+      void bestEffort('status listener', () => {
         listener(next, this.lastError)
-      } catch (err) {
-        console.warn('[serial] status listener threw', err)
-      }
+      })
     }
   }
 }
