@@ -1,19 +1,11 @@
 import posthog from 'posthog-js'
-import { isObservabilityEnabled, useObservabilityStore } from '../stores/observability.store'
+import { isObservabilityEnabled } from '../stores/observability.store'
 import { scrubProps } from './scrub'
 
-let initialized = false
+let started = false
 
-const syncConsent = (enabled: boolean): void => {
-  if (enabled) {
-    if (posthog.has_opted_out_capturing()) posthog.opt_in_capturing()
-  } else if (!posthog.has_opted_out_capturing()) {
-    posthog.opt_out_capturing()
-  }
-}
-
-export const initPostHog = (): void => {
-  if (initialized) return
+export const startPostHog = (): void => {
+  if (started) return
   const key = import.meta.env.VITE_POSTHOG_KEY
   if (!key) return
   const host = import.meta.env.VITE_POSTHOG_HOST ?? 'https://eu.i.posthog.com'
@@ -25,20 +17,23 @@ export const initPostHog = (): void => {
     persistence: 'localStorage',
     person_profiles: 'identified_only',
   })
-  syncConsent(isObservabilityEnabled())
-  useObservabilityStore.subscribe((state) => {
-    syncConsent(state.enabled)
-  })
-  initialized = true
+  started = true
+}
+
+export const setPostHogCapturing = (enabled: boolean): void => {
+  if (!started) return
+  if (enabled) {
+    if (posthog.has_opted_out_capturing()) posthog.opt_in_capturing()
+  } else if (!posthog.has_opted_out_capturing()) {
+    posthog.opt_out_capturing()
+  }
 }
 
 export const captureFlowEvent = (name: string, props: Record<string, unknown> = {}): void => {
-  if (!initialized || !isObservabilityEnabled()) return
+  if (!started || !isObservabilityEnabled()) return
   posthog.capture(name, {
     ...scrubProps(props),
     app: 'canshift-tuner',
     tunerVersion: __TUNER_VERSION__,
   })
 }
-
-export const isPostHogReady = (): boolean => initialized
