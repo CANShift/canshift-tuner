@@ -2,6 +2,7 @@ import type { CSSProperties, DragEvent, ChangeEvent } from 'react'
 import { useRef, useState } from 'react'
 import { formatBytes } from '../../lib/format'
 import { MONO_FONT } from '../../lib/typography'
+import { errorMessage } from '../../lib/error-message'
 
 export interface XmlImportZoneProps {
   loadedFileName: string | null
@@ -32,9 +33,14 @@ export const XmlImportZone = ({
       )
       return
     }
-    void file.text().then((text) => {
-      onFileLoad(file.name, text)
-    })
+    void file
+      .text()
+      .then((text) => {
+        onFileLoad(file.name, text)
+      })
+      .catch((err: unknown) => {
+        onError(`Could not read "${file.name}" — ${errorMessage(err)}`)
+      })
   }
 
   const onDragOver = (e: DragEvent<HTMLDivElement>) => {

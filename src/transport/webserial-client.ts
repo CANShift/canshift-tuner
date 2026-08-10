@@ -13,6 +13,7 @@ const BYTES_PER_KB = 1024
 const RECONNECT_INITIAL_MS = 500
 const RECONNECT_MAX_MS = 30_000
 const RECONNECT_FACTOR = 2
+const RECONNECT_MAX_ATTEMPTS = 6
 
 const STALE_ACK_FLUSH_MS = 1_000
 
@@ -111,6 +112,7 @@ export class SerialClient {
   private activityListeners: ActivityListener[] = []
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null
   private reconnectDelay = RECONNECT_INITIAL_MS
+  private reconnectAttempts = 0
   private staleAckDiscards = 0
   private staleAckFlushTimer: ReturnType<typeof setTimeout> | null = null
   private successUptimeStartedAt: number | null = null
@@ -160,6 +162,7 @@ export class SerialClient {
     this.intentionalDisconnect = false
     this.cancelReconnect()
     this.reconnectDelay = RECONNECT_INITIAL_MS
+    this.reconnectAttempts = 0
     this.successUptimeStartedAt = null
 
     if (this.active) {
@@ -268,6 +271,7 @@ export class SerialClient {
     this.rxResyncing = false
     this.clearStaleAckFlush()
     this.successUptimeStartedAt = Date.now()
+    this.reconnectAttempts = 0
     this.lastError = undefined
     this.setStatus('connected')
 
@@ -287,12 +291,18 @@ export class SerialClient {
     } catch (err) {
       this.lastError = errorMessage(err, 'read_error')
     } finally {
+      await this.finishReadLoop(own)
+    }
+  }
+
+  private async finishReadLoop(own: PortHandles): Promise<void> {
+    await bestEffort('[serial] final drain', () => {
       const tail = this.decoder.decode()
       if (tail) this.rxBuffer += tail
       this.drainFrames()
-      await this.releaseHandles(own)
-      if (!this.isSuperseded(own)) this.handleClose(own)
-    }
+    })
+    await this.releaseHandles(own)
+    if (!this.isSuperseded(own)) this.handleClose(own)
   }
 
   private isSuperseded(own: PortHandles): boolean {
@@ -371,7 +381,9 @@ export class SerialClient {
 
     for (const sub of this.subscriptions) {
       if (sub.discriminator in parsed) {
-        sub.handler(parsed)
+        void bestEffort(`[serial] ${sub.discriminator} subscriber`, () => {
+          sub.handler(parsed)
+        })
         return
       }
     }
@@ -429,7 +441,9 @@ export class SerialClient {
       this.drainPendingSends()
       return
     }
-    void this.dispatchSend(next.cmd, next.fields, next.opts).then(next.resolve)
+    void bestEffort('[serial] queued send', () =>
+      this.dispatchSend(next.cmd, next.fields, next.opts).then(next.resolve)
+    )
   }
 
   private drainQueueWithError(reason: string): void {
@@ -507,10 +521,15 @@ export class SerialClient {
     if (!this.autoReconnect || this.intentionalDisconnect) return
     if (this.reconnectTimer) return
     if (!port) return
+    if (this.reconnectAttempts >= RECONNECT_MAX_ATTEMPTS) {
+      this.setStatus('disconnected', 'auto_reconnect_failed')
+      return
+    }
 
     this.setStatus('reconnecting', this.lastError)
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null
+      this.reconnectAttempts += 1
       this.reconnectDelay = Math.min(this.reconnectDelay * RECONNECT_FACTOR, RECONNECT_MAX_MS)
       void this.openPort(port).catch(() => {
         this.scheduleReconnect(port)

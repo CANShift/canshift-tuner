@@ -90,7 +90,7 @@ const installNavigatorSerial = (getPortsResult: SerialPort[] = []): void => {
 }
 
 const flush = async (): Promise<void> => {
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 20; i++) {
     await Promise.resolve()
   }
 }
@@ -462,6 +462,63 @@ describe('SerialClient — reconnect retry', () => {
     expect(openMock).toHaveBeenCalledTimes(4)
 
     client.disconnect()
+  })
+})
+
+describe('SerialClient — reconnect gives up', () => {
+  it('stops after 6 attempts and settles on disconnected instead of retrying forever', async () => {
+    vi.useFakeTimers()
+    const fake = makeFakePort()
+    const client = new SerialClient()
+    await client.connect(fake.port)
+    const openMock = vi.mocked(fake.port.open)
+    openMock.mockRejectedValue(new Error('failed to open'))
+
+    fake.closeReader()
+    await flush()
+    expect(client.getStatus()).toBe('reconnecting')
+
+    await vi.advanceTimersByTimeAsync(10 * 60_000)
+
+    expect(client.getStatus()).toBe('disconnected')
+    const attempts = openMock.mock.calls.length - 1
+    expect(attempts).toBe(6)
+
+    await vi.advanceTimersByTimeAsync(10 * 60_000)
+    expect(openMock.mock.calls.length - 1).toBe(6)
+
+    client.disconnect()
+  })
+})
+
+describe('SerialClient — subscriber isolation', () => {
+  it('a throwing subscriber does not tear down the connection', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const fake = makeFakePort()
+    const client = new SerialClient({ disableReconnect: true })
+    const good = vi.fn()
+
+    client.subscribe('tele', () => {
+      throw new Error('render blew up')
+    })
+    client.subscribe('can', good)
+
+    await client.connect(fake.port)
+    fake.pushBytes('{"tele":1,"v":{"rpm":1}}\n')
+    await flush()
+
+    expect(client.getStatus()).toBe('connected')
+
+    fake.pushBytes('{"can":1,"id":1,"len":0,"d":[]}\n')
+    await flush()
+
+    expect(good).toHaveBeenCalledTimes(1)
+    expect(
+      warn.mock.calls.filter(([msg]) => typeof msg === 'string' && msg.includes('tele subscriber'))
+    ).toHaveLength(1)
+
+    client.disconnect()
+    warn.mockRestore()
   })
 })
 
