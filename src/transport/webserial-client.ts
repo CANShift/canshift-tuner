@@ -1,4 +1,5 @@
 import { humanizeTransportError } from './humanize-transport-error'
+import { bestEffort } from './best-effort'
 
 const DEFAULT_BAUD_RATE = 115_200
 
@@ -81,14 +82,6 @@ const safeJsonParse = (line: string): unknown => {
     const preview = trimmed.length > 80 ? `${trimmed.slice(0, 80)}…` : trimmed
     console.warn(`[serial] dropped malformed frame (${reason}): ${preview}`)
     return null
-  }
-}
-
-const bestEffort = async (label: string, op: () => unknown): Promise<void> => {
-  try {
-    await op()
-  } catch (err) {
-    console.warn(`[serial] ${label} failed — continuing`, err)
   }
 }
 
@@ -192,7 +185,7 @@ export class SerialClient {
     this.drainQueueWithError('disconnected')
     const readLoopPromise = this.readLoop
     const own = this.active
-    if (own) void bestEffort('reader.cancel', () => own.reader.cancel())
+    if (own) void bestEffort('[serial] reader.cancel', () => own.reader.cancel())
     void (readLoopPromise ?? Promise.resolve()).finally(() => {
       this.setStatus('disconnected')
     })
@@ -227,7 +220,7 @@ export class SerialClient {
       }
     ).setSignals
     if (typeof setSignals !== 'function') return
-    await bestEffort('setSignals', () =>
+    await bestEffort('[serial] setSignals', () =>
       setSignals.call(port, { dataTerminalReady: false, requestToSend: false })
     )
   }
@@ -277,7 +270,7 @@ export class SerialClient {
     this.lastError = undefined
     this.setStatus('connected')
 
-    this.readLoop = bestEffort('readLoop', () => this.runReadLoop(own))
+    this.readLoop = bestEffort('[serial] readLoop', () => this.runReadLoop(own))
   }
 
   private async runReadLoop(own: PortHandles): Promise<void> {
@@ -306,12 +299,12 @@ export class SerialClient {
   }
 
   private async releaseHandles(own: PortHandles): Promise<void> {
-    await bestEffort('reader.cancel', () => own.reader.cancel())
-    await bestEffort('reader.releaseLock', () => {
+    await bestEffort('[serial] reader.cancel', () => own.reader.cancel())
+    await bestEffort('[serial] reader.releaseLock', () => {
       own.reader.releaseLock()
     })
-    await bestEffort('writer.abort', () => own.writer.abort())
-    await bestEffort('writer.releaseLock', () => {
+    await bestEffort('[serial] writer.abort', () => own.writer.abort())
+    await bestEffort('[serial] writer.releaseLock', () => {
       own.writer.releaseLock()
     })
   }
@@ -538,12 +531,12 @@ export class SerialClient {
     const loop = this.readLoop
     this.readLoop = null
 
-    await bestEffort('reader.cancel', () => own.reader.cancel())
+    await bestEffort('[serial] reader.cancel', () => own.reader.cancel())
     await loop
   }
 
   private async safeClose(port: SerialPort): Promise<void> {
-    await bestEffort('port.close', () => port.close())
+    await bestEffort('[serial] port.close', () => port.close())
   }
 
   private setStatus(next: SerialStatus, error?: string): void {
@@ -551,7 +544,7 @@ export class SerialClient {
     this.status = next
     if (error !== undefined) this.lastError = error
     for (const listener of this.statusListeners) {
-      void bestEffort('status listener', () => {
+      void bestEffort('[serial] status listener', () => {
         listener(next, this.lastError)
       })
     }
