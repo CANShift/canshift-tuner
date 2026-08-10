@@ -9,6 +9,7 @@ import { CliOfflineState } from '../components/cli/CliOfflineState'
 import { RouteHeader } from '../components/shell/RouteHeader'
 import { MONO_FONT } from '../lib/typography'
 import { transportErrorText } from '../transport/humanize-transport-error'
+import { errorMessage } from '../lib/error-message'
 
 const HISTORY_CAP = 50
 const ENTRIES_CAP = 200
@@ -48,18 +49,25 @@ const CliRoute = () => {
       historyCursorRef.current = -1
       push({ kind: 'request', label: opcodeLabel, payload: fields })
       setBusy(true)
-      void usbService.sendRaw(cmd, fields).then((result) => {
-        if (result.kind === 'ok') {
-          push({ kind: 'ok', label: opcodeLabel, payload: result.data })
-        } else {
-          push({
-            kind: 'error',
-            label: `${opcodeLabel} — ${transportErrorText(result.error)}`,
-            payload: result.data,
-          })
-        }
-        setBusy(false)
-      })
+      void usbService
+        .sendRaw(cmd, fields)
+        .then((result) => {
+          if (result.kind === 'ok') {
+            push({ kind: 'ok', label: opcodeLabel, payload: result.data })
+          } else {
+            push({
+              kind: 'error',
+              label: `${opcodeLabel} — ${transportErrorText(result.error)}`,
+              payload: result.data,
+            })
+          }
+        })
+        .catch((err: unknown) => {
+          push({ kind: 'error', label: `${opcodeLabel} — ${errorMessage(err)}`, payload: null })
+        })
+        .finally(() => {
+          setBusy(false)
+        })
     },
     [push]
   )

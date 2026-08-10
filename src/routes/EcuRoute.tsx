@@ -99,30 +99,33 @@ const EcuRoute = () => {
 
   const onSelectItem = async (item: CatalogueItem) => {
     setImportError(null)
+    let xml: string
     try {
       const res = await fetch(item.path)
       if (!res.ok) throw new Error(`HTTP ${String(res.status)}`)
-      const xml = await res.text()
-      const result = parseCanXml(xml)
-      if (result.signals.length === 0) {
-        const reason = result.warnings[0] ?? 'no signals found'
-        setImportError(`Catalogue load failed — ${reason}`)
-        log('error', `Catalogue entry "${item.label}" failed: ${reason}`)
-        return
-      }
-      setSource({
-        kind: 'catalogue',
-        itemId: item.id,
-        label: item.label,
-        vendor: item.vendor,
-        signals: result.signals,
-        warnings: result.warnings,
-      })
+      xml = await res.text()
     } catch (err) {
       const message = errorMessage(err)
       setImportError(`Catalogue load failed — ${message}`)
       log('error', `Catalogue entry "${item.label}" fetch failed: ${message}`)
+      return
     }
+
+    const result = parseCanXml(xml)
+    if (result.signals.length === 0) {
+      const reason = result.warnings[0] ?? 'no signals found'
+      setImportError(`Catalogue load failed — ${reason}`)
+      log('error', `Catalogue entry "${item.label}" failed: ${reason}`)
+      return
+    }
+    setSource({
+      kind: 'catalogue',
+      itemId: item.id,
+      label: item.label,
+      vendor: item.vendor,
+      signals: result.signals,
+      warnings: result.warnings,
+    })
   }
 
   const onImportLoad = (fileName: string, xml: string) => {
