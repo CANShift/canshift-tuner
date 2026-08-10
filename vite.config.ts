@@ -34,12 +34,12 @@ const firmwareDownloadDevProxy = (): Plugin => ({
       const url = new URL(req.url ?? '', 'http://localhost')
       const tag = url.searchParams.get('tag')
       const asset = url.searchParams.get('asset')
-      if (!tag || !FIRMWARE_TAG_RE.test(tag)) {
+      if (!tag || !FIRMWARE_TAG_RE.test(tag) || tag.includes('..')) {
         res.statusCode = 400
         res.end('bad_tag')
         return
       }
-      if (!asset || !FIRMWARE_ASSET_RE.test(asset)) {
+      if (!asset || !FIRMWARE_ASSET_RE.test(asset) || asset.includes('..')) {
         res.statusCode = 400
         res.end('bad_asset')
         return

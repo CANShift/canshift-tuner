@@ -35,6 +35,20 @@ const rateLimited = (ip: string): boolean => {
   return false
 }
 
+const cappedStream = (): TransformStream<Uint8Array, Uint8Array> => {
+  let forwarded = 0
+  return new TransformStream({
+    transform: (chunk, controller) => {
+      forwarded += chunk.byteLength
+      if (forwarded > MAX_ASSET_BYTES) {
+        controller.error(new Error('asset_too_large'))
+        return
+      }
+      controller.enqueue(chunk)
+    },
+  })
+}
+
 const respond = (status: number, body: string, headers: HeadersInit = {}): Response =>
   new Response(body, {
     status,
@@ -46,8 +60,8 @@ const handler = async (req: Request): Promise<Response> => {
   const tag = url.searchParams.get('tag')
   const asset = url.searchParams.get('asset')
 
-  if (!tag || !TAG_RE.test(tag)) return respond(400, 'bad_tag')
-  if (!asset || !ASSET_RE.test(asset)) return respond(400, 'bad_asset')
+  if (!tag || !TAG_RE.test(tag) || tag.includes('..')) return respond(400, 'bad_tag')
+  if (!asset || !ASSET_RE.test(asset) || asset.includes('..')) return respond(400, 'bad_asset')
 
   if (rateLimited(clientIp(req))) {
     return respond(429, 'rate_limited', {
@@ -77,7 +91,7 @@ const handler = async (req: Request): Promise<Response> => {
   })
   if (length) passHeaders.set('Content-Length', length)
 
-  return new Response(upstream.body, {
+  return new Response(upstream.body.pipeThrough(cappedStream()), {
     status: 200,
     headers: passHeaders,
   })
