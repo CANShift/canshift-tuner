@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { GAUGE_ARC, GAUGE_TRACK_COLORS, STALE_PLACEHOLDER } from '@canshift/core'
-import { BLINK_ANIM, FONT_FAMILY, paletteFillColor, thresholdPct } from '../widgetPreview.styles'
+import { BLINK_ANIM, paletteFillColor, thresholdPct } from '../widgetPreview.styles'
 import {
   FRAC_FONT_SCALE,
   effectiveValue,
@@ -9,6 +9,7 @@ import {
   splitDecimal,
 } from './gauge-math'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
+import { MONO_FONT, UI_FONT, UI_LABEL_TRACKING, UI_LABEL_WEIGHT } from '../../../lib/typography'
 
 export interface GaugeArcRendererProps extends BaseRendererProps {
   revLimiting: boolean
@@ -114,7 +115,7 @@ export const GaugeArcPreview = memo(function GaugeArcPreview({
         fill={textValueColor}
         fontSize={valueFontSize}
         fontWeight="900"
-        fontFamily={FONT_FAMILY}
+        fontFamily={MONO_FONT}
         style={{ animation: danger ? BLINK_ANIM : undefined }}
       >
         {(() => {
@@ -149,9 +150,9 @@ export const GaugeArcPreview = memo(function GaugeArcPreview({
         dominantBaseline="auto"
         fill="#888888"
         fontSize={SIGNAL_LABEL_FONT_SIZE}
-        fontFamily={FONT_FAMILY}
-        fontWeight="500"
-        letterSpacing="0.06em"
+        fontFamily={UI_FONT}
+        fontWeight={UI_LABEL_WEIGHT}
+        letterSpacing={UI_LABEL_TRACKING}
         style={{ textTransform: 'uppercase' }}
       >
         {formatSignalLabel(widget.signal).toUpperCase()}

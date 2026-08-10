@@ -9,10 +9,18 @@ export const monoValueStyle: CSSProperties = {
   fontVariantNumeric: 'tabular-nums',
 }
 
+export const UI_LABEL_WEIGHT = 800
+export const UI_LABEL_TRACKING = '0.18em'
+
 export const uiLabelStyle: CSSProperties = {
   fontFamily: UI_FONT,
   fontSize: 10,
-  fontWeight: 800,
-  letterSpacing: '0.18em',
+  fontWeight: UI_LABEL_WEIGHT,
+  letterSpacing: UI_LABEL_TRACKING,
   textTransform: 'uppercase',
 }
+
+export const uiLabelAtSize = (fontSize: number): CSSProperties => ({
+  ...uiLabelStyle,
+  fontSize,
+})

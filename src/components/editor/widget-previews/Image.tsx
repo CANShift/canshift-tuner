@@ -1,6 +1,6 @@
 import { memo } from 'react'
-import { FONT_FAMILY } from '../widgetPreview.styles'
 import type { BaseRendererProps } from './shared'
+import { UI_FONT, UI_LABEL_TRACKING, UI_LABEL_WEIGHT } from '../../../lib/typography'
 
 const FRAME_BG = '#1A1A1A'
 const FRAME_STROKE = '#2A2A2A'
@@ -38,9 +38,9 @@ export const ImagePreview = memo(function ImagePreview({ widget, w, h }: BaseRen
         dominantBaseline="auto"
         fill={CAPTION_RGB}
         fontSize={Math.max(5, Math.min(7, w * 0.07))}
-        fontFamily={FONT_FAMILY}
-        fontWeight="500"
-        letterSpacing="0.05em"
+        fontFamily={UI_FONT}
+        fontWeight={UI_LABEL_WEIGHT}
+        letterSpacing={UI_LABEL_TRACKING}
       >
         IMAGE
       </text>

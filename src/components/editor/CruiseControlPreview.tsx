@@ -1,5 +1,5 @@
 import type { PagePalette } from '@canshift/core'
-import { FONT_FAMILY } from './widgetPreview.styles'
+import { MONO_FONT, UI_FONT, UI_LABEL_TRACKING, UI_LABEL_WEIGHT } from '../../lib/typography'
 
 const OUTER_PAD = 6
 const CENTER_W = 100
@@ -236,8 +236,9 @@ export const CruiseControlPreview = ({
               x={labelXY.x}
               y={labelXY.y}
               fill={palette.text}
-              fontFamily={FONT_FAMILY}
-              fontWeight={700}
+              fontFamily={UI_FONT}
+              fontWeight={UI_LABEL_WEIGHT}
+              letterSpacing={UI_LABEL_TRACKING}
               fontSize={labelFontSize}
               textAnchor="middle"
               dominantBaseline="central"
@@ -262,17 +263,16 @@ export const CruiseControlPreview = ({
           justifyContent: 'center',
           gap: 2 * scale,
           color: palette.text,
-          fontFamily: FONT_FAMILY,
         }}
       >
         <span
           style={{
-            fontFamily: FONT_FAMILY,
-            fontWeight: 500,
+            fontFamily: UI_FONT,
+            fontWeight: UI_LABEL_WEIGHT,
             fontSize: 10 * scale,
             color: '#888888',
             lineHeight: 1,
-            letterSpacing: '0.08em',
+            letterSpacing: UI_LABEL_TRACKING,
             textAlign: 'center',
           }}
         >
@@ -281,7 +281,7 @@ export const CruiseControlPreview = ({
         <span
           style={{
             color: palette.text,
-            fontFamily: FONT_FAMILY,
+            fontFamily: MONO_FONT,
             fontWeight: 800,
             fontSize: Math.round(40 * scale),
             lineHeight: 1,
@@ -295,11 +295,11 @@ export const CruiseControlPreview = ({
         <span
           style={{
             color: '#888888',
-            fontFamily: FONT_FAMILY,
-            fontWeight: 500,
+            fontFamily: UI_FONT,
+            fontWeight: UI_LABEL_WEIGHT,
             fontSize: Math.max(8, Math.round(10 * scale)),
             lineHeight: 1,
-            letterSpacing: '0.04em',
+            letterSpacing: UI_LABEL_TRACKING,
             textAlign: 'center',
           }}
         >

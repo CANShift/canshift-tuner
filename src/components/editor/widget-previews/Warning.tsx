@@ -1,7 +1,8 @@
 import { memo } from 'react'
 import { SensorIcon } from '../../icons/SensorIcons'
-import { BLINK_ANIM, FONT_FAMILY } from '../widgetPreview.styles'
+import { BLINK_ANIM } from '../widgetPreview.styles'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
+import { uiLabelAtSize } from '../../../lib/typography'
 
 export interface WarningRendererProps extends BaseRendererProps {
   noAnimate: boolean
@@ -47,8 +48,7 @@ export const WarningPreview = memo(function WarningPreview({
       {showSignalLabel && (
         <span
           style={{
-            fontSize: sigFontSize,
-            fontFamily: FONT_FAMILY,
+            ...uiLabelAtSize(sigFontSize),
             fontWeight: 500,
             color: st.criticalColor + '99',
             lineHeight: 1,
