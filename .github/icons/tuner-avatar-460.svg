@@ -2,7 +2,7 @@
   <rect width="460" height="460" fill="#151313"></rect>
   <svg x="110.4" y="126.9" width="239.2" height="206.2" viewBox="0 0 116 100">
   <g transform="translate(10,0) skewX(-11)" fill="none">
-    <path d="M30 26 H94 V78 H30 Z" stroke="#F3F2F2" stroke-width="7" stroke-dasharray="11 9"></path>
+    <path d="M30 26 H94 V78 H30 Z" stroke="#F3F2F2" stroke-width="7" stroke-dasharray="18 12"></path>
     <path d="M30 26 h0 M94 26 h0 M30 78 h0" stroke="#F3F2F2" stroke-width="18" stroke-linecap="square"></path>
     <path d="M94 78 h0" stroke="#FF4747" stroke-width="18" stroke-linecap="square"></path>
   </g>
