@@ -5,7 +5,9 @@ import { FIRMWARE_MAX_BYTES, LocalFirmwareError } from './local-firmware'
 import type { LocalFirmware } from './local-firmware'
 
 const DIGEST_PREFIX = 'sha256:'
-const FETCH_TIMEOUT_MS = 30_000
+const SHA256_HEX_RE = /^[0-9a-f]{64}$/
+const HEADERS_TIMEOUT_MS = 30_000
+const STALL_TIMEOUT_MS = 15_000
 
 export type DownloadProgress = (loaded: number, total: number) => void
 
@@ -23,6 +25,26 @@ export const firmwareAssetProxyUrl = (downloadUrl: string): string => {
   return `${PROXY_PATH}?${params.toString()}`
 }
 
+const expectedDigestHex = (asset: ReleaseAsset): string => {
+  const raw = asset.digest
+  if (typeof raw !== 'string' || raw.length === 0) {
+    throw new Error(
+      `No checksum published for ${asset.name} — refusing to flash an image that cannot be verified.`
+    )
+  }
+  const hex = (raw.startsWith(DIGEST_PREFIX) ? raw.slice(DIGEST_PREFIX.length) : raw).toLowerCase()
+  if (!SHA256_HEX_RE.test(hex)) {
+    throw new Error(`Unusable checksum published for ${asset.name}: ${raw}`)
+  }
+  return hex
+}
+
+const oversized = (received: number): LocalFirmwareError =>
+  new LocalFirmwareError(
+    'too-large',
+    `Download exceeded ${String(FIRMWARE_MAX_BYTES)} bytes (${String(received)} received) — aborted.`
+  )
+
 export const downloadFirmwareAsset = async (
   asset: ReleaseAsset,
   onProgress?: DownloadProgress
@@ -34,42 +56,58 @@ export const downloadFirmwareAsset = async (
     )
   }
 
+  const expected = expectedDigestHex(asset)
   const proxyUrl = firmwareAssetProxyUrl(asset.downloadUrl)
 
   const controller = new AbortController()
-  const timer = setTimeout(() => {
+  let timedOut = false
+  const abortAsTimeout = (): void => {
+    timedOut = true
     controller.abort()
-  }, FETCH_TIMEOUT_MS)
+  }
+  let watchdog = setTimeout(abortAsTimeout, HEADERS_TIMEOUT_MS)
+  const arm = (ms: number): void => {
+    clearTimeout(watchdog)
+    watchdog = setTimeout(abortAsTimeout, ms)
+  }
 
-  let response: Response
+  let bytes: Uint8Array
   try {
-    response = await fetch(proxyUrl, { signal: controller.signal })
+    const response = await fetch(proxyUrl, { signal: controller.signal })
+    if (!response.ok) {
+      throw new Error(`Download failed: HTTP ${String(response.status)}`)
+    }
+    arm(STALL_TIMEOUT_MS)
+    bytes = await readWithProgress(
+      response,
+      asset.sizeBytes,
+      () => {
+        arm(STALL_TIMEOUT_MS)
+      },
+      onProgress
+    )
+  } catch (err) {
+    if (timedOut) {
+      throw new Error(
+        `Download stalled — no data for ${String(STALL_TIMEOUT_MS / 1000)} s. Check the connection and retry.`,
+        { cause: err }
+      )
+    }
+    throw err
   } finally {
-    clearTimeout(timer)
+    clearTimeout(watchdog)
   }
 
-  if (!response.ok) {
-    throw new Error(`Download failed: HTTP ${String(response.status)}`)
-  }
-
-  const bytes = await readWithProgress(response, asset.sizeBytes, onProgress)
   if (bytes.byteLength === 0) {
     throw new LocalFirmwareError('empty', 'Downloaded firmware is empty.')
   }
 
   verifyImageMagic(bytes)
   const sha256 = await computeSha256Hex(bytes)
-
-  const expected = asset.digest
-  if (typeof expected === 'string') {
-    const expectedHex = expected.startsWith(DIGEST_PREFIX)
-      ? expected.slice(DIGEST_PREFIX.length).toLowerCase()
-      : expected.toLowerCase()
-    if (expectedHex !== sha256) {
-      throw new Error(
-        `Checksum mismatch — expected ${expectedHex.slice(0, 12)}…, got ${sha256.slice(0, 12)}…`
-      )
-    }
+  if (expected !== sha256) {
+    throw new Error(
+      `Checksum mismatch — expected ${expected.slice(0, 12)}…, got ${sha256.slice(0, 12)}…`
+    )
   }
 
   return { name: asset.name, size: bytes.byteLength, bytes, sha256 }
@@ -78,11 +116,13 @@ export const downloadFirmwareAsset = async (
 const readWithProgress = async (
   response: Response,
   expectedSize: number,
+  onChunk: () => void,
   onProgress?: DownloadProgress
 ): Promise<Uint8Array> => {
   const reader = response.body?.getReader()
   if (!reader) {
     const buffer = await response.arrayBuffer()
+    if (buffer.byteLength > FIRMWARE_MAX_BYTES) throw oversized(buffer.byteLength)
     onProgress?.(buffer.byteLength, expectedSize)
     return new Uint8Array(buffer)
   }
@@ -91,8 +131,13 @@ const readWithProgress = async (
   while (true) {
     const { done, value } = await reader.read()
     if (done) break
-    chunks.push(value)
     received += value.byteLength
+    if (received > FIRMWARE_MAX_BYTES) {
+      await reader.cancel()
+      throw oversized(received)
+    }
+    chunks.push(value)
+    onChunk()
     onProgress?.(received, expectedSize)
   }
   const out = new Uint8Array(received)
