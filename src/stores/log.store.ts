@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { readItem, writeItem, STORAGE_KEYS } from '../lib/local-storage'
 
 export type LogLevel = 'info' | 'warn' | 'error' | 'success' | 'debug'
 
@@ -20,12 +21,12 @@ interface LogState {
   clear: () => void
 }
 
-const VERBOSE_STORAGE_KEY = 'canshift.log.verbose'
+const VERBOSE_STORAGE_KEY = STORAGE_KEYS.logVerbose
 
 const readVerboseFlag = (): boolean => {
   if (typeof window === 'undefined') return false
   try {
-    return window.localStorage.getItem(VERBOSE_STORAGE_KEY) === '1'
+    return readItem(VERBOSE_STORAGE_KEY) === '1'
   } catch {
     return false
   }
@@ -34,7 +35,7 @@ const readVerboseFlag = (): boolean => {
 const writeVerboseFlag = (verbose: boolean): void => {
   if (typeof window === 'undefined') return
   try {
-    window.localStorage.setItem(VERBOSE_STORAGE_KEY, verbose ? '1' : '0')
+    writeItem(VERBOSE_STORAGE_KEY, verbose ? '1' : '0')
   } catch {
     void 0
   }

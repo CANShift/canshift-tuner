@@ -5,44 +5,23 @@ import {
   migrateConfig,
 } from '@canshift/core'
 import type { Project, ProjectMeta } from '@canshift/core'
+import {
+  readItem,
+  writeItem,
+  removeItem,
+  projectStorageKey,
+  STORAGE_KEYS,
+} from '../../lib/local-storage'
 
-export const PROJECT_INDEX_KEY = 'canshift.tuner.projects'
-const PROJECT_KEY_PREFIX = 'canshift.tuner.project.'
+export const PROJECT_INDEX_KEY = STORAGE_KEYS.projectIndex
 
 export interface ProjectIndex {
   activeId: string | null
   projects: ProjectMeta[]
 }
 
-export const projectStorageKey = (id: string): string => `${PROJECT_KEY_PREFIX}${id}`
-
-const safeGet = (key: string): string | null => {
-  try {
-    return localStorage.getItem(key)
-  } catch {
-    return null
-  }
-}
-
-const safeSet = (key: string, value: string): boolean => {
-  try {
-    localStorage.setItem(key, value)
-    return true
-  } catch {
-    return false
-  }
-}
-
-const safeRemove = (key: string): void => {
-  try {
-    localStorage.removeItem(key)
-  } catch {
-    void 0
-  }
-}
-
 export const readProjectIndex = (): ProjectIndex | null => {
-  const raw = safeGet(PROJECT_INDEX_KEY)
+  const raw = readItem(PROJECT_INDEX_KEY)
   if (raw === null) return null
   let parsed: unknown
   try {
@@ -67,7 +46,7 @@ export const readProjectIndex = (): ProjectIndex | null => {
 }
 
 export const writeProjectIndex = (index: ProjectIndex): void => {
-  safeSet(PROJECT_INDEX_KEY, JSON.stringify(index))
+  writeItem(PROJECT_INDEX_KEY, JSON.stringify(index))
 }
 
 export const deserializeProject = (raw: string): Project | null => {
@@ -93,18 +72,20 @@ export const deserializeProject = (raw: string): Project | null => {
 }
 
 export const readProject = (id: string): Project | null => {
-  const raw = safeGet(projectStorageKey(id))
+  const raw = readItem(projectStorageKey(id))
   if (raw === null) return null
   return deserializeProject(raw)
 }
 
 export const writeProject = (project: Project): boolean => {
   if (!ProjectSchema.safeParse(project).success) return false
-  return safeSet(projectStorageKey(project.id), JSON.stringify(project))
+  return writeItem(projectStorageKey(project.id), JSON.stringify(project))
 }
 
 export const removeProject = (id: string): void => {
-  safeRemove(projectStorageKey(id))
+  removeItem(projectStorageKey(id))
 }
+
+export { projectStorageKey }
 
 export const PROJECT_VERSION = PROJECT_FILE_VERSION
