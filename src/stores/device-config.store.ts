@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { DEFAULT_DEVICE_CONFIG, type DeviceConfig } from '@canshift/core'
 import { deviceConfigIpc } from '../transport'
+import { errorMessage } from '../lib/error-message'
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
@@ -55,7 +56,7 @@ export const useDeviceConfigStore = create<DeviceConfigState>()((set, get) => ({
       }
       set({ saveStatus: 'error', saveError: result.error ?? 'Save failed' })
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Save failed'
+      const msg = errorMessage(err, 'Save failed')
       set({ saveStatus: 'error', saveError: msg })
     }
   },

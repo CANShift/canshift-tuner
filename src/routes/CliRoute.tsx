@@ -8,6 +8,7 @@ import type { CliEntry } from '../components/cli/CliOutput'
 import { CliOfflineState } from '../components/cli/CliOfflineState'
 import { RouteHeader } from '../components/shell/RouteHeader'
 import { MONO_FONT } from '../lib/typography'
+import { transportErrorText } from '../transport/humanize-transport-error'
 
 const HISTORY_CAP = 50
 const ENTRIES_CAP = 200
@@ -51,7 +52,11 @@ const CliRoute = () => {
         if (result.kind === 'ok') {
           push({ kind: 'ok', label: opcodeLabel, payload: result.data })
         } else {
-          push({ kind: 'error', label: `${opcodeLabel} — ${result.error}`, payload: result.data })
+          push({
+            kind: 'error',
+            label: `${opcodeLabel} — ${transportErrorText(result.error)}`,
+            payload: result.data,
+          })
         }
         setBusy(false)
       })

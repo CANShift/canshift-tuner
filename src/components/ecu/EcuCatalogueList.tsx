@@ -4,6 +4,7 @@ import { formatBytes } from '../../lib/format'
 import { Input } from '../ui/input'
 import { TogglePill } from '../ui/toggle-pill'
 import { MONO_FONT } from '../../lib/typography'
+import { errorMessage } from '../../lib/error-message'
 
 export interface CatalogueItem {
   id: string
@@ -58,7 +59,7 @@ export const EcuCatalogueList = ({ activeKey, selectedId, onSelect }: EcuCatalog
         if (cancelled) return
         setState({
           kind: 'error',
-          message: err instanceof Error ? err.message : 'fetch_failed',
+          message: errorMessage(err, 'fetch_failed'),
         })
       })
     return () => {

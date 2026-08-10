@@ -1,3 +1,5 @@
+import { errorMessage } from './error-message'
+
 const CONTACT_ENDPOINT = 'https://tmbk.ch/api/contact/canshift'
 const REPORTER_NAME = 'CANShift Tuner'
 const FALLBACK_EMAIL = 'noreply@canshift.ch'
@@ -43,7 +45,7 @@ export const submitFeedback = async (input: FeedbackInput): Promise<FeedbackResu
     }
     return { ok: true }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Network unreachable'
+    const message = errorMessage(error, 'Network unreachable')
     return { ok: false, error: message }
   } finally {
     clearTimeout(timer)

@@ -3,6 +3,7 @@ import type { ReleaseInfo } from '@canshift/core'
 import { findManifestAsset } from '../lib/firmware/releases'
 import { firmwareAssetProxyUrl } from '../lib/firmware/download'
 import { parseManifest, type BoardManifest } from '../lib/firmware/manifest'
+import { errorMessage } from '../lib/error-message'
 
 const MANIFEST_FETCH_TIMEOUT_MS = 10_000
 
@@ -71,7 +72,7 @@ export const useFirmwareManifest = (release: ReleaseInfo | null): ManifestState 
           tag,
           state: {
             kind: 'error',
-            message: err instanceof Error ? err.message : 'Manifest fetch failed.',
+            message: errorMessage(err, 'Manifest fetch failed.'),
           },
         })
       })

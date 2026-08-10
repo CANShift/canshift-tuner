@@ -4,6 +4,8 @@ import { useDeviceStore } from '../stores/device.store'
 import { useLogStore } from '../stores/log.store'
 import { boardProfileBlob, type BoardProfileWriteResult } from '../lib/firmware/board-provision'
 import { useResolvedBoardProfile, type ResolvedBoardProfile } from './useResolvedBoardProfile'
+import { errorMessage } from '../lib/error-message'
+import { transportErrorText } from '../transport/humanize-transport-error'
 
 export type ProvisionState =
   | { kind: 'idle' }
@@ -53,11 +55,11 @@ export const useProvisionBoardProfile = (): UseProvisionBoardProfile => {
           log('error', 'Firmware rejected the board profile (invalid_board_profile)')
           return
         }
-        setState({ kind: 'error', message: result.error })
-        log('error', `Board profile write failed: ${result.error}`)
+        setState({ kind: 'error', message: transportErrorText(result.error) })
+        log('error', `Board profile write failed: ${transportErrorText(result.error)}`)
       })
       .catch((err: unknown) => {
-        const message = err instanceof Error ? err.message : String(err)
+        const message = errorMessage(err)
         setState({ kind: 'error', message })
         log('error', `Board profile write failed: ${message}`)
       })

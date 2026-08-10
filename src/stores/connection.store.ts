@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { getSerialClient, type SerialStatus } from '../transport/webserial-client'
 import { useDeviceStore } from './device.store'
+import { errorMessage } from '../lib/error-message'
 
 const USB_LABEL = 'webserial'
 
@@ -51,7 +52,7 @@ export const useConnectionStore = create<ConnectionState>()((set, get) => {
         await client.connect(port)
         set({ port: client.getPort() })
       } catch (err) {
-        const msg = err instanceof Error ? err.message : 'connect_failed'
+        const msg = errorMessage(err, 'connect_failed')
         set({ lastError: toReportableError(msg) })
       }
     },
@@ -69,7 +70,7 @@ export const useConnectionStore = create<ConnectionState>()((set, get) => {
         if (!first) return
         await get().connect(first)
       } catch (err) {
-        const msg = err instanceof Error ? err.message : 'auto_reconnect_failed'
+        const msg = errorMessage(err, 'auto_reconnect_failed')
         set({ lastError: msg })
       }
     },

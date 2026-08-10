@@ -1,5 +1,6 @@
 import { humanizeTransportError } from './humanize-transport-error'
 import { bestEffort } from './best-effort'
+import { errorMessage } from '../lib/error-message'
 
 const DEFAULT_BAUD_RATE = 115_200
 
@@ -78,7 +79,7 @@ const safeJsonParse = (line: string): unknown => {
   try {
     return JSON.parse(trimmed) as unknown
   } catch (err) {
-    const reason = err instanceof Error ? err.message : 'unknown'
+    const reason = errorMessage(err, 'unknown')
     const preview = trimmed.length > 80 ? `${trimmed.slice(0, 80)}…` : trimmed
     console.warn(`[serial] dropped malformed frame (${reason}): ${preview}`)
     return null
@@ -242,7 +243,7 @@ export class SerialClient {
       await port.open({ baudRate: this.baudRate })
       await this.deassertResetSignals(port)
     } catch (err) {
-      const raw = err instanceof Error ? err.message : 'open_failed'
+      const raw = errorMessage(err, 'open_failed')
       const msg = humanizeTransportError(raw)
       this.lastError = msg
       this.setStatus('disconnected', msg)
@@ -284,7 +285,7 @@ export class SerialClient {
         }
       }
     } catch (err) {
-      this.lastError = err instanceof Error ? err.message : 'read_error'
+      this.lastError = errorMessage(err, 'read_error')
     } finally {
       const tail = this.decoder.decode()
       if (tail) this.rxBuffer += tail
@@ -412,7 +413,7 @@ export class SerialClient {
         .catch((err: unknown) => {
           clearTimeout(timer)
           this.pendingAck = null
-          const msg = err instanceof Error ? err.message : 'send_failed'
+          const msg = errorMessage(err, 'send_failed')
           resolve({ ok: false, error: msg })
           this.drainPendingSends()
         })

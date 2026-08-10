@@ -88,7 +88,8 @@ export const ProjectSwitcher = () => {
     let raw: string
     try {
       raw = await readProjectFileText(file)
-    } catch {
+    } catch (err) {
+      console.warn('[project] import read failed', err)
       log('error', 'Could not read the selected file.')
       return
     }

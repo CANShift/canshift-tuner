@@ -11,6 +11,7 @@ import { ThemeTokensRail } from '../components/themes/ThemeTokensRail'
 import { ThemeStatusCard } from '../components/themes/ThemeStatusCard'
 import { ThemeControls } from '../components/themes/ThemeControls'
 import { MONO_FONT } from '../lib/typography'
+import { transportErrorText } from '../transport/humanize-transport-error'
 
 const LIGHT_BG_LUMINANCE = 0.5
 
@@ -65,7 +66,7 @@ const ThemesRoute = () => {
         `Theme toggled to ${next === true ? 'Day' : next === false ? 'Night' : 'unknown'}`
       )
     } else {
-      log('error', `Theme toggle failed: ${result.error ?? 'unknown_error'}`)
+      log('error', `Theme toggle failed: ${transportErrorText(result.error)}`)
     }
     setBusy(false)
   }
@@ -77,7 +78,7 @@ const ThemesRoute = () => {
       setIsDayMode(true)
       log('success', 'Theme forced to Day')
     } else {
-      log('error', `Set Day failed: ${result.error ?? 'unknown_error'}`)
+      log('error', `Set Day failed: ${transportErrorText(result.error)}`)
     }
     setBusy(false)
   }
@@ -89,7 +90,7 @@ const ThemesRoute = () => {
       setIsDayMode(false)
       log('success', 'Theme forced to Night')
     } else {
-      log('error', `Set Night failed: ${result.error ?? 'unknown_error'}`)
+      log('error', `Set Night failed: ${transportErrorText(result.error)}`)
     }
     setBusy(false)
   }

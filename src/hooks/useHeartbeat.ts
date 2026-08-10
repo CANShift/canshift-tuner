@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useDeviceStore } from '../stores/device.store'
 import { useLogStore } from '../stores/log.store'
 import { usbService } from '../transport'
+import { transportErrorText } from '../transport/humanize-transport-error'
 
 const HEARTBEAT_INTERVAL_MS = 5_000
 const HEARTBEAT_MISS_THRESHOLD = 3
@@ -46,7 +47,10 @@ export const useHeartbeat = (): void => {
           sinceMs: firstMissedAt,
         })
         if (!unresponsiveLogged) {
-          log('error', `Firmware unresponsive — ${String(missed)} pings missed (${result.error})`)
+          log(
+            'error',
+            `Firmware unresponsive — ${String(missed)} pings missed (${transportErrorText(result.error)})`
+          )
           unresponsiveLogged = true
         }
       }

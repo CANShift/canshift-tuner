@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useDeviceStore } from '../stores/device.store'
 import { useLogStore } from '../stores/log.store'
 import { usbService } from '../transport'
+import { transportErrorText } from '../transport/humanize-transport-error'
 
 export const useVersionHandshake = (): void => {
   const connected = useDeviceStore((s) => s.connected)
@@ -19,7 +20,7 @@ export const useVersionHandshake = (): void => {
     void usbService.queryVersion().then((result) => {
       if (cancelled) return
       if (result.kind === 'error') {
-        log('warn', `Version handshake failed: ${result.error}`)
+        log('warn', `Version handshake failed: ${transportErrorText(result.error)}`)
         setFirmwareCompat({ kind: 'unknown' })
         return
       }

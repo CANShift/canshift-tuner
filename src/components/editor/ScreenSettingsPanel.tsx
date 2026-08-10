@@ -5,6 +5,7 @@ import { useLogStore } from '../../stores/log.store'
 import { useDeviceState } from '../../hooks/useDeviceState'
 import { usePreviewTheme } from '../../hooks/useDashboardConfig'
 import { usbService } from '../../transport'
+import { transportErrorText } from '../../transport/humanize-transport-error'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,7 +56,7 @@ const ScreenSettingsPanel = ({ scale }: ScreenSettingsPanelProps) => {
     if (result.success) {
       log('success', `Screen settings pushed — brightness ${String(brightness)}%`)
     } else {
-      log('error', `Screen settings push failed: ${result.error ?? 'unknown error'}`)
+      log('error', `Screen settings push failed: ${transportErrorText(result.error)}`)
     }
   }
 
@@ -94,7 +95,7 @@ const ScreenSettingsPanel = ({ scale }: ScreenSettingsPanelProps) => {
       setIsDayMode(day)
       log('success', `Theme set to ${target}`)
     } else {
-      log('error', `Theme set failed: ${result.error ?? 'unknown error'}`)
+      log('error', `Theme set failed: ${transportErrorText(result.error)}`)
     }
   }
 
@@ -111,7 +112,7 @@ const ScreenSettingsPanel = ({ scale }: ScreenSettingsPanelProps) => {
     if (result.success) {
       log('info', 'Touch calibration started — follow the crosshairs on the device')
     } else {
-      log('error', `Calibration failed: ${result.error ?? 'unknown error'}`)
+      log('error', `Calibration failed: ${transportErrorText(result.error)}`)
     }
   }
 

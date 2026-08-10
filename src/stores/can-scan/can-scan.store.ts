@@ -5,6 +5,7 @@ import { useLogStore } from '../log.store'
 import { createScanAccumulator, emptySnapshot } from './accumulator'
 import { captureFlowEvent } from '../../lib/posthog'
 import type { CanScanSnapshot } from './accumulator'
+import { transportErrorText } from '../../transport/humanize-transport-error'
 
 const SNAPSHOT_INTERVAL_MS = 250
 
@@ -68,7 +69,7 @@ export const useCanScanStore = create<CanScanState>()((set, get) => {
         return
       }
       if (!result.success) {
-        const err = result.error ?? 'unknown_error'
+        const err = transportErrorText(result.error)
         set({ status: 'error', error: err })
         log('error', `CAN scan start failed: ${err}`)
         return
@@ -96,7 +97,7 @@ export const useCanScanStore = create<CanScanState>()((set, get) => {
       }
       const result = await canScannerIpc.stop()
       if (!result.success) {
-        log('warn', `CAN scan stop failed: ${result.error ?? 'unknown_error'}`)
+        log('warn', `CAN scan stop failed: ${transportErrorText(result.error)}`)
       }
       set({ status: 'idle', snapshot: accumulator.snapshot(performance.now()) })
       log('info', `CAN scan stopped — ${String(accumulator.totalFrames())} frames captured`)

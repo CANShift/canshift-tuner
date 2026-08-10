@@ -9,6 +9,7 @@ import { usbService } from '../transport'
 import { humanizeTransportError } from '../transport/humanize-transport-error'
 import { verifyBurnedConfig, type VerifyResult } from './verifyBurnedConfig'
 import { captureFlowEvent } from '../lib/posthog'
+import { errorMessage } from '../lib/error-message'
 
 interface UseBurnDashboard {
   canBurn: boolean
@@ -61,8 +62,9 @@ export const useBurnDashboard = (): UseBurnDashboard => {
       const result = await usbService.pushConfig(config)
       if (!result.success) {
         const code = result.error ?? 'unknown_error'
-        log('error', `Burn failed: ${code}`)
-        setLastBurnResult({ kind: 'error', message: humanizeTransportError(code) })
+        const message = humanizeTransportError(code)
+        log('error', `Burn failed: ${message}`)
+        setLastBurnResult({ kind: 'error', message })
         captureFlowEvent('burn_completed', { outcome: 'push_failed', reason: code })
         return
       }
@@ -81,7 +83,7 @@ export const useBurnDashboard = (): UseBurnDashboard => {
         captureFlowEvent('burn_completed', { outcome: 'verify_failed', reason: verify.kind })
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err)
+      const message = errorMessage(err)
       log('error', `Burn failed: ${message}`)
       setLastBurnResult({ kind: 'error', message: humanizeTransportError(message) })
       captureFlowEvent('burn_completed', { outcome: 'exception' })

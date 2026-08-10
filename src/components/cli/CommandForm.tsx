@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '../ui/button'
 import { KNOWN_OPCODES } from '../../transport'
 import { MONO_FONT } from '../../lib/typography'
+import { errorMessage } from '../../lib/error-message'
 
 export interface CommandFormProps {
   disabled: boolean
@@ -45,7 +46,7 @@ export const CommandForm = ({
     try {
       fields = JSON.parse(trimmed)
     } catch (err) {
-      setParseError(`JSON parse error — ${err instanceof Error ? err.message : 'invalid'}`)
+      setParseError(`JSON parse error — ${errorMessage(err, 'invalid')}`)
       return
     }
     if (typeof fields !== 'object' || fields === null || Array.isArray(fields)) {

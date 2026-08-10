@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button'
 import { useDeviceStore } from '../../stores/device.store'
 import { useLogStore } from '../../stores/log.store'
 import { usbService } from '../../transport'
+import { errorMessage } from '../../lib/error-message'
+import { transportErrorText } from '../../transport/humanize-transport-error'
 
 export interface RebootButtonProps {
   label?: string
@@ -25,11 +27,11 @@ export const RebootButton = ({ label = 'Reboot' }: RebootButtonProps) => {
         if (result.success) {
           log('success', 'Reboot command sent — dash is restarting')
         } else {
-          log('error', `Reboot failed: ${result.error ?? 'unknown_error'}`)
+          log('error', `Reboot failed: ${transportErrorText(result.error)}`)
         }
       })
       .catch((err: unknown) => {
-        const message = err instanceof Error ? err.message : String(err)
+        const message = errorMessage(err)
         log('error', `Reboot failed: ${message}`)
       })
       .finally(() => {
