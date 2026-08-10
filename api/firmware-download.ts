@@ -6,7 +6,10 @@ const OWNER = 'CANShift'
 const REPO = 'canshift-firmware'
 
 const TAG_RE = /^v?\d+\.\d+\.\d+([.-][a-z0-9.-]+)?$/i
-const ASSET_RE = /^[a-z0-9._-]+\.bin$/i
+const ASSET_RE = /^[a-z0-9._-]+\.(bin|json)$/i
+
+const assetContentType = (asset: string): string =>
+  asset.toLowerCase().endsWith('.json') ? 'application/json' : 'application/octet-stream'
 
 const RATE_LIMIT = 20
 const WINDOW_MS = 60_000
@@ -86,7 +89,7 @@ const handler = async (req: Request): Promise<Response> => {
   if (length && Number(length) > MAX_ASSET_BYTES) return respond(502, 'asset_too_large')
 
   const passHeaders = new Headers({
-    'Content-Type': 'application/octet-stream',
+    'Content-Type': assetContentType(asset),
     'Cache-Control': 'public, max-age=3600',
   })
   if (length) passHeaders.set('Content-Length', length)

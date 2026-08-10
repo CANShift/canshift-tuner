@@ -25,7 +25,10 @@ const CORE_SIBLING_READY =
 const FIRMWARE_OWNER = 'CANShift'
 const FIRMWARE_REPO = 'canshift-firmware'
 const FIRMWARE_TAG_RE = /^v?\d+\.\d+\.\d+([.-][a-z0-9.-]+)?$/i
-const FIRMWARE_ASSET_RE = /^[a-z0-9._-]+\.bin$/i
+const FIRMWARE_ASSET_RE = /^[a-z0-9._-]+\.(bin|json)$/i
+
+const firmwareAssetContentType = (asset: string): string =>
+  asset.toLowerCase().endsWith('.json') ? 'application/json' : 'application/octet-stream'
 
 const firmwareDownloadDevProxy = (): Plugin => ({
   name: 'firmware-download-dev-proxy',
@@ -52,7 +55,7 @@ const firmwareDownloadDevProxy = (): Plugin => ({
             res.end(`upstream_failed_${upstream.status.toString()}`)
             return
           }
-          res.setHeader('Content-Type', 'application/octet-stream')
+          res.setHeader('Content-Type', firmwareAssetContentType(asset))
           const length = upstream.headers.get('content-length')
           if (length) res.setHeader('Content-Length', length)
           Readable.fromWeb(upstream.body as NodeReadableStream<Uint8Array>).pipe(res)
