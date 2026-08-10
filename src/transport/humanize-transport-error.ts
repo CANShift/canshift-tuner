@@ -17,6 +17,11 @@ export const TRANSPORT_ERROR_MESSAGES: Record<string, string> = {
   send_failed: 'Sending to the dash failed — check the cable and retry.',
   device_error: 'The dash reported an error — open the Logs page for details.',
   unknown_error: 'Something went wrong on the dash — open the Logs page for details.',
+  read_failed: 'Could not read the trouble codes from the dash — check the cable and retry.',
+  clear_failed: 'The dash refused to clear the trouble codes — check the cable and retry.',
+  fetch_failed: 'Could not fetch that from the dash — check the cable and retry.',
+  invalid_board_profile:
+    'The firmware rejected this board profile — re-check the board definition and re-provision.',
 }
 
 export const humanizeTransportError = (code: string): string => {
@@ -34,3 +39,8 @@ export const humanizeTransportError = (code: string): string => {
   }
   return code
 }
+
+export const transportErrorText = (code: string | undefined | null): string =>
+  humanizeTransportError(
+    code === undefined || code === null || code.length === 0 ? 'unknown_error' : code
+  )

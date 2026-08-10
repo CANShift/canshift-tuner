@@ -5,6 +5,7 @@ import { useDtcStore } from '../../stores/dtc.store'
 import { useDeviceStore } from '../../stores/device.store'
 import { MONO_FONT } from '../../lib/typography'
 import { DtcClearConfirmDialog } from './DtcClearConfirmDialog'
+import { transportErrorText } from '../../transport/humanize-transport-error'
 
 interface DtcBodyProps {
   ready: boolean
@@ -51,7 +52,7 @@ export const DtcPanel = () => {
       <div style={headerStyle}>TROUBLE CODES</div>
       <div style={bodyStyle}>
         <DtcBody ready={ready} reading={status === 'reading'} hasRead={hasRead} codes={codes} />
-        {error && <div style={errorStyle}>Failed — {error}</div>}
+        {error && <div style={errorStyle}>Failed — {transportErrorText(error)}</div>}
       </div>
       <div style={footerStyle}>
         <button

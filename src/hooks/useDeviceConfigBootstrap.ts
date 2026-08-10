@@ -3,6 +3,8 @@ import { useDeviceStore } from '../stores/device.store'
 import { useDashboardStore } from '../stores/dashboard.store'
 import { useLogStore } from '../stores/log.store'
 import { deviceIpc } from '../transport'
+import { errorMessage } from '../lib/error-message'
+import { transportErrorText } from '../transport/humanize-transport-error'
 
 export const useDeviceConfigBootstrap = (): void => {
   const connected = useDeviceStore((s) => s.connected)
@@ -36,14 +38,17 @@ export const useDeviceConfigBootstrap = (): void => {
           const outcome = loadFromDeviceOrDemo(null)
           if (outcome === 'demo') log('info', 'Device has no config — loaded demo')
         } else {
-          log('error', `Device config is unreadable or invalid: ${result.error}`)
+          log(
+            'error',
+            `Device config is unreadable or invalid: ${transportErrorText(result.error)}`
+          )
           const outcome = loadFromDeviceOrDemo(null)
           if (outcome === 'demo') log('info', 'Loaded demo config instead')
         }
       })
       .catch((err: unknown) => {
         if (cancelled) return
-        const message = err instanceof Error ? err.message : String(err)
+        const message = errorMessage(err)
         log('error', `Failed to read device config: ${message}`)
       })
     return () => {

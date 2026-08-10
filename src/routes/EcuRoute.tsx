@@ -12,6 +12,7 @@ import { SignalPreviewTable } from '../components/ecu/SignalPreviewTable'
 import { ApplyConfirmDialog } from '../components/ecu/ApplyConfirmDialog'
 import { MONO_FONT } from '../lib/typography'
 import { prettyProfileKey } from '../utils/profile-key'
+import { errorMessage } from '../lib/error-message'
 
 type Source =
   | { kind: 'none' }
@@ -118,7 +119,7 @@ const EcuRoute = () => {
         warnings: result.warnings,
       })
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'unknown_error'
+      const message = errorMessage(err)
       setImportError(`Catalogue load failed — ${message}`)
       log('error', `Catalogue entry "${item.label}" fetch failed: ${message}`)
     }

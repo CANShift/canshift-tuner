@@ -4,6 +4,7 @@ import type { CanScannerStatus } from '../../hooks/useCanScanner'
 import type { LearnWindow } from '../../stores/can-scan/accumulator'
 import { MONO_FONT } from '../../lib/typography'
 import { SortBar, type SortKey } from './SortBar'
+import { transportErrorText } from '../../transport/humanize-transport-error'
 
 export interface CanScanToolbarProps {
   status: CanScannerStatus
@@ -106,7 +107,7 @@ export const CanScanToolbar = ({
           <Metric label="STATUS" value={prettyStatus(status)} accent={status === 'running'} />
         </div>
       </header>
-      {error && <div style={errorStyle}>Scan error: {error}</div>}
+      {error && <div style={errorStyle}>Scan error: {transportErrorText(error)}</div>}
     </>
   )
 }

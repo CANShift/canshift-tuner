@@ -10,6 +10,7 @@ import { useLogStore } from '../../stores/log.store'
 import { downloadFirmwareAsset } from '../../lib/firmware/download'
 import { formatBytes } from '../../lib/format'
 import { MONO_FONT } from '../../lib/typography'
+import { errorMessage } from '../../lib/error-message'
 
 export interface FlashActionsProps {
   selection: FirmwareSelection
@@ -91,7 +92,7 @@ export const FlashActions = ({
         )
       })
       .catch((err: unknown) => {
-        const message = err instanceof Error ? err.message : String(err)
+        const message = errorMessage(err)
         setDownloadError(message)
         log('error', `Download failed for ${asset.name}: ${message}`)
       })

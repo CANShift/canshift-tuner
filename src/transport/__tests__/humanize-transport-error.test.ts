@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { humanizeTransportError, TRANSPORT_ERROR_MESSAGES } from '../humanize-transport-error'
+import {
+  humanizeTransportError,
+  transportErrorText,
+  TRANSPORT_ERROR_MESSAGES,
+} from '../humanize-transport-error'
 
 const KNOWN_CODES = [
   'no_port_selected',
@@ -17,6 +21,10 @@ const KNOWN_CODES = [
   'send_failed',
   'device_error',
   'unknown_error',
+  'read_failed',
+  'clear_failed',
+  'fetch_failed',
+  'invalid_board_profile',
 ]
 
 describe('humanizeTransportError', () => {
@@ -43,5 +51,18 @@ describe('humanizeTransportError', () => {
 
   it('passes unknown strings through unchanged', () => {
     expect(humanizeTransportError('something exotic happened')).toBe('something exotic happened')
+  })
+})
+
+describe('transportErrorText', () => {
+  it('treats a missing, null or empty code as unknown_error rather than rendering blank', () => {
+    const unknown = TRANSPORT_ERROR_MESSAGES.unknown_error
+    expect(transportErrorText(undefined)).toBe(unknown)
+    expect(transportErrorText(null)).toBe(unknown)
+    expect(transportErrorText('')).toBe(unknown)
+  })
+
+  it.each(KNOWN_CODES)('never renders %s raw to a user', (code) => {
+    expect(transportErrorText(code)).not.toBe(code)
   })
 })

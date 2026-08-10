@@ -1,5 +1,6 @@
 import { chipFamiliesMatch } from './board-resolution'
 import { bestEffort, type BestEffortReport } from '../../transport/best-effort'
+import { errorMessage } from '../error-message'
 
 const FLASH_BAUD = 460_800
 const PRE_RESET_BAUD = 115_200
@@ -14,8 +15,6 @@ const PRE_RESET_SETTLE_MS = 600
 const ROM_BOOTLOADER_CONNECT_ATTEMPTS = 15
 
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
-
-const errorText = (err: unknown): string => (err instanceof Error ? err.message : String(err))
 
 interface SignalCapablePort {
   setSignals?: (signals: { dataTerminalReady?: boolean; requestToSend?: boolean }) => Promise<void>
@@ -104,7 +103,7 @@ export const handshakeFailureMessage = (detail: string, fallbackReason?: string)
 const reportTo =
   (onLog: FlashLog): BestEffortReport =>
   (message, err) => {
-    onLog(`${message}: ${errorText(err)}`)
+    onLog(`${message}: ${errorMessage(err)}`)
   }
 
 const pulseRomBootloader = async (port: SerialPort, onLog: FlashLog): Promise<PortPreparation> => {
@@ -133,7 +132,7 @@ const preparePort = async (port: SerialPort, onLog: FlashLog): Promise<PortPrepa
     prepared = await pulseRomBootloader(port, onLog)
   } catch (err) {
     report('Pre-reset', err)
-    prepared = { mode: 'default_reset', fallbackReason: errorText(err) }
+    prepared = { mode: 'default_reset', fallbackReason: errorMessage(err) }
   }
   await bestEffort('Pre-reset port close', () => port.close(), report)
   return prepared
@@ -177,7 +176,10 @@ const handshake = async (
   try {
     await loader.main(preparation.mode)
   } catch (err) {
-    throw new FlashError(handshakeFailureMessage(errorText(err), preparation.fallbackReason), err)
+    throw new FlashError(
+      handshakeFailureMessage(errorMessage(err), preparation.fallbackReason),
+      err
+    )
   }
 
   const detectedChip = loader.chip.CHIP_NAME
@@ -207,10 +209,7 @@ const writeImages = async (
       },
     })
   } catch (err) {
-    throw new FlashError(
-      err instanceof Error ? `Flash write failed: ${err.message}` : 'Flash write failed.',
-      err
-    )
+    throw new FlashError(`Flash write failed: ${errorMessage(err)}`, err)
   }
 }
 
@@ -247,7 +246,7 @@ export const flashFirmware = async ({
       'Reset',
       () => loader.softReset(false),
       (_message, err) => {
-        onLog(`Reset failed (${errorText(err)}) — unplug/replug to restart the dash.`)
+        onLog(`Reset failed (${errorMessage(err)}) — unplug/replug to restart the dash.`)
       }
     )
   })

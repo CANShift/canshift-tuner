@@ -5,13 +5,14 @@ import { CMD_GET_CONFIG } from './opcodes'
 import type { DeviceConfigResult } from './types'
 import { isRecord } from './types'
 import { getSerialClient } from './webserial-client'
+import { errorMessage } from '../lib/error-message'
 
 const migrateAndParse = (raw: Record<string, unknown>): DeviceConfigResult => {
   let migrated: ReturnType<typeof migrateConfig>
   try {
     migrated = migrateConfig(raw, CURRENT_SCHEMA_VERSION)
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
+    const message = errorMessage(err)
     return { kind: 'error', error: `config_migration_failed: ${message}` }
   }
   const parsed = DashboardConfigSchema.safeParse(migrated.config)

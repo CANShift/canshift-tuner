@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { InputBinding } from '@canshift/core'
 import { inputBindingsIpc } from '../transport'
+import { errorMessage } from '../lib/error-message'
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
@@ -67,7 +68,7 @@ export const useInputBindingsStore = create<InputBindingsState>()((set, get) => 
       }
       set({ saveStatus: 'error', saveError: result.error ?? 'Save failed' })
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Save failed'
+      const msg = errorMessage(err, 'Save failed')
       set({ saveStatus: 'error', saveError: msg })
     }
   },
