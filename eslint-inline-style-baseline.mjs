@@ -47,7 +47,6 @@ export const INLINE_STYLE_BASELINE = [
   'src/components/editor/screen-settings-controls.tsx',
   'src/components/editor/ScreenSettingsPanel.tsx',
   'src/components/editor/ShortcutsDialog.tsx',
-  'src/components/editor/SignalsPanel.tsx',
   'src/components/editor/UndoToast.tsx',
   'src/components/editor/widget-previews/Button.tsx',
   'src/components/editor/widget-previews/GaugeArc.tsx',

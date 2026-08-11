@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react'
 import { useMemo } from 'react'
 import type { SignalDef } from '@canshift/core'
 import { useSignalStore } from '../../stores/signal.store'
@@ -15,7 +14,9 @@ import {
 import { autoPlace } from '../../utils/layout'
 import { unboundFrames } from '../../stores/can-scan/unbound-frames'
 import { captureFlowEvent } from '../../lib/posthog'
-import { MONO_FONT } from '../../lib/typography'
+import { cn } from '@/lib/utils'
+import { RoutePanel } from '../ui/route-shell'
+import { Eyebrow, MetaText } from '../ui/meta-text'
 
 const formatFrameId = (id: number): string => `0x${id.toString(16).toUpperCase()}`
 
@@ -68,32 +69,49 @@ const SignalsPanel = ({ pageId }: SignalsPanelProps) => {
   const isScanning = status === 'running' || status === 'starting'
 
   return (
-    <div style={panelStyle}>
-      <div style={scanBarStyle}>
-        <span style={scanDotStyle(status === 'running')} />
-        <span style={scanLabelStyle}>
+    <RoutePanel>
+      <div className="flex items-center gap-2 border-b-2 border-brand-divider px-[18px] py-2.5">
+        <span
+          className={cn(
+            'size-[7px] shrink-0',
+            status === 'running' ? 'bg-brand-accent' : 'bg-brand-neutral-400'
+          )}
+        />
+        <MetaText size="sm" className="flex-1 tracking-[0.12em]">
           {status === 'running' ? `SCAN ${String(snapshot.totalRate)} f/s` : 'SCAN OFF'}
-        </span>
+        </MetaText>
         <button
           type="button"
-          className="editor-ghost-accent"
+          className={cn(
+            'editor-ghost-accent border bg-none px-2.5 py-[3px] text-[10px] font-extrabold tracking-[0.09em]',
+            canScan
+              ? 'cursor-pointer border-brand-accent text-brand-accent'
+              : 'cursor-default border-brand-neutral-300 text-brand-neutral-400'
+          )}
           disabled={!canScan}
           onClick={() => {
             void (isScanning ? stop() : start())
           }}
-          style={scanButtonStyle(canScan)}
           title={canScan ? undefined : 'Connect a device to scan the bus'}
         >
           {isScanning ? 'STOP' : 'START'}
         </button>
       </div>
       {status === 'error' && scanError !== null && (
-        <div style={scanErrorStyle}>Scan failed: {scanError}</div>
+        <div className="border-b border-brand-neutral-300 px-[18px] py-1.5 text-[11px] text-brand-accent">
+          Scan failed: {scanError}
+        </div>
       )}
 
-      <div style={listStyle}>
-        <div style={sectionHeaderStyle}>BOUND — {String(signals.length)}</div>
-        {signals.length === 0 && <div style={hintStyle}>No signals in the active profile.</div>}
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <Eyebrow className="block px-[18px] pb-1.5 pt-2.5">
+          BOUND — {String(signals.length)}
+        </Eyebrow>
+        {signals.length === 0 && (
+          <div className="px-[18px] pb-2.5 pt-1 text-[11px] leading-[1.5] text-brand-neutral-500">
+            No signals in the active profile.
+          </div>
+        )}
         {signals.map((sig) => (
           <div
             key={sig.name}
@@ -111,22 +129,28 @@ const SignalsPanel = ({ pageId }: SignalsPanelProps) => {
               handleWidgetTypeDrop(e, sig)
             }}
             title="Drag onto the canvas to create a bound widget"
-            style={boundRowStyle}
+            className="cursor-grab border-b border-brand-neutral-300 px-[18px] py-1.5"
           >
-            <div style={rowMainStyle}>
-              <span style={nameStyle}>{sig.name}</span>
-              <span style={valueStyle}>
+            <div className="flex items-baseline justify-between gap-2.5">
+              <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[12px] text-brand-neutral-700">
+                {sig.name}
+              </span>
+              <span className="shrink-0 font-mono text-[12px] text-brand-text">
                 {formatValue(liveValues[sig.name])}
                 {liveValues[sig.name] !== undefined && sig.unit ? ` ${sig.unit}` : ''}
               </span>
             </div>
-            <div style={rowMetaStyle}>{sig.canFrameId.toUpperCase().replace('0X', '0x')}</div>
+            <MetaText size="sm" className="mt-px block text-brand-neutral-500">
+              {sig.canFrameId.toUpperCase().replace('0X', '0x')}
+            </MetaText>
           </div>
         ))}
 
-        <div style={sectionHeaderStyle}>UNBOUND — {String(unbound.length)}</div>
+        <Eyebrow className="block px-[18px] pb-1.5 pt-2.5">
+          UNBOUND — {String(unbound.length)}
+        </Eyebrow>
         {unbound.length === 0 && (
-          <div style={hintStyle}>
+          <div className="px-[18px] pb-2.5 pt-1 text-[11px] leading-[1.5] text-brand-neutral-500">
             {canScan
               ? isScanning
                 ? 'Listening — no unbound IDs seen yet.'
@@ -137,138 +161,23 @@ const SignalsPanel = ({ pageId }: SignalsPanelProps) => {
           </div>
         )}
         {unbound.map((frame) => (
-          <div key={frame.id} style={rowStyle}>
-            <div style={rowMainStyle}>
-              <span style={unboundIdStyle}>{formatFrameId(frame.id)}</span>
-              <span style={rateStyle}>{String(frame.rateHz)} Hz</span>
+          <div key={frame.id} className="border-b border-brand-neutral-300 px-[18px] py-1.5">
+            <div className="flex items-baseline justify-between gap-2.5">
+              <span className="font-mono text-[12px] text-brand-neutral-700">
+                {formatFrameId(frame.id)}
+              </span>
+              <MetaText className="shrink-0 text-brand-neutral-500">
+                {String(frame.rateHz)} Hz
+              </MetaText>
             </div>
-            <div style={rowMetaStyle}>{formatPayload(frame.lastPayload)}</div>
+            <MetaText size="sm" className="mt-px block text-brand-neutral-500">
+              {formatPayload(frame.lastPayload)}
+            </MetaText>
           </div>
         ))}
       </div>
-    </div>
+    </RoutePanel>
   )
 }
 
 export default SignalsPanel
-
-const panelStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  minHeight: 0,
-}
-
-const scanBarStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 8,
-  padding: '10px 18px',
-  borderBottom: '2px solid var(--brand-divider)',
-}
-
-const scanDotStyle = (running: boolean): CSSProperties => ({
-  width: 7,
-  height: 7,
-  flexShrink: 0,
-  background: running ? 'hsl(var(--brand-accent))' : 'hsl(var(--brand-neutral-400))',
-})
-
-const scanLabelStyle: CSSProperties = {
-  flex: 1,
-  fontFamily: MONO_FONT,
-  fontSize: 10,
-  letterSpacing: '0.12em',
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const scanButtonStyle = (enabled: boolean): CSSProperties => ({
-  padding: '3px 10px',
-  background: 'none',
-  border: `1px solid ${enabled ? 'hsl(var(--brand-accent))' : 'hsl(var(--brand-neutral-300))'}`,
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.09em',
-  color: enabled ? 'hsl(var(--brand-accent))' : 'hsl(var(--brand-neutral-400))',
-  cursor: enabled ? 'pointer' : 'default',
-})
-
-const scanErrorStyle: CSSProperties = {
-  padding: '6px 18px',
-  borderBottom: '1px solid hsl(var(--brand-neutral-300))',
-  fontSize: 11,
-  color: 'hsl(var(--brand-accent))',
-}
-
-const listStyle: CSSProperties = {
-  flex: 1,
-  overflowY: 'auto',
-  minHeight: 0,
-}
-
-const sectionHeaderStyle: CSSProperties = {
-  padding: '10px 18px 6px',
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.2em',
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const rowStyle: CSSProperties = {
-  padding: '6px 18px',
-  borderBottom: '1px solid hsl(var(--brand-neutral-300))',
-}
-
-const boundRowStyle: CSSProperties = {
-  ...rowStyle,
-  cursor: 'grab',
-}
-
-const rowMainStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'baseline',
-  justifyContent: 'space-between',
-  gap: 10,
-}
-
-const nameStyle: CSSProperties = {
-  fontSize: 12,
-  color: 'hsl(var(--brand-neutral-700))',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-}
-
-const valueStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 12,
-  color: 'hsl(var(--brand-text))',
-  flexShrink: 0,
-}
-
-const unboundIdStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 12,
-  color: 'hsl(var(--brand-neutral-700))',
-}
-
-const rateStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-500))',
-  flexShrink: 0,
-}
-
-const rowMetaStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 10,
-  color: 'hsl(var(--brand-neutral-500))',
-  marginTop: 1,
-}
-
-const hintStyle: CSSProperties = {
-  padding: '4px 18px 10px',
-  fontSize: 11,
-  lineHeight: 1.5,
-  color: 'hsl(var(--brand-neutral-500))',
-}
