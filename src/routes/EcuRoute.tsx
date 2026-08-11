@@ -1,30 +1,16 @@
 import { useMemo, useState } from 'react'
 import type { CSSProperties } from 'react'
-import { parseCanXml } from '@canshift/core'
 import type { SignalDef } from '@canshift/core'
 import { useDashboardStore } from '../stores/dashboard.store'
 import { useSignalStore } from '../stores/signal.store'
 import { useLogStore } from '../stores/log.store'
 import { EcuCatalogueList } from '../components/ecu/EcuCatalogueList'
-import type { CatalogueItem } from '../components/ecu/EcuCatalogueList'
 import { XmlImportZone } from '../components/ecu/XmlImportZone'
 import { SignalPreviewTable } from '../components/ecu/SignalPreviewTable'
 import { ApplyConfirmDialog } from '../components/ecu/ApplyConfirmDialog'
 import { MONO_FONT } from '../lib/typography'
 import { prettyProfileKey } from '../utils/profile-key'
-import { errorMessage } from '../lib/error-message'
-
-type Source =
-  | { kind: 'none' }
-  | { kind: 'import'; fileName: string; signals: SignalDef[]; warnings: string[] }
-  | {
-      kind: 'catalogue'
-      itemId: string
-      label: string
-      vendor: string
-      signals: SignalDef[]
-      warnings: string[]
-    }
+import { useEcuSource } from '../hooks/useEcuSource'
 
 const EcuRoute = () => {
   const activeProfileKey = useSignalStore((s) => s.selectedProfileKey)
@@ -34,8 +20,8 @@ const EcuRoute = () => {
   const dashboardConfig = useDashboardStore((s) => s.config)
   const log = useLogStore((s) => s.push)
 
-  const [source, setSource] = useState<Source>({ kind: 'none' })
-  const [importError, setImportError] = useState<string | null>(null)
+  const { source, importError, setImportError, selectCatalogueItem, loadImport, clear } =
+    useEcuSource()
   const [confirmOpen, setConfirmOpen] = useState(false)
 
   const previewSignals = useMemo<SignalDef[]>(() => {
@@ -97,59 +83,6 @@ const EcuRoute = () => {
 
   const canApply = previewSignals.length > 0
 
-  const onSelectItem = async (item: CatalogueItem) => {
-    setImportError(null)
-    let xml: string
-    try {
-      const res = await fetch(item.path)
-      if (!res.ok) throw new Error(`HTTP ${String(res.status)}`)
-      xml = await res.text()
-    } catch (err) {
-      const message = errorMessage(err)
-      setImportError(`Catalogue load failed — ${message}`)
-      log('error', `Catalogue entry "${item.label}" fetch failed: ${message}`)
-      return
-    }
-
-    const result = parseCanXml(xml)
-    if (result.signals.length === 0) {
-      const reason = result.warnings[0] ?? 'no signals found'
-      setImportError(`Catalogue load failed — ${reason}`)
-      log('error', `Catalogue entry "${item.label}" failed: ${reason}`)
-      return
-    }
-    setSource({
-      kind: 'catalogue',
-      itemId: item.id,
-      label: item.label,
-      vendor: item.vendor,
-      signals: result.signals,
-      warnings: result.warnings,
-    })
-  }
-
-  const onImportLoad = (fileName: string, xml: string) => {
-    setImportError(null)
-    const result = parseCanXml(xml)
-    if (result.signals.length === 0) {
-      const reason = result.warnings[0] ?? 'no signals found'
-      setImportError(`Import failed — ${reason}`)
-      log('error', `XML import "${fileName}" failed: ${reason}`)
-      return
-    }
-    setSource({
-      kind: 'import',
-      fileName,
-      signals: result.signals,
-      warnings: result.warnings,
-    })
-  }
-
-  const onImportClear = () => {
-    setImportError(null)
-    setSource({ kind: 'none' })
-  }
-
   const onConfirmApply = () => {
     setConfirmOpen(false)
     applyProfile(selectedKey, previewSignals)
@@ -185,15 +118,17 @@ const EcuRoute = () => {
             <EcuCatalogueList
               activeKey={activeProfileKey}
               selectedId={selectedItemId}
-              onSelect={onSelectItem}
+              onSelect={(item) => {
+                void selectCatalogueItem(item)
+              }}
             />
           </div>
           <div style={importWrapperStyle}>
             <XmlImportZone
               loadedFileName={source.kind === 'import' ? source.fileName : null}
-              onFileLoad={onImportLoad}
+              onFileLoad={loadImport}
               onError={setImportError}
-              onClear={onImportClear}
+              onClear={clear}
             />
             {importError && <div style={importErrorStyle}>{importError}</div>}
           </div>
