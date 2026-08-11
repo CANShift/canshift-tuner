@@ -7,7 +7,7 @@ import {
   valueUnitFontSize,
   widgetTopRulePx,
 } from '@canshift/core'
-import { BLINK_ANIM } from '../widgetPreview.styles'
+import { BLINK_ANIM } from '../widget-preview.styles'
 import { effectiveValue } from './gauge-math'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
 import { MONO_FONT, uiLabelAtSize } from '../../../lib/typography'

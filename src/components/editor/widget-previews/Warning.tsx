@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { SensorIcon } from '../../icons/SensorIcons'
-import { BLINK_ANIM } from '../widgetPreview.styles'
+import { BLINK_ANIM } from '../widget-preview.styles'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
 import { uiLabelAtSize } from '../../../lib/typography'
 

@@ -1,20 +1,8 @@
 import { current } from 'immer'
-import type { DashboardConfig, PageConfig, Widget } from '@canshift/core'
-import { resolveScreenProfile } from '@canshift/core'
+import type { DashboardConfig, Widget } from '@canshift/core'
 import type { IdentifiedPlacement } from '../../utils/layout'
 
 export const HISTORY_LIMIT = 100
-
-export const canvasDims = (config: DashboardConfig): { w: number; h: number } => {
-  const profile = resolveScreenProfile(config.targetProfile)
-  return { w: profile.width, h: profile.height }
-}
-
-export const widgetAreaHeight = (
-  page: PageConfig,
-  topBarHeight: number,
-  canvasH: number
-): number => (page.showTopBar !== false ? canvasH - topBarHeight : canvasH)
 
 export const toPlacement = (w: Widget): IdentifiedPlacement => ({
   id: w.id,

@@ -1,8 +1,6 @@
 import { create } from 'zustand'
 import type { ScreenSettings } from '@canshift/core'
 
-export type RotationOffset = NonNullable<ScreenSettings['rotation']>
-
 export type StoredScreenSettings = Required<ScreenSettings>
 
 interface ScreenSettingsState extends StoredScreenSettings {

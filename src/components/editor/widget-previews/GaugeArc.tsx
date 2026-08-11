@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { GAUGE_ARC, GAUGE_TRACK_COLORS, STALE_PLACEHOLDER, deviceValueFontPx } from '@canshift/core'
-import { BLINK_ANIM, thresholdPct } from '../widgetPreview.styles'
+import { BLINK_ANIM, thresholdPct } from '../widget-preview.styles'
 import { effectiveValue, gaugeArcD } from './gauge-math'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
 import { MONO_FONT, UI_FONT, UI_LABEL_TRACKING, UI_LABEL_WEIGHT } from '../../../lib/typography'
