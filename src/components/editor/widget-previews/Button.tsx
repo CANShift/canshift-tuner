@@ -41,13 +41,15 @@ const KICKER_BY_ACTION_TYPE: Record<string, string> = {
 }
 
 const kickerFromConfig = (cfg: { mode: string }, signal: string): string => {
-  const fromSignal = formatSignalLabel(signal)
-  if (fromSignal !== '') return fromSignal.toUpperCase()
   const anyCfg = cfg as {
     mode: string
+    kicker?: string
     actions?: { type: string }[]
     states?: { action: { type: string } }[]
   }
+  if (anyCfg.kicker !== undefined && anyCfg.kicker !== '') return anyCfg.kicker.toUpperCase()
+  const fromSignal = formatSignalLabel(signal)
+  if (fromSignal !== '') return fromSignal.toUpperCase()
   const actionType =
     anyCfg.mode === 'cycle' ? anyCfg.states?.[0]?.action.type : anyCfg.actions?.[0]?.type
   return actionType !== undefined ? (KICKER_BY_ACTION_TYPE[actionType] ?? '') : ''
