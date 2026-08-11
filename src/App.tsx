@@ -21,6 +21,7 @@ import { useBurnShortcut } from './hooks/useBurnShortcut'
 import { bootstrapProjects } from './stores/project/project.store'
 import { useWidgetOverflowWarnings } from './hooks/useWidgetOverflowWarnings'
 import { useUnsavedChangesGuard } from './hooks/useUnsavedChangesGuard'
+import { useDocumentMeta } from './hooks/useDocumentMeta'
 import { DeviceConfigConflictDialog } from './components/shell/DeviceConfigConflictDialog'
 import { ROUTE_PATHS, type RoutePath } from './constants/routes'
 
@@ -107,6 +108,7 @@ const App = () => {
   useBurnShortcut()
   useWidgetOverflowWarnings()
   useUnsavedChangesGuard()
+  useDocumentMeta()
 
   const hasDashboardConfig = useDashboardStore((s) => s.config !== null)
   useEffect(() => {
