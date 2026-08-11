@@ -4,6 +4,7 @@ import { FIRMWARE_CAPS } from '@canshift/core'
 import type { CSSProperties, ReactNode } from 'react'
 import { PageCell } from './page-cell'
 import { MONO_FONT } from '../../lib/typography'
+import { Eyebrow } from '../ui/meta-text'
 
 const STRIP_HEIGHT = 100
 
@@ -42,7 +43,7 @@ const PageStripImpl = ({
   return (
     <div style={stripStyle}>
       <div style={headerCellStyle}>
-        <span style={headerLabelStyle}>PAGES</span>
+        <Eyebrow>PAGES</Eyebrow>
         <span
           style={{
             fontFamily: MONO_FONT,
@@ -110,13 +111,6 @@ const headerCellStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'space-between',
-}
-
-const headerLabelStyle: CSSProperties = {
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.2em',
-  color: 'hsl(var(--brand-neutral-600))',
 }
 
 const cellsStyle: CSSProperties = {

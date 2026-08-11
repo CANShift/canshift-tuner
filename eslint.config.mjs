@@ -3,6 +3,7 @@ import tseslint from 'typescript-eslint'
 import prettierConfig from 'eslint-config-prettier'
 import reactPlugin from 'eslint-plugin-react'
 import reactHooksPlugin from 'eslint-plugin-react-hooks'
+import { INLINE_STYLE_BASELINE } from './eslint-inline-style-baseline.mjs'
 
 const KEEP_COMMENT_PATTERN =
   /^[\s/]*(eslint-(disable|enable)|@ts-(expect-error|ignore|nocheck)|@typescript-eslint|<reference)/
@@ -26,6 +27,33 @@ const noCommentsPlugin = {
               if (KEEP_COMMENT_PATTERN.test(comment.value)) continue
               context.report({ loc: comment.loc, messageId: 'forbidden' })
             }
+          },
+        }
+      },
+    },
+  },
+}
+
+const noInlineStylePlugin = {
+  rules: {
+    'no-inline-style': {
+      meta: {
+        type: 'problem',
+        docs: {
+          description:
+            'Disallow the style prop; the stack is Tailwind + shadcn. Computed geometry opts out with an eslint-disable.',
+        },
+        schema: [],
+        messages: {
+          forbidden:
+            'Use Tailwind classes, or a primitive from src/components/ui/. Only runtime-computed geometry keeps style, with an eslint-disable-next-line.',
+        },
+      },
+      create(context) {
+        return {
+          JSXAttribute(node) {
+            if (node.name.type !== 'JSXIdentifier' || node.name.name !== 'style') return
+            context.report({ node, messageId: 'forbidden' })
           },
         }
       },
@@ -70,6 +98,19 @@ export default tseslint.config(
       'react-hooks/exhaustive-deps': 'warn',
       'react/jsx-uses-react': 'off',
       'react/react-in-jsx-scope': 'off',
+    },
+  },
+  {
+    files: ['src/**/*.tsx'],
+    plugins: { 'no-inline-style': noInlineStylePlugin },
+    rules: {
+      'no-inline-style/no-inline-style': 'error',
+    },
+  },
+  {
+    files: INLINE_STYLE_BASELINE,
+    rules: {
+      'no-inline-style/no-inline-style': 'off',
     },
   },
   {

@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react'
 import type { ThemePreset } from '@canshift/core'
 import { MONO_FONT } from '../../lib/typography'
+import { Eyebrow } from '../ui/meta-text'
 
 export interface ThemeTokensRailProps {
   title: string
@@ -28,7 +29,7 @@ export const ThemeTokensRail = ({ title, preset, children }: ThemeTokensRailProp
 
   return (
     <aside style={railStyle}>
-      <span style={sectionTitleStyle}>{title}</span>
+      <Eyebrow>{title}</Eyebrow>
       <div style={tokenListStyle}>
         {tokens.map(([name, value]) => (
           <div key={name} style={tokenRowStyle}>
@@ -38,7 +39,7 @@ export const ThemeTokensRail = ({ title, preset, children }: ThemeTokensRailProp
           </div>
         ))}
       </div>
-      <span style={sectionTitleStyle}>AUTO DAY / NIGHT</span>
+      <Eyebrow>AUTO DAY / NIGHT</Eyebrow>
       {children}
     </aside>
   )
@@ -54,13 +55,6 @@ const railStyle: CSSProperties = {
   flexDirection: 'column',
   gap: 18,
   overflowY: 'auto',
-}
-
-const sectionTitleStyle: CSSProperties = {
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.2em',
-  color: 'hsl(var(--brand-neutral-600))',
 }
 
 const tokenListStyle: CSSProperties = {
