@@ -124,6 +124,20 @@ export const ButtonFields = ({ widget, onChange }: ConfigFieldsProps) => {
         />
       </Field>
 
+      <Field label="Kicker">
+        <input
+          style={inputStyle}
+          value={cfg.kicker ?? ''}
+          placeholder="auto"
+          onChange={(e) => {
+            const value = e.target.value
+            onChange({
+              config: value ? { ...cfg, kicker: value } : (({ kicker: _, ...rest }) => rest)(cfg),
+            })
+          }}
+        />
+      </Field>
+
       <Field label="Show">
         <div
           style={{ display: 'flex', gap: 12, fontSize: 12, color: 'hsl(var(--brand-neutral-600))' }}
