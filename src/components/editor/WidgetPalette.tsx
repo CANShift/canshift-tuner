@@ -83,9 +83,7 @@ const WidgetPalette = ({ pageId }: WidgetPaletteProps) => {
             type: 'button' as const,
             mode: 'single' as const,
             label: 'Button',
-            iconName: item.icon,
             showLabel: true,
-            showIcon: false,
             actions: [],
           }
         case 'gear':

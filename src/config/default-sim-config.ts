@@ -242,9 +242,7 @@ const PARSED_SIM_CONFIG = DashboardConfigSchema.parse({
               type: 'button',
               mode: 'single',
               label: 'TRACK',
-              iconName: 'cog',
               showLabel: true,
-              showIcon: false,
               actions: [
                 {
                   category: 'dashboard',
@@ -1079,9 +1077,7 @@ const PARSED_SIM_CONFIG = DashboardConfigSchema.parse({
               type: 'button',
               mode: 'single',
               label: 'STREET',
-              iconName: 'cog',
               showLabel: true,
-              showIcon: false,
               actions: [
                 {
                   category: 'dashboard',
@@ -1123,9 +1119,7 @@ const PARSED_SIM_CONFIG = DashboardConfigSchema.parse({
               type: 'button',
               mode: 'cycle',
               label: 'MAP',
-              iconName: 'map_icon',
               showLabel: true,
-              showIcon: true,
               colors: {
                 normal: '#3A1212',
                 active: '#FF4444',
@@ -1182,9 +1176,7 @@ const PARSED_SIM_CONFIG = DashboardConfigSchema.parse({
               type: 'button',
               mode: 'single',
               label: 'Launch',
-              iconName: 'launch',
               showLabel: true,
-              showIcon: true,
               isToggle: true,
               colors: {
                 normal: '#1F1F1F',
@@ -1224,9 +1216,7 @@ const PARSED_SIM_CONFIG = DashboardConfigSchema.parse({
               type: 'button',
               mode: 'single',
               label: 'Anti-lag',
-              iconName: 'flame',
               showLabel: true,
-              showIcon: true,
               isToggle: true,
               colors: {
                 normal: '#1F1F1F',
@@ -1266,9 +1256,7 @@ const PARSED_SIM_CONFIG = DashboardConfigSchema.parse({
               type: 'button',
               mode: 'single',
               label: 'Traction cut',
-              iconName: 'cog',
               showLabel: true,
-              showIcon: false,
               isToggle: true,
               colors: {
                 normal: '#1F1F1F',
@@ -1308,9 +1296,7 @@ const PARSED_SIM_CONFIG = DashboardConfigSchema.parse({
               type: 'button',
               mode: 'single',
               label: 'STREET',
-              iconName: 'cog',
               showLabel: true,
-              showIcon: false,
               actions: [
                 {
                   category: 'dashboard',
