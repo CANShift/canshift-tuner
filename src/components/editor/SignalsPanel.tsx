@@ -4,7 +4,6 @@ import type { SignalDef } from '@canshift/core'
 import { useSignalStore } from '../../stores/signal.store'
 import { useDeviceStore } from '../../stores/device.store'
 import { useCanScanStore } from '../../stores/can-scan/can-scan.store'
-import type { CanFrameStats } from '../../stores/can-scan/accumulator'
 import { useLiveSignals } from '../../hooks/useLiveSignals'
 import { useDashboardStore } from '../../stores/dashboard.store'
 import { useRebindFlashStore } from '../../stores/rebind-flash.store'
@@ -14,28 +13,9 @@ import {
   widgetOfTypeForSignal,
 } from '../../utils/default-widget'
 import { autoPlace } from '../../utils/layout'
-import { parseHexFrameId } from '../../utils/frame-id'
+import { unboundFrames } from '../../stores/can-scan/unbound-frames'
 import { captureFlowEvent } from '../../lib/posthog'
 import { MONO_FONT } from '../../lib/typography'
-
-export const boundFrameIds = (signals: readonly SignalDef[]): ReadonlySet<number> => {
-  const ids = new Set<number>()
-  for (const s of signals) {
-    const id = parseHexFrameId(s.canFrameId)
-    if (id >= 0) ids.add(id)
-  }
-  return ids
-}
-
-export const unboundFrames = (
-  frames: ReadonlyMap<number, CanFrameStats>,
-  signals: readonly SignalDef[]
-): CanFrameStats[] => {
-  const bound = boundFrameIds(signals)
-  return Array.from(frames.values())
-    .filter((f) => !bound.has(f.id))
-    .sort((a, b) => a.id - b.id)
-}
 
 const formatFrameId = (id: number): string => `0x${id.toString(16).toUpperCase()}`
 

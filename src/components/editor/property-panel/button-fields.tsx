@@ -77,9 +77,9 @@ export const ButtonFields = ({ widget, onChange }: ConfigFieldsProps) => {
                 fontSize: 10,
                 padding: '3px 8px',
                 background: previewActive
-                  ? 'color-mix(in srgb, #AA3333 14%, transparent)'
+                  ? 'color-mix(in srgb, hsl(var(--status-danger)) 14%, transparent)'
                   : 'transparent',
-                border: `1px solid ${previewActive ? '#AA3333' : 'hsl(var(--brand-neutral-300))'}`,
+                border: `1px solid ${previewActive ? 'hsl(var(--status-danger))' : 'hsl(var(--brand-neutral-300))'}`,
                 color: previewActive ? '#FF4444' : 'hsl(var(--brand-neutral-600))',
                 cursor: 'pointer',
                 flexShrink: 0,

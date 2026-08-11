@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { SignalDef } from '@canshift/core'
-import type { CanFrameStats } from '../../stores/can-scan/accumulator'
-import { boundFrameIds, unboundFrames } from './SignalsPanel'
+import type { CanFrameStats } from './accumulator'
+import { boundFrameIds, unboundFrames } from './unbound-frames'
 import { parseHexFrameId } from '../../utils/frame-id'
 
 const signal = (name: string, canFrameId: string): SignalDef => ({ name, canFrameId }) as SignalDef
@@ -17,7 +17,7 @@ const frame = (id: number): CanFrameStats => ({
   byteValueCounts: [],
 })
 
-describe('SignalsPanel helpers', () => {
+describe('unbound-frames helpers', () => {
   it('parses hex frame ids and rejects garbage', () => {
     expect(parseHexFrameId('0x123')).toBe(0x123)
     expect(parseHexFrameId('0X1E005000')).toBe(0x1e005000)
