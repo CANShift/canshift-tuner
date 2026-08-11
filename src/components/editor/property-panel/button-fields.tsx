@@ -9,7 +9,8 @@ import { CycleModeBody } from './button/cycle-mode-body'
 import { ModeToggle } from './button/mode-toggle'
 import { convertCycleToSingle, convertSingleToCycle, EMPTY_PAGES } from './button/shared'
 import { SingleModeBody } from './button/single-mode-body'
-import { Field, inputStyle, type ConfigFieldsProps } from './shared'
+import { type ConfigFieldsProps } from './shared'
+import { PanelField, PanelInput } from '@/components/ui/form-field'
 import { MONO_FONT } from '../../../lib/typography'
 
 export const ButtonFields = ({ widget, onChange }: ConfigFieldsProps) => {
@@ -50,7 +51,7 @@ export const ButtonFields = ({ widget, onChange }: ConfigFieldsProps) => {
 
   return (
     <>
-      <Field label="Active state">
+      <PanelField label="Active state">
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
           <div
             style={{
@@ -108,25 +109,23 @@ export const ButtonFields = ({ widget, onChange }: ConfigFieldsProps) => {
             </button>
           )}
         </div>
-      </Field>
+      </PanelField>
 
-      <Field label="Mode">
+      <PanelField label="Mode">
         <ModeToggle mode={cfg.mode} onChange={handleModeChange} />
-      </Field>
+      </PanelField>
 
-      <Field label="Label">
-        <input
-          style={inputStyle}
+      <PanelField label="Label">
+        <PanelInput
           value={cfg.label}
           onChange={(e) => {
             onChange({ config: { ...cfg, label: e.target.value } })
           }}
         />
-      </Field>
+      </PanelField>
 
-      <Field label="Kicker">
-        <input
-          style={inputStyle}
+      <PanelField label="Kicker">
+        <PanelInput
           value={cfg.kicker ?? ''}
           placeholder="auto"
           onChange={(e) => {
@@ -136,9 +135,9 @@ export const ButtonFields = ({ widget, onChange }: ConfigFieldsProps) => {
             })
           }}
         />
-      </Field>
+      </PanelField>
 
-      <Field label="Show">
+      <PanelField label="Show">
         <div
           style={{ display: 'flex', gap: 12, fontSize: 12, color: 'hsl(var(--brand-neutral-600))' }}
         >
@@ -152,7 +151,7 @@ export const ButtonFields = ({ widget, onChange }: ConfigFieldsProps) => {
             Text
           </label>
         </div>
-      </Field>
+      </PanelField>
 
       {cfg.mode === 'single' ? (
         <SingleModeBody cfg={cfg} pageIds={pageIds} onChange={onChange} />

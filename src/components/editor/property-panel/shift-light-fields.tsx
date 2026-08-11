@@ -1,16 +1,16 @@
 import { SHIFT_LIGHT_SEGMENT_COUNT } from '@canshift/core'
-import { ConfigFieldsProps, Field, Row, numberInputStyle } from './shared'
+import { ConfigFieldsProps } from './shared'
+import { PanelField, PanelInput, PanelRow } from '@/components/ui/form-field'
 
 export const ShiftLightFields = ({ widget, onChange }: ConfigFieldsProps) => {
   if (widget.config.type !== 'shift_light') return null
   const cfg = widget.config
 
   return (
-    <Row>
-      <Field label="First segment at">
-        <input
+    <PanelRow>
+      <PanelField label="First segment at">
+        <PanelInput
           type="number"
-          style={numberInputStyle}
           value={cfg.startValue}
           min={0}
           onChange={(e) => {
@@ -18,11 +18,10 @@ export const ShiftLightFields = ({ widget, onChange }: ConfigFieldsProps) => {
             onChange({ config: { ...cfg, startValue } })
           }}
         />
-      </Field>
-      <Field label="Red segments">
-        <input
+      </PanelField>
+      <PanelField label="Red segments">
+        <PanelInput
           type="number"
-          style={numberInputStyle}
           value={cfg.redSegments}
           min={0}
           max={SHIFT_LIGHT_SEGMENT_COUNT}
@@ -32,7 +31,7 @@ export const ShiftLightFields = ({ widget, onChange }: ConfigFieldsProps) => {
             onChange({ config: { ...cfg, redSegments } })
           }}
         />
-      </Field>
-    </Row>
+      </PanelField>
+    </PanelRow>
   )
 }

@@ -1,7 +1,7 @@
 import type { Widget } from '@canshift/core'
 
 import { SIZE_TOKENS, STANDARD_TOKEN_IDS, tokenFromSpans } from '../../../../utils/size-tokens'
-import { Field } from '../shared'
+import { PanelField } from '@/components/ui/form-field'
 
 const PANEL_LABEL = 'hsl(var(--brand-neutral-600))'
 const TOKEN_TILE_BG = 'hsl(var(--brand-neutral-100))'
@@ -20,7 +20,7 @@ export const SizeTokenPicker = ({ widget, onChange }: SizeTokenPickerProps) => {
     tokenFromSpans(widget.layout.colSpan, widget.layout.rowSpan) ?? STANDARD_TOKEN_IDS[0] ?? null
 
   return (
-    <Field label="Size">
+    <PanelField label="Size">
       <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
         {STANDARD_TOKEN_IDS.map((tokenId) => {
           const token = SIZE_TOKENS[tokenId]
@@ -50,6 +50,6 @@ export const SizeTokenPicker = ({ widget, onChange }: SizeTokenPickerProps) => {
           )
         })}
       </div>
-    </Field>
+    </PanelField>
   )
 }

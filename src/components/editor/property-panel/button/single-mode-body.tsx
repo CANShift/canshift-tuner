@@ -3,7 +3,8 @@ import type { ButtonAction, SingleActionButtonConfig } from '@canshift/core'
 import { actionKey } from '../../../../utils/list-keys'
 import { newId } from '../../../../utils/id'
 import { Switch } from '@/components/ui/switch'
-import { Field, type ConfigFieldsProps } from '../shared'
+import { type ConfigFieldsProps } from '../shared'
+import { PanelField } from '@/components/ui/form-field'
 import { ActionRow } from './action-row'
 import { AddActionMenu } from './add-action-menu'
 
@@ -30,7 +31,7 @@ export const SingleModeBody = ({ cfg, pageIds, onChange }: SingleModeBodyProps) 
 
   return (
     <>
-      <Field label="Behaviour">
+      <PanelField label="Behaviour">
         <label
           style={{
             display: 'flex',
@@ -49,7 +50,7 @@ export const SingleModeBody = ({ cfg, pageIds, onChange }: SingleModeBodyProps) 
           />
           Toggle (stays active after press)
         </label>
-      </Field>
+      </PanelField>
 
       <div
         style={{
