@@ -1,5 +1,5 @@
-import type { CSSProperties, ReactNode } from 'react'
-import { MONO_FONT } from '../../lib/typography'
+import type { ReactNode } from 'react'
+import { MetaText } from '../ui/meta-text'
 
 interface RouteHeaderProps {
   title: string
@@ -8,45 +8,11 @@ interface RouteHeaderProps {
 }
 
 export const RouteHeader = ({ title, subtitle, action }: RouteHeaderProps) => (
-  <header style={headerStyle}>
-    <div style={titleStyle}>{title}</div>
-    {subtitle != null && <div style={subtitleStyle}>{subtitle}</div>}
-    {action != null && <div style={actionStyle}>{action}</div>}
+  <header className="flex h-12 shrink-0 items-center gap-3.5 border-b-2 border-brand-divider px-5">
+    <div className="whitespace-nowrap text-sm font-extrabold tracking-[0.02em] text-brand-text">
+      {title}
+    </div>
+    {subtitle != null && <MetaText truncate>{subtitle}</MetaText>}
+    {action != null && <div className="ml-auto flex shrink-0 items-center gap-2.5">{action}</div>}
   </header>
 )
-
-const headerStyle: CSSProperties = {
-  height: 48,
-  flexShrink: 0,
-  display: 'flex',
-  alignItems: 'center',
-  gap: 14,
-  padding: '0 20px',
-  borderBottom: '2px solid var(--brand-divider)',
-}
-
-const titleStyle: CSSProperties = {
-  fontWeight: 800,
-  fontSize: 14,
-  letterSpacing: '0.02em',
-  color: 'hsl(var(--brand-text))',
-  whiteSpace: 'nowrap',
-}
-
-const subtitleStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-600))',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-  minWidth: 0,
-}
-
-const actionStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 10,
-  flexShrink: 0,
-  marginLeft: 'auto',
-}

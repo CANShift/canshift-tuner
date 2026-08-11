@@ -2,6 +2,7 @@ import type { CSSProperties, ReactNode } from 'react'
 import type { FirmwareSelection } from '../../stores/firmware-selection.store'
 import { formatBytes } from '../../lib/format'
 import { MONO_FONT } from '../../lib/typography'
+import { Eyebrow } from '../ui/meta-text'
 
 export interface WriteAndPreflightProps {
   selection: FirmwareSelection
@@ -24,7 +25,7 @@ export const WriteAndPreflight = ({ selection }: WriteAndPreflightProps) => {
   return (
     <div style={columnsStyle}>
       <div style={leftColumnStyle}>
-        <span style={columnTitleStyle}>WHAT GETS WRITTEN</span>
+        <Eyebrow>WHAT GETS WRITTEN</Eyebrow>
         <div style={writtenRowStyle}>
           <span style={checkedBoxStyle} />
           Firmware image — full flash, checksum-verified
@@ -39,7 +40,7 @@ export const WriteAndPreflight = ({ selection }: WriteAndPreflightProps) => {
         </div>
       </div>
       <div style={rightColumnStyle}>
-        <span style={columnTitleStyle}>PRE-FLIGHT</span>
+        <Eyebrow>PRE-FLIGHT</Eyebrow>
         <CheckRow ok={webSerial}>
           {webSerial
             ? 'WebSerial available in this browser'
@@ -75,13 +76,6 @@ const rightColumnStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: 12,
-}
-
-const columnTitleStyle: CSSProperties = {
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.2em',
-  color: 'hsl(var(--brand-neutral-600))',
 }
 
 const writtenRowStyle: CSSProperties = {

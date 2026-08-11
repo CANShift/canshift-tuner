@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import type { CSSProperties } from 'react'
 import { THEME_PRESETS, themePresetById } from '@canshift/core'
 import type { ThemePreset, ThemePresetEntry } from '@canshift/core'
 import { useDashboardStore } from '../stores/dashboard.store'
@@ -10,8 +9,9 @@ import { ThemeCard, hexLuminance, type ThemeSlotBadge } from '../components/them
 import { ThemeTokensRail } from '../components/themes/ThemeTokensRail'
 import { ThemeStatusCard } from '../components/themes/ThemeStatusCard'
 import { ThemeControls } from '../components/themes/ThemeControls'
-import { MONO_FONT } from '../lib/typography'
 import { transportErrorText } from '../transport/humanize-transport-error'
+import { RouteHeader } from '../components/shell/RouteHeader'
+import { RouteBody, RoutePage } from '../components/ui/route-shell'
 
 const LIGHT_BG_LUMINANCE = 0.5
 
@@ -96,14 +96,11 @@ const ThemesRoute = () => {
   }
 
   return (
-    <div style={pageStyle}>
-      <header style={toolbarStyle}>
-        <span style={titleStyle}>Themes</span>
-        <span style={summaryStyle}>applies to every page on the device</span>
-      </header>
-      <div style={bodyStyle}>
-        <div style={gridWrapStyle}>
-          <div style={gridStyle}>
+    <RoutePage>
+      <RouteHeader title="Themes" subtitle="applies to every page on the device" />
+      <RouteBody>
+        <div className="min-w-0 flex-1 overflow-y-auto p-6">
+          <div className="grid grid-cols-2 content-start gap-5">
             {THEME_PRESETS.map((entry) => (
               <ThemeCard
                 key={entry.id}
@@ -139,72 +136,15 @@ const ThemesRoute = () => {
               }}
             />
             {!canControl && (
-              <div style={hintStyle}>
+              <div className="border border-brand-neutral-300 px-3.5 py-2.5 text-xs text-brand-neutral-500">
                 Theme commands are sent over USB. Connect a device to enable them.
               </div>
             )}
           </ThemeTokensRail>
         )}
-      </div>
-    </div>
+      </RouteBody>
+    </RoutePage>
   )
-}
-
-const pageStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  background: 'hsl(var(--brand-chrome-bg))',
-  overflow: 'hidden',
-}
-
-const toolbarStyle: CSSProperties = {
-  height: 48,
-  flexShrink: 0,
-  display: 'flex',
-  alignItems: 'center',
-  gap: 14,
-  padding: '0 20px',
-  borderBottom: '2px solid var(--brand-divider)',
-}
-
-const titleStyle: CSSProperties = {
-  fontWeight: 800,
-  fontSize: 14,
-  color: 'hsl(var(--brand-text))',
-}
-
-const summaryStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const bodyStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  minHeight: 0,
-}
-
-const gridWrapStyle: CSSProperties = {
-  flex: 1,
-  minWidth: 0,
-  overflowY: 'auto',
-  padding: 24,
-}
-
-const gridStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: '1fr 1fr',
-  gap: 20,
-  alignContent: 'start',
-}
-
-const hintStyle: CSSProperties = {
-  fontSize: 12,
-  color: 'hsl(var(--brand-neutral-500))',
-  padding: '10px 14px',
-  border: '1px solid hsl(var(--brand-neutral-300))',
 }
 
 export default ThemesRoute

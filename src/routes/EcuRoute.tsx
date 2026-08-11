@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react'
-import type { CSSProperties } from 'react'
 import type { SignalDef } from '@canshift/core'
 import { useDashboardStore } from '../stores/dashboard.store'
 import { useSignalStore } from '../stores/signal.store'
@@ -8,7 +7,9 @@ import { EcuCatalogueList } from '../components/ecu/EcuCatalogueList'
 import { XmlImportZone } from '../components/ecu/XmlImportZone'
 import { SignalPreviewTable } from '../components/ecu/SignalPreviewTable'
 import { ApplyConfirmDialog } from '../components/ecu/ApplyConfirmDialog'
-import { MONO_FONT } from '../lib/typography'
+import { cn } from '@/lib/utils'
+import { RouteHeader } from '../components/shell/RouteHeader'
+import { RouteBody, RoutePage, RoutePanel } from '../components/ui/route-shell'
 import { prettyProfileKey } from '../utils/profile-key'
 import { useEcuSource } from '../hooks/useEcuSource'
 
@@ -95,26 +96,32 @@ const EcuRoute = () => {
       : `preview — ${targetName} · ${String(previewSignals.length)} signals · ${String(boundCount)} bound`
 
   return (
-    <div style={containerStyle}>
-      <header style={toolbarStyle}>
-        <span style={titleStyle}>ECU profile</span>
-        <span style={summaryStyle}>{summary}</span>
-        <button
-          type="button"
-          className="shell-burn-button"
-          disabled={!canApply}
-          onClick={() => {
-            setConfirmOpen(true)
-          }}
-          style={applyButtonStyle(!canApply)}
-        >
-          APPLY PROFILE
-        </button>
-      </header>
+    <RoutePage>
+      <RouteHeader
+        title="ECU profile"
+        subtitle={summary}
+        action={
+          <button
+            type="button"
+            className={cn(
+              'shell-burn-button border-none px-4 py-1.5 text-[11px] font-extrabold tracking-[0.09em]',
+              canApply
+                ? 'cursor-pointer bg-brand-accent text-brand-ground'
+                : 'cursor-not-allowed bg-brand-neutral-300 text-brand-neutral-500'
+            )}
+            disabled={!canApply}
+            onClick={() => {
+              setConfirmOpen(true)
+            }}
+          >
+            APPLY PROFILE
+          </button>
+        }
+      />
 
-      <div style={bodyStyle}>
-        <section style={leftColumnStyle}>
-          <div style={catalogueWrapperStyle}>
+      <RouteBody>
+        <section className="flex w-[250px] min-h-0 shrink-0 flex-col overflow-hidden border-r-2 border-brand-divider">
+          <RoutePanel>
             <EcuCatalogueList
               activeKey={activeProfileKey}
               selectedId={selectedItemId}
@@ -122,22 +129,26 @@ const EcuRoute = () => {
                 void selectCatalogueItem(item)
               }}
             />
-          </div>
-          <div style={importWrapperStyle}>
+          </RoutePanel>
+          <div className="flex flex-col gap-2 border-t-2 border-brand-divider px-[18px] py-3">
             <XmlImportZone
               loadedFileName={source.kind === 'import' ? source.fileName : null}
               onFileLoad={loadImport}
               onError={setImportError}
               onClear={clear}
             />
-            {importError && <div style={importErrorStyle}>{importError}</div>}
+            {importError && (
+              <div className="border border-brand-accent bg-[color-mix(in_srgb,hsl(var(--brand-accent))_8%,transparent)] px-2.5 py-2 text-xs text-brand-accent">
+                {importError}
+              </div>
+            )}
           </div>
         </section>
 
-        <section style={rightColumnStyle}>
+        <section className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <SignalPreviewTable signals={shownSignals} boundTo={boundTo} warnings={previewWarnings} />
         </section>
-      </div>
+      </RouteBody>
 
       <ApplyConfirmDialog
         open={confirmOpen}
@@ -147,102 +158,8 @@ const EcuRoute = () => {
         currentSignalCount={currentSignalCount}
         onConfirm={onConfirmApply}
       />
-    </div>
+    </RoutePage>
   )
-}
-
-const containerStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  background: 'hsl(var(--brand-chrome-bg))',
-  overflow: 'hidden',
-}
-
-const toolbarStyle: CSSProperties = {
-  height: 48,
-  flexShrink: 0,
-  display: 'flex',
-  alignItems: 'center',
-  gap: 14,
-  padding: '0 20px',
-  borderBottom: '2px solid var(--brand-divider)',
-}
-
-const titleStyle: CSSProperties = {
-  fontWeight: 800,
-  fontSize: 14,
-  color: 'hsl(var(--brand-text))',
-}
-
-const summaryStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-600))',
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  minWidth: 0,
-}
-
-const applyButtonStyle = (disabled: boolean): CSSProperties => ({
-  marginLeft: 'auto',
-  padding: '6px 16px',
-  background: disabled ? 'hsl(var(--brand-neutral-300))' : 'hsl(var(--brand-accent))',
-  border: 'none',
-  fontWeight: 800,
-  fontSize: 11,
-  letterSpacing: '0.09em',
-  color: disabled ? 'hsl(var(--brand-neutral-500))' : 'hsl(var(--brand-ground))',
-  cursor: disabled ? 'not-allowed' : 'pointer',
-})
-
-const bodyStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  minHeight: 0,
-}
-
-const leftColumnStyle: CSSProperties = {
-  width: 250,
-  flexShrink: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  borderRight: '2px solid var(--brand-divider)',
-  minHeight: 0,
-  overflow: 'hidden',
-}
-
-const rightColumnStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  minWidth: 0,
-  minHeight: 0,
-  overflow: 'hidden',
-}
-
-const catalogueWrapperStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  minHeight: 0,
-}
-
-const importWrapperStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 8,
-  padding: '12px 18px',
-  borderTop: '2px solid var(--brand-divider)',
-}
-
-const importErrorStyle: CSSProperties = {
-  fontSize: 12,
-  color: 'hsl(var(--brand-accent))',
-  padding: '8px 10px',
-  border: '1px solid hsl(var(--brand-accent))',
-  background: 'color-mix(in srgb, hsl(var(--brand-accent)) 8%, transparent)',
 }
 
 export default EcuRoute

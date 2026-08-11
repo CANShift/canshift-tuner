@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { useLogStore } from '../stores/log.store'
 import type { LogLevel } from '../stores/log.store'
-import { TogglePill } from '../components/ui/toggle-pill'
+import { TogglePill, type TogglePillTone } from '../components/ui/toggle-pill'
 import { Checkbox } from '../components/ui/checkbox'
 import { MONO_FONT, UI_FONT } from '../lib/typography'
 
@@ -13,6 +13,13 @@ const LEVEL_COLOR: Record<LogLevel, string> = {
   warn: 'hsl(var(--warning))',
   error: 'hsl(var(--status-danger))',
   debug: 'hsl(var(--brand-neutral-500))',
+}
+const LEVEL_TONE: Record<LogLevel, TogglePillTone> = {
+  info: 'neutral',
+  success: 'success',
+  warn: 'warning',
+  error: 'danger',
+  debug: 'muted',
 }
 
 const STICK_THRESHOLD_PX = 32
@@ -101,7 +108,7 @@ const LogsRoute = () => {
               <TogglePill
                 key={level}
                 active={active}
-                accentColor={LEVEL_COLOR[level]}
+                tone={LEVEL_TONE[level]}
                 onClick={() => {
                   toggleLevel(level)
                 }}

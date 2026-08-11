@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { BuildChooser } from '../components/firmware/BuildChooser'
 import { BoardSelector } from '../components/firmware/BoardSelector'
@@ -14,7 +13,10 @@ import { useFirmwareSelectionStore } from '../stores/firmware-selection.store'
 import { resolveBoardSelection } from '../lib/firmware/board-resolution'
 import { findBoard } from '../lib/firmware/manifest'
 import { findAssetByName, findMergedAsset } from '../lib/firmware/releases'
-import { MONO_FONT } from '../lib/typography'
+import { cn } from '@/lib/utils'
+import { RouteHeader } from '../components/shell/RouteHeader'
+import { RouteBody, RoutePage } from '../components/ui/route-shell'
+import { MetaText } from '../components/ui/meta-text'
 
 const FirmwareRoute = () => {
   const { state: releasesState, refresh } = useFirmwareReleases()
@@ -74,17 +76,19 @@ const FirmwareRoute = () => {
   }
 
   return (
-    <div style={containerStyle}>
-      <header style={toolbarStyle}>
-        <span style={titleStyle}>Firmware</span>
-        <span style={linkPillStyle}>
-          <span style={linkDotStyle(linked)} />
-          {linked ? 'tuner link active — released for the flash' : 'no device connected'}
-        </span>
-        <span style={toolInfoStyle}>esptool-js · WebSerial</span>
-      </header>
-      <div style={bodyStyle}>
-        <div style={mainColumnStyle}>
+    <RoutePage>
+      <RouteHeader
+        title="Firmware"
+        subtitle={
+          <span className="flex items-center gap-2 border border-brand-neutral-400 px-2.5 py-1 font-mono text-[11px] text-brand-neutral-700">
+            <span className={cn('size-[7px]', linked ? 'bg-success' : 'bg-brand-neutral-500')} />
+            {linked ? 'tuner link active — released for the flash' : 'no device connected'}
+          </span>
+        }
+        action={<MetaText>esptool-js · WebSerial</MetaText>}
+      />
+      <RouteBody>
+        <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
           <KeyFigures
             installedVersion={installedVersion}
             latestStable={latestStable}
@@ -120,71 +124,9 @@ const FirmwareRoute = () => {
             pickedRelease ?? (selection.kind === 'release' ? selection.release : latestStable)
           }
         />
-      </div>
-    </div>
+      </RouteBody>
+    </RoutePage>
   )
 }
 
 export default FirmwareRoute
-
-const containerStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  background: 'hsl(var(--brand-chrome-bg))',
-  overflow: 'hidden',
-}
-
-const toolbarStyle: CSSProperties = {
-  height: 48,
-  flexShrink: 0,
-  display: 'flex',
-  alignItems: 'center',
-  gap: 14,
-  padding: '0 20px',
-  borderBottom: '2px solid var(--brand-divider)',
-}
-
-const titleStyle: CSSProperties = {
-  fontWeight: 800,
-  fontSize: 14,
-  color: 'hsl(var(--brand-text))',
-}
-
-const linkPillStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 8,
-  padding: '4px 10px',
-  border: '1px solid hsl(var(--brand-neutral-400))',
-  fontFamily: MONO_FONT,
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-700))',
-}
-
-const linkDotStyle = (linked: boolean): CSSProperties => ({
-  width: 7,
-  height: 7,
-  background: linked ? 'hsl(var(--success))' : 'hsl(var(--brand-neutral-500))',
-})
-
-const toolInfoStyle: CSSProperties = {
-  marginLeft: 'auto',
-  fontFamily: MONO_FONT,
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const bodyStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  minHeight: 0,
-}
-
-const mainColumnStyle: CSSProperties = {
-  flex: 1,
-  minWidth: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  overflowY: 'auto',
-}

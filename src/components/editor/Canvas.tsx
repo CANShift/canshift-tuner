@@ -27,6 +27,7 @@ import { useEffectivePalette } from '../../hooks/useEffectivePalette'
 import { useCanvasDialogs } from '../../hooks/useCanvasDialogs'
 
 import { MONO_FONT } from '../../lib/typography'
+import { Eyebrow } from '../ui/meta-text'
 
 const SCALE = 1.5
 const ZOOM_STEPS = [0.5, 0.75, 1, 1.5, 2] as const
@@ -301,9 +302,7 @@ interface CanvasTitleProps {
 
 const CanvasTitle = ({ pageIndex, screenProfile, zoom }: CanvasTitleProps) => (
   <div style={canvasTitleRowStyle}>
-    <span style={canvasTitleStyle}>
-      {pageIndex !== undefined ? `PAGE ${String(pageIndex + 1)}` : 'PAGE'}
-    </span>
+    <Eyebrow>{pageIndex !== undefined ? `PAGE ${String(pageIndex + 1)}` : 'PAGE'}</Eyebrow>
     <span style={canvasDimsStyle}>
       {screenProfile.width} × {screenProfile.height} @ {SCALE * zoom}×
     </span>
@@ -368,13 +367,6 @@ const canvasTitleRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'baseline',
   gap: 10,
-}
-
-const canvasTitleStyle: CSSProperties = {
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.2em',
-  color: 'hsl(var(--brand-neutral-600))',
 }
 
 const canvasDimsStyle: CSSProperties = {
