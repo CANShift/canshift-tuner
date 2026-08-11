@@ -76,6 +76,47 @@ export const BoolField = ({ label, value, onChange }: BoolFieldProps) => (
   </label>
 )
 
+const NONE_VALUE = '__none__'
+
+export interface CompactSelectOption {
+  value: string
+  label: string
+}
+
+export interface CompactSelectProps {
+  value: string
+  options: CompactSelectOption[]
+  onChange: (value: string) => void
+  ariaLabel?: string
+}
+
+export const CompactSelect = ({ value, options, onChange, ariaLabel }: CompactSelectProps) => (
+  <Select
+    value={value === '' ? NONE_VALUE : value}
+    onValueChange={(next) => {
+      onChange(next === NONE_VALUE ? '' : next)
+    }}
+  >
+    <SelectTrigger
+      className="h-7 px-2 text-xs"
+      {...(ariaLabel !== undefined ? { 'aria-label': ariaLabel } : {})}
+    >
+      <SelectValue />
+    </SelectTrigger>
+    <SelectContent>
+      {options.map((option) => (
+        <SelectItem
+          key={option.value === '' ? NONE_VALUE : option.value}
+          value={option.value === '' ? NONE_VALUE : option.value}
+          className="text-xs"
+        >
+          {option.label}
+        </SelectItem>
+      ))}
+    </SelectContent>
+  </Select>
+)
+
 export interface SelectFieldProps {
   label: string
   value: string

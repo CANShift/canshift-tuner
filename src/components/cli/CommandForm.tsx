@@ -1,6 +1,7 @@
 import type { CSSProperties, KeyboardEvent } from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '../ui/button'
+import { CompactSelect } from '../ui/form-field'
 import { KNOWN_OPCODES } from '../../transport'
 import { MONO_FONT } from '../../lib/typography'
 import { errorMessage } from '../../lib/error-message'
@@ -91,22 +92,21 @@ export const CommandForm = ({
           placeholder="0x05 or 5 or CMD_SCREEN_SETTINGS"
           style={opcodeInputStyle}
         />
-        <select
-          aria-label="Pick a known opcode"
-          value={parsedOpcode !== null ? String(parsedOpcode) : ''}
-          onChange={(e) => {
-            const id = Number(e.target.value)
-            if (Number.isFinite(id)) setOpcodeInput(formatHex(id))
+        <CompactSelect
+          ariaLabel="Pick a known opcode"
+          value={parsedOpcode !== null && matched ? String(parsedOpcode) : ''}
+          options={[
+            { value: '', label: 'Pick known…' },
+            ...KNOWN_OPCODES.map((o) => ({
+              value: String(o.id),
+              label: `${formatHex(o.id)} · ${o.name}`,
+            })),
+          ]}
+          onChange={(next) => {
+            const id = Number(next)
+            if (next !== '' && Number.isFinite(id)) setOpcodeInput(formatHex(id))
           }}
-          style={opcodeSelectStyle}
-        >
-          <option value="">Pick known…</option>
-          {KNOWN_OPCODES.map((o) => (
-            <option key={o.id} value={String(o.id)}>
-              {formatHex(o.id)} · {o.name}
-            </option>
-          ))}
-        </select>
+        />
       </div>
       {matched && <div style={descriptionStyle}>{matched.description}</div>}
 
@@ -189,14 +189,6 @@ const opcodeInputStyle: CSSProperties = {
   fontFamily: MONO_FONT,
   color: 'hsl(var(--text))',
   outline: 'none',
-}
-
-const opcodeSelectStyle: CSSProperties = {
-  background: 'hsl(var(--bg))',
-  border: '1px solid hsl(var(--border))',
-  padding: '6px 8px',
-  fontSize: 11,
-  color: 'hsl(var(--text-dim))',
 }
 
 const descriptionStyle: CSSProperties = {

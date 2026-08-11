@@ -4,6 +4,7 @@ import { useDeviceStore } from '../stores/device.store'
 import { useObservabilityStore } from '../stores/observability.store'
 import { useConnectionStore } from '../stores/connection.store'
 import { BrandLockup } from '../components/brand/BrandLockup'
+import { Checkbox } from '../components/ui/checkbox'
 import { HeapStatsPanel } from '../components/about/HeapStatsPanel'
 import { MONO_FONT } from '../lib/typography'
 
@@ -16,11 +17,10 @@ const DiagnosticsToggle = () => {
   const setEnabled = useObservabilityStore((s) => s.setEnabled)
   return (
     <label style={diagnosticsRowStyle}>
-      <input
-        type="checkbox"
+      <Checkbox
         checked={enabled}
-        onChange={(e) => {
-          setEnabled(e.target.checked)
+        onCheckedChange={(checked) => {
+          setEnabled(checked === true)
         }}
       />
       <span>

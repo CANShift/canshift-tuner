@@ -8,6 +8,7 @@ import {
   type NavigateAction,
 } from '@canshift/core'
 
+import { CompactSelect } from '@/components/ui/form-field'
 import { inputStyle, numberInputStyle } from '../shared'
 import { CRUISE_STEP_OPS, HEX_FRAME_ID_REGEX } from './shared'
 import { MONO_FONT } from '../../../../lib/typography'
@@ -25,20 +26,16 @@ interface FieldEditorProps<A extends ButtonAction> {
 }
 
 const NavigateFields = ({ action, pageIds, onUpdate }: FieldEditorProps<NavigateAction>) => (
-  <select
-    style={{ ...inputStyle, fontSize: 11 }}
+  <CompactSelect
     value={action.pageId}
-    onChange={(e) => {
-      onUpdate({ ...action, pageId: e.target.value })
+    options={[
+      { value: '', label: '— select page —' },
+      ...pageIds.map((id) => ({ value: id, label: id })),
+    ]}
+    onChange={(pageId) => {
+      onUpdate({ ...action, pageId })
     }}
-  >
-    <option value="">— select page —</option>
-    {pageIds.map((id) => (
-      <option key={id} value={id}>
-        {id}
-      </option>
-    ))}
-  </select>
+  />
 )
 
 const MapSwitchFields = ({ action, onUpdate }: FieldEditorProps<MapSwitchAction>) => (
@@ -100,21 +97,15 @@ const CruiseControlFields = ({ action, onUpdate }: FieldEditorProps<CruiseContro
   <div style={{ display: 'flex', gap: 6, alignItems: 'flex-end' }}>
     <div style={{ flex: 1 }}>
       <div style={{ fontSize: 9, color: 'hsl(var(--brand-neutral-600))', marginBottom: 2 }}>OP</div>
-      <select
-        style={{ ...inputStyle, fontSize: 11 }}
+      <CompactSelect
         value={action.op}
-        onChange={(e) => {
-          const nextOp = e.target.value as CruiseControlOp
+        options={CRUISE_CONTROL_OPS.map((op) => ({ value: op, label: op }))}
+        onChange={(next) => {
+          const nextOp = next as CruiseControlOp
           const keepStep = CRUISE_STEP_OPS.has(nextOp) || action.stepKmh === undefined
           onUpdate(keepStep ? { ...action, op: nextOp } : withoutStep(action, nextOp))
         }}
-      >
-        {CRUISE_CONTROL_OPS.map((op) => (
-          <option key={op} value={op}>
-            {op}
-          </option>
-        ))}
-      </select>
+      />
     </div>
     {CRUISE_STEP_OPS.has(action.op) && (
       <div style={{ flex: '0 0 80px' }}>
