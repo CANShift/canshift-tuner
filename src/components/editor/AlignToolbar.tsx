@@ -1,4 +1,4 @@
-import { useCallback, type CSSProperties, type MouseEvent } from 'react'
+import { useCallback, type CSSProperties } from 'react'
 import { useDashboardStore } from '../../stores/dashboard.store'
 import type { AlignDirection } from '../../stores/dashboard.store'
 import { MONO_FONT } from '../../lib/typography'
@@ -7,13 +7,16 @@ const BUTTON_STYLE: CSSProperties = {
   padding: '2px 7px',
   fontSize: 10,
   background: 'hsl(var(--brand-neutral-100))',
-  border: '1px solid hsl(var(--brand-neutral-300))',
-  color: 'hsl(var(--brand-neutral-600))',
   cursor: 'pointer',
   letterSpacing: '0.03em',
   fontFamily: MONO_FONT,
   lineHeight: 1.2,
 }
+
+const BUTTON_CLASS =
+  'border border-[hsl(var(--brand-neutral-300))] text-[hsl(var(--brand-neutral-600))] ' +
+  'hover:border-[hsl(var(--brand-neutral-400))] hover:text-[hsl(var(--brand-neutral-700))] ' +
+  'focus-visible:border-[hsl(var(--brand-neutral-400))] focus-visible:text-[hsl(var(--brand-neutral-700))]'
 
 const LABEL_STYLE: CSSProperties = {
   fontSize: 9,
@@ -30,15 +33,6 @@ const DIVIDER_STYLE: CSSProperties = {
   margin: '0 2px',
 }
 
-const handleMouseEnter = (e: MouseEvent<HTMLButtonElement>) => {
-  e.currentTarget.style.borderColor = 'hsl(var(--brand-neutral-400))'
-  e.currentTarget.style.color = 'hsl(var(--brand-neutral-700))'
-}
-const handleMouseLeave = (e: MouseEvent<HTMLButtonElement>) => {
-  e.currentTarget.style.borderColor = 'hsl(var(--brand-neutral-300))'
-  e.currentTarget.style.color = 'hsl(var(--brand-neutral-600))'
-}
-
 interface ToolbarButtonProps {
   glyph: string
   title: string
@@ -48,13 +42,14 @@ interface ToolbarButtonProps {
 const ToolbarButton = ({ glyph, title, onClick }: ToolbarButtonProps) => {
   return (
     <button
+      type="button"
+      className={BUTTON_CLASS}
       style={BUTTON_STYLE}
       title={title}
+      aria-label={title}
       onClick={onClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
-      {glyph}
+      <span aria-hidden="true">{glyph}</span>
     </button>
   )
 }

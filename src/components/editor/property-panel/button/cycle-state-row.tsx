@@ -80,8 +80,10 @@ export const CycleStateRow = ({
           Initial
         </label>
         <button
+          type="button"
           onClick={onRemove}
           disabled={!canRemove}
+          aria-label="Remove state"
           style={{
             background: 'none',
             border: 'none',
