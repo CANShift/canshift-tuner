@@ -1,4 +1,4 @@
-import { HexColorSchema, SensorIconNameSchema } from '@canshift/core'
+import { HexColorSchema, SensorIconNameSchema, WIDGET_ZONE_COLORS } from '@canshift/core'
 import type { SensorIconName, SignalDef, Widget, WidgetConfig } from '@canshift/core'
 import { SIZE_TOKENS } from './size-tokens'
 import { createId } from './id'
@@ -18,9 +18,9 @@ export const SIGNAL_CONSUMING_TYPES: ReadonlySet<string> = new Set([
 ])
 
 export const DEFAULT_WIDGET_STYLE = {
-  primaryColor: HexColorSchema.parse('#FF4444'),
+  primaryColor: HexColorSchema.parse(WIDGET_ZONE_COLORS.danger),
   secondaryColor: HexColorSchema.parse('#333333'),
-  warningColor: HexColorSchema.parse('#FF8800'),
+  warningColor: HexColorSchema.parse(WIDGET_ZONE_COLORS.warning),
   criticalColor: HexColorSchema.parse('#FF0000'),
   textColor: HexColorSchema.parse('#FFFFFF'),
 }

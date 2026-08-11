@@ -14,6 +14,3 @@ export const ROUTE_PATHS = [
 ] as const
 
 export type RoutePath = (typeof ROUTE_PATHS)[number]
-
-export const isRoutePath = (pathname: string): pathname is RoutePath =>
-  (ROUTE_PATHS as readonly string[]).includes(pathname)

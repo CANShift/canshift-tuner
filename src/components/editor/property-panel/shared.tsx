@@ -80,33 +80,3 @@ export const GAUGE_STYLES: { value: GaugeDisplayStyle; label: string }[] = [
   { value: 'arc', label: 'Arc' },
   { value: 'numeric', label: 'Numeric' },
 ]
-
-export const ALL_UNITS = [
-  'rpm',
-  'km/h',
-  'mph',
-  '%',
-  '°C',
-  '°F',
-  'bar',
-  'psi',
-  'V',
-  'λ',
-  'AFR',
-  'kPa',
-  's',
-]
-
-export const SIGNAL_UNITS: Record<string, string[]> = {
-  rpm: ['rpm'],
-  throttle_pos: ['%'],
-  map_kpa: ['kPa', 'psi', 'bar'],
-  iat_c: ['°C', '°F'],
-  speed_kph: ['km/h', 'mph'],
-  lambda_1: ['λ', 'AFR'],
-  fuel_press_bar: ['bar', 'psi', 'kPa'],
-  coolant_temp_c: ['°C', '°F'],
-  oil_temp_c: ['°C', '°F'],
-  oil_press_bar: ['bar', 'psi', 'kPa'],
-  battery_volts: ['V'],
-}

@@ -7,7 +7,7 @@ import { useUiStore } from '../stores/ui.store'
 import { unboundWidgetCount } from '../utils/unbound-widgets'
 import { usbService } from '../transport'
 import { humanizeTransportError } from '../transport/humanize-transport-error'
-import { verifyBurnedConfig, type VerifyResult } from './verifyBurnedConfig'
+import { verifyBurnedConfig, type VerifyResult } from '../lib/verify-burned-config'
 import { captureFlowEvent } from '../lib/posthog'
 import { errorMessage } from '../lib/error-message'
 

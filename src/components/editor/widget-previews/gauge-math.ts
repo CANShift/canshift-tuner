@@ -1,6 +1,6 @@
 import type { Widget } from '@canshift/core'
 import { GAUGE_ARC, gaugeArcPath } from '@canshift/core'
-import { thresholdPct } from '../widgetPreview.styles'
+import { thresholdPct } from '../widget-preview.styles'
 
 export const DEMO_PCT = 0.65
 

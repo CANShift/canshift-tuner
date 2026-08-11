@@ -1,5 +1,5 @@
 import type { DashboardConfig } from '@canshift/core'
-import { canonicalStringify } from '../lib/canonical-json'
+import { canonicalStringify } from './canonical-json'
 import { usbService } from '../transport'
 
 export type VerifyResult =
