@@ -1,5 +1,5 @@
 import { Spinner } from '@/components/ui/spinner'
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { BrandLockup } from '@/components/brand/BrandLockup'
 
@@ -40,14 +40,16 @@ export const WelcomeScreen = ({
   footerLinks,
 }: WelcomeScreenProps) => {
   return (
-    <div style={containerStyle}>
-      <div style={contentStyle}>
-        <header style={heroStyle}>
-          <div style={lockupStyle}>
+    <div className="flex flex-1 items-center justify-center overflow-y-auto bg-background px-8 py-12">
+      <div className="flex w-full max-w-[540px] flex-col gap-7">
+        <header className="flex flex-col items-center gap-3 text-center">
+          <div className="flex justify-center text-text">
             <BrandLockup height={78} withBaseline label="CANShift Tuner" />
           </div>
-          <h1 style={titleStyle}>Configure your dash, live.</h1>
-          <p style={taglineStyle}>
+          <h1 className="m-0 text-[30px] font-bold leading-[1.15] tracking-[-0.02em] text-text">
+            Configure your dash, live.
+          </h1>
+          <p className="m-0 max-w-[440px] text-sm leading-[1.6] text-text-dim">
             Edit pages, bind CAN signals, tune OBD-II polling — all in your browser, with the dash
             connected over USB. No install, nothing to deploy.
           </p>
@@ -57,29 +59,31 @@ export const WelcomeScreen = ({
           <UnsupportedBrowserCard />
         ) : (
           <>
-            <ol style={stepsStyle}>
+            <ol className="m-0 flex list-none flex-col gap-3.5 p-0">
               {STEPS.map((step, idx) => (
-                <li key={step.title} style={stepStyle}>
-                  <div style={stepNumberStyle}>{idx + 1}</div>
+                <li
+                  key={step.title}
+                  className="flex items-start gap-3.5 border border-border bg-surface px-4 py-3.5"
+                >
+                  <div className="mt-0.5 flex size-7 shrink-0 items-center justify-center bg-brand-accent/15 text-[13px] font-bold text-brand-accent">
+                    {idx + 1}
+                  </div>
                   <div>
-                    <div style={stepTitleStyle}>{step.title}</div>
-                    <div style={stepBodyStyle}>{step.body}</div>
+                    <div className="mb-0.5 text-sm leading-[1.5] font-semibold text-text">
+                      {step.title}
+                    </div>
+                    <div className="text-[13px] leading-[1.5] text-text-dim">{step.body}</div>
                   </div>
                 </li>
               ))}
             </ol>
 
-            <div style={ctaRowStyle}>
+            <div className="mt-1 flex flex-wrap items-center justify-center gap-3">
               <Button
                 type="button"
                 disabled={busy}
                 onClick={onConnect}
-                className="h-auto gap-0"
-                style={{
-                  ...connectButtonStyle,
-                  cursor: busy ? 'wait' : 'pointer',
-                  opacity: busy ? 0.7 : 1,
-                }}
+                className="h-auto gap-0 px-7 py-3.5 text-[13px] leading-5 font-semibold uppercase tracking-[0.06em] disabled:opacity-70"
               >
                 {busy ? (
                   <>
@@ -95,204 +99,49 @@ export const WelcomeScreen = ({
                   variant="outline"
                   disabled={busy}
                   onClick={onExploreSimulation}
-                  className="h-auto gap-0"
-                  style={{
-                    ...exploreButtonStyle,
-                    cursor: busy ? 'wait' : 'pointer',
-                    opacity: busy ? 0.6 : 1,
-                  }}
+                  className="h-auto gap-0 bg-transparent px-[22px] py-[13px] text-xs leading-5 font-medium tracking-[0.04em] text-text-dim disabled:opacity-60"
                 >
                   Explore with sample data
                 </Button>
               )}
             </div>
 
-            {lastError ? <div style={errorPillStyle}>{lastError}</div> : null}
+            {lastError ? (
+              <div className="border border-destructive bg-bg-inset px-3.5 py-2.5 text-center text-[13px] text-destructive">
+                {lastError}
+              </div>
+            ) : null}
           </>
         )}
 
-        {footerLinks ? <footer style={footerStyle}>{footerLinks}</footer> : null}
+        {footerLinks ? (
+          <footer className="mt-2 flex items-center justify-center gap-2 border-t border-border pt-2">
+            {footerLinks}
+          </footer>
+        ) : null}
       </div>
     </div>
   )
 }
 
 const UnsupportedBrowserCard = () => (
-  <div style={unsupportedCardStyle} role="alert">
-    <div
-      style={{
-        fontWeight: 600,
-        color: 'hsl(var(--text))',
-        marginBottom: 6,
-      }}
-    >
-      WebSerial isn't available in this browser
+  <div
+    className="border border-border bg-bg-inset px-5 py-[18px] text-left text-[13px] text-text-dim"
+    role="alert"
+  >
+    <div className="mb-1.5 font-semibold text-text">
+      WebSerial isn&apos;t available in this browser
     </div>
-    <div style={{ fontSize: 13, marginBottom: 12 }}>
+    <div className="mb-3 text-[13px]">
       CANShift Tuner needs the WebSerial API to talk to the dash over USB. Open this page in one of
       the supported browsers — or copy the URL and paste it into the new one:
     </div>
-    <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: 13 }}>
+    <ul className="m-0 list-none p-0 text-[13px]">
       {SUPPORTED_BROWSERS.map((b) => (
-        <li key={b} style={{ padding: '2px 0' }}>
+        <li key={b} className="py-0.5">
           · {b}
         </li>
       ))}
     </ul>
   </div>
 )
-
-const containerStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  background: 'hsl(var(--bg))',
-  padding: '48px 32px',
-  overflowY: 'auto',
-}
-
-const contentStyle: CSSProperties = {
-  width: '100%',
-  maxWidth: 540,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 28,
-}
-
-const heroStyle: CSSProperties = {
-  textAlign: 'center',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  gap: 12,
-}
-
-const lockupStyle: CSSProperties = {
-  display: 'flex',
-  justifyContent: 'center',
-  color: 'hsl(var(--text))',
-}
-
-const titleStyle: CSSProperties = {
-  fontSize: 30,
-  fontWeight: 700,
-  color: 'hsl(var(--text))',
-  letterSpacing: '-0.02em',
-  margin: 0,
-  lineHeight: 1.15,
-}
-
-const taglineStyle: CSSProperties = {
-  fontSize: 14,
-  color: 'hsl(var(--text-dim))',
-  lineHeight: 1.6,
-  margin: 0,
-  maxWidth: 440,
-}
-
-const stepsStyle: CSSProperties = {
-  listStyle: 'none',
-  padding: 0,
-  margin: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 14,
-}
-
-const stepStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'flex-start',
-  gap: 14,
-  padding: '14px 16px',
-  background: 'hsl(var(--surface))',
-  border: '1px solid hsl(var(--border))',
-}
-
-const stepNumberStyle: CSSProperties = {
-  width: 28,
-  height: 28,
-  flexShrink: 0,
-  background: 'hsl(var(--brand-accent) / 0.15)',
-  color: 'hsl(var(--brand-accent))',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontWeight: 700,
-  fontSize: 13,
-  marginTop: 2,
-}
-
-const stepTitleStyle: CSSProperties = {
-  fontWeight: 600,
-  color: 'hsl(var(--text))',
-  fontSize: 14,
-  marginBottom: 2,
-}
-
-const stepBodyStyle: CSSProperties = {
-  fontSize: 13,
-  color: 'hsl(var(--text-dim))',
-  lineHeight: 1.5,
-}
-
-const ctaRowStyle: CSSProperties = {
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  gap: 12,
-  flexWrap: 'wrap',
-  marginTop: 4,
-}
-
-const connectButtonStyle: CSSProperties = {
-  background: 'hsl(var(--brand-accent))',
-  color: 'hsl(var(--brand-ground))',
-  border: 'none',
-  padding: '14px 28px',
-  fontSize: 13,
-  fontWeight: 600,
-  letterSpacing: '0.06em',
-  textTransform: 'uppercase',
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}
-
-const exploreButtonStyle: CSSProperties = {
-  background: 'transparent',
-  color: 'hsl(var(--text-dim))',
-  border: '1px solid hsl(var(--border))',
-  padding: '13px 22px',
-  fontSize: 12,
-  fontWeight: 500,
-  letterSpacing: '0.04em',
-}
-
-const errorPillStyle: CSSProperties = {
-  background: 'hsl(var(--bg-inset))',
-  border: '1px solid hsl(var(--destructive))',
-  color: 'hsl(var(--destructive))',
-  padding: '10px 14px',
-  fontSize: 13,
-  textAlign: 'center',
-}
-
-const unsupportedCardStyle: CSSProperties = {
-  background: 'hsl(var(--bg-inset))',
-  border: '1px solid hsl(var(--border))',
-  padding: '18px 20px',
-  color: 'hsl(var(--text-dim))',
-  textAlign: 'left',
-  fontSize: 13,
-}
-
-const footerStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: 8,
-  paddingTop: 8,
-  borderTop: '1px solid hsl(var(--border))',
-  marginTop: 8,
-}
