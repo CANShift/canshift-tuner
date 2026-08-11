@@ -40,7 +40,9 @@ export const CliOfflineState = () => {
           aria-expanded={opcodesOpen}
         >
           <span>Known opcodes ({String(KNOWN_OPCODES.length)})</span>
-          <span style={chevronStyle(opcodesOpen)}>▸</span>
+          <span style={chevronStyle(opcodesOpen)} aria-hidden="true">
+            ▸
+          </span>
         </button>
         {opcodesOpen && (
           <table style={tableStyle}>

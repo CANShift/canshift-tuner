@@ -51,6 +51,7 @@ export const ActionRow = ({ action, pageIds, onUpdate, onRemove }: ActionRowProp
           {action.category} — {typeLabel}
         </span>
         <button
+          type="button"
           onClick={onRemove}
           style={{
             background: 'none',
@@ -61,6 +62,7 @@ export const ActionRow = ({ action, pageIds, onUpdate, onRemove }: ActionRowProp
             display: 'flex',
           }}
           title="Remove action"
+          aria-label="Remove action"
         >
           <IconTrash size={11} color="#553333" />
         </button>
