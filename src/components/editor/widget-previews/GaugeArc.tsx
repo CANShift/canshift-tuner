@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { GAUGE_ARC, GAUGE_TRACK_COLORS, STALE_PLACEHOLDER } from '@canshift/core'
+import { GAUGE_ARC, GAUGE_TRACK_COLORS, STALE_PLACEHOLDER, deviceValueFontPx } from '@canshift/core'
 import { BLINK_ANIM, thresholdPct } from '../widgetPreview.styles'
 import { effectiveValue, gaugeArcD } from './gauge-math'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
@@ -47,7 +47,8 @@ export const GaugeArcPreview = memo(function GaugeArcPreview({
   const revFlash = cfg.revFlash === true
   const showRevFlash = revFlash && revLimiting
 
-  const valueFontSize = Math.max(11, Math.min(r * 0.55, h * 0.3, 42))
+  const autoValueSize = Math.max(11, Math.min(r * 0.55, h * 0.3, 42))
+  const valueFontSize = cfg.big !== undefined ? deviceValueFontPx(cfg.big) : autoValueSize
 
   return (
     <svg width={w} height={h} style={{ display: 'block', overflow: 'hidden' }} aria-hidden="true">

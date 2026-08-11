@@ -7,6 +7,16 @@ import {
 } from '../../../utils/size-tokens'
 import { ConfigFieldsProps, Field, GAUGE_STYLES, Row, numberInputStyle } from './shared'
 
+const BIG_CHOICES = [
+  { label: 'Auto', big: 0, title: 'Derive from the widget box' },
+  { label: 'XL', big: 96, title: 'Hero 96 — device 48' },
+  { label: 'L', big: 88, title: 'Hero 88 — device 44' },
+  { label: 'M', big: 64, title: 'Primary 64 — device 32' },
+  { label: 'S', big: 48, title: 'Mid 48 — device 24' },
+  { label: 'XS', big: 34, title: 'Secondary 34 — device 17' },
+] as const
+
+
 export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) => {
   const cfg = widget.config.type === 'gauge' ? widget.config : null
   if (!cfg) return null
@@ -52,6 +62,42 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
               {label}
             </button>
           ))}
+        </div>
+      </Field>
+
+      <Field label="Type">
+        <div style={{ display: 'flex', gap: 4 }}>
+          {BIG_CHOICES.map((choice) => {
+            const isActive = (cfg.big ?? 0) === choice.big
+            return (
+              <button
+                key={choice.label}
+                onClick={() => {
+                  onChange({
+                    config:
+                      choice.big === 0
+                        ? (({ big: _, ...rest }) => rest)(cfg)
+                        : { ...cfg, big: choice.big },
+                  })
+                }}
+                title={choice.title}
+                style={{
+                  flex: 1,
+                  padding: '3px 0',
+                  background: isActive
+                    ? 'color-mix(in srgb, #448844 14%, transparent)'
+                    : 'hsl(var(--brand-neutral-100))',
+                  border: `1px solid ${isActive ? '#448844' : 'hsl(var(--brand-neutral-300))'}`,
+                  color: isActive ? '#66AA66' : 'hsl(var(--brand-neutral-600))',
+                  cursor: 'pointer',
+                  fontSize: 10,
+                  fontWeight: isActive ? 700 : 400,
+                }}
+              >
+                {choice.label}
+              </button>
+            )
+          })}
         </div>
       </Field>
 

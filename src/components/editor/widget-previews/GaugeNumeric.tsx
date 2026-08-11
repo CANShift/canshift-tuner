@@ -1,4 +1,5 @@
-import { memo } from 'react'
+import {
+  deviceValueFontPx, memo } from 'react'
 import {
   SECONDARY_BAR,
   STALE_PLACEHOLDER,
@@ -45,7 +46,8 @@ export const GaugeNumericPreview = memo(function GaugeNumericPreview({
 
   const valueStr = String(valueOnly)
   const charBudget = valueStr.length + prefix.length + signalUnit.length * 0.45
-  const fontSize = Math.max(10, Math.min(availH * 0.85, (w - 16) / (charBudget * 0.68)))
+  const autoSize = Math.max(10, Math.min(availH * 0.85, (w - 16) / (charBudget * 0.68)))
+  const fontSize = cfg.big !== undefined ? deviceValueFontPx(cfg.big) : autoSize
   const rulePx = widgetTopRulePx(Math.round(fontSize))
   const ruleColor = danger
     ? WIDGET_TOP_RULE.dangerColor
