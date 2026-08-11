@@ -1,18 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { CSSProperties } from 'react'
 import { useLogStore } from '../stores/log.store'
 import type { LogLevel } from '../stores/log.store'
 import { TogglePill, type TogglePillTone } from '../components/ui/toggle-pill'
 import { Checkbox } from '../components/ui/checkbox'
-import { MONO_FONT, UI_FONT } from '../lib/typography'
+import { cn } from '@/lib/utils'
+import { RoutePage } from '../components/ui/route-shell'
+import { MetaText } from '../components/ui/meta-text'
 
 const ALL_LEVELS: LogLevel[] = ['info', 'success', 'warn', 'error', 'debug']
-const LEVEL_COLOR: Record<LogLevel, string> = {
-  info: 'hsl(var(--brand-neutral-700))',
-  success: 'hsl(var(--success))',
-  warn: 'hsl(var(--warning))',
-  error: 'hsl(var(--status-danger))',
-  debug: 'hsl(var(--brand-neutral-500))',
+const LEVEL_TEXT: Record<LogLevel, string> = {
+  info: 'text-brand-neutral-700',
+  success: 'text-success',
+  warn: 'text-warning',
+  error: 'text-status-danger',
+  debug: 'text-brand-neutral-500',
 }
 const LEVEL_TONE: Record<LogLevel, TogglePillTone> = {
   info: 'neutral',
@@ -94,13 +95,13 @@ const LogsRoute = () => {
     copyState === 'copied' ? 'Copied ✓' : copyState === 'failed' ? 'Copy failed' : 'Copy all'
 
   return (
-    <div style={containerStyle}>
-      <header style={toolbarStyle}>
-        <span style={titleStyle}>Logs</span>
-        <span style={summaryStyle}>
+    <RoutePage className="relative">
+      <header className="flex min-h-12 shrink-0 flex-wrap items-center gap-3.5 border-b-2 border-brand-divider px-5 py-1">
+        <span className="text-[14px] font-extrabold text-brand-text">Logs</span>
+        <MetaText className="whitespace-nowrap">
           {filtered.length} entr{filtered.length === 1 ? 'y' : 'ies'} · {entries.length} total
-        </span>
-        <div style={actionsStyle}>
+        </MetaText>
+        <div className="ml-auto flex flex-wrap items-center gap-1.5">
           {ALL_LEVELS.map((level) => {
             if (level === 'debug' && !verbose) return null
             const active = visibleLevels.has(level)
@@ -117,7 +118,7 @@ const LogsRoute = () => {
               </TogglePill>
             )
           })}
-          <label style={verboseLabelStyle}>
+          <label className="ml-1 inline-flex cursor-pointer items-center gap-1.5 text-[11px] uppercase tracking-[0.06em] text-brand-neutral-600">
             <Checkbox
               checked={verbose}
               onCheckedChange={(checked) => {
@@ -126,44 +127,55 @@ const LogsRoute = () => {
             />
             verbose
           </label>
-          <div style={dividerStyle} />
+          <div className="mx-1 h-[18px] w-px bg-brand-neutral-300" />
           <button
             type="button"
-            className="shell-link-button"
+            className={cn(SECONDARY_BUTTON, filtered.length === 0 ? DISABLED : ENABLED)}
             onClick={handleCopy}
             disabled={filtered.length === 0}
-            style={secondaryButtonStyle(filtered.length === 0)}
           >
             {copyLabel}
           </button>
           <button
             type="button"
-            className="shell-link-button"
+            className={cn(SECONDARY_BUTTON, entries.length === 0 ? DISABLED : ENABLED)}
             onClick={clear}
             disabled={entries.length === 0}
-            style={secondaryButtonStyle(entries.length === 0)}
           >
             CLEAR
           </button>
         </div>
       </header>
 
-      <div ref={scrollRef} onScroll={onScroll} style={streamStyle}>
+      <div
+        ref={scrollRef}
+        onScroll={onScroll}
+        className="flex-1 overflow-y-auto px-7 py-3 font-mono text-[12px] leading-[1.55]"
+      >
         {filtered.length === 0 ? (
-          <div style={emptyStyle}>
+          <div className="px-6 py-16 text-center font-sans text-[13px] text-brand-neutral-500">
             {entries.length === 0
               ? 'No log entries yet.'
               : 'Every entry is hidden by the current filter.'}
           </div>
         ) : (
           filtered.map((entry) => (
-            <div key={entry.id} style={entryStyle}>
-              <span style={timestampStyle}>{formatTimestamp(entry.timestamp)}</span>
-              <span style={{ ...levelStyle, color: LEVEL_COLOR[entry.level] }}>
+            <div key={entry.id} className="flex items-start gap-3 py-0.5">
+              <span className="shrink-0 tabular-nums text-brand-neutral-500">
+                {formatTimestamp(entry.timestamp)}
+              </span>
+              <span
+                className={cn(
+                  'shrink-0 whitespace-pre font-semibold tracking-[0.04em]',
+                  LEVEL_TEXT[entry.level]
+                )}
+              >
                 {entry.level.toUpperCase().padEnd(7)}
               </span>
-              {entry.scope && <span style={scopeStyle}>[{entry.scope}]</span>}
-              <span style={messageStyle}>{entry.message}</span>
+              {entry.scope && (
+                <span className="shrink-0 text-brand-neutral-500">[{entry.scope}]</span>
+              )}
+              <span className="flex-1 break-words text-brand-text">{entry.message}</span>
             </div>
           ))
         )}
@@ -175,14 +187,19 @@ const LogsRoute = () => {
           onClick={() => {
             setAutoScroll(true)
           }}
-          style={jumpStyle}
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 cursor-pointer border border-brand-neutral-400 bg-brand-chrome-surface px-3.5 py-1.5 text-[11px] font-extrabold tracking-[0.08em] text-brand-text shadow-[0_2px_10px_rgba(0,0,0,0.3)]"
         >
           Jump to latest ↓
         </button>
       )}
-    </div>
+    </RoutePage>
   )
 }
+
+const SECONDARY_BUTTON =
+  'border border-brand-neutral-400 bg-none px-3.5 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.08em]'
+const ENABLED = 'cursor-pointer text-brand-text'
+const DISABLED = 'cursor-not-allowed text-brand-neutral-500'
 
 const formatTimestamp = (d: Date): string => {
   const h = String(d.getHours()).padStart(2, '0')
@@ -198,142 +215,6 @@ const formatEntryForCopy = (
   const ts = formatTimestamp(entry.timestamp)
   const scope = entry.scope ? `[${entry.scope}] ` : ''
   return `${ts}  ${entry.level.toUpperCase().padEnd(7)}  ${scope}${entry.message}`
-}
-
-const containerStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  background: 'hsl(var(--brand-chrome-bg))',
-  overflow: 'hidden',
-  position: 'relative',
-}
-
-const toolbarStyle: CSSProperties = {
-  minHeight: 48,
-  flexShrink: 0,
-  display: 'flex',
-  flexWrap: 'wrap',
-  alignItems: 'center',
-  gap: 14,
-  padding: '4px 20px',
-  borderBottom: '2px solid var(--brand-divider)',
-}
-
-const titleStyle: CSSProperties = {
-  fontWeight: 800,
-  fontSize: 14,
-  color: 'hsl(var(--brand-text))',
-}
-
-const summaryStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-600))',
-  whiteSpace: 'nowrap',
-}
-
-const actionsStyle: CSSProperties = {
-  marginLeft: 'auto',
-  display: 'flex',
-  flexWrap: 'wrap',
-  alignItems: 'center',
-  gap: 6,
-}
-
-const verboseLabelStyle: CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 6,
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-600))',
-  letterSpacing: '0.06em',
-  textTransform: 'uppercase',
-  marginLeft: 4,
-  cursor: 'pointer',
-}
-
-const dividerStyle: CSSProperties = {
-  width: 1,
-  height: 18,
-  background: 'hsl(var(--brand-neutral-300))',
-  margin: '0 4px',
-}
-
-const secondaryButtonStyle = (disabled: boolean): CSSProperties => ({
-  background: 'none',
-  color: disabled ? 'hsl(var(--brand-neutral-500))' : 'hsl(var(--brand-text))',
-  border: '1px solid hsl(var(--brand-neutral-400))',
-  padding: '6px 14px',
-  fontSize: 11,
-  fontWeight: 800,
-  letterSpacing: '0.08em',
-  textTransform: 'uppercase',
-  cursor: disabled ? 'not-allowed' : 'pointer',
-})
-
-const streamStyle: CSSProperties = {
-  flex: 1,
-  overflowY: 'auto',
-  padding: '12px 28px',
-  fontFamily: MONO_FONT,
-  fontSize: 12,
-  lineHeight: 1.55,
-}
-
-const emptyStyle: CSSProperties = {
-  textAlign: 'center',
-  fontSize: 13,
-  color: 'hsl(var(--brand-neutral-500))',
-  padding: '64px 24px',
-  fontFamily: UI_FONT,
-}
-
-const entryStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'flex-start',
-  gap: 12,
-  padding: '2px 0',
-}
-
-const timestampStyle: CSSProperties = {
-  color: 'hsl(var(--brand-neutral-500))',
-  flexShrink: 0,
-  fontVariantNumeric: 'tabular-nums',
-}
-
-const levelStyle: CSSProperties = {
-  flexShrink: 0,
-  fontWeight: 600,
-  letterSpacing: '0.04em',
-  whiteSpace: 'pre',
-}
-
-const scopeStyle: CSSProperties = {
-  color: 'hsl(var(--brand-neutral-500))',
-  flexShrink: 0,
-}
-
-const messageStyle: CSSProperties = {
-  color: 'hsl(var(--brand-text))',
-  wordBreak: 'break-word',
-  flex: 1,
-}
-
-const jumpStyle: CSSProperties = {
-  position: 'absolute',
-  bottom: 16,
-  left: '50%',
-  transform: 'translateX(-50%)',
-  background: 'hsl(var(--brand-chrome-surface))',
-  color: 'hsl(var(--brand-text))',
-  border: '1px solid hsl(var(--brand-neutral-400))',
-  padding: '6px 14px',
-  fontSize: 11,
-  fontWeight: 800,
-  letterSpacing: '0.08em',
-  cursor: 'pointer',
-  boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
 }
 
 export default LogsRoute

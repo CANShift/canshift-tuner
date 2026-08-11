@@ -94,7 +94,6 @@ export const INLINE_STYLE_BASELINE = [
   'src/routes/CliRoute.tsx',
   'src/routes/EditorRoute.tsx',
   'src/routes/LiveDataRoute.tsx',
-  'src/routes/LogsRoute.tsx',
   'src/routes/PageContextMenu.tsx',
   'src/routes/PageThumbnail.tsx',
   'src/routes/RightSidebar.tsx',
