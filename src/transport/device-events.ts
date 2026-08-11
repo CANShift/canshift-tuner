@@ -5,6 +5,7 @@ import {
   TeleFrameSchema,
   heapStatsFromWire,
 } from '@canshift/core'
+import type { ZodType } from 'zod'
 
 import type { Handler, Unsubscribe } from './types'
 import { isRecord } from './types'
@@ -24,44 +25,40 @@ const warnFrameDrop = (discriminator: string, code: string, sample: string): voi
   console.warn(`[serial] dropping ${discriminator} frame — ${code} (${sample})`)
 }
 
+const subscribeParsed = <Wire, Out>(
+  discriminator: string,
+  schema: ZodType<Wire>,
+  map: (wire: Wire) => Out,
+  handler: Handler<Out>
+): Unsubscribe =>
+  getSerialClient().subscribe(discriminator, (frame) => {
+    const parsed = schema.safeParse(frame)
+    if (!parsed.success) {
+      warnFrameDrop(discriminator, parsed.error.issues[0]?.code ?? 'unknown', JSON.stringify(frame))
+      return
+    }
+    handler(map(parsed.data))
+  })
+
 export const deviceEvents = {
-  onLogLine: (handler: Handler<{ level: string; tag: string; message: string }>): Unsubscribe => {
-    return getSerialClient().subscribe('log', (frame) => {
-      const parsed = LogFrameSchema.safeParse(frame)
-      if (!parsed.success) {
-        warnFrameDrop('log', parsed.error.issues[0]?.code ?? 'unknown', JSON.stringify(frame))
-        return
-      }
-      handler({
-        level: parsed.data.lvl,
-        tag: parsed.data.tag,
-        message: parsed.data.msg,
-      })
-    })
-  },
+  onLogLine: (handler: Handler<{ level: string; tag: string; message: string }>): Unsubscribe =>
+    subscribeParsed(
+      'log',
+      LogFrameSchema,
+      (wire) => ({ level: wire.lvl, tag: wire.tag, message: wire.msg }),
+      handler
+    ),
 
-  onCanFrame: (handler: Handler<{ id: number; len: number; data: number[] }>): Unsubscribe => {
-    return getSerialClient().subscribe('can', (frame) => {
-      const parsed = CanFrameSchema.safeParse(frame)
-      if (!parsed.success) {
-        warnFrameDrop('can', parsed.error.issues[0]?.code ?? 'unknown', JSON.stringify(frame))
-        return
-      }
-      const { id, len, d } = parsed.data
-      handler({ id, len, data: d })
-    })
-  },
+  onCanFrame: (handler: Handler<{ id: number; len: number; data: number[] }>): Unsubscribe =>
+    subscribeParsed(
+      'can',
+      CanFrameSchema,
+      (wire) => ({ id: wire.id, len: wire.len, data: wire.d }),
+      handler
+    ),
 
-  onSignal: (handler: Handler<Record<string, number>>): Unsubscribe => {
-    return getSerialClient().subscribe('tele', (frame) => {
-      const parsed = TeleFrameSchema.safeParse(frame)
-      if (!parsed.success) {
-        warnFrameDrop('tele', parsed.error.issues[0]?.code ?? 'unknown', JSON.stringify(frame))
-        return
-      }
-      handler(parsed.data.v)
-    })
-  },
+  onSignal: (handler: Handler<Record<string, number>>): Unsubscribe =>
+    subscribeParsed('tele', TeleFrameSchema, (wire) => wire.v, handler),
 
   onHeapStats: (
     handler: Handler<{
@@ -71,20 +68,8 @@ export const deviceEvents = {
       freePsram: number | null
       largestPsram: number | null
     }>
-  ): Unsubscribe => {
-    return getSerialClient().subscribe('heap_stats', (frame) => {
-      const parsed = HeapStatsFrameWireSchema.safeParse(frame)
-      if (!parsed.success) {
-        warnFrameDrop(
-          'heap_stats',
-          parsed.error.issues[0]?.code ?? 'unknown',
-          JSON.stringify(frame)
-        )
-        return
-      }
-      handler(heapStatsFromWire(parsed.data))
-    })
-  },
+  ): Unsubscribe =>
+    subscribeParsed('heap_stats', HeapStatsFrameWireSchema, heapStatsFromWire, handler),
 
   onCanHealth: (handler: Handler<{ fps: number; errors: number }>): Unsubscribe => {
     return getSerialClient().subscribe('can_stat', (frame) => {
@@ -100,11 +85,13 @@ export const deviceEvents = {
     return getSerialClient().onStatus((status, error) => {
       if (status === 'connected') {
         handler({ connected: true })
-      } else if (error !== undefined) {
-        handler({ connected: false, reason: error })
-      } else {
-        handler({ connected: false })
+        return
       }
+      if (error !== undefined) {
+        handler({ connected: false, reason: error })
+        return
+      }
+      handler({ connected: false })
     })
   },
 
