@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import type { ReleaseAsset, ReleaseInfo } from '@canshift/core'
 import type { FirmwareSelection } from '../../stores/firmware-selection.store'
@@ -19,12 +19,43 @@ export interface FlashActionsProps {
   expectedChip?: string
 }
 
+const SELECTION_LABELS: Record<FirmwareSelection['kind'], (s: FirmwareSelection) => string> = {
+  release: (s) => (s.kind === 'release' ? s.release.tag : 'firmware'),
+  local: (s) => (s.kind === 'local' ? s.firmware.name : 'firmware'),
+  none: () => 'firmware',
+}
+
 const selectionLabel = (selection: FirmwareSelection): string =>
-  selection.kind === 'release'
-    ? selection.release.tag
-    : selection.kind === 'local'
-      ? selection.firmware.name
-      : 'firmware'
+  SELECTION_LABELS[selection.kind](selection)
+
+const flashPct = (state: FlasherState): number =>
+  state.kind === 'flashing' && state.total > 0
+    ? Math.min(100, (state.written / state.total) * 100)
+    : 0
+
+const RESETTABLE_KINDS: ReadonlySet<FlasherState['kind']> = new Set(['success', 'error'])
+
+const FLASH_STATUS_CARDS: Record<FlasherState['kind'], (state: FlasherState) => ReactNode> = {
+  idle: () => null,
+  flashing: (state) => (
+    <div style={progressTrackStyle}>
+      <div style={progressFillStyle(flashPct(state))} />
+    </div>
+  ),
+  success: () => (
+    <div style={successCardStyle}>
+      Flash complete. Unplug the dash from USB and plug it back in to boot the new firmware — the
+      flasher's automatic reset is unreliable on this board.
+    </div>
+  ),
+  error: (state) =>
+    state.kind !== 'error' ? null : (
+      <div style={errorCardStyle}>
+        Flash failed — {state.message}. Most common cause: BOOT was not held long enough. Press and
+        hold BOOT, then retry.
+      </div>
+    ),
+}
 
 const useFlashHistoryRecorder = (
   state: FlasherState,
@@ -71,46 +102,42 @@ export const FlashActions = ({
     selection.release.tag === pickedRelease.tag
   const needsDownload = pickedRelease !== null && !pickedIsDownloaded
 
-  const handleDownload = () => {
-    if (!pickedRelease || !pickedAsset) return
-    const release = pickedRelease
-    const asset = pickedAsset
+  const runDownload = async (release: ReleaseInfo, asset: ReleaseAsset): Promise<void> => {
     setDownloading(true)
     setProgress(0)
     setLoadedBytes(0)
     setDownloadError(null)
     log('info', `Downloading ${asset.name} (${formatBytes(asset.sizeBytes)})`)
-    void downloadFirmwareAsset(asset, (loaded, total) => {
-      setLoadedBytes(loaded)
-      setProgress(total > 0 ? loaded / total : 0)
-    })
-      .then((firmware) => {
-        setReleaseFirmware(release, firmware)
-        log(
-          'success',
-          `Downloaded ${asset.name} (${formatBytes(firmware.size)}, sha256 ${firmware.sha256.slice(0, 12)}…)`
-        )
+    try {
+      const firmware = await downloadFirmwareAsset(asset, (loaded, total) => {
+        setLoadedBytes(loaded)
+        setProgress(total > 0 ? loaded / total : 0)
       })
-      .catch((err: unknown) => {
-        const message = errorMessage(err)
-        setDownloadError(message)
-        log('error', `Download failed for ${asset.name}: ${message}`)
-      })
-      .finally(() => {
-        setDownloading(false)
-        setProgress(0)
-        setLoadedBytes(0)
-      })
+      setReleaseFirmware(release, firmware)
+      log(
+        'success',
+        `Downloaded ${asset.name} (${formatBytes(firmware.size)}, sha256 ${firmware.sha256.slice(0, 12)}…)`
+      )
+    } catch (err: unknown) {
+      const message = errorMessage(err)
+      setDownloadError(message)
+      log('error', `Download failed for ${asset.name}: ${message}`)
+    } finally {
+      setDownloading(false)
+      setProgress(0)
+      setLoadedBytes(0)
+    }
+  }
+
+  const handleDownload = () => {
+    if (!pickedRelease || !pickedAsset) return
+    void runDownload(pickedRelease, pickedAsset)
   }
 
   const flashing = state.kind === 'flashing'
-  const flashPct =
-    state.kind === 'flashing' && state.total > 0
-      ? Math.min(100, (state.written / state.total) * 100)
-      : 0
 
   const burnLabel = flashing
-    ? `FLASHING… ${String(Math.round(flashPct))}%`
+    ? `FLASHING… ${String(Math.round(flashPct(state)))}%`
     : `BURN ${selectionLabel(selection).toUpperCase()}`
 
   return (
@@ -136,7 +163,7 @@ export const FlashActions = ({
             {downloading ? 'DOWNLOADING…' : 'DOWNLOAD .BIN'}
           </button>
         )}
-        {(state.kind === 'success' || state.kind === 'error') && (
+        {RESETTABLE_KINDS.has(state.kind) && (
           <button
             type="button"
             className="shell-link-button"
@@ -164,23 +191,7 @@ export const FlashActions = ({
       )}
       {downloadError && <div style={errorCardStyle}>Download failed — {downloadError}</div>}
 
-      {flashing && (
-        <div style={progressTrackStyle}>
-          <div style={progressFillStyle(flashPct)} />
-        </div>
-      )}
-      {state.kind === 'success' && (
-        <div style={successCardStyle}>
-          Flash complete. Unplug the dash from USB and plug it back in to boot the new firmware —
-          the flasher's automatic reset is unreliable on this board.
-        </div>
-      )}
-      {state.kind === 'error' && (
-        <div style={errorCardStyle}>
-          Flash failed — {state.message}. Most common cause: BOOT was not held long enough. Press
-          and hold BOOT, then retry.
-        </div>
-      )}
+      {FLASH_STATUS_CARDS[state.kind](state)}
 
       <ol style={instructionsStyle}>
         <li>Press and hold the BOOT button on the back of the dash — keep it held.</li>

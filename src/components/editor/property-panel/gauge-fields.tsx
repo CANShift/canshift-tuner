@@ -7,6 +7,9 @@ import {
 } from '../../../utils/size-tokens'
 import { ConfigFieldsProps, Field, GAUGE_STYLES, Row, numberInputStyle } from './shared'
 
+const resetAction = (enabled: boolean, run: () => void): (() => void) | undefined =>
+  enabled ? run : undefined
+
 const BIG_CHOICES = [
   { label: 'Auto', big: 0, title: 'Derive from the widget box' },
   { label: 'XL', big: 96, title: 'Hero 96 — device 48' },
@@ -139,13 +142,12 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
           <Row>
             <Field
               label="Min"
-              onReset={
-                signalDef && cfg.minValue !== signalDef.min
-                  ? () => {
-                      onChange({ config: { ...cfg, minValue: signalDef.min } })
-                    }
-                  : undefined
-              }
+              onReset={resetAction(
+                signalDef !== undefined && cfg.minValue !== signalDef.min,
+                () => {
+                  if (signalDef) onChange({ config: { ...cfg, minValue: signalDef.min } })
+                }
+              )}
             >
               <input
                 type="number"
@@ -165,13 +167,12 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
             </Field>
             <Field
               label="Max"
-              onReset={
-                signalDef && cfg.maxValue !== signalDef.max
-                  ? () => {
-                      onChange({ config: { ...cfg, maxValue: signalDef.max } })
-                    }
-                  : undefined
-              }
+              onReset={resetAction(
+                signalDef !== undefined && cfg.maxValue !== signalDef.max,
+                () => {
+                  if (signalDef) onChange({ config: { ...cfg, maxValue: signalDef.max } })
+                }
+              )}
             >
               <input
                 type="number"
@@ -196,13 +197,14 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
           <Row>
             <Field
               label="Danger"
-              onReset={
-                defaultDanger !== undefined && cfg.dangerLevel !== defaultDanger
-                  ? () => {
-                      onChange({ config: { ...cfg, dangerLevel: defaultDanger } })
-                    }
-                  : undefined
-              }
+              onReset={resetAction(
+                defaultDanger !== undefined && cfg.dangerLevel !== defaultDanger,
+                () => {
+                  if (defaultDanger !== undefined) {
+                    onChange({ config: { ...cfg, dangerLevel: defaultDanger } })
+                  }
+                }
+              )}
             >
               <input
                 type="number"
@@ -214,28 +216,22 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
               />
             </Field>
           </Row>
-          {style === 'arc' && (
-            <Field label="Rev flash">
-              <Checkbox
-                checked={cfg.revFlash ?? false}
-                onCheckedChange={(checked) => {
-                  onChange({ config: { ...cfg, revFlash: checked === true } })
-                }}
-              />
-            </Field>
-          )}
+          <Field label="Rev flash">
+            <Checkbox
+              checked={cfg.revFlash ?? false}
+              onCheckedChange={(checked) => {
+                onChange({ config: { ...cfg, revFlash: checked === true } })
+              }}
+            />
+          </Field>
           <Row>
             <Field
               label="Alert at"
-              onReset={
-                cfg.alertThreshold !== undefined
-                  ? () => {
-                      const { alertThreshold: _drop, ...rest } = cfg
-                      void _drop
-                      onChange({ config: rest })
-                    }
-                  : undefined
-              }
+              onReset={resetAction(cfg.alertThreshold !== undefined, () => {
+                const { alertThreshold: _drop, ...rest } = cfg
+                void _drop
+                onChange({ config: rest })
+              })}
             >
               <input
                 type="number"

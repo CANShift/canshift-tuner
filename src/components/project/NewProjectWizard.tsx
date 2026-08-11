@@ -22,7 +22,6 @@ import { useProjectStore } from '../../stores/project/project.store'
 import { useLogStore } from '../../stores/log.store'
 import { BLANK_PAGE_SET, PAGE_SET_OPTIONS, buildNewProjectDashboard } from '../../lib/new-project'
 
-const STEP_TITLES = ['Target panel', 'ECU profile', 'Starting point'] as const
 const DEFAULT_NEW_NAME = 'New project'
 
 export interface NewProjectWizardProps {
@@ -60,21 +59,129 @@ const OptionCard = ({ group, value, checked, onSelect, title, subtitle }: Option
   </label>
 )
 
+interface WizardDraft {
+  name: string
+  targetProfileId: ScreenProfileId
+  ecuProfileId: string
+  pageSetId: string
+}
+
+const INITIAL_DRAFT: WizardDraft = {
+  name: '',
+  targetProfileId: DEFAULT_SCREEN_PROFILE_ID,
+  ecuProfileId: DEFAULT_PROFILE_ID,
+  pageSetId: BLANK_PAGE_SET,
+}
+
+interface StepBodyProps {
+  draft: WizardDraft
+  patch: (partial: Partial<WizardDraft>) => void
+}
+
+const TargetPanelStep = ({ draft, patch }: StepBodyProps) => (
+  <div className="grid gap-4">
+    <div className="grid gap-1.5">
+      <Label htmlFor="new-project-name">Project name</Label>
+      <Input
+        id="new-project-name"
+        value={draft.name}
+        onChange={(e) => {
+          patch({ name: e.target.value })
+        }}
+        placeholder={DEFAULT_NEW_NAME}
+        maxLength={PROJECT_NAME_MAX}
+        autoFocus
+      />
+    </div>
+    <div className="grid gap-2">
+      {SCREEN_PROFILES.map((profile) => (
+        <OptionCard
+          key={profile.id}
+          group="target-panel"
+          value={profile.id}
+          checked={draft.targetProfileId === profile.id}
+          onSelect={(value) => {
+            patch({ targetProfileId: value as ScreenProfileId })
+          }}
+          title={profile.name}
+          subtitle={`${String(profile.width)} × ${String(profile.height)}`}
+        />
+      ))}
+    </div>
+  </div>
+)
+
+const EcuProfileStep = ({ draft, patch }: StepBodyProps) => (
+  <div className="grid gap-2">
+    {ECU_PROFILES.map((profile) => (
+      <OptionCard
+        key={profile.id}
+        group="ecu-profile"
+        value={profile.id}
+        checked={draft.ecuProfileId === profile.id}
+        onSelect={(value) => {
+          patch({ ecuProfileId: value })
+        }}
+        title={profile.name}
+        subtitle={profile.description}
+      />
+    ))}
+  </div>
+)
+
+const StartingPointStep = ({ draft, patch }: StepBodyProps) => (
+  <div className="grid gap-2">
+    <OptionCard
+      group="page-set"
+      value={BLANK_PAGE_SET}
+      checked={draft.pageSetId === BLANK_PAGE_SET}
+      onSelect={(value) => {
+        patch({ pageSetId: value })
+      }}
+      title="Blank"
+      subtitle="Start from an empty page"
+    />
+    {PAGE_SET_OPTIONS.map((option) => (
+      <OptionCard
+        key={option.id}
+        group="page-set"
+        value={option.id}
+        checked={draft.pageSetId === option.id}
+        onSelect={(value) => {
+          patch({ pageSetId: value })
+        }}
+        title={option.label}
+      />
+    ))}
+  </div>
+)
+
+interface WizardStep {
+  title: string
+  Body: (props: StepBodyProps) => React.JSX.Element
+}
+
+const FIRST_STEP: WizardStep = { title: 'Target panel', Body: TargetPanelStep }
+
+const WIZARD_STEPS: WizardStep[] = [
+  FIRST_STEP,
+  { title: 'ECU profile', Body: EcuProfileStep },
+  { title: 'Starting point', Body: StartingPointStep },
+]
+
 export const NewProjectWizard = ({ open, onOpenChange }: NewProjectWizardProps) => {
   const createProject = useProjectStore((s) => s.createProject)
   const log = useLogStore((s) => s.push)
   const [step, setStep] = useState(0)
-  const [name, setName] = useState('')
-  const [targetProfileId, setTargetProfileId] = useState<ScreenProfileId>(DEFAULT_SCREEN_PROFILE_ID)
-  const [ecuProfileId, setEcuProfileId] = useState<string>(DEFAULT_PROFILE_ID)
-  const [pageSetId, setPageSetId] = useState<string>(BLANK_PAGE_SET)
+  const [draft, setDraft] = useState<WizardDraft>(INITIAL_DRAFT)
+
+  const patch = (partial: Partial<WizardDraft>) => {
+    setDraft((prev) => ({ ...prev, ...partial }))
+  }
 
   const reset = () => {
     setStep(0)
-    setName('')
-    setTargetProfileId(DEFAULT_SCREEN_PROFILE_ID)
-    setEcuProfileId(DEFAULT_PROFILE_ID)
-    setPageSetId(BLANK_PAGE_SET)
+    setDraft(INITIAL_DRAFT)
   }
 
   const handleOpenChange = (next: boolean) => {
@@ -82,15 +189,16 @@ export const NewProjectWizard = ({ open, onOpenChange }: NewProjectWizardProps) 
     onOpenChange(next)
   }
 
-  const finalName = name.trim().slice(0, PROJECT_NAME_MAX) || DEFAULT_NEW_NAME
-  const isLastStep = step === STEP_TITLES.length - 1
+  const finalName = draft.name.trim().slice(0, PROJECT_NAME_MAX) || DEFAULT_NEW_NAME
+  const isLastStep = step === WIZARD_STEPS.length - 1
+  const { title, Body } = WIZARD_STEPS[step] ?? FIRST_STEP
 
   const handleCreate = () => {
-    const profile = ECU_PROFILES.find((p) => p.id === ecuProfileId)
+    const profile = ECU_PROFILES.find((p) => p.id === draft.ecuProfileId)
     const dashboard = buildNewProjectDashboard({
       name: finalName,
-      targetProfile: targetProfileId,
-      pageSetId,
+      targetProfile: draft.targetProfileId,
+      pageSetId: draft.pageSetId,
     })
     createProject(
       finalName,
@@ -107,81 +215,11 @@ export const NewProjectWizard = ({ open, onOpenChange }: NewProjectWizardProps) 
         <DialogHeader>
           <DialogTitle>New project</DialogTitle>
           <DialogDescription>
-            Step {String(step + 1)} of {String(STEP_TITLES.length)} — {STEP_TITLES[step]}
+            Step {String(step + 1)} of {String(WIZARD_STEPS.length)} — {title}
           </DialogDescription>
         </DialogHeader>
 
-        {step === 0 && (
-          <div className="grid gap-4">
-            <div className="grid gap-1.5">
-              <Label htmlFor="new-project-name">Project name</Label>
-              <Input
-                id="new-project-name"
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value)
-                }}
-                placeholder={DEFAULT_NEW_NAME}
-                maxLength={PROJECT_NAME_MAX}
-                autoFocus
-              />
-            </div>
-            <div className="grid gap-2">
-              {SCREEN_PROFILES.map((profile) => (
-                <OptionCard
-                  key={profile.id}
-                  group="target-panel"
-                  value={profile.id}
-                  checked={targetProfileId === profile.id}
-                  onSelect={(value) => {
-                    setTargetProfileId(value as ScreenProfileId)
-                  }}
-                  title={profile.name}
-                  subtitle={`${String(profile.width)} × ${String(profile.height)}`}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {step === 1 && (
-          <div className="grid gap-2">
-            {ECU_PROFILES.map((profile) => (
-              <OptionCard
-                key={profile.id}
-                group="ecu-profile"
-                value={profile.id}
-                checked={ecuProfileId === profile.id}
-                onSelect={setEcuProfileId}
-                title={profile.name}
-                subtitle={profile.description}
-              />
-            ))}
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className="grid gap-2">
-            <OptionCard
-              group="page-set"
-              value={BLANK_PAGE_SET}
-              checked={pageSetId === BLANK_PAGE_SET}
-              onSelect={setPageSetId}
-              title="Blank"
-              subtitle="Start from an empty page"
-            />
-            {PAGE_SET_OPTIONS.map((option) => (
-              <OptionCard
-                key={option.id}
-                group="page-set"
-                value={option.id}
-                checked={pageSetId === option.id}
-                onSelect={setPageSetId}
-                title={option.label}
-              />
-            ))}
-          </div>
-        )}
+        <Body draft={draft} patch={patch} />
 
         <DialogFooter>
           <Button

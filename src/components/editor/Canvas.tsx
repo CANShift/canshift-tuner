@@ -1,30 +1,24 @@
 import { useRef, useCallback, useMemo, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
-import type { PageConfig, TopBarConfig, Widget } from '@canshift/core'
-import {
-  LAYOUT_GRID,
-  isSpanOverflowing,
-  placementsOverlap,
-  resolveGridRect,
-  resolveScreenProfile,
-} from '@canshift/core'
+import type { PageConfig, TopBarConfig } from '@canshift/core'
+import { resolveGridRect, resolveScreenProfile } from '@canshift/core'
 import { useDashboardStore } from '../../stores/dashboard.store'
-import { useSignalStore } from '../../stores/signal.store'
-import { defaultWidgetForSignal, SIGNAL_DRAG_MIME } from '../../utils/default-widget'
-import { autoPlace } from '../../utils/layout'
 import { unboundWidgetCount } from '../../utils/unbound-widgets'
+import { overflowingWidgetIds, overlappingWidgetIds } from '../../utils/widget-diagnostics'
 import { useRebindFlashStore } from '../../stores/rebind-flash.store'
-import { captureFlowEvent } from '../../lib/posthog'
 import ScreenSettingsPanel from './ScreenSettingsPanel'
 import DiagnosticsPanel from './DiagnosticsPanel'
-import { CruiseControlPreview } from './CruiseControlPreview'
-import { WidgetBox } from './WidgetBox'
 import { DashTopBar } from './DashTopBar'
 import { CanvasToolbar } from './CanvasToolbar'
 import { RevLimiterOverlay } from './RevLimiterOverlay'
 import { ShortcutsDialog } from './ShortcutsDialog'
+import { GridGuides } from './canvas/grid-guides'
+import { WidgetLayer } from './canvas/widget-layer'
+import { RubberBandRect } from './canvas/rubber-band-rect'
+import { CanvasStatusBar } from './canvas/canvas-status-bar'
 import { useDragState } from '../../hooks/useDragState'
 import { useCanvasKeyboard } from '../../hooks/useCanvasKeyboard'
+import { useCanvasSignalDrop } from '../../hooks/useCanvasSignalDrop'
 import { useClipboardWidgets } from '../../hooks/useClipboardWidgets'
 import { useRubberBandSelection } from '../../hooks/useRubberBandSelection'
 import { useRevLimiterFlash } from '../../hooks/useRevLimiterFlash'
@@ -52,8 +46,8 @@ const Canvas = ({ page, topBar, pageIndex, pageStrip, inspector }: CanvasProps) 
   const screenProfile = useMemo(() => resolveScreenProfile(targetProfileId), [targetProfileId])
   const [zoom, setZoom] = useState(1)
   const effScale = SCALE * zoom
-  const CANVAS_W = screenProfile.width * effScale
-  const CANVAS_H = screenProfile.height * effScale
+  const canvasW = screenProfile.width * effScale
+  const canvasH = screenProfile.height * effScale
 
   const selectedWidgetId = useDashboardStore((s) => s.selectedWidgetId)
   const selectedWidgetIds = useDashboardStore((s) => s.selectedWidgetIds)
@@ -120,46 +114,8 @@ const Canvas = ({ page, topBar, pageIndex, pageStrip, inspector }: CanvasProps) 
     })
   }, [])
 
-  const overlappingIds = useMemo(() => {
-    const ids = new Set<string>()
-    const widgets = page.widgets
-    for (let i = 0; i < widgets.length; i++) {
-      for (let j = i + 1; j < widgets.length; j++) {
-        const a = widgets[i]
-        const b = widgets[j]
-        if (!a || !b) continue
-        if (a.type === 'warning' || b.type === 'warning') continue
-        if (placementsOverlap(a.layout, b.layout)) {
-          ids.add(a.id)
-          ids.add(b.id)
-        }
-      }
-    }
-    return ids
-  }, [page.widgets])
-
-  const overflowingIds = useMemo(() => {
-    const ids = new Set<string>()
-    for (const w of page.widgets) {
-      if (isSpanOverflowing(w.layout)) ids.add(w.id)
-    }
-    return ids
-  }, [page.widgets])
-
-  const gridGuides = useMemo(() => {
-    const area = { width: screenProfile.width, height: widgetAreaH }
-    const verticals: number[] = []
-    for (let c = 0; c < LAYOUT_GRID.COLUMNS; c++) {
-      const r = resolveGridRect({ col: c, colSpan: 1, row: 0, rowSpan: 1 }, area)
-      verticals.push(r.x, r.x + r.w)
-    }
-    const horizontals: number[] = []
-    for (let r = 0; r < LAYOUT_GRID.ROWS; r++) {
-      const rect = resolveGridRect({ col: 0, colSpan: 1, row: r, rowSpan: 1 }, area)
-      horizontals.push(rect.y, rect.y + rect.h)
-    }
-    return { verticals, horizontals }
-  }, [screenProfile.width, widgetAreaH])
+  const overlappingIds = useMemo(() => overlappingWidgetIds(page.widgets), [page.widgets])
+  const overflowingIds = useMemo(() => overflowingWidgetIds(page.widgets), [page.widgets])
 
   useCanvasKeyboard({
     selectWidget,
@@ -194,50 +150,15 @@ const Canvas = ({ page, topBar, pageIndex, pageStrip, inspector }: CanvasProps) 
     startRubberBand,
   })
 
-  const addWidget = useDashboardStore((s) => s.addWidget)
-  const updateWidget = useDashboardStore((s) => s.updateWidget)
   const unboundCount = useDashboardStore((s) => unboundWidgetCount(s.config))
   const flashWidgetId = useRebindFlashStore((s) => s.flashId)
-  const flashWidget = useRebindFlashStore((s) => s.flash)
   const templateLocked = (page.template ?? 'custom') !== 'custom'
 
-  const handleWidgetSignalDrop = useCallback(
-    (widget: Widget, signalName: string) => {
-      if (templateLocked || widget.signal === signalName) return
-      updateWidget(page.id, widget.id, { signal: signalName })
-      flashWidget(widget.id)
-      captureFlowEvent('signal_rebound', { target: 'widget' })
-    },
-    [templateLocked, updateWidget, page.id, flashWidget]
-  )
-
-  const handleSignalDragOver = useCallback(
-    (e: React.DragEvent) => {
-      if (templateLocked || !e.dataTransfer.types.includes(SIGNAL_DRAG_MIME)) return
-      e.preventDefault()
-      e.dataTransfer.dropEffect = 'copy'
-    },
-    [templateLocked]
-  )
-
-  const handleSignalDrop = useCallback(
-    (e: React.DragEvent) => {
-      const name = e.dataTransfer.getData(SIGNAL_DRAG_MIME)
-      if (!name || templateLocked) return
-      e.preventDefault()
-      const signal = useSignalStore.getState().signals.find((s) => s.name === name)
-      if (!signal) return
-      const widget = defaultWidgetForSignal(signal)
-      const slot = autoPlace(
-        { colSpan: widget.layout.colSpan, rowSpan: widget.layout.rowSpan },
-        page.widgets.map((w) => w.layout)
-      )
-      if (!slot) return
-      addWidget(page.id, widget)
-      captureFlowEvent('signal_bound', { target: 'canvas', widgetType: widget.type })
-    },
-    [templateLocked, addWidget, page.id, page.widgets]
-  )
+  const { handleWidgetSignalDrop, handleSignalDragOver, handleSignalDrop } = useCanvasSignalDrop({
+    pageId: page.id,
+    pageWidgets: page.widgets,
+    templateLocked,
+  })
 
   const selectedWidget =
     selectedWidgetId !== null ? page.widgets.find((w) => w.id === selectedWidgetId) : undefined
@@ -248,79 +169,80 @@ const Canvas = ({ page, topBar, pageIndex, pageStrip, inspector }: CanvasProps) 
       })
     : null
 
+  const deselectOnBackground = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement
+    if (target.closest('[data-widget]') === null) selectWidget(null)
+  }
+
+  const handleZoomWheel = (e: React.WheelEvent) => {
+    if (!e.metaKey && !e.ctrlKey) return
+    e.preventDefault()
+    stepZoom(e.deltaY < 0 ? 1 : -1)
+  }
+
+  const toolbarProps = {
+    pageId: page.id,
+    selectedWidgetIds,
+    screenWidth: screenProfile.width,
+    screenHeight: screenProfile.height,
+    overflowingCount: overflowingIds.size,
+    overflowingNames: page.widgets
+      .filter((w) => overflowingIds.has(w.id))
+      .map((w) => (w.signal ? `${w.type}.${w.signal}` : w.type)),
+    unboundCount,
+    canUndo,
+    undoLabel,
+    redoLabel,
+    canRedo,
+    onUndo: undo,
+    onRedo: redo,
+    zoom,
+    onZoomIn: () => {
+      stepZoom(1)
+    },
+    onZoomOut: () => {
+      stepZoom(-1)
+    },
+    onZoomReset: () => {
+      setZoom(1)
+    },
+    onOpenShortcuts: () => {
+      setShortcutsOpen(true)
+    },
+    revLimiting,
+    onStartRevLimiter: startRevLimiter,
+  }
+
+  const widgetLayerProps = {
+    page,
+    palette: effectivePalette,
+    effScale,
+    canvasW,
+    areaWidth: screenProfile.width,
+    areaHeight: widgetAreaH,
+    selectedWidgetId,
+    selectedWidgetIds,
+    overlappingIds,
+    overflowingIds,
+    revLimiting,
+    flashWidgetId,
+    onSelect: selectWidget,
+    onShiftSelect: toggleWidgetSelection,
+    onDragStart: handleDragStart,
+    onSignalDrop: handleWidgetSignalDrop,
+  }
+
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        flex: 1,
-        overflow: 'hidden',
-      }}
-    >
-      <CanvasToolbar
-        pageId={page.id}
-        selectedWidgetIds={selectedWidgetIds}
-        screenWidth={screenProfile.width}
-        screenHeight={screenProfile.height}
-        overflowingCount={overflowingIds.size}
-        overflowingNames={page.widgets
-          .filter((w) => overflowingIds.has(w.id))
-          .map((w) => (w.signal ? `${w.type}.${w.signal}` : w.type))}
-        unboundCount={unboundCount}
-        canUndo={canUndo}
-        undoLabel={undoLabel}
-        redoLabel={redoLabel}
-        canRedo={canRedo}
-        onUndo={undo}
-        onRedo={redo}
-        zoom={zoom}
-        onZoomIn={() => {
-          stepZoom(1)
-        }}
-        onZoomOut={() => {
-          stepZoom(-1)
-        }}
-        onZoomReset={() => {
-          setZoom(1)
-        }}
-        onOpenShortcuts={() => {
-          setShortcutsOpen(true)
-        }}
-        revLimiting={revLimiting}
-        onStartRevLimiter={startRevLimiter}
-      />
-
+    <div style={rootStyle}>
+      <CanvasToolbar {...toolbarProps} />
       {pageStrip}
-
-      <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
-        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-          <div
-            onMouseDown={(e) => {
-              const target = e.target as HTMLElement
-              if (target.closest('[data-widget]') === null) selectWidget(null)
-            }}
-            style={canvasZoneStyle}
-          >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <div style={canvasTitleRowStyle}>
-                <span style={canvasTitleStyle}>
-                  {pageIndex !== undefined ? `PAGE ${String(pageIndex + 1)}` : 'PAGE'}
-                </span>
-                <span style={canvasDimsStyle}>
-                  {screenProfile.width} × {screenProfile.height} @ {SCALE * zoom}×
-                </span>
-              </div>
+      <div style={bodyRowStyle}>
+        <div style={editorColStyle}>
+          <div onMouseDown={deselectOnBackground} style={canvasZoneStyle}>
+            <div style={frameColumnStyle}>
+              <CanvasTitle pageIndex={pageIndex} screenProfile={screenProfile} zoom={zoom} />
               <div style={deviceFrameStyle}>
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    width: CANVAS_W,
-                    height: CANVAS_H,
-                    background: effectiveBgColor,
-                    overflow: 'hidden',
-                  }}
-                >
+                <div style={screenStyle(canvasW, canvasH, effectiveBgColor)}>
                   {page.showTopBar !== false && (
                     <DashTopBar
                       topBar={topBar}
@@ -332,156 +254,102 @@ const Canvas = ({ page, topBar, pageIndex, pageStrip, inspector }: CanvasProps) 
                       }}
                     />
                   )}
-
                   <div
                     ref={containerRef}
-                    onWheel={(e) => {
-                      if (!e.metaKey && !e.ctrlKey) return
-                      e.preventDefault()
-                      stepZoom(e.deltaY < 0 ? 1 : -1)
-                    }}
+                    onWheel={handleZoomWheel}
                     onPointerDown={onPointerDown}
                     onPointerUp={onPointerUp}
                     onDragOver={handleSignalDragOver}
                     onDrop={handleSignalDrop}
-                    style={{
-                      position: 'relative',
-                      flex: 1,
-                      overflow: 'hidden',
-                      cursor: 'default',
-                    }}
+                    style={surfaceStyle}
                   >
-                    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-                      {gridGuides.verticals.map((x, i) => (
-                        <div
-                          key={`v${String(i)}`}
-                          style={{
-                            position: 'absolute',
-                            top: 0,
-                            bottom: 0,
-                            left: x * effScale,
-                            width: 1,
-                            background: '#FFFFFF0A',
-                          }}
-                        />
-                      ))}
-                      {gridGuides.horizontals.map((y, i) => (
-                        <div
-                          key={`h${String(i)}`}
-                          style={{
-                            position: 'absolute',
-                            left: 0,
-                            right: 0,
-                            top: y * effScale,
-                            height: 1,
-                            background: '#FFFFFF0A',
-                          }}
-                        />
-                      ))}
-                    </div>
-
-                    {(page.template ?? 'custom') === 'cruise_control' ? (
-                      <CruiseControlPreview
-                        scale={effScale}
-                        canvasW={CANVAS_W}
-                        contentH={widgetAreaH * effScale}
-                        palette={effectivePalette}
-                      />
-                    ) : (
-                      [
-                        ...page.widgets.filter((w) => w.type !== 'warning'),
-                        ...page.widgets.filter((w) => w.type === 'warning'),
-                      ].map((widget) => (
-                        <WidgetBox
-                          key={widget.id}
-                          widget={widget}
-                          palette={effectivePalette}
-                          scale={effScale}
-                          areaWidth={screenProfile.width}
-                          areaHeight={widgetAreaH}
-                          isSelected={widget.id === selectedWidgetId}
-                          isInMultiSelection={
-                            selectedWidgetIds.length > 1 && selectedWidgetIds.includes(widget.id)
-                          }
-                          isOverlapping={overlappingIds.has(widget.id)}
-                          isOverflowing={overflowingIds.has(widget.id)}
-                          revLimiting={revLimiting}
-                          onSelect={selectWidget}
-                          onShiftSelect={toggleWidgetSelection}
-                          onDragStart={handleDragStart}
-                          isFlashing={widget.id === flashWidgetId}
-                          onSignalDrop={handleWidgetSignalDrop}
-                        />
-                      ))
-                    )}
-
-                    {rubberBand && (
-                      <div
-                        style={{
-                          position: 'absolute',
-                          left: rubberBand.x * effScale,
-                          top: rubberBand.y * effScale,
-                          width: Math.max(0, rubberBand.w * effScale),
-                          height: Math.max(0, rubberBand.h * effScale),
-                          border: '1px solid #6688FF',
-                          background: '#3344FF18',
-                          pointerEvents: 'none',
-                          zIndex: 100,
-                        }}
-                      />
-                    )}
-
+                    <GridGuides
+                      areaWidth={screenProfile.width}
+                      areaHeight={widgetAreaH}
+                      effScale={effScale}
+                    />
+                    <WidgetLayer {...widgetLayerProps} />
+                    <RubberBandRect rubberBand={rubberBand} effScale={effScale} />
                     {settingsOpen && <ScreenSettingsPanel scale={effScale} />}
-
                     {diagOpen && <DiagnosticsPanel scale={effScale} />}
-
                     {revLimiting && (
-                      <RevLimiterOverlay canvasW={CANVAS_W} flashPhase={flashPhase} scale={SCALE} />
+                      <RevLimiterOverlay canvasW={canvasW} flashPhase={flashPhase} scale={SCALE} />
                     )}
                   </div>
                 </div>
               </div>
             </div>
           </div>
-
-          <div style={statusBarStyle}>
-            {selectedWidget && selectedRect ? (
-              <>
-                <span>
-                  SELECTED{' '}
-                  <span style={statusValueStyle}>
-                    {selectedWidget.type}
-                    {selectedWidget.signal ? `.${selectedWidget.signal}` : ''}
-                  </span>
-                </span>
-                <span>
-                  col {selectedWidget.layout.col} · span {selectedWidget.layout.colSpan}
-                </span>
-                <span>
-                  row {selectedWidget.layout.row} · span {selectedWidget.layout.rowSpan}
-                </span>
-                <span>
-                  x {selectedRect.x} · y {selectedRect.y} · w {selectedRect.w} · h {selectedRect.h}
-                </span>
-              </>
-            ) : (
-              <span>
-                {String(page.widgets.length)} widget{page.widgets.length === 1 ? '' : 's'} — click
-                one to inspect
-              </span>
-            )}
-            <span style={{ marginLeft: 'auto' }}>
-              {page.showTopBar !== false ? 'top bar shown' : 'top bar hidden'}
-            </span>
-          </div>
+          <CanvasStatusBar
+            page={page}
+            selectedWidget={selectedWidget}
+            selectedRect={selectedRect}
+          />
         </div>
-
         {inspector}
       </div>
-
       <ShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
     </div>
   )
+}
+
+interface CanvasTitleProps {
+  pageIndex: number | undefined
+  screenProfile: { width: number; height: number }
+  zoom: number
+}
+
+const CanvasTitle = ({ pageIndex, screenProfile, zoom }: CanvasTitleProps) => (
+  <div style={canvasTitleRowStyle}>
+    <span style={canvasTitleStyle}>
+      {pageIndex !== undefined ? `PAGE ${String(pageIndex + 1)}` : 'PAGE'}
+    </span>
+    <span style={canvasDimsStyle}>
+      {screenProfile.width} × {screenProfile.height} @ {SCALE * zoom}×
+    </span>
+  </div>
+)
+
+const rootStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  overflow: 'hidden',
+}
+
+const bodyRowStyle: CSSProperties = {
+  flex: 1,
+  display: 'flex',
+  minHeight: 0,
+}
+
+const editorColStyle: CSSProperties = {
+  flex: 1,
+  minWidth: 0,
+  display: 'flex',
+  flexDirection: 'column',
+}
+
+const frameColumnStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 10,
+}
+
+const screenStyle = (width: number, height: number, background: string): CSSProperties => ({
+  display: 'flex',
+  flexDirection: 'column',
+  width,
+  height,
+  background,
+  overflow: 'hidden',
+})
+
+const surfaceStyle: CSSProperties = {
+  position: 'relative',
+  flex: 1,
+  overflow: 'hidden',
+  cursor: 'default',
 }
 
 const canvasZoneStyle: CSSProperties = {
@@ -517,25 +385,6 @@ const canvasDimsStyle: CSSProperties = {
 
 const deviceFrameStyle: CSSProperties = {
   border: '2px solid hsl(var(--brand-neutral-400))',
-}
-
-const statusBarStyle: CSSProperties = {
-  height: 36,
-  flexShrink: 0,
-  borderTop: '2px solid var(--brand-divider)',
-  display: 'flex',
-  alignItems: 'center',
-  gap: 22,
-  padding: '0 20px',
-  fontFamily: MONO_FONT,
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-600))',
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-}
-
-const statusValueStyle: CSSProperties = {
-  color: 'hsl(var(--brand-text))',
 }
 
 export default Canvas
