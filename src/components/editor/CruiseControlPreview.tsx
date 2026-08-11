@@ -80,6 +80,18 @@ const computeLayout = (fwCanvasW: number, fwContentH: number) => {
   }
 }
 
+interface PathPoint {
+  x: number
+  y: number
+}
+
+const NOTCH_TRANSFORMS: Record<Corner, (p: PathPoint, w: number, h: number) => PathPoint> = {
+  'top-left': (p) => p,
+  'top-right': (p, w) => ({ x: w - p.x, y: p.y }),
+  'bottom-left': (p, _w, h) => ({ x: p.x, y: h - p.y }),
+  'bottom-right': (p, w, h) => ({ x: w - p.x, y: h - p.y }),
+}
+
 const buttonPathD = (
   w: number,
   h: number,
@@ -89,76 +101,27 @@ const buttonPathD = (
 ): string => {
   const r = CORNER_R
   const ir = INNER_R
-  switch (corner) {
-    case 'top-left':
-      return [
-        `M ${num(r)} 0`,
-        `L ${num(w - r)} 0`,
-        `Q ${num(w)} 0 ${num(w)} ${num(r)}`,
-        `L ${num(w)} ${num(h - notchH - ir)}`,
-        `Q ${num(w)} ${num(h - notchH)} ${num(w - ir)} ${num(h - notchH)}`,
-        `L ${num(w - notchW + ir)} ${num(h - notchH)}`,
-        `Q ${num(w - notchW)} ${num(h - notchH)} ${num(w - notchW)} ${num(h - notchH + ir)}`,
-        `L ${num(w - notchW)} ${num(h - ir)}`,
-        `Q ${num(w - notchW)} ${num(h)} ${num(w - notchW - ir)} ${num(h)}`,
-        `L ${num(r)} ${num(h)}`,
-        `Q 0 ${num(h)} 0 ${num(h - r)}`,
-        `L 0 ${num(r)}`,
-        `Q 0 0 ${num(r)} 0`,
-        'Z',
-      ].join(' ')
-    case 'top-right':
-      return [
-        `M ${num(r)} 0`,
-        `L ${num(w - r)} 0`,
-        `Q ${num(w)} 0 ${num(w)} ${num(r)}`,
-        `L ${num(w)} ${num(h - r)}`,
-        `Q ${num(w)} ${num(h)} ${num(w - r)} ${num(h)}`,
-        `L ${num(notchW + ir)} ${num(h)}`,
-        `Q ${num(notchW)} ${num(h)} ${num(notchW)} ${num(h - ir)}`,
-        `L ${num(notchW)} ${num(h - notchH + ir)}`,
-        `Q ${num(notchW)} ${num(h - notchH)} ${num(notchW - ir)} ${num(h - notchH)}`,
-        `L ${num(ir)} ${num(h - notchH)}`,
-        `Q 0 ${num(h - notchH)} 0 ${num(h - notchH - ir)}`,
-        `L 0 ${num(r)}`,
-        `Q 0 0 ${num(r)} 0`,
-        'Z',
-      ].join(' ')
-    case 'bottom-left':
-      return [
-        `M ${num(r)} 0`,
-        `L ${num(w - notchW - ir)} 0`,
-        `Q ${num(w - notchW)} 0 ${num(w - notchW)} ${num(ir)}`,
-        `L ${num(w - notchW)} ${num(notchH - ir)}`,
-        `Q ${num(w - notchW)} ${num(notchH)} ${num(w - notchW + ir)} ${num(notchH)}`,
-        `L ${num(w - ir)} ${num(notchH)}`,
-        `Q ${num(w)} ${num(notchH)} ${num(w)} ${num(notchH + ir)}`,
-        `L ${num(w)} ${num(h - r)}`,
-        `Q ${num(w)} ${num(h)} ${num(w - r)} ${num(h)}`,
-        `L ${num(r)} ${num(h)}`,
-        `Q 0 ${num(h)} 0 ${num(h - r)}`,
-        `L 0 ${num(r)}`,
-        `Q 0 0 ${num(r)} 0`,
-        'Z',
-      ].join(' ')
-    case 'bottom-right':
-      return [
-        `M ${num(notchW + ir)} 0`,
-        `L ${num(w - r)} 0`,
-        `Q ${num(w)} 0 ${num(w)} ${num(r)}`,
-        `L ${num(w)} ${num(h - r)}`,
-        `Q ${num(w)} ${num(h)} ${num(w - r)} ${num(h)}`,
-        `L ${num(r)} ${num(h)}`,
-        `Q 0 ${num(h)} 0 ${num(h - r)}`,
-        `L 0 ${num(notchH + ir)}`,
-        `Q 0 ${num(notchH)} ${num(ir)} ${num(notchH)}`,
-        `L ${num(notchW - ir)} ${num(notchH)}`,
-        `Q ${num(notchW)} ${num(notchH)} ${num(notchW)} ${num(notchH - ir)}`,
-        `L ${num(notchW)} ${num(ir)}`,
-        `Q ${num(notchW)} 0 ${num(notchW + ir)} 0`,
-        'Z',
-      ].join(' ')
+  const map = NOTCH_TRANSFORMS[corner]
+  const pt = (x: number, y: number): string => {
+    const p = map({ x, y }, w, h)
+    return `${num(p.x)} ${num(p.y)}`
   }
+  return [
+    `M ${pt(r, 0)}`,
+    `L ${pt(w - r, 0)}`,
+    `Q ${pt(w, 0)} ${pt(w, r)}`,
+    `L ${pt(w, h - notchH - ir)}`,
+    `Q ${pt(w, h - notchH)} ${pt(w - ir, h - notchH)}`,
+    `L ${pt(w - notchW + ir, h - notchH)}`,
+    `Q ${pt(w - notchW, h - notchH)} ${pt(w - notchW, h - notchH + ir)}`,
+    `L ${pt(w - notchW, h - ir)}`,
+    `Q ${pt(w - notchW, h)} ${pt(w - notchW - ir, h)}`,
+    `L ${pt(r, h)}`,
+    `Q ${pt(0, h)} ${pt(0, h - r)}`,
+    `L ${pt(0, r)}`,
+    `Q ${pt(0, 0)} ${pt(r, 0)}`,
+    'Z',
+  ].join(' ')
 }
 
 const num = (v: number): string => {

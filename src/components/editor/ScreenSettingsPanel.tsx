@@ -16,17 +16,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-
-const SCREEN_BG = '#0D0D0D'
-const SCREEN_LABEL = '#AAAAAA'
-const SCREEN_VALUE = '#888888'
-const SCREEN_HEADER = '#CCCCCC'
-const BTN_BG = '#111111'
-const BTN_BORDER = '#2A2A2A'
-const BTN_BORDER_DIM = '#1E1E1E'
-const BTN_FG_DISABLED = '#444444'
-const ACCENT_RED = '#CC3333'
-const ACCENT_RED_BG = '#1A0A0A'
+import {
+  ACCENT_RED,
+  BTN_BG,
+  BTN_BORDER,
+  BTN_BORDER_DIM,
+  BTN_FG_DISABLED,
+  SCREEN_BG,
+  SCREEN_HEADER,
+  SCREEN_LABEL,
+  SegmentedPair,
+  SettingRow,
+} from './screen-settings-controls'
 
 interface ScreenSettingsPanelProps {
   scale: number
@@ -169,64 +170,36 @@ const ScreenSettingsPanel = ({ scale }: ScreenSettingsPanelProps) => {
         </SettingRow>
 
         <SettingRow label="THEME" value={activeDayMode ? 'Day' : 'Night'} scale={scale}>
-          <div style={{ display: 'flex', gap: Math.round(scale * 3) }}>
-            {(['night', 'day'] as const).map((mode) => {
-              const active = activeDayMode === (mode === 'day')
-              return (
-                <button
-                  key={mode}
-                  onClick={() => {
-                    void handleSelectMode(mode)
-                  }}
-                  style={{
-                    flex: 1,
-                    padding: `${String(Math.round(scale * 2))}px 0`,
-                    background: active ? ACCENT_RED_BG : BTN_BG,
-                    border: `1px solid ${active ? ACCENT_RED : BTN_BORDER}`,
-                    color: active ? ACCENT_RED : SCREEN_LABEL,
-                    fontSize: fs,
-                    cursor: 'pointer',
-                    lineHeight: 1,
-                    textTransform: 'capitalize',
-                  }}
-                >
-                  {mode}
-                </button>
-              )
-            })}
-          </div>
+          <SegmentedPair
+            options={[
+              { value: 'night', label: 'Night' },
+              { value: 'day', label: 'Day' },
+            ]}
+            activeValue={activeDayMode ? 'day' : 'night'}
+            scale={scale}
+            onSelect={(mode) => {
+              void handleSelectMode(mode)
+            }}
+          />
         </SettingRow>
 
         <SettingRow label="MOUNTING" value={rotation === 180 ? '180°' : '0°'} scale={scale}>
-          <div style={{ display: 'flex', gap: Math.round(scale * 3) }}>
-            {([0, 180] as const).map((deg) => {
-              const active = rotation === deg
-              return (
-                <button
-                  key={deg}
-                  onClick={() => {
-                    handleRotationSelect(deg)
-                  }}
-                  style={{
-                    flex: 1,
-                    padding: `${String(Math.round(scale * 2))}px 0`,
-                    background: active ? ACCENT_RED_BG : BTN_BG,
-                    border: `1px solid ${active ? ACCENT_RED : BTN_BORDER}`,
-                    color: active ? ACCENT_RED : SCREEN_LABEL,
-                    fontSize: fs,
-                    cursor: 'pointer',
-                    lineHeight: 1,
-                  }}
-                >
-                  {deg === 0 ? '0°' : '180°'}
-                </button>
-              )
-            })}
-          </div>
+          <SegmentedPair<0 | 180>
+            options={[
+              { value: 0, label: '0°' },
+              { value: 180, label: '180°' },
+            ]}
+            activeValue={rotation === 180 ? 180 : 0}
+            scale={scale}
+            onSelect={(deg) => {
+              handleRotationSelect(deg)
+            }}
+          />
         </SettingRow>
 
         <SettingRow label="TOUCH" value="" scale={scale}>
           <button
+            type="button"
             onClick={handleCalibrate}
             disabled={!canDeviceAction || calibrating}
             style={{
@@ -282,36 +255,6 @@ const ScreenSettingsPanel = ({ scale }: ScreenSettingsPanelProps) => {
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
-}
-
-const SettingRow = ({
-  label,
-  value,
-  scale,
-  children,
-}: {
-  label: string
-  value: string
-  scale: number
-  children: React.ReactNode
-}) => {
-  const fs = Math.round(scale * 5.5)
-
-  return (
-    <div>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          marginBottom: Math.round(scale * 2.5),
-        }}
-      >
-        <span style={{ fontSize: fs, color: SCREEN_LABEL, letterSpacing: '0.06em' }}>{label}</span>
-        <span style={{ fontSize: fs, color: SCREEN_VALUE }}>{value}</span>
-      </div>
-      {children}
-    </div>
   )
 }
 

@@ -5,7 +5,6 @@ import { Field, Row } from '../shared'
 const PANEL_LABEL = 'hsl(var(--brand-neutral-600))'
 const INPUT_BG = 'hsl(var(--brand-neutral-100))'
 const INPUT_BORDER = 'hsl(var(--brand-neutral-300))'
-const TYPE_BADGE = '#CC4444'
 
 interface ButtonColorsRowProps {
   widget: Widget
@@ -92,7 +91,7 @@ export const ButtonColorsRow = ({
           role="alert"
           style={{
             fontSize: 10,
-            color: TYPE_BADGE,
+            color: 'hsl(var(--status-danger))',
             marginTop: 4,
             marginBottom: 4,
           }}
