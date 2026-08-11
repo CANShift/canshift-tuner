@@ -85,11 +85,18 @@ export const CanvasToolbar = ({
         onClick={onZoomOut}
         disabled={zoom <= ZOOM_MIN}
         title="Zoom out"
+        aria-label="Zoom out"
         style={squareButtonStyle(zoom > ZOOM_MIN)}
       >
-        −
+        <span aria-hidden="true">−</span>
       </button>
-      <button type="button" onClick={onZoomReset} title="Reset zoom" style={zoomValueStyle}>
+      <button
+        type="button"
+        onClick={onZoomReset}
+        title="Reset zoom"
+        aria-label="Reset zoom"
+        style={zoomValueStyle}
+      >
         {Math.round(zoom * 100)} %
       </button>
       <button
@@ -98,9 +105,10 @@ export const CanvasToolbar = ({
         onClick={onZoomIn}
         disabled={zoom >= ZOOM_MAX}
         title="Zoom in"
+        aria-label="Zoom in"
         style={{ ...squareButtonStyle(zoom < ZOOM_MAX), borderLeft: groupRule }}
       >
-        +
+        <span aria-hidden="true">+</span>
       </button>
     </div>
 
