@@ -1,13 +1,7 @@
 import { memo } from 'react'
 import { GAUGE_ARC, GAUGE_TRACK_COLORS, STALE_PLACEHOLDER } from '@canshift/core'
-import { BLINK_ANIM, paletteFillColor, thresholdPct } from '../widgetPreview.styles'
-import {
-  FRAC_FONT_SCALE,
-  effectiveValue,
-  gaugeArcD,
-  interpolateGreenOrangeRed,
-  splitDecimal,
-} from './gauge-math'
+import { BLINK_ANIM, thresholdPct } from '../widgetPreview.styles'
+import { FRAC_FONT_SCALE, effectiveValue, gaugeArcD, splitDecimal } from './gauge-math'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
 import { MONO_FONT, UI_FONT, UI_LABEL_TRACKING, UI_LABEL_WEIGHT } from '../../../lib/typography'
 
@@ -39,30 +33,8 @@ export const GaugeArcPreview = memo(function GaugeArcPreview({
 
   const valueStr = unbound ? STALE_PLACEHOLDER : bound.raw.toFixed(cfg.decimalPlaces)
 
-  const zonesMode = cfg.arcFillStyle === 'zones'
-  const gradientMode = cfg.arcFillStyle === 'gradient'
-  const palette = zonesMode ? paletteFillColor(cfg.iconName, valuePct, dangerPct) : undefined
-  const inPaletteMode = palette !== undefined
   const inDanger = valuePct >= dangerPct
-
   const inkColor = inDanger ? st.criticalColor : st.textColor
-
-  const textValueColor = inPaletteMode
-    ? palette
-    : zonesMode
-      ? inDanger
-        ? st.criticalColor
-        : st.primaryColor
-      : inkColor
-
-  const arcValueColor = inPaletteMode
-    ? palette
-    : gradientMode || zonesMode
-      ? interpolateGreenOrangeRed(valuePct)
-      : inkColor
-
-  const trackColor =
-    inPaletteMode || gradientMode ? GAUGE_TRACK_COLORS.gradient : GAUGE_TRACK_COLORS.plain
 
   const cx = w / 2
   const cy = h * 0.5
@@ -95,14 +67,14 @@ export const GaugeArcPreview = memo(function GaugeArcPreview({
       <path
         d={gaugeArcD(cx, cy, r, 0, 1)}
         fill="none"
-        stroke={trackColor}
+        stroke={GAUGE_TRACK_COLORS.plain}
         strokeWidth={strokeW}
         strokeLinecap="butt"
       />
       <path
         d={gaugeArcD(cx, cy, r, 0, valuePct)}
         fill="none"
-        stroke={arcValueColor}
+        stroke={inkColor}
         strokeWidth={strokeW}
         strokeLinecap="butt"
         style={{ animation: danger ? BLINK_ANIM : undefined }}
@@ -112,7 +84,7 @@ export const GaugeArcPreview = memo(function GaugeArcPreview({
         y={cy + valueYOffset}
         textAnchor="middle"
         dominantBaseline="middle"
-        fill={textValueColor}
+        fill={inkColor}
         fontSize={valueFontSize}
         fontWeight="900"
         fontFamily={MONO_FONT}
