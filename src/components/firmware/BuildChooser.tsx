@@ -1,12 +1,13 @@
-import type { ChangeEvent, CSSProperties } from 'react'
+import type { ChangeEvent, CSSProperties, ReactNode } from 'react'
 import { useRef, useState } from 'react'
 import type { ReleaseInfo } from '@canshift/core'
 import type { FirmwareSelection } from '../../stores/firmware-selection.store'
 import type { FirmwareReleasesState } from '../../hooks/useFirmwareReleases'
 import { useFirmwareSelectionStore } from '../../stores/firmware-selection.store'
 import { useLogStore } from '../../stores/log.store'
-import { LocalFirmwareError, readFirmwareFile } from '../../lib/firmware/local-firmware'
+import { readFirmwareFile } from '../../lib/firmware/local-firmware'
 import { findMergedAsset } from '../../lib/firmware/releases'
+import { errorMessage } from '../../lib/error-message'
 import { formatBytes } from '../../lib/format'
 import { MONO_FONT } from '../../lib/typography'
 
@@ -34,6 +35,63 @@ const describeRelease = (release: ReleaseInfo, installedVersion: string | null):
   return release.name ?? 'Stable release'
 }
 
+interface ReleaseRowProps {
+  release: ReleaseInfo
+  active: boolean
+  installedVersion: string | null
+  onPick: (tag: string) => void
+}
+
+const ReleaseRow = ({ release, active, installedVersion, onPick }: ReleaseRowProps) => {
+  const asset = findMergedAsset(release)
+  return (
+    <button
+      type="button"
+      disabled={asset === null}
+      onClick={() => {
+        onPick(release.tag)
+      }}
+      style={releaseRowStyle(active, asset === null)}
+    >
+      <span style={radioStyle(active)} />
+      <span style={tagStyle}>{release.tag}</span>
+      <span style={active ? descriptionActiveStyle : descriptionStyle}>
+        {describeRelease(release, installedVersion)}
+      </span>
+      <span style={metaStyle}>{formatDate(release.publishedAt)}</span>
+      <span style={metaStyle}>{asset ? formatBytes(asset.sizeBytes) : 'no build'}</span>
+    </button>
+  )
+}
+
+interface ReleaseListProps {
+  releasesState: FirmwareReleasesState
+  pickedTag: string | null
+  installedVersion: string | null
+  onPickRelease: (tag: string) => void
+}
+
+const RELEASE_LIST: Record<FirmwareReleasesState['kind'], (props: ReleaseListProps) => ReactNode> =
+  {
+    loading: () => <div style={hintRowStyle}>Loading releases from GitHub…</div>,
+    error: ({ releasesState }) =>
+      releasesState.kind !== 'error' ? null : (
+        <div style={errorRowStyle}>Release fetch failed — {releasesState.message}</div>
+      ),
+    ok: ({ releasesState, pickedTag, installedVersion, onPickRelease }) =>
+      releasesState.kind !== 'ok'
+        ? null
+        : releasesState.releases.map((release) => (
+            <ReleaseRow
+              key={release.tag}
+              release={release}
+              active={pickedTag === release.tag}
+              installedVersion={installedVersion}
+              onPick={onPickRelease}
+            />
+          )),
+  }
+
 export const BuildChooser = ({
   releasesState,
   selection,
@@ -55,28 +113,25 @@ export const BuildChooser = ({
     const file = event.target.files?.[0]
     if (!file) return
     setLocalError(null)
-    void readFirmwareFile(file)
-      .then((firmware) => {
-        setLocalFirmware(firmware)
-        onLocalPicked()
-        log(
-          'info',
-          `Selected local firmware ${firmware.name} (${formatBytes(firmware.size)}, sha256 ${firmware.sha256.slice(0, SHA_PREFIX_CHARS)}…)`
-        )
-      })
-      .catch((err: unknown) => {
-        const message =
-          err instanceof LocalFirmwareError
-            ? err.message
-            : err instanceof Error
-              ? err.message
-              : String(err)
-        setLocalError(message)
-        log('error', `Local firmware read failed: ${message}`)
-      })
-      .finally(() => {
-        event.target.value = ''
-      })
+    void readLocalFirmware(file).finally(() => {
+      event.target.value = ''
+    })
+  }
+
+  const readLocalFirmware = async (file: File): Promise<void> => {
+    try {
+      const firmware = await readFirmwareFile(file)
+      setLocalFirmware(firmware)
+      onLocalPicked()
+      log(
+        'info',
+        `Selected local firmware ${firmware.name} (${formatBytes(firmware.size)}, sha256 ${firmware.sha256.slice(0, SHA_PREFIX_CHARS)}…)`
+      )
+    } catch (err: unknown) {
+      const message = errorMessage(err)
+      setLocalError(message)
+      log('error', `Local firmware read failed: ${message}`)
+    }
   }
 
   const handleClearLocal = () => {
@@ -99,36 +154,12 @@ export const BuildChooser = ({
         </button>
       </div>
       <div style={listStyle}>
-        {releasesState.kind === 'loading' && (
-          <div style={hintRowStyle}>Loading releases from GitHub…</div>
-        )}
-        {releasesState.kind === 'error' && (
-          <div style={errorRowStyle}>Release fetch failed — {releasesState.message}</div>
-        )}
-        {releasesState.kind === 'ok' &&
-          releasesState.releases.map((release) => {
-            const asset = findMergedAsset(release)
-            const active = pickedTag === release.tag
-            return (
-              <button
-                key={release.tag}
-                type="button"
-                disabled={asset === null}
-                onClick={() => {
-                  onPickRelease(release.tag)
-                }}
-                style={releaseRowStyle(active, asset === null)}
-              >
-                <span style={radioStyle(active)} />
-                <span style={tagStyle}>{release.tag}</span>
-                <span style={active ? descriptionActiveStyle : descriptionStyle}>
-                  {describeRelease(release, installedVersion)}
-                </span>
-                <span style={metaStyle}>{formatDate(release.publishedAt)}</span>
-                <span style={metaStyle}>{asset ? formatBytes(asset.sizeBytes) : 'no build'}</span>
-              </button>
-            )
-          })}
+        {RELEASE_LIST[releasesState.kind]({
+          releasesState,
+          pickedTag,
+          installedVersion,
+          onPickRelease,
+        })}
         <div style={localRowStyle(localActive)}>
           <span style={radioStyle(localActive)} />
           <span style={tagStyle}>Local</span>

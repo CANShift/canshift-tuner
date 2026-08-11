@@ -19,6 +19,82 @@ interface Alert {
 
 const LOW_HEAP_THRESHOLD_BYTES = 10 * 1024
 
+type DeviceState = ReturnType<typeof useDeviceStore.getState>
+
+interface AlertInputs {
+  liveness: DeviceState['firmwareLiveness']
+  compat: DeviceState['firmwareCompat']
+  heapStats: DeviceState['heapStats']
+  connected: boolean
+  simulationMode: boolean
+  heapLowDismissed: boolean
+  now: number
+  onFirmwareRoute: boolean
+  goToFirmware: () => void
+}
+
+const unresponsiveAlert = ({ liveness, now }: AlertInputs): Alert | null => {
+  if (liveness.kind !== 'unresponsive') return null
+  const elapsedSec = Math.max(0, Math.floor((now - liveness.sinceMs) / 1_000))
+  return {
+    id: 'unresponsive',
+    severity: 'critical',
+    title: 'Firmware unresponsive',
+    message: `Missed ${String(liveness.missedPings)} consecutive pings (${formatElapsed(elapsedSec)} ago). The device is connected but not replying. Try unplug / replug, or reboot.`,
+    action: <RebootButton />,
+    dismissable: false,
+  }
+}
+
+const mismatchAlert = ({ compat, onFirmwareRoute, goToFirmware }: AlertInputs): Alert | null => {
+  if (compat.kind !== 'mismatch') return null
+  return {
+    id: 'mismatch',
+    severity: 'critical',
+    title: 'Firmware mismatch',
+    message: (
+      <>
+        Tuner expects firmware <strong>v{String(compat.expected)}.x</strong> — device reports{' '}
+        <strong>v{compat.version}</strong>. Burn is disabled until the firmware is updated to a
+        matching build.
+      </>
+    ),
+    action: onFirmwareRoute ? null : (
+      <Button type="button" variant="outline" size="sm" onClick={goToFirmware}>
+        Open Firmware
+      </Button>
+    ),
+    dismissable: false,
+  }
+}
+
+const heapLowAlert = (inputs: AlertInputs): Alert | null => {
+  const { liveness, heapStats, connected, simulationMode, heapLowDismissed } = inputs
+  if (!connected || simulationMode || heapLowDismissed) return null
+  if (liveness.kind === 'unresponsive') return null
+  const latest = heapStats[heapStats.length - 1]
+  if (!latest || latest.largestInternal >= LOW_HEAP_THRESHOLD_BYTES) return null
+  return {
+    id: 'heap-low',
+    severity: 'warning',
+    title: 'Heap low',
+    message: (
+      <>
+        Largest contiguous free block is <strong>{formatBytes(latest.largestInternal)}</strong> —
+        below the {formatBytes(LOW_HEAP_THRESHOLD_BYTES)} safety floor. Subsequent allocations (font
+        load, icon decode, JSON parse) may fail silently. Reboot the dash to defragment.
+      </>
+    ),
+    action: <RebootButton />,
+    dismissable: true,
+  }
+}
+
+const buildDeviceAlerts = (inputs: AlertInputs): Alert[] =>
+  [unresponsiveAlert(inputs), mismatchAlert(inputs), heapLowAlert(inputs)].filter(
+    (alert): alert is Alert => alert !== null
+  )
+
 export const DeviceAlertBar = () => {
   const liveness = useDeviceStore((s) => s.firmwareLiveness)
   const compat = useDeviceStore((s) => s.firmwareCompat)
@@ -42,77 +118,19 @@ export const DeviceAlertBar = () => {
     }
   }, [liveness.kind])
 
-  const alerts: Alert[] = []
-
-  if (liveness.kind === 'unresponsive') {
-    const elapsedSec = Math.max(0, Math.floor((now - liveness.sinceMs) / 1_000))
-    alerts.push({
-      id: 'unresponsive',
-      severity: 'critical',
-      title: 'Firmware unresponsive',
-      message: `Missed ${String(liveness.missedPings)} consecutive pings (${formatElapsed(elapsedSec)} ago). The device is connected but not replying. Try unplug / replug, or reboot.`,
-      action: <RebootButton />,
-      dismissable: false,
-    })
-  }
-
-  if (compat.kind === 'mismatch') {
-    const alreadyOnFirmware = location.pathname === '/firmware'
-    alerts.push({
-      id: 'mismatch',
-      severity: 'critical',
-      title: 'Firmware mismatch',
-      message: (
-        <>
-          Tuner expects firmware <strong>v{String(compat.expected)}.x</strong> — device reports{' '}
-          <strong>v{compat.version}</strong>. Burn is disabled until the firmware is updated to a
-          matching build.
-        </>
-      ),
-      action: alreadyOnFirmware ? null : (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            navigate('/firmware')
-          }}
-        >
-          Open Firmware
-        </Button>
-      ),
-      dismissable: false,
-    })
-  }
-
-  const heapLowActive =
-    connected &&
-    !simulationMode &&
-    heapStats.length > 0 &&
-    (heapStats[heapStats.length - 1]?.largestInternal ?? Number.POSITIVE_INFINITY) <
-      LOW_HEAP_THRESHOLD_BYTES
-
-  const heapLowSuppressed = liveness.kind === 'unresponsive'
-
-  if (heapLowActive && !heapLowSuppressed && !heapLowDismissed) {
-    const latest = heapStats[heapStats.length - 1]
-    if (latest) {
-      alerts.push({
-        id: 'heap-low',
-        severity: 'warning',
-        title: 'Heap low',
-        message: (
-          <>
-            Largest contiguous free block is <strong>{formatBytes(latest.largestInternal)}</strong>{' '}
-            — below the {formatBytes(LOW_HEAP_THRESHOLD_BYTES)} safety floor. Subsequent allocations
-            (font load, icon decode, JSON parse) may fail silently. Reboot the dash to defragment.
-          </>
-        ),
-        action: <RebootButton />,
-        dismissable: true,
-      })
-    }
-  }
+  const alerts = buildDeviceAlerts({
+    liveness,
+    compat,
+    heapStats,
+    connected,
+    simulationMode,
+    heapLowDismissed,
+    now,
+    onFirmwareRoute: location.pathname === '/firmware',
+    goToFirmware: () => {
+      navigate('/firmware')
+    },
+  })
 
   if (alerts.length === 0) return null
 

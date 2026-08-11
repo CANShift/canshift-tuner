@@ -18,80 +18,106 @@ export interface UseCanvasKeyboardOptions {
   setShortcutsOpen: Dispatch<SetStateAction<boolean>>
 }
 
-export const useCanvasKeyboard = ({
-  selectWidget,
-  selectWidgets,
-  removeWidgets,
-  nudgeWidgets,
-  kbdRef,
-  setShortcutsOpen,
-}: UseCanvasKeyboardOptions): void => {
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isEditableTarget(e.target)) return
+interface ShortcutContext {
+  event: KeyboardEvent
+  activeIds: string[]
+  kbd: CanvasKeyboardRef | null
+  options: UseCanvasKeyboardOptions
+}
 
-      const { selectedWidgetIds: activeIds } = useDashboardStore.getState()
+interface Shortcut {
+  match: (ctx: ShortcutContext) => boolean
+  run: (ctx: ShortcutContext) => void
+}
 
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        e.stopPropagation()
-        setShortcutsOpen(false)
-        selectWidget(null)
-        return
-      }
+const ARROW_DELTAS: Record<string, { dx: number; dy: number }> = {
+  ArrowLeft: { dx: -1, dy: 0 },
+  ArrowRight: { dx: 1, dy: 0 },
+  ArrowUp: { dx: 0, dy: -1 },
+  ArrowDown: { dx: 0, dy: 1 },
+}
 
-      if (e.key === '?') {
-        e.preventDefault()
-        e.stopPropagation()
-        setShortcutsOpen((o) => !o)
-        return
-      }
+const NUDGE_STEP = 1
+const NUDGE_STEP_FAST = 3
 
-      const isMod = e.metaKey || e.ctrlKey
-      if (isMod && (e.key.toLowerCase() === 'z' || e.key.toLowerCase() === 'y')) {
-        e.preventDefault()
-        e.stopPropagation()
-        const { undo: doUndo, redo: doRedo } = useDashboardStore.getState()
-        if (e.key.toLowerCase() === 'y' || e.shiftKey) doRedo()
-        else doUndo()
-        return
-      }
+const isMod = (e: KeyboardEvent): boolean => e.metaKey || e.ctrlKey
 
-      const kbd = kbdRef.current
+const SHORTCUTS: Shortcut[] = [
+  {
+    match: ({ event }) => event.key === 'Escape',
+    run: ({ options }) => {
+      options.setShortcutsOpen(false)
+      options.selectWidget(null)
+    },
+  },
+  {
+    match: ({ event }) => event.key === '?',
+    run: ({ options }) => {
+      options.setShortcutsOpen((o) => !o)
+    },
+  },
+  {
+    match: ({ event }) => isMod(event) && ['z', 'y'].includes(event.key.toLowerCase()),
+    run: ({ event }) => {
+      const { undo, redo } = useDashboardStore.getState()
+      const isRedo = event.key.toLowerCase() === 'y' || event.shiftKey
+      if (isRedo) redo()
+      else undo()
+    },
+  },
+  {
+    match: ({ event, kbd }) => kbd !== null && isMod(event) && event.key === 'a',
+    run: ({ kbd, options }) => {
+      const allIds = kbd?.pageWidgets.map((w) => w.id) ?? []
+      if (allIds.length > 0) options.selectWidgets(allIds)
+    },
+  },
+  {
+    match: ({ event, kbd, activeIds }) =>
+      kbd !== null && activeIds.length > 0 && ['Delete', 'Backspace'].includes(event.key),
+    run: ({ kbd, activeIds, options }) => {
       if (!kbd) return
+      options.removeWidgets(kbd.pageId, activeIds)
+      useUndoToastStore.getState().showForLastAction()
+    },
+  },
+  {
+    match: ({ event, kbd, activeIds }) =>
+      kbd !== null && activeIds.length > 0 && event.key in ARROW_DELTAS,
+    run: ({ event, kbd, activeIds, options }) => {
+      const delta = ARROW_DELTAS[event.key]
+      if (!kbd || !delta) return
+      const step = event.shiftKey ? NUDGE_STEP_FAST : NUDGE_STEP
+      options.nudgeWidgets(kbd.pageId, activeIds, delta.dx * step, delta.dy * step)
+    },
+  },
+]
 
-      if (isMod && e.key === 'a') {
-        e.preventDefault()
-        e.stopPropagation()
-        const allIds = kbd.pageWidgets.map((w) => w.id)
-        if (allIds.length > 0) selectWidgets(allIds)
-        return
-      }
+export const useCanvasKeyboard = (options: UseCanvasKeyboardOptions): void => {
+  const { selectWidget, selectWidgets, removeWidgets, nudgeWidgets, kbdRef, setShortcutsOpen } =
+    options
 
-      if (e.key === 'Delete' || e.key === 'Backspace') {
-        if (activeIds.length === 0) return
-        e.preventDefault()
-        e.stopPropagation()
-        removeWidgets(kbd.pageId, activeIds)
-        useUndoToastStore.getState().showForLastAction()
-        return
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (isEditableTarget(event.target)) return
+      const ctx: ShortcutContext = {
+        event,
+        activeIds: useDashboardStore.getState().selectedWidgetIds,
+        kbd: kbdRef.current,
+        options: {
+          selectWidget,
+          selectWidgets,
+          removeWidgets,
+          nudgeWidgets,
+          kbdRef,
+          setShortcutsOpen,
+        },
       }
-
-      if (
-        activeIds.length > 0 &&
-        (e.key === 'ArrowLeft' ||
-          e.key === 'ArrowRight' ||
-          e.key === 'ArrowUp' ||
-          e.key === 'ArrowDown')
-      ) {
-        e.preventDefault()
-        e.stopPropagation()
-        const step = e.shiftKey ? 3 : 1
-        const dx = e.key === 'ArrowLeft' ? -step : e.key === 'ArrowRight' ? step : 0
-        const dy = e.key === 'ArrowUp' ? -step : e.key === 'ArrowDown' ? step : 0
-        nudgeWidgets(kbd.pageId, activeIds, dx, dy)
-        return
-      }
+      const shortcut = SHORTCUTS.find((s) => s.match(ctx))
+      if (!shortcut) return
+      event.preventDefault()
+      event.stopPropagation()
+      shortcut.run(ctx)
     }
 
     window.addEventListener('keydown', handleKeyDown, { capture: true })

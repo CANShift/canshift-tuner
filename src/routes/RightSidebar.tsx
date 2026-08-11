@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState } from 'react'
-import type { CSSProperties } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { CollapseRail, CollapseButton } from '../components/shell/CollapseRail'
 import { useUiStore } from '../stores/ui.store'
 
@@ -25,6 +25,14 @@ export interface RightSidebarProps {
 
 const PanelFallback = () => <div style={fallbackStyle}>Loading…</div>
 
+const TAB_PANELS: Record<Tab, (pageId: string | undefined) => ReactNode | null> = {
+  properties: (pageId) => (pageId === undefined ? null : <PropertyPanel pageId={pageId} />),
+  widgets: (pageId) => (pageId === undefined ? null : <WidgetListPanel pageId={pageId} />),
+  signals: (pageId) => <SignalsPanel pageId={pageId} />,
+  library: (pageId) => (pageId === undefined ? null : <WidgetPalette pageId={pageId} />),
+  history: () => <HistoryPanel />,
+}
+
 export const RightSidebar = ({ pageId }: RightSidebarProps) => {
   const [tab, setTab] = useState<Tab>('properties')
   const collapsed = useUiStore((s) => s.inspectorCollapsed)
@@ -33,6 +41,8 @@ export const RightSidebar = ({ pageId }: RightSidebarProps) => {
   if (collapsed) {
     return <CollapseRail side="right" label="Inspector" onExpand={toggleInspector} />
   }
+
+  const panel = TAB_PANELS[tab](pageId)
 
   return (
     <aside style={asideStyle}>
@@ -61,31 +71,7 @@ export const RightSidebar = ({ pageId }: RightSidebarProps) => {
             )
           })}
         </div>
-        {tab === 'properties' && pageId !== undefined && (
-          <Suspense fallback={<PanelFallback />}>
-            <PropertyPanel pageId={pageId} />
-          </Suspense>
-        )}
-        {tab === 'widgets' && pageId !== undefined && (
-          <Suspense fallback={<PanelFallback />}>
-            <WidgetListPanel pageId={pageId} />
-          </Suspense>
-        )}
-        {tab === 'signals' && (
-          <Suspense fallback={<PanelFallback />}>
-            <SignalsPanel pageId={pageId} />
-          </Suspense>
-        )}
-        {tab === 'library' && pageId !== undefined && (
-          <Suspense fallback={<PanelFallback />}>
-            <WidgetPalette pageId={pageId} />
-          </Suspense>
-        )}
-        {tab === 'history' && (
-          <Suspense fallback={<PanelFallback />}>
-            <HistoryPanel />
-          </Suspense>
-        )}
+        {panel !== null && <Suspense fallback={<PanelFallback />}>{panel}</Suspense>}
       </div>
     </aside>
   )
