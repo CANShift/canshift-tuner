@@ -1,5 +1,5 @@
 import type { Widget } from '@canshift/core'
-import { GAUGE_ARC, VALUE_FRAC_FONT_RATIO, gaugeArcPath, ratioScale } from '@canshift/core'
+import { GAUGE_ARC, gaugeArcPath } from '@canshift/core'
 import { thresholdPct } from '../widgetPreview.styles'
 
 export const DEMO_PCT = 0.65
@@ -26,14 +26,6 @@ export const isDangerState = (widget: Widget, testValue: number | null | undefin
   }
   return false
 }
-
-export const splitDecimal = (s: string): { int: string; frac: string } => {
-  const dot = s.indexOf('.')
-  if (dot < 0) return { int: s, frac: '' }
-  return { int: s.slice(0, dot), frac: s.slice(dot) }
-}
-
-export const FRAC_FONT_SCALE = ratioScale(VALUE_FRAC_FONT_RATIO)
 
 export const gaugeArcD = (
   cx: number,

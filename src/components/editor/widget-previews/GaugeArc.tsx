@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { GAUGE_ARC, GAUGE_TRACK_COLORS, STALE_PLACEHOLDER } from '@canshift/core'
 import { BLINK_ANIM, thresholdPct } from '../widgetPreview.styles'
-import { FRAC_FONT_SCALE, effectiveValue, gaugeArcD, splitDecimal } from './gauge-math'
+import { effectiveValue, gaugeArcD } from './gauge-math'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
 import { MONO_FONT, UI_FONT, UI_LABEL_TRACKING, UI_LABEL_WEIGHT } from '../../../lib/typography'
 
@@ -90,30 +90,7 @@ export const GaugeArcPreview = memo(function GaugeArcPreview({
         fontFamily={MONO_FONT}
         style={{ animation: danger ? BLINK_ANIM : undefined }}
       >
-        {(() => {
-          const { int, frac } = splitDecimal(valueStr)
-          if (frac !== '') {
-            return (
-              <>
-                <tspan>{int}</tspan>
-                <tspan fontSize={valueFontSize * FRAC_FONT_SCALE}>{frac}</tspan>
-              </>
-            )
-          }
-          const absInt = int.startsWith('-') ? int.slice(1) : int
-          if (absInt.length > 3) {
-            const sign = int.startsWith('-') ? '-' : ''
-            const head = absInt.slice(0, -3)
-            const tail = absInt.slice(-3)
-            return (
-              <>
-                <tspan>{sign + head}</tspan>
-                <tspan fontSize={valueFontSize * FRAC_FONT_SCALE}>{tail}</tspan>
-              </>
-            )
-          }
-          return valueStr
-        })()}
+        {valueStr}
       </text>
       <text
         x={4}

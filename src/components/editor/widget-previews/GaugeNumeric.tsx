@@ -7,7 +7,7 @@ import {
   widgetTopRulePx,
 } from '@canshift/core'
 import { BLINK_ANIM } from '../widgetPreview.styles'
-import { FRAC_FONT_SCALE, effectiveValue, splitDecimal } from './gauge-math'
+import { effectiveValue } from './gauge-math'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
 import { MONO_FONT, uiLabelAtSize } from '../../../lib/typography'
 
@@ -44,12 +44,7 @@ export const GaugeNumericPreview = memo(function GaugeNumericPreview({
   const availH = h - sigHeaderH
 
   const valueStr = String(valueOnly)
-  const intLen = valueStr.includes('.') ? valueStr.split('.')[0]!.length : valueStr.length
-  const willSplit = !cfg.prefix && intLen > 3 && !valueStr.includes('.')
-  const headChars = willSplit ? intLen - 3 : intLen
-  const tailChars = willSplit ? 3 : valueStr.includes('.') ? valueStr.length - intLen : 0
-  const unitChars = signalUnit.length
-  const charBudget = headChars + tailChars * FRAC_FONT_SCALE + unitChars * FRAC_FONT_SCALE * 0.45
+  const charBudget = valueStr.length + prefix.length + signalUnit.length * 0.45
   const fontSize = Math.max(10, Math.min(availH * 0.85, (w - 16) / (charBudget * 0.68)))
   const rulePx = widgetTopRulePx(Math.round(fontSize))
   const ruleColor = danger
@@ -138,33 +133,22 @@ export const GaugeNumericPreview = memo(function GaugeNumericPreview({
           flexShrink: 0,
         }}
       >
-        {(() => {
-          const { int, frac } = splitDecimal(valueOnly)
-          const isWideInt = !prefix && int.length > 3 && frac === ''
-          const intHead = isWideInt ? int.slice(0, -3) : int
-          const intTail = isWideInt ? int.slice(-3) : ''
-          return (
-            <span
-              style={{
-                color: valueColor,
-                fontFamily: MONO_FONT,
-                fontWeight: 800,
-                lineHeight: 1,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'clip',
-                textAlign: 'center',
-                animation: danger ? BLINK_ANIM : undefined,
-              }}
-            >
-              <span style={{ fontSize }}>{prefix + intHead}</span>
-              {intTail !== '' && (
-                <span style={{ fontSize: fontSize * FRAC_FONT_SCALE }}>{intTail}</span>
-              )}
-              {frac !== '' && <span style={{ fontSize: fontSize * FRAC_FONT_SCALE }}>{frac}</span>}
-            </span>
-          )
-        })()}
+        <span
+          style={{
+            color: valueColor,
+            fontFamily: MONO_FONT,
+            fontWeight: 800,
+            fontSize,
+            lineHeight: 1,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'clip',
+            textAlign: 'left',
+            animation: danger ? BLINK_ANIM : undefined,
+          }}
+        >
+          {prefix + valueStr}
+        </span>
         {signalUnit !== '' && (
           <span
             style={{
