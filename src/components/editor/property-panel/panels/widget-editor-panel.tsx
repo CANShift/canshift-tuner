@@ -4,12 +4,12 @@ import { HexColorSchema } from '@canshift/core'
 
 import { useLogStore } from '../../../../stores/log.store'
 import { Checkbox } from '@/components/ui/checkbox'
-import { CompactSelect } from '@/components/ui/form-field'
 import { IconTrash } from '../../../icons/Icon'
 import { ButtonFields } from '../button-fields'
 import { GaugeFields } from '../gauge-fields'
 import { ShiftLightFields } from '../shift-light-fields'
-import { ConfigFieldsProps, Field } from '../shared'
+import { ConfigFieldsProps } from '../shared'
+import { CompactSelect, PanelField } from '@/components/ui/form-field'
 import { ButtonColorsRow } from './button-colors-row'
 import { SizeTokenPicker } from './size-token-picker'
 import { MONO_FONT } from '../../../../lib/typography'
@@ -112,16 +112,16 @@ export const WidgetEditorPanel = ({
         </button>
       </div>
 
-      <Field label="ID">
+      <PanelField label="ID">
         <div style={{ fontSize: 10, color: PANEL_LABEL, fontFamily: MONO_FONT, padding: '3px 0' }}>
           {widget.id}
         </div>
-      </Field>
+      </PanelField>
 
       {!SIZE_HIDDEN_TYPES.has(widget.type) && <SizeTokenPicker widget={widget} onChange={patch} />}
 
       {!SIGNAL_HIDDEN_TYPES.has(widget.type) && (
-        <Field label="Signal">
+        <PanelField label="Signal">
           <CompactSelect
             value={widget.signal || ''}
             options={[
@@ -148,10 +148,10 @@ export const WidgetEditorPanel = ({
               patch(p)
             }}
           />
-        </Field>
+        </PanelField>
       )}
 
-      <Field label="Follow day-mode text colour">
+      <PanelField label="Follow day-mode text colour">
         <label
           style={{
             display: 'flex',
@@ -176,7 +176,7 @@ export const WidgetEditorPanel = ({
           />
           When off, the widget keeps its bespoke text colour in day mode
         </label>
-      </Field>
+      </PanelField>
 
       <ButtonColorsRow
         widget={widget}

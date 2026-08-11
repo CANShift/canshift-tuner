@@ -5,7 +5,8 @@ import {
   gaugeTokenIds,
   tokenFromSpans,
 } from '../../../utils/size-tokens'
-import { ConfigFieldsProps, Field, GAUGE_STYLES, Row, numberInputStyle } from './shared'
+import { ConfigFieldsProps, GAUGE_STYLES } from './shared'
+import { PanelField, PanelInput, PanelRow } from '@/components/ui/form-field'
 
 const resetAction = (enabled: boolean, run: () => void): (() => void) | undefined =>
   enabled ? run : undefined
@@ -30,7 +31,7 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
 
   return (
     <>
-      <Field label="Style">
+      <PanelField label="Style">
         <div style={{ display: 'flex', gap: 4 }}>
           {GAUGE_STYLES.map(({ value, label }) => (
             <button
@@ -65,9 +66,9 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
             </button>
           ))}
         </div>
-      </Field>
+      </PanelField>
 
-      <Field label="Type">
+      <PanelField label="Type">
         <div style={{ display: 'flex', gap: 4 }}>
           {BIG_CHOICES.map((choice) => {
             const isActive = (cfg.big ?? 0) === choice.big
@@ -101,9 +102,9 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
             )
           })}
         </div>
-      </Field>
+      </PanelField>
 
-      <Field label="Size">
+      <PanelField label="Size">
         <div style={{ display: 'flex', gap: 4 }}>
           {allowedTokenIds.map((tokenId) => {
             const token = SIZE_TOKENS[tokenId]
@@ -135,12 +136,12 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
             )
           })}
         </div>
-      </Field>
+      </PanelField>
 
       {style === 'arc' && (
         <>
-          <Row>
-            <Field
+          <PanelRow>
+            <PanelField
               label="Min"
               onReset={resetAction(
                 signalDef !== undefined && cfg.minValue !== signalDef.min,
@@ -149,9 +150,8 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
                 }
               )}
             >
-              <input
+              <PanelInput
                 type="number"
-                style={numberInputStyle}
                 value={cfg.minValue}
                 onChange={(e) => {
                   const newMin = Number(e.target.value)
@@ -164,8 +164,8 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
                   })
                 }}
               />
-            </Field>
-            <Field
+            </PanelField>
+            <PanelField
               label="Max"
               onReset={resetAction(
                 signalDef !== undefined && cfg.maxValue !== signalDef.max,
@@ -174,9 +174,8 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
                 }
               )}
             >
-              <input
+              <PanelInput
                 type="number"
-                style={numberInputStyle}
                 value={cfg.maxValue}
                 onChange={(e) => {
                   const newMax = Number(e.target.value)
@@ -192,10 +191,10 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
                   })
                 }}
               />
-            </Field>
-          </Row>
-          <Row>
-            <Field
+            </PanelField>
+          </PanelRow>
+          <PanelRow>
+            <PanelField
               label="Danger"
               onReset={resetAction(
                 defaultDanger !== undefined && cfg.dangerLevel !== defaultDanger,
@@ -206,26 +205,25 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
                 }
               )}
             >
-              <input
+              <PanelInput
                 type="number"
-                style={numberInputStyle}
                 value={cfg.dangerLevel}
                 onChange={(e) => {
                   onChange({ config: { ...cfg, dangerLevel: Number(e.target.value) } })
                 }}
               />
-            </Field>
-          </Row>
-          <Field label="Rev flash">
+            </PanelField>
+          </PanelRow>
+          <PanelField label="Rev flash">
             <Checkbox
               checked={cfg.revFlash ?? false}
               onCheckedChange={(checked) => {
                 onChange({ config: { ...cfg, revFlash: checked === true } })
               }}
             />
-          </Field>
-          <Row>
-            <Field
+          </PanelField>
+          <PanelRow>
+            <PanelField
               label="Alert at"
               onReset={resetAction(cfg.alertThreshold !== undefined, () => {
                 const { alertThreshold: _drop, ...rest } = cfg
@@ -233,9 +231,8 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
                 onChange({ config: rest })
               })}
             >
-              <input
+              <PanelInput
                 type="number"
-                style={numberInputStyle}
                 placeholder="off"
                 value={cfg.alertThreshold ?? ''}
                 onChange={(e) => {
@@ -251,12 +248,12 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
                   onChange({ config: { ...cfg, alertThreshold: v } })
                 }}
               />
-            </Field>
-          </Row>
+            </PanelField>
+          </PanelRow>
         </>
       )}
       {style === 'numeric' && (
-        <Field label="Value bar">
+        <PanelField label="Value bar">
           <Checkbox
             aria-label="Value bar"
             checked={cfg.showBar ?? false}
@@ -264,7 +261,7 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
               onChange({ config: { ...cfg, showBar: checked === true } })
             }}
           />
-        </Field>
+        </PanelField>
       )}
     </>
   )

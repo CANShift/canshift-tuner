@@ -1,7 +1,7 @@
 import { MIN_CYCLE_STATES } from '@canshift/core'
 
 import { IconTrash } from '../../../icons/Icon'
-import { inputStyle } from '../shared'
+import { PanelInput } from '@/components/ui/form-field'
 import { ActionEditor } from './action-editor'
 import { ActionTypeMenu } from './action-type-menu'
 import type { CycleState } from './shared'
@@ -52,8 +52,8 @@ export const CycleStateRow = ({
         <span style={{ fontSize: 10, color: 'hsl(var(--brand-neutral-500))', minWidth: 16 }}>
           {index + 1}
         </span>
-        <input
-          style={{ ...inputStyle, fontSize: 11, flex: 1 }}
+        <PanelInput
+          className="flex-1 text-[11px]"
           value={state.label}
           placeholder={`State ${String(index + 1)}`}
           onChange={(e) => {

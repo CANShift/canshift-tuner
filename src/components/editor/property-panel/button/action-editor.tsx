@@ -9,7 +9,7 @@ import {
 } from '@canshift/core'
 
 import { CompactSelect } from '@/components/ui/form-field'
-import { inputStyle, numberInputStyle } from '../shared'
+import { PanelInput } from '@/components/ui/form-field'
 import { CRUISE_STEP_OPS, HEX_FRAME_ID_REGEX } from './shared'
 import { MONO_FONT } from '../../../../lib/typography'
 
@@ -41,11 +41,11 @@ const NavigateFields = ({ action, pageIds, onUpdate }: FieldEditorProps<Navigate
 const MapSwitchFields = ({ action, onUpdate }: FieldEditorProps<MapSwitchAction>) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
     <span style={{ fontSize: 10, color: 'hsl(var(--brand-neutral-500))' }}>Map</span>
-    <input
+    <PanelInput
       type="number"
       min={1}
       max={8}
-      style={{ ...numberInputStyle, width: 50 }}
+      className="w-[50px]"
       value={action.mapIndex}
       onChange={(e) => {
         onUpdate({ ...action, mapIndex: Number(e.target.value) })
@@ -60,8 +60,8 @@ const CanRawFields = ({ action, onUpdate }: FieldEditorProps<CanRawAction>) => (
       <div style={{ fontSize: 9, color: 'hsl(var(--brand-neutral-600))', marginBottom: 2 }}>
         FRAME ID
       </div>
-      <input
-        style={{ ...inputStyle, fontSize: 10 }}
+      <PanelInput
+        className="text-[10px]"
         placeholder="0x123"
         value={`0x${action.frameId.toString(16).toUpperCase()}`}
         onChange={(e) => {
@@ -75,8 +75,9 @@ const CanRawFields = ({ action, onUpdate }: FieldEditorProps<CanRawAction>) => (
       <div style={{ fontSize: 9, color: 'hsl(var(--brand-neutral-600))', marginBottom: 2 }}>
         DATA (HEX)
       </div>
-      <input
-        style={{ ...inputStyle, fontSize: 10, fontFamily: MONO_FONT }}
+      <PanelInput
+        className="text-[10px]"
+        style={{ fontFamily: MONO_FONT }}
         placeholder="0102030405060708"
         value={action.data}
         onChange={(e) => {
@@ -112,11 +113,11 @@ const CruiseControlFields = ({ action, onUpdate }: FieldEditorProps<CruiseContro
         <div style={{ fontSize: 9, color: 'hsl(var(--brand-neutral-600))', marginBottom: 2 }}>
           STEP (KM/H)
         </div>
-        <input
+        <PanelInput
           type="number"
           min={1}
           max={20}
-          style={{ ...numberInputStyle, fontSize: 11 }}
+          className="text-[11px]"
           value={action.stepKmh ?? 1}
           onChange={(e) => {
             const v = Number(e.target.value)

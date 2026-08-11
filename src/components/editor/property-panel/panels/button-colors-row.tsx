@@ -1,6 +1,6 @@
 import type { HexColor, Widget } from '@canshift/core'
 
-import { Field, Row } from '../shared'
+import { PanelField, PanelRow } from '@/components/ui/form-field'
 
 const PANEL_LABEL = 'hsl(var(--brand-neutral-600))'
 const INPUT_BG = 'hsl(var(--brand-neutral-100))'
@@ -38,8 +38,8 @@ export const ButtonColorsRow = ({
       >
         Button colors
       </div>
-      <Row>
-        <Field label="Normal">
+      <PanelRow>
+        <PanelField label="Normal">
           <input
             type="color"
             value={normal}
@@ -61,8 +61,8 @@ export const ButtonColorsRow = ({
               onChange({ config: { ...cfg, colors: next } })
             }}
           />
-        </Field>
-        <Field label="Active">
+        </PanelField>
+        <PanelField label="Active">
           <input
             type="color"
             value={active}
@@ -84,8 +84,8 @@ export const ButtonColorsRow = ({
               onChange({ config: { ...cfg, colors: next } })
             }}
           />
-        </Field>
-      </Row>
+        </PanelField>
+      </PanelRow>
       {colorError !== null && (
         <div
           role="alert"

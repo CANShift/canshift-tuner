@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { InputHTMLAttributes, ReactNode } from 'react'
 import {
   Select,
   SelectContent,
@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
+import { cn } from '@/lib/utils'
 
 export interface SectionProps {
   title: string
@@ -74,6 +75,50 @@ export const BoolField = ({ label, value, onChange }: BoolFieldProps) => (
     <span className="text-text-muted">{label}</span>
     <Switch checked={value} onCheckedChange={onChange} />
   </label>
+)
+
+export interface PanelFieldProps {
+  label: string
+  children: ReactNode
+  onReset?: (() => void) | undefined
+}
+
+export const PanelField = ({ label, children, onReset }: PanelFieldProps) => (
+  <div className="mb-2.5">
+    <div className="mb-[3px] flex items-center gap-1">
+      <label className="block text-[10px] uppercase tracking-[0.06em] text-[hsl(var(--brand-neutral-500))]">
+        {label}
+      </label>
+      {onReset && (
+        <button
+          type="button"
+          onClick={onReset}
+          title="Reset to default"
+          aria-label={`Reset ${label} to default`}
+          className="h-[14px] w-[14px] cursor-pointer border-none bg-transparent p-0 text-[11px] leading-[14px] text-[hsl(var(--brand-neutral-500))]"
+        >
+          <span aria-hidden="true">↺</span>
+        </button>
+      )}
+    </div>
+    {children}
+  </div>
+)
+
+export const PanelRow = ({ children }: { children: ReactNode }) => (
+  <div className="flex gap-1.5">{children}</div>
+)
+
+export type PanelInputProps = InputHTMLAttributes<HTMLInputElement>
+
+export const PanelInput = ({ className, ...props }: PanelInputProps) => (
+  <Input
+    className={cn(
+      'h-auto border-[hsl(var(--brand-neutral-300))] bg-[hsl(var(--brand-neutral-100))] px-[7px] py-1 text-xs text-[hsl(var(--brand-neutral-700))]',
+      className
+    )}
+    {...props}
+  />
 )
 
 const NONE_VALUE = '__none__'
