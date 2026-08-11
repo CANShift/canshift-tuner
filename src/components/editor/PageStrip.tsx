@@ -155,9 +155,11 @@ const PageCell = ({
             onSetDefault(page.id)
           }}
           title={isDefault ? 'Default page (shown at boot)' : 'Set as default'}
+          aria-label={isDefault ? 'Default page (shown at boot)' : 'Set as default'}
+          aria-pressed={isDefault}
           style={starButtonStyle(isDefault)}
         >
-          {isDefault ? '★' : '☆'}
+          <span aria-hidden="true">{isDefault ? '★' : '☆'}</span>
         </button>
         {canRemove && (
           <button
@@ -167,9 +169,10 @@ const PageCell = ({
               onRemove(page.id)
             }}
             title="Remove page"
+            aria-label={`Remove page ${String(index + 1)}`}
             style={removeButtonStyle}
           >
-            ×
+            <span aria-hidden="true">×</span>
           </button>
         )}
         <span style={cellCountStyle}>{page.widgets.length}w</span>
