@@ -1,13 +1,6 @@
 import type { Widget } from '@canshift/core'
-import {
-  GAUGE_ARC,
-  VALUE_FRAC_FONT_RATIO,
-  gaugeArcPath,
-  gaugeGradientColorAt,
-} from '@canshift/core'
+import { GAUGE_ARC, VALUE_FRAC_FONT_RATIO, gaugeArcPath, ratioScale } from '@canshift/core'
 import { thresholdPct } from '../widgetPreview.styles'
-
-export const interpolateGreenOrangeRed = (pct: number): string => gaugeGradientColorAt(pct)
 
 export const DEMO_PCT = 0.65
 
@@ -40,7 +33,7 @@ export const splitDecimal = (s: string): { int: string; frac: string } => {
   return { int: s.slice(0, dot), frac: s.slice(dot) }
 }
 
-export const FRAC_FONT_SCALE = VALUE_FRAC_FONT_RATIO
+export const FRAC_FONT_SCALE = ratioScale(VALUE_FRAC_FONT_RATIO)
 
 export const gaugeArcD = (
   cx: number,
