@@ -9,12 +9,47 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#201E1D" />
+    <meta
+      name="description"
+      content="Configure your CANShift dash, live. Edit pages, bind CAN signals, tune OBD-II polling and flash firmware — all in your browser."
+    />
+    <link rel="canonical" href="https://tuner.canshift.app/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CANShift" />
     <meta property="og:title" content="CANShift Tuner" />
+    <meta
+      property="og:description"
+      content="Configure your CANShift dash, live. Edit pages, bind CAN signals, tune OBD-II polling and flash firmware — all in your browser."
+    />
+    <meta property="og:url" content="https://tuner.canshift.app/" />
     <meta property="og:image" content="https://tuner.canshift.app/og-image-1200x630.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="CANShift Tuner — browser configurator for CANShift dashes"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
     <title>CANShift Tuner</title>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "CANShift Tuner",
+        "description": "Browser configurator for CANShift dashes — edit pages and widgets, bind CAN signals, tune OBD-II polling and flash firmware over WebSerial.",
+        "url": "https://tuner.canshift.app/",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Chromium-based browsers",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      CANShift Tuner is a browser configurator for CANShift dashes and needs JavaScript to run. Read
+      more at <a href="https://docs.canshift.tmbk.ch">docs.canshift.tmbk.ch</a>.
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
