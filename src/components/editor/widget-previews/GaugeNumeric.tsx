@@ -1,9 +1,9 @@
-import {
-  deviceValueFontPx, memo } from 'react'
+import { memo } from 'react'
 import {
   SECONDARY_BAR,
   STALE_PLACEHOLDER,
   WIDGET_TOP_RULE,
+  deviceValueFontPx,
   valueUnitFontSize,
   widgetTopRulePx,
 } from '@canshift/core'

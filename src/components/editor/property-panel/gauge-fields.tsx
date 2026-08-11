@@ -16,7 +16,6 @@ const BIG_CHOICES = [
   { label: 'XS', big: 34, title: 'Secondary 34 — device 17' },
 ] as const
 
-
 export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) => {
   const cfg = widget.config.type === 'gauge' ? widget.config : null
   if (!cfg) return null
