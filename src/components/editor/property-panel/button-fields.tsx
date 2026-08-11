@@ -9,7 +9,7 @@ import { CycleModeBody } from './button/cycle-mode-body'
 import { ModeToggle } from './button/mode-toggle'
 import { convertCycleToSingle, convertSingleToCycle, EMPTY_PAGES } from './button/shared'
 import { SingleModeBody } from './button/single-mode-body'
-import { Field, IconPicker, inputStyle, type ConfigFieldsProps } from './shared'
+import { Field, inputStyle, type ConfigFieldsProps } from './shared'
 import { MONO_FONT } from '../../../lib/typography'
 
 export const ButtonFields = ({ widget, onChange }: ConfigFieldsProps) => {
@@ -137,30 +137,8 @@ export const ButtonFields = ({ widget, onChange }: ConfigFieldsProps) => {
             />
             Text
           </label>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 5, cursor: 'pointer' }}>
-            <Checkbox
-              checked={cfg.showIcon === true}
-              onCheckedChange={(checked) => {
-                onChange({ config: { ...cfg, showIcon: checked === true } })
-              }}
-            />
-            Icon
-          </label>
         </div>
       </Field>
-
-      {(cfg.showIcon ?? false) && (
-        <Field label="Icon">
-          <IconPicker
-            value={cfg.iconName}
-            onChange={(name) => {
-              onChange({
-                config: name ? { ...cfg, iconName: name } : (({ iconName: _, ...r }) => r)(cfg),
-              })
-            }}
-          />
-        </Field>
-      )}
 
       {cfg.mode === 'single' ? (
         <SingleModeBody cfg={cfg} pageIds={pageIds} onChange={onChange} />

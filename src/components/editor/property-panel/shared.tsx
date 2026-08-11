@@ -1,6 +1,5 @@
 import React from 'react'
-import type { GaugeDisplayStyle, SensorIconName, SignalDef, Widget } from '@canshift/core'
-import { SENSOR_ICON_LABELS, SENSOR_ICON_NAMES, SensorIcon } from '../../icons/SensorIcons'
+import type { GaugeDisplayStyle, SignalDef, Widget } from '@canshift/core'
 
 export const Field = ({
   label,
@@ -69,75 +68,6 @@ export const numberInputStyle: React.CSSProperties = {
 
 export const Row = ({ children }: { children: React.ReactNode }) => {
   return <div style={{ display: 'flex', gap: 6 }}>{children}</div>
-}
-
-export const IconPicker = ({
-  value,
-  onChange,
-}: {
-  value: SensorIconName | undefined
-  onChange: (name: SensorIconName | undefined) => void
-}) => {
-  return (
-    <div>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: 4,
-          marginBottom: 4,
-        }}
-      >
-        {SENSOR_ICON_NAMES.map((name) => (
-          <button
-            key={name}
-            title={SENSOR_ICON_LABELS[name]}
-            onClick={() => {
-              onChange(value === name ? undefined : name)
-            }}
-            style={{
-              padding: 5,
-              background:
-                value === name
-                  ? 'color-mix(in srgb, #5566AA 14%, transparent)'
-                  : 'hsl(var(--brand-neutral-100))',
-              border: `1px solid ${value === name ? '#5566AA' : 'hsl(var(--brand-neutral-300))'}`,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <SensorIcon
-              name={name}
-              size={16}
-              color={value === name ? '#7788CC' : 'hsl(var(--brand-neutral-600))'}
-            />
-          </button>
-        ))}
-      </div>
-      {value && (
-        <div style={{ fontSize: 10, color: '#5566AA' }}>
-          {SENSOR_ICON_LABELS[value]}
-          <button
-            onClick={() => {
-              onChange(undefined)
-            }}
-            style={{
-              marginLeft: 6,
-              background: 'none',
-              border: 'none',
-              color: 'hsl(var(--brand-neutral-600))',
-              cursor: 'pointer',
-              fontSize: 10,
-            }}
-          >
-            ✕ clear
-          </button>
-        </div>
-      )}
-    </div>
-  )
 }
 
 export interface ConfigFieldsProps {

@@ -53,16 +53,10 @@ export const buildActionPresets = (pageIds: string[]): ActionPreset[] => [
   },
 ]
 
-type SharedConfigFields = Pick<
-  ButtonWidgetConfig,
-  'label' | 'iconName' | 'iconPath' | 'showIcon' | 'showLabel' | 'colors'
->
+type SharedConfigFields = Pick<ButtonWidgetConfig, 'label' | 'showLabel' | 'colors'>
 
 const extractSharedFields = (cfg: ButtonWidgetConfig): SharedConfigFields => ({
   label: cfg.label,
-  ...(cfg.iconName !== undefined ? { iconName: cfg.iconName } : {}),
-  ...(cfg.iconPath !== undefined ? { iconPath: cfg.iconPath } : {}),
-  ...(cfg.showIcon !== undefined ? { showIcon: cfg.showIcon } : {}),
   ...(cfg.showLabel !== undefined ? { showLabel: cfg.showLabel } : {}),
   ...(cfg.colors !== undefined ? { colors: cfg.colors } : {}),
 })
