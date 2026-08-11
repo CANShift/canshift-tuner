@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react'
 import { useLogStore } from '../stores/log.store'
 import type { LogLevel } from '../stores/log.store'
 import { TogglePill } from '../components/ui/toggle-pill'
+import { Checkbox } from '../components/ui/checkbox'
 import { MONO_FONT, UI_FONT } from '../lib/typography'
 
 const ALL_LEVELS: LogLevel[] = ['info', 'success', 'warn', 'error', 'debug']
@@ -110,11 +111,10 @@ const LogsRoute = () => {
             )
           })}
           <label style={verboseLabelStyle}>
-            <input
-              type="checkbox"
+            <Checkbox
               checked={verbose}
-              onChange={(e) => {
-                setVerbose(e.target.checked)
+              onCheckedChange={(checked) => {
+                setVerbose(checked === true)
               }}
             />
             verbose

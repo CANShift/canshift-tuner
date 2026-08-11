@@ -1,3 +1,4 @@
+import { Spinner } from '@/components/ui/spinner'
 import type { CSSProperties } from 'react'
 import { Button } from '@/components/ui/button'
 
@@ -19,28 +20,11 @@ export const BurnButton = ({ disabled = false, busy = false, title, onClick }: B
       className="h-auto gap-0 shell-burn-button"
       style={isDisabled ? burnButtonStyleDisabled : burnButtonStyleEnabled}
     >
-      {busy ? <BurnSpinner /> : null}
+      {busy ? <Spinner size={10} /> : null}
       {busy ? 'BURNING…' : 'BURN TO DEVICE'}
     </Button>
   )
 }
-
-const BurnSpinner = () => (
-  <span
-    aria-hidden="true"
-    style={{
-      display: 'inline-block',
-      width: 10,
-      height: 10,
-      border: '2px solid hsl(var(--brand-ground))',
-      borderTopColor: 'transparent',
-      borderRadius: '50%',
-      animation: 'canshift-tuner-spin 700ms linear infinite',
-      marginRight: 6,
-      verticalAlign: '-1px',
-    }}
-  />
-)
 
 export interface BurnOutcomePillProps {
   kind: 'success' | 'error'

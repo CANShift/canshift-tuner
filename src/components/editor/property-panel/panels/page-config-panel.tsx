@@ -10,6 +10,8 @@ import {
   type ScreenProfileId,
 } from '@canshift/core'
 
+import { Checkbox } from '@/components/ui/checkbox'
+import { CompactSelect } from '@/components/ui/form-field'
 import { CruiseControlOverCapDialog } from '../../CruiseControlOverCapDialog'
 
 const PANEL_LABEL = 'hsl(var(--brand-neutral-600))'
@@ -71,27 +73,17 @@ export const PageConfigPanel = ({
         >
           Target screen
         </div>
-        <select
-          aria-label="Target screen profile"
+        <CompactSelect
+          ariaLabel="Target screen profile"
           value={activeProfileId}
-          onChange={(e) => {
-            setTargetProfile(e.target.value as ScreenProfileId)
+          options={SCREEN_PROFILES.map((profile) => ({
+            value: profile.id,
+            label: `${profile.name} — ${String(profile.width)}×${String(profile.height)}`,
+          }))}
+          onChange={(next) => {
+            setTargetProfile(next as ScreenProfileId)
           }}
-          style={{
-            width: '100%',
-            background: 'hsl(var(--brand-neutral-100))',
-            border: '1px solid hsl(var(--brand-neutral-300))',
-            color: 'hsl(var(--brand-text))',
-            fontSize: 11,
-            padding: '4px 6px',
-          }}
-        >
-          {SCREEN_PROFILES.map((profile) => (
-            <option key={profile.id} value={profile.id}>
-              {profile.name} — {String(profile.width)}×{String(profile.height)}
-            </option>
-          ))}
-        </select>
+        />
         <div style={{ fontSize: 10, color: PANEL_HINT, marginTop: 4, marginBottom: 4 }}>
           Drives the editor canvas size. Widgets are not auto-scaled — out-of-bounds widgets are
           flagged on the canvas so you can adjust manually.
@@ -120,11 +112,10 @@ export const PageConfigPanel = ({
             userSelect: 'none',
           }}
         >
-          <input
-            type="checkbox"
+          <Checkbox
             checked={config.pages.some((p) => p.template === 'cruise_control')}
-            onChange={(e) => {
-              toggleCruiseControlPage(e.target.checked)
+            onCheckedChange={(checked) => {
+              toggleCruiseControlPage(checked === true)
             }}
           />
           Cruise control page

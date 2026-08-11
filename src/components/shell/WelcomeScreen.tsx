@@ -1,3 +1,4 @@
+import { Spinner } from '@/components/ui/spinner'
 import type { CSSProperties, ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { BrandLockup } from '@/components/brand/BrandLockup'
@@ -139,23 +140,6 @@ const UnsupportedBrowserCard = () => (
       ))}
     </ul>
   </div>
-)
-
-const Spinner = () => (
-  <span
-    aria-hidden="true"
-    style={{
-      display: 'inline-block',
-      width: 12,
-      height: 12,
-      border: '2px solid hsl(var(--brand-ground))',
-      borderTopColor: 'transparent',
-      borderRadius: '50%',
-      animation: 'canshift-tuner-spin 700ms linear infinite',
-      marginRight: 8,
-      verticalAlign: '-2px',
-    }}
-  />
 )
 
 const containerStyle: CSSProperties = {

@@ -3,18 +3,19 @@ import type { HexColor, SignalDef, Widget, WidgetType } from '@canshift/core'
 import { HexColorSchema } from '@canshift/core'
 
 import { useLogStore } from '../../../../stores/log.store'
+import { Checkbox } from '@/components/ui/checkbox'
+import { CompactSelect } from '@/components/ui/form-field'
 import { IconTrash } from '../../../icons/Icon'
 import { ButtonFields } from '../button-fields'
 import { GaugeFields } from '../gauge-fields'
 import { ShiftLightFields } from '../shift-light-fields'
-import { ConfigFieldsProps, Field, inputStyle } from '../shared'
+import { ConfigFieldsProps, Field } from '../shared'
 import { ButtonColorsRow } from './button-colors-row'
 import { SizeTokenPicker } from './size-token-picker'
 import { MONO_FONT } from '../../../../lib/typography'
 
 const PANEL_LABEL = 'hsl(var(--brand-neutral-600))'
-const TYPE_BADGE = '#CC4444'
-const DELETE_FG = '#AA3333'
+const DANGER_FG = 'hsl(var(--status-danger))'
 
 const CONFIG_FIELDS: Partial<
   Record<WidgetType, (props: ConfigFieldsProps) => React.JSX.Element | null>
@@ -84,11 +85,12 @@ export const WidgetEditorPanel = ({
           >
             Properties
           </div>
-          <div style={{ fontSize: 12, color: TYPE_BADGE, fontWeight: 600, marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: DANGER_FG, fontWeight: 600, marginTop: 2 }}>
             {widget.type}
           </div>
         </div>
         <button
+          type="button"
           onClick={() => {
             onRemove(pageId, widget.id)
           }}
@@ -99,13 +101,13 @@ export const WidgetEditorPanel = ({
             gap: 4,
             background: 'none',
             border: '1px solid hsl(var(--status-danger-dim))',
-            color: DELETE_FG,
+            color: DANGER_FG,
             cursor: 'pointer',
             fontSize: 11,
             padding: '3px 7px',
           }}
         >
-          <IconTrash size={11} color={DELETE_FG} />
+          <IconTrash size={11} color={DANGER_FG} />
           Delete
         </button>
       </div>
@@ -120,11 +122,16 @@ export const WidgetEditorPanel = ({
 
       {!SIGNAL_HIDDEN_TYPES.has(widget.type) && (
         <Field label="Signal">
-          <select
-            style={{ ...inputStyle, fontSize: 11, padding: '4px 6px' }}
+          <CompactSelect
             value={widget.signal || ''}
-            onChange={(e) => {
-              const newSignal = e.target.value
+            options={[
+              { value: '', label: '— none —' },
+              ...signals.map((s) => ({
+                value: s.name,
+                label: s.unit ? `${s.name} — ${s.unit}` : s.name,
+              })),
+            ]}
+            onChange={(newSignal) => {
               const signalDef = signals.find((s) => s.name === newSignal)
               const p: Partial<Widget> = { signal: newSignal }
               if (signalDef && widget.config.type === 'gauge') {
@@ -140,15 +147,7 @@ export const WidgetEditorPanel = ({
               }
               patch(p)
             }}
-          >
-            <option value="">— none —</option>
-            {signals.map((s) => (
-              <option key={s.name} value={s.name}>
-                {s.name}
-                {s.unit ? ` — ${s.unit}` : ''}
-              </option>
-            ))}
-          </select>
+          />
         </Field>
       )}
 
@@ -163,12 +162,11 @@ export const WidgetEditorPanel = ({
             cursor: 'pointer',
           }}
         >
-          <input
-            type="checkbox"
+          <Checkbox
             checked={widget.style.respectDayMode !== false}
-            onChange={(e) => {
+            onCheckedChange={(checked) => {
               const nextStyle = { ...widget.style }
-              if (e.target.checked) {
+              if (checked === true) {
                 delete nextStyle.respectDayMode
               } else {
                 nextStyle.respectDayMode = false
