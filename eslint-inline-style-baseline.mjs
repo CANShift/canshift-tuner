@@ -85,7 +85,6 @@ export const INLINE_STYLE_BASELINE = [
   'src/components/shell/Sidebar.tsx',
   'src/components/shell/SidebarView.tsx',
   'src/components/shell/ThemeToggleButton.tsx',
-  'src/components/shell/WelcomeScreen.tsx',
   'src/components/themes/ThemeCard.tsx',
   'src/components/themes/ThemeControls.tsx',
   'src/components/themes/ThemeStatusCard.tsx',
