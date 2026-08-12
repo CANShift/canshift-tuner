@@ -34,6 +34,9 @@ const cell = cva(
   }
 )
 
+export const signalRowKey = (signal: SignalDef, index: number): string =>
+  `${String(index)}:${signal.name}`
+
 export const SignalPreviewTable = ({
   signals,
   boundTo,
@@ -84,10 +87,10 @@ export const SignalPreviewTable = ({
             </tr>
           </thead>
           <tbody>
-            {signals.map((s) => {
+            {signals.map((s, i) => {
               const bound = boundTo.get(s.name) ?? null
               return (
-                <tr key={s.name}>
+                <tr key={signalRowKey(s, i)}>
                   <td className={cn(cell({ first: true }))}>{s.name}</td>
                   <td className={cn(cell({ tone: 'id' }))}>{s.canFrameId}</td>
                   <td className={cn(cell({ tone: 'dim' }))}>
