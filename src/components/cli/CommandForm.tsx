@@ -1,9 +1,8 @@
-import type { CSSProperties, KeyboardEvent } from 'react'
+import type { KeyboardEvent } from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '../ui/button'
 import { CompactSelect } from '../ui/form-field'
 import { KNOWN_OPCODES } from '../../transport'
-import { MONO_FONT } from '../../lib/typography'
 import { errorMessage } from '../../lib/error-message'
 
 export interface CommandFormProps {
@@ -77,9 +76,9 @@ export const CommandForm = ({
   }
 
   return (
-    <div style={containerStyle}>
-      <div style={rowStyle}>
-        <label style={labelStyle} htmlFor="cli-opcode">
+    <div className="flex flex-col gap-2 border border-border bg-surface p-4">
+      <div className="flex items-center gap-2">
+        <label className={FIELD_LABEL} htmlFor="cli-opcode">
           Opcode
         </label>
         <input
@@ -90,7 +89,7 @@ export const CommandForm = ({
             setOpcodeInput(e.target.value)
           }}
           placeholder="0x05 or 5 or CMD_SCREEN_SETTINGS"
-          style={opcodeInputStyle}
+          className="flex-1 border border-border bg-background px-2 py-1.5 font-mono text-[12px] text-text outline-none"
         />
         <CompactSelect
           ariaLabel="Pick a known opcode"
@@ -108,10 +107,12 @@ export const CommandForm = ({
           }}
         />
       </div>
-      {matched && <div style={descriptionStyle}>{matched.description}</div>}
+      {matched && (
+        <div className="pl-[68px] text-[11px] text-text-muted">{matched.description}</div>
+      )}
 
-      <div style={rowStyle}>
-        <label style={labelStyle} htmlFor="cli-fields">
+      <div className="flex items-center gap-2">
+        <label className={FIELD_LABEL} htmlFor="cli-fields">
           Fields
         </label>
       </div>
@@ -124,16 +125,22 @@ export const CommandForm = ({
         }}
         onKeyDown={handleFieldsKey}
         rows={4}
-        style={textareaStyle}
+        className="w-full resize-y border border-border bg-background px-2.5 py-2 font-mono text-[12px] text-text outline-none"
         spellCheck={false}
       />
-      {parseError && <div style={errorStyle}>{parseError}</div>}
+      {parseError && (
+        <div className="border border-destructive bg-destructive/10 px-2 py-1.5 text-[11px] text-destructive">
+          {parseError}
+        </div>
+      )}
 
-      <div style={submitRowStyle}>
+      <div className="flex items-center gap-3">
         <Button size="sm" disabled={disabled || busy} onClick={handleSubmit}>
           {busy ? 'Sending…' : 'Send'}
         </Button>
-        <span style={hintStyle}>⌘/Ctrl ↩ to send · ⌘/Ctrl ↑↓ for history</span>
+        <span className="text-[10px] uppercase tracking-[0.06em] text-text-muted">
+          ⌘/Ctrl ↩ to send · ⌘/Ctrl ↑↓ for history
+        </span>
       </div>
     </div>
   )
@@ -157,75 +164,4 @@ const formatHex = (id: number): string => {
   return `0x${id.toString(16).toUpperCase().padStart(2, '0')}`
 }
 
-const containerStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 8,
-  padding: 16,
-  background: 'hsl(var(--surface))',
-  border: '1px solid hsl(var(--border))',
-}
-
-const rowStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 8,
-}
-
-const labelStyle: CSSProperties = {
-  fontSize: 10,
-  letterSpacing: '0.08em',
-  textTransform: 'uppercase',
-  color: 'hsl(var(--text-muted))',
-  minWidth: 60,
-}
-
-const opcodeInputStyle: CSSProperties = {
-  flex: 1,
-  background: 'hsl(var(--bg))',
-  border: '1px solid hsl(var(--border))',
-  padding: '6px 8px',
-  fontSize: 12,
-  fontFamily: MONO_FONT,
-  color: 'hsl(var(--text))',
-  outline: 'none',
-}
-
-const descriptionStyle: CSSProperties = {
-  fontSize: 11,
-  color: 'hsl(var(--text-muted))',
-  paddingLeft: 68,
-}
-
-const textareaStyle: CSSProperties = {
-  width: '100%',
-  background: 'hsl(var(--bg))',
-  border: '1px solid hsl(var(--border))',
-  padding: '8px 10px',
-  fontSize: 12,
-  fontFamily: MONO_FONT,
-  color: 'hsl(var(--text))',
-  outline: 'none',
-  resize: 'vertical',
-}
-
-const errorStyle: CSSProperties = {
-  fontSize: 11,
-  color: 'hsl(var(--destructive))',
-  background: 'hsl(var(--destructive) / 0.1)',
-  border: '1px solid hsl(var(--destructive))',
-  padding: '6px 8px',
-}
-
-const submitRowStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 12,
-}
-
-const hintStyle: CSSProperties = {
-  fontSize: 10,
-  letterSpacing: '0.06em',
-  textTransform: 'uppercase',
-  color: 'hsl(var(--text-muted))',
-}
+const FIELD_LABEL = 'min-w-[60px] text-[10px] uppercase tracking-[0.08em] text-text-muted'
