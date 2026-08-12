@@ -11,10 +11,9 @@ import {
 } from '@canshift/core'
 
 import { Checkbox } from '@/components/ui/checkbox'
-import { CompactSelect } from '@/components/ui/form-field'
+import { CompactSelect, SectionLabel } from '@/components/ui/form-field'
 import { CruiseControlOverCapDialog } from '../../CruiseControlOverCapDialog'
 
-const PANEL_LABEL = 'hsl(var(--brand-neutral-600))'
 const CRUISE_CONTROL_PAGE_ID = 'cruise_control'
 
 interface PageConfigPanelProps {
@@ -61,16 +60,8 @@ export const PageConfigPanel = ({
   return (
     <>
       <div className="flex-1 overflow-y-auto p-3">
-        <div
-          style={{
-            fontSize: 10,
-            color: PANEL_LABEL,
-            textTransform: 'uppercase',
-            letterSpacing: '0.06em',
-            marginBottom: 6,
-          }}
-        >
-          Target screen
+        <div className="mb-1.5">
+          <SectionLabel>Target screen</SectionLabel>
         </div>
         <CompactSelect
           ariaLabel="Target screen profile"
@@ -88,29 +79,10 @@ export const PageConfigPanel = ({
           flagged on the canvas so you can adjust manually.
         </div>
 
-        <div
-          style={{
-            fontSize: 10,
-            color: PANEL_LABEL,
-            textTransform: 'uppercase',
-            letterSpacing: '0.06em',
-            marginBottom: 6,
-            marginTop: 12,
-          }}
-        >
-          Modes
+        <div className="mb-1.5 mt-3">
+          <SectionLabel>Modes</SectionLabel>
         </div>
-        <label
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            fontSize: 11,
-            color: 'hsl(var(--brand-text))',
-            cursor: 'pointer',
-            userSelect: 'none',
-          }}
-        >
+        <label className="flex cursor-pointer select-none items-center gap-2 text-[11px] text-brand-text">
           <Checkbox
             checked={config.pages.some((p) => p.template === 'cruise_control')}
             onCheckedChange={(checked) => {

@@ -1,4 +1,11 @@
+import { cn } from '@/lib/utils'
+
 const REV_LIMIT_BORDER_PX = 8
+
+const OVERLAY = [
+  'pointer-events-none absolute inset-0 z-[200] flex items-center justify-center',
+  'border-solid border-[#FF0000] [transition:opacity_0.1s]',
+].join(' ')
 
 export interface RevLimiterOverlayProps {
   canvasW: number
@@ -9,18 +16,9 @@ export interface RevLimiterOverlayProps {
 export const RevLimiterOverlay = ({ canvasW, flashPhase, scale }: RevLimiterOverlayProps) => {
   return (
     <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        border: `${Math.round(REV_LIMIT_BORDER_PX * scale)}px solid #FF0000`,
-        opacity: flashPhase ? 1 : 0.5,
-        transition: 'opacity 0.1s',
-        pointerEvents: 'none',
-        zIndex: 200,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
+      className={cn(OVERLAY, flashPhase ? 'opacity-100' : 'opacity-50')}
+      // eslint-disable-next-line no-inline-style/no-inline-style
+      style={{ borderWidth: Math.round(REV_LIMIT_BORDER_PX * scale) }}
     >
       <svg width={canvasW * 0.28} height={canvasW * 0.28} viewBox="0 0 100 100">
         <polygon

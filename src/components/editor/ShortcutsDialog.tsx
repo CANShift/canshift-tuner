@@ -1,5 +1,4 @@
 import { Fragment } from 'react'
-import { MONO_FONT } from '../../lib/typography'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,18 +33,11 @@ export const ShortcutsDialog = ({ open, onOpenChange }: ShortcutsDialogProps) =>
         <AlertDialogHeader>
           <AlertDialogTitle>Keyboard shortcuts</AlertDialogTitle>
         </AlertDialogHeader>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'auto 1fr',
-            gap: '6px 16px',
-            fontSize: 13,
-          }}
-        >
+        <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[13px]">
           {SHORTCUTS.map(([keys, desc]) => (
             <Fragment key={keys}>
-              <kbd style={{ fontFamily: MONO_FONT, color: 'hsl(var(--text))' }}>{keys}</kbd>
-              <span style={{ color: 'hsl(var(--text-muted))' }}>{desc}</span>
+              <kbd className="font-mono text-text">{keys}</kbd>
+              <span className="text-text-muted">{desc}</span>
             </Fragment>
           ))}
         </div>
