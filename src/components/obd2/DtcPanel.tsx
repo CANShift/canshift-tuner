@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import type { CSSProperties } from 'react'
+import { cva } from 'class-variance-authority'
 import { dtcSystem } from '@canshift/core'
 import { useDtcStore } from '../../stores/dtc.store'
 import { useDeviceStore } from '../../stores/device.store'
-import { MONO_FONT } from '../../lib/typography'
+import { cn } from '@/lib/utils'
+import { Eyebrow } from '../ui/meta-text'
 import { DtcClearConfirmDialog } from './DtcClearConfirmDialog'
 import { transportErrorText } from '../../transport/humanize-transport-error'
 
@@ -15,16 +16,23 @@ interface DtcBodyProps {
 }
 
 const DtcBody = ({ ready, reading, hasRead, codes }: DtcBodyProps) => {
-  if (!ready) return <div style={emptyStyle}>Connect a dash (or use simulation) to read codes.</div>
-  if (reading) return <div style={emptyStyle}>Reading trouble codes…</div>
-  if (!hasRead) return <div style={emptyStyle}>Read to fetch stored codes over OBD-II Mode 03.</div>
-  if (codes.length === 0) return <div style={emptyStyle}>No stored trouble codes.</div>
+  if (!ready) return <div className={EMPTY}>Connect a dash (or use simulation) to read codes.</div>
+  if (reading) return <div className={EMPTY}>Reading trouble codes…</div>
+  if (!hasRead) return <div className={EMPTY}>Read to fetch stored codes over OBD-II Mode 03.</div>
+  if (codes.length === 0) return <div className={EMPTY}>No stored trouble codes.</div>
   return (
-    <ul style={listStyle}>
+    <ul className="m-0 list-none p-0">
       {codes.map((code) => (
-        <li key={code} style={rowStyle}>
-          <span style={codeStyle}>{code}</span>
-          <span style={systemStyle}>{dtcSystem(code)}</span>
+        <li
+          key={code}
+          className="flex items-baseline justify-between gap-3 border-b border-brand-neutral-300 px-5 py-2.5"
+        >
+          <span className="font-mono text-[14px] font-bold tabular-nums text-brand-accent">
+            {code}
+          </span>
+          <span className="text-[10px] uppercase tracking-[0.08em] text-brand-neutral-600">
+            {dtcSystem(code)}
+          </span>
         </li>
       ))}
     </ul>
@@ -48,20 +56,24 @@ export const DtcPanel = () => {
   const canClear = ready && !busy && codes.length > 0
 
   return (
-    <aside style={panelStyle}>
-      <div style={headerStyle}>TROUBLE CODES</div>
-      <div style={bodyStyle}>
+    <aside className="flex w-[360px] shrink-0 flex-col border-l-2 border-brand-divider bg-brand-neutral-100">
+      <Eyebrow className="block border-b-2 border-brand-divider px-5 py-3.5">TROUBLE CODES</Eyebrow>
+      <div className="flex flex-1 flex-col overflow-y-auto">
         <DtcBody ready={ready} reading={status === 'reading'} hasRead={hasRead} codes={codes} />
-        {error && <div style={errorStyle}>Failed — {transportErrorText(error)}</div>}
+        {error && (
+          <div className="px-5 py-3 text-[12px] text-brand-accent">
+            Failed — {transportErrorText(error)}
+          </div>
+        )}
       </div>
-      <div style={footerStyle}>
+      <div className="flex gap-2.5 border-t border-brand-neutral-300 px-5 py-3.5">
         <button
           type="button"
           onClick={() => {
             void read()
           }}
           disabled={!canRead}
-          style={readButtonStyle(canRead)}
+          className={cn(dtcButton({ tone: 'read', enabled: canRead }))}
         >
           {status === 'reading' ? 'READING…' : 'READ DTCs'}
         </button>
@@ -71,7 +83,7 @@ export const DtcPanel = () => {
             setConfirmOpen(true)
           }}
           disabled={!canClear}
-          style={clearButtonStyle(canClear)}
+          className={cn(dtcButton({ tone: 'clear', enabled: canClear }))}
         >
           {status === 'clearing' ? 'CLEARING…' : 'CLEAR CODES'}
         </button>
@@ -89,101 +101,25 @@ export const DtcPanel = () => {
   )
 }
 
-const panelStyle: CSSProperties = {
-  width: 360,
-  flexShrink: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  borderLeft: '2px solid var(--brand-divider)',
-  background: 'hsl(var(--brand-neutral-100))',
-}
+const EMPTY = 'px-5 py-4 text-[12px] leading-[1.5] text-brand-neutral-500'
 
-const headerStyle: CSSProperties = {
-  padding: '14px 20px',
-  borderBottom: '2px solid var(--brand-divider)',
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.2em',
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const bodyStyle: CSSProperties = {
-  flex: 1,
-  overflowY: 'auto',
-  display: 'flex',
-  flexDirection: 'column',
-}
-
-const emptyStyle: CSSProperties = {
-  padding: '16px 20px',
-  fontSize: 12,
-  lineHeight: 1.5,
-  color: 'hsl(var(--brand-neutral-500))',
-}
-
-const listStyle: CSSProperties = {
-  listStyle: 'none',
-  margin: 0,
-  padding: 0,
-}
-
-const rowStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'baseline',
-  justifyContent: 'space-between',
-  gap: 12,
-  padding: '10px 20px',
-  borderBottom: '1px solid hsl(var(--brand-neutral-300))',
-}
-
-const codeStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 14,
-  fontWeight: 700,
-  color: 'hsl(var(--brand-accent))',
-  fontVariantNumeric: 'tabular-nums',
-}
-
-const systemStyle: CSSProperties = {
-  fontSize: 10,
-  letterSpacing: '0.08em',
-  textTransform: 'uppercase',
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const errorStyle: CSSProperties = {
-  padding: '12px 20px',
-  fontSize: 12,
-  color: 'hsl(var(--brand-accent))',
-}
-
-const footerStyle: CSSProperties = {
-  display: 'flex',
-  gap: 10,
-  padding: '14px 20px',
-  borderTop: '1px solid hsl(var(--brand-neutral-300))',
-}
-
-const readButtonStyle = (enabled: boolean): CSSProperties => ({
-  padding: '6px 14px',
-  background: enabled ? 'hsl(var(--brand-accent))' : 'none',
-  border: '1px solid hsl(var(--brand-accent))',
-  fontWeight: 800,
-  fontSize: 11,
-  letterSpacing: '0.09em',
-  color: enabled ? '#fff' : 'hsl(var(--brand-neutral-500))',
-  cursor: enabled ? 'pointer' : 'not-allowed',
-  opacity: enabled ? 1 : 0.5,
-})
-
-const clearButtonStyle = (enabled: boolean): CSSProperties => ({
-  padding: '6px 14px',
-  background: 'none',
-  border: '1px solid hsl(var(--brand-accent))',
-  fontWeight: 800,
-  fontSize: 11,
-  letterSpacing: '0.09em',
-  color: 'hsl(var(--brand-accent))',
-  cursor: enabled ? 'pointer' : 'not-allowed',
-  opacity: enabled ? 1 : 0.5,
-})
+const dtcButton = cva(
+  'border border-brand-accent px-3.5 py-1.5 text-[11px] font-extrabold tracking-[0.09em]',
+  {
+    variants: {
+      tone: {
+        read: '',
+        clear: 'bg-transparent text-brand-accent',
+      },
+      enabled: {
+        true: 'cursor-pointer opacity-100',
+        false: 'cursor-not-allowed opacity-50',
+      },
+    },
+    compoundVariants: [
+      { tone: 'read', enabled: true, class: 'bg-brand-accent text-white' },
+      { tone: 'read', enabled: false, class: 'bg-transparent text-brand-neutral-500' },
+    ],
+    defaultVariants: { enabled: false },
+  }
+)
