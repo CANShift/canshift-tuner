@@ -43,7 +43,7 @@ export const CliOfflineState = () => {
           <span>Known opcodes ({String(KNOWN_OPCODES.length)})</span>
           <span
             className={cn(
-              'inline-block text-[11px] text-text-dim transition-transform duration-[120ms]',
+              'inline-block text-[11px] text-text-dim [transition:transform_120ms]',
               opcodesOpen ? 'rotate-90' : 'rotate-0'
             )}
             aria-hidden="true"
