@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import { cva } from 'class-variance-authority'
 import type { Obd2Mode01PidEntry, Obd2Polling, SignalDef } from '@canshift/core'
 import {
   OBD2_DEFAULT_INTERVAL_MS,
@@ -9,7 +9,8 @@ import {
 } from '@canshift/core'
 import { CompactSelect } from '@/components/ui/form-field'
 import { useSignalStore } from '../../stores/signal.store'
-import { MONO_FONT } from '../../lib/typography'
+import { cn } from '@/lib/utils'
+import { MetaText } from '../ui/meta-text'
 
 const INPUT_MODE_OPTIONS = [
   { value: 'broadcast', label: 'Broadcast (passive listen)' },
@@ -126,32 +127,36 @@ export const SignalCell = ({ signal, index, liveValue }: SignalCellProps) => {
   ]
 
   return (
-    <div style={cellStyle}>
-      <span style={polling ? pidStyle : broadcastPidStyle}>
+    <div className="flex min-w-0 flex-col gap-[5px] border-b border-r border-brand-neutral-300 px-5 py-3.5">
+      <span className={cn(pidLabel({ polling: polling !== undefined }))}>
         {polling ? formatPid(polling.pid) : 'BROADCAST'}
         {isRawPid ? ' · RAW' : ''}
       </span>
-      <span style={nameStyle}>{signal.name}</span>
-      <div style={valueRowStyle}>
-        <span style={valueStyle}>{liveValue !== undefined ? formatValue(liveValue) : '—'}</span>
-        <span style={unitStyle}>{signal.unit}</span>
+      <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[13px] text-brand-text">
+        {signal.name}
+      </span>
+      <div className="flex items-baseline gap-[5px]">
+        <span className="font-mono text-[20px] tabular-nums text-brand-text">
+          {liveValue !== undefined ? formatValue(liveValue) : '—'}
+        </span>
+        <MetaText>{signal.unit}</MetaText>
       </div>
 
-      <label style={hintStyle}>Input mode</label>
+      <label className={FIELD_HINT}>Input mode</label>
       <CompactSelect value={mode} options={[...INPUT_MODE_OPTIONS]} onChange={onModeChange} />
 
       {mode === 'obd2' && polling && (
         <>
-          <label style={hintStyle}>PID</label>
+          <label className={FIELD_HINT}>PID</label>
           <CompactSelect
             value={polling.pid.toString(10)}
             options={pidOptions}
             onChange={onPidChange}
           />
 
-          <label style={intervalLabelStyle}>
+          <label className={cn(FIELD_HINT, 'flex justify-between')}>
             <span>Interval (ms)</span>
-            <span style={intervalValueStyle}>{polling.intervalMs}</span>
+            <span className="font-mono text-brand-text">{polling.intervalMs}</span>
           </label>
           <input
             type="range"
@@ -162,7 +167,7 @@ export const SignalCell = ({ signal, index, liveValue }: SignalCellProps) => {
             onChange={(e) => {
               onIntervalChange(e.target.value)
             }}
-            style={{ width: '100%' }}
+            className="w-full"
           />
         </>
       )}
@@ -170,71 +175,14 @@ export const SignalCell = ({ signal, index, liveValue }: SignalCellProps) => {
   )
 }
 
-const cellStyle: CSSProperties = {
-  padding: '14px 20px',
-  borderRight: '1px solid hsl(var(--brand-neutral-300))',
-  borderBottom: '1px solid hsl(var(--brand-neutral-300))',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 5,
-  minWidth: 0,
-}
+const FIELD_HINT = 'mt-1 text-[10px] text-brand-neutral-500'
 
-const pidStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 11,
-  color: 'hsl(var(--brand-accent))',
-}
-
-const broadcastPidStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-500))',
-  letterSpacing: '0.08em',
-}
-
-const nameStyle: CSSProperties = {
-  fontSize: 13,
-  color: 'hsl(var(--brand-text))',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-}
-
-const valueRowStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'baseline',
-  gap: 5,
-}
-
-const valueStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 20,
-  color: 'hsl(var(--brand-text))',
-  fontVariantNumeric: 'tabular-nums',
-}
-
-const unitStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const hintStyle: CSSProperties = {
-  marginTop: 4,
-  fontSize: 10,
-  color: 'hsl(var(--brand-neutral-500))',
-}
-
-const intervalLabelStyle: CSSProperties = {
-  marginTop: 4,
-  fontSize: 10,
-  color: 'hsl(var(--brand-neutral-500))',
-  display: 'flex',
-  justifyContent: 'space-between',
-}
-
-const intervalValueStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  color: 'hsl(var(--brand-text))',
-}
+const pidLabel = cva('font-mono text-[11px]', {
+  variants: {
+    polling: {
+      true: 'text-brand-accent',
+      false: 'tracking-[0.08em] text-brand-neutral-500',
+    },
+  },
+  defaultVariants: { polling: false },
+})
