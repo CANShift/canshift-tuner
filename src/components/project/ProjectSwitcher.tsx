@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent } from 'react'
+import { useState } from 'react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,11 +12,8 @@ import { NewProjectWizard } from './NewProjectWizard'
 import { DEFAULT_PROJECT_NAME, useProjectStore } from '../../stores/project/project.store'
 import { useDashboardStore } from '../../stores/dashboard.store'
 import { useLogStore } from '../../stores/log.store'
-import {
-  PROJECT_FILE_ACCEPT,
-  downloadProjectFile,
-  readProjectFileText,
-} from '../../lib/project-file'
+import { PROJECT_FILE_ACCEPT } from '../../lib/project-file'
+import { useProjectFileActions } from '../../hooks/useProjectFileActions'
 
 const RECENT_LIMIT = 8
 
@@ -41,11 +38,10 @@ export const ProjectSwitcher = () => {
   const activeProjectId = useProjectStore((s) => s.activeProjectId)
   const switchProject = useProjectStore((s) => s.switchProject)
   const duplicateProject = useProjectStore((s) => s.duplicateProject)
-  const importProject = useProjectStore((s) => s.importProject)
-  const exportProject = useProjectStore((s) => s.exportProject)
   const dashboardName = useDashboardStore((s) => s.config?.name ?? null)
   const log = useLogStore((s) => s.push)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const { fileInputRef, exportProjectFile, openImportPicker, handleImportChange } =
+    useProjectFileActions()
   const [wizardOpen, setWizardOpen] = useState(false)
 
   const activeMeta = projects.find((p) => p.id === activeProjectId) ?? null
@@ -67,35 +63,7 @@ export const ProjectSwitcher = () => {
   }
 
   const handleExport = () => {
-    if (activeProjectId === null) return
-    const json = exportProject(activeProjectId)
-    if (json === null) {
-      log('error', 'Could not export the project.')
-      return
-    }
-    downloadProjectFile(activeName, json)
-    log('info', `Exported “${activeName}”.`)
-  }
-
-  const handleImportClick = () => {
-    fileInputRef.current?.click()
-  }
-
-  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    event.target.value = ''
-    if (!file) return
-    let raw: string
-    try {
-      raw = await readProjectFileText(file)
-    } catch (err) {
-      console.warn('[project] import read failed', err)
-      log('error', 'Could not read the selected file.')
-      return
-    }
-    const result = importProject(raw)
-    if (result.ok) log('success', `Imported “${result.name}”.`)
-    else log('error', result.error)
+    exportProjectFile(activeProjectId, activeName)
   }
 
   return (
@@ -146,7 +114,7 @@ export const ProjectSwitcher = () => {
           </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={() => {
-              handleImportClick()
+              openImportPicker()
             }}
           >
             Import .canshift…
@@ -166,7 +134,7 @@ export const ProjectSwitcher = () => {
         type="file"
         accept={PROJECT_FILE_ACCEPT}
         onChange={(event) => {
-          void handleFileChange(event)
+          void handleImportChange(event)
         }}
         className="hidden"
       />
