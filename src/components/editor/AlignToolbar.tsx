@@ -1,37 +1,17 @@
-import { useCallback, type CSSProperties } from 'react'
+import { useCallback } from 'react'
 import { useDashboardStore } from '../../stores/dashboard.store'
 import type { AlignDirection } from '../../stores/dashboard.store'
-import { MONO_FONT } from '../../lib/typography'
 
-const BUTTON_STYLE: CSSProperties = {
-  padding: '2px 7px',
-  fontSize: 10,
-  background: 'hsl(var(--brand-neutral-100))',
-  cursor: 'pointer',
-  letterSpacing: '0.03em',
-  fontFamily: MONO_FONT,
-  lineHeight: 1.2,
-}
+const BUTTON_CLASS = [
+  'cursor-pointer border border-solid border-brand-neutral-300 bg-brand-neutral-100',
+  'px-[7px] py-0.5 font-mono text-[10px] leading-[1.2] tracking-[0.03em] text-brand-neutral-600',
+  'hover:border-brand-neutral-400 hover:text-brand-neutral-700',
+  'focus-visible:border-brand-neutral-400 focus-visible:text-brand-neutral-700',
+].join(' ')
 
-const BUTTON_CLASS =
-  'border border-[hsl(var(--brand-neutral-300))] text-[hsl(var(--brand-neutral-600))] ' +
-  'hover:border-[hsl(var(--brand-neutral-400))] hover:text-[hsl(var(--brand-neutral-700))] ' +
-  'focus-visible:border-[hsl(var(--brand-neutral-400))] focus-visible:text-[hsl(var(--brand-neutral-700))]'
+const LABEL_CLASS = 'self-center text-[9px] uppercase tracking-[0.06em] text-brand-neutral-500'
 
-const LABEL_STYLE: CSSProperties = {
-  fontSize: 9,
-  color: 'hsl(var(--brand-neutral-500))',
-  letterSpacing: '0.06em',
-  textTransform: 'uppercase',
-  alignSelf: 'center',
-}
-
-const DIVIDER_STYLE: CSSProperties = {
-  width: 1,
-  height: 14,
-  background: 'hsl(var(--brand-neutral-300))',
-  margin: '0 2px',
-}
+const DIVIDER_CLASS = 'mx-0.5 h-3.5 w-px bg-brand-neutral-300'
 
 interface ToolbarButtonProps {
   glyph: string
@@ -44,7 +24,6 @@ const ToolbarButton = ({ glyph, title, onClick }: ToolbarButtonProps) => {
     <button
       type="button"
       className={BUTTON_CLASS}
-      style={BUTTON_STYLE}
       title={title}
       aria-label={title}
       onClick={onClick}
@@ -104,8 +83,8 @@ export const AlignToolbar = ({ pageId, widgetIds, canDistribute }: AlignToolbarP
   )
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-      <span style={LABEL_STYLE}>Align</span>
+    <div className="flex items-center gap-1">
+      <span className={LABEL_CLASS}>Align</span>
       {ALIGN_SPECS.map((spec) => (
         <ToolbarButton
           key={spec.dir}
@@ -118,8 +97,8 @@ export const AlignToolbar = ({ pageId, widgetIds, canDistribute }: AlignToolbarP
       ))}
       {canDistribute && (
         <>
-          <div style={DIVIDER_STYLE} />
-          <span style={LABEL_STYLE}>Dist</span>
+          <div className={DIVIDER_CLASS} />
+          <span className={LABEL_CLASS}>Dist</span>
           {DISTRIBUTE_SPECS.map((spec) => (
             <ToolbarButton
               key={spec.axis}

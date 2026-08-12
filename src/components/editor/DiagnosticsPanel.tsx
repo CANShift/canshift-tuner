@@ -1,24 +1,9 @@
 import { memo } from 'react'
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 import { useLiveSignals } from '../../hooks/useLiveSignals'
 import { useSignalStore } from '../../stores/signal.store'
 import { useDeviceStore } from '../../stores/device.store'
-
-const PANEL_BG = '#0D0D0D'
-const HEADER_BORDER = '#2A2A2A'
-const ROW_BORDER = '#181818'
-const LABEL_FG = '#AAAAAA'
-const MUTED_FG = '#888888'
-const DIM_FG = '#444444'
-const UNIT_FG = '#555555'
-const NO_DATA_FG = '#555555'
-const BAR_TRACK = '#1E1E1E'
-const VALUE_FG = '#CCCCCC'
-const SIM_FG = '#FF8800'
-const LIVE_FG = '#33CC55'
-const DANGER_FG = '#FF4444'
-const DANGER_BAR = '#FF444488'
-const WARN_BAR = '#FF880088'
-const OK_BAR = '#33CC5555'
 
 interface DiagnosticsPanelProps {
   scale: number
@@ -26,6 +11,57 @@ interface DiagnosticsPanelProps {
 
 const SIGNAL_ROW_DANGER_PCT = 0.95
 const SIGNAL_ROW_WARN_PCT = 0.8
+
+type SignalLevel = 'danger' | 'warn' | 'ok'
+type LinkState = 'live' | 'sim' | 'none'
+
+const PANEL = 'absolute inset-0 z-[100] flex flex-col overflow-hidden bg-[#0D0D0D]'
+
+const HEADER = 'flex shrink-0 items-baseline border-b border-solid border-[#2A2A2A]'
+
+const TITLE = 'font-semibold uppercase tracking-[0.08em] text-text'
+
+const HINT = 'ml-auto text-[#444444]'
+
+const linkLabel = cva('font-semibold tracking-[0.06em]', {
+  variants: {
+    state: { live: 'text-[#33CC55]', sim: 'text-[#FF8800]', none: 'text-[#555555]' },
+  },
+  defaultVariants: { state: 'none' },
+})
+
+const LINK_TEXT: Record<LinkState, string> = { live: 'LIVE', sim: 'SIM', none: 'NO DATA' }
+
+const EMPTY = 'text-center text-[#888888]'
+
+const ROW = 'flex items-center border-b border-solid border-[#181818]'
+
+const ROW_LABEL = 'flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-[#AAAAAA]'
+
+const BAR_TRACK = 'shrink-0 overflow-hidden bg-[#1E1E1E]'
+
+const barFill = cva('h-full [transition:width_0.25s_linear]', {
+  variants: {
+    level: { danger: 'bg-[#FF444488]', warn: 'bg-[#FF880088]', ok: 'bg-[#33CC5555]' },
+  },
+  defaultVariants: { level: 'ok' },
+})
+
+const rowValue = cva('shrink-0 text-right tabular-nums', {
+  variants: {
+    level: { danger: 'text-[#FF4444]', warn: 'text-[#FF8800]', ok: 'text-[#CCCCCC]' },
+  },
+  defaultVariants: { level: 'ok' },
+})
+
+const ROW_UNIT = 'shrink-0 text-[#555555]'
+
+const levelOf = (pct: number | null): SignalLevel => {
+  if (pct === null) return 'ok'
+  if (pct >= SIGNAL_ROW_DANGER_PCT) return 'danger'
+  if (pct >= SIGNAL_ROW_WARN_PCT) return 'warn'
+  return 'ok'
+}
 
 interface SignalRowProps {
   name: string
@@ -52,74 +88,41 @@ const SignalRowImpl = ({
   barH,
   scale,
 }: SignalRowProps) => {
-  const isDanger = pct !== null && pct >= SIGNAL_ROW_DANGER_PCT
-  const isWarn = pct !== null && !isDanger && pct >= SIGNAL_ROW_WARN_PCT
-  const valueColor = isDanger ? DANGER_FG : isWarn ? SIM_FG : VALUE_FG
-  const barColor = isDanger ? DANGER_BAR : isWarn ? WARN_BAR : OK_BAR
+  const level = levelOf(pct)
   return (
     <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        padding: `${String(rowPad)}px ${String(pad)}px`,
-        borderBottom: `1px solid ${ROW_BORDER}`,
-        gap: Math.round(scale * 3),
-      }}
+      className={ROW}
+      // eslint-disable-next-line no-inline-style/no-inline-style
+      style={{ padding: `${String(rowPad)}px ${String(pad)}px`, gap: Math.round(scale * 3) }}
     >
-      <span
-        style={{
-          fontSize: fs,
-          color: LABEL_FG,
-          flex: 1,
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-        }}
-      >
+      {/* eslint-disable-next-line no-inline-style/no-inline-style */}
+      <span className={ROW_LABEL} style={{ fontSize: fs }}>
         {name.replace(/_/g, ' ')}
       </span>
 
-      <div
-        style={{
-          width: barW,
-          height: barH,
-          background: BAR_TRACK,
-          flexShrink: 0,
-          overflow: 'hidden',
-        }}
-      >
+      {/* eslint-disable-next-line no-inline-style/no-inline-style */}
+      <div className={BAR_TRACK} style={{ width: barW, height: barH }}>
         {pct !== null && (
           <div
-            style={{
-              width: `${String(Math.round(pct * 100))}%`,
-              height: '100%',
-              background: barColor,
-              transition: 'width 0.25s linear',
-            }}
+            className={cn(barFill({ level }))}
+            // eslint-disable-next-line no-inline-style/no-inline-style
+            style={{ width: `${String(Math.round(pct * 100))}%` }}
           />
         )}
       </div>
 
       <span
-        style={{
-          fontSize: fs,
-          color: valueColor,
-          fontVariantNumeric: 'tabular-nums',
-          minWidth: Math.round(scale * 18),
-          textAlign: 'right',
-          flexShrink: 0,
-        }}
+        className={cn(rowValue({ level }))}
+        // eslint-disable-next-line no-inline-style/no-inline-style
+        style={{ fontSize: fs, minWidth: Math.round(scale * 18) }}
       >
         {displayValue}
       </span>
 
       <span
-        style={{
-          fontSize: fs - 1,
-          color: UNIT_FG,
-          minWidth: Math.round(scale * 10),
-          flexShrink: 0,
-        }}
+        className={ROW_UNIT}
+        // eslint-disable-next-line no-inline-style/no-inline-style
+        style={{ fontSize: fs - 1, minWidth: Math.round(scale * 10) }}
       >
         {unit}
       </span>
@@ -134,7 +137,6 @@ const DiagnosticsPanel = ({ scale }: DiagnosticsPanelProps) => {
   const connected = useDeviceStore((s) => s.connected)
   const simulationMode = useDeviceStore((s) => s.simulationMode)
   const values = useLiveSignals()
-  const isLive = connected && !simulationMode
 
   const fs = Math.round(scale * 5.5)
   const pad = Math.round(scale * 6)
@@ -142,64 +144,42 @@ const DiagnosticsPanel = ({ scale }: DiagnosticsPanelProps) => {
   const barW = Math.round(scale * 32)
   const barH = Math.round(scale * 4)
 
+  const linkState: LinkState =
+    connected && !simulationMode ? 'live' : simulationMode ? 'sim' : 'none'
+
   return (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        background: PANEL_BG,
-        zIndex: 100,
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-      }}
-    >
+    <div className={PANEL}>
       <div
+        className={HEADER}
+        // eslint-disable-next-line no-inline-style/no-inline-style
         style={{
           padding: `${String(pad)}px ${String(pad)}px ${String(Math.round(scale * 3))}px`,
-          borderBottom: `1px solid ${HEADER_BORDER}`,
-          flexShrink: 0,
-          display: 'flex',
-          alignItems: 'baseline',
           gap: Math.round(scale * 4),
         }}
       >
-        <span
-          style={{
-            fontSize: fs + 2,
-            color: 'hsl(var(--text))',
-            fontWeight: 600,
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-          }}
-        >
+        {/* eslint-disable-next-line no-inline-style/no-inline-style */}
+        <span className={TITLE} style={{ fontSize: fs + 2 }}>
           Diagnostics
         </span>
         <span
-          style={{
-            fontSize: fs - 1,
-            color: isLive ? LIVE_FG : simulationMode ? SIM_FG : NO_DATA_FG,
-            fontWeight: 600,
-            letterSpacing: '0.06em',
-          }}
+          className={cn(linkLabel({ state: linkState }))}
+          // eslint-disable-next-line no-inline-style/no-inline-style
+          style={{ fontSize: fs - 1 }}
         >
-          {isLive ? 'LIVE' : simulationMode ? 'SIM' : 'NO DATA'}
+          {LINK_TEXT[linkState]}
         </span>
-        <span style={{ fontSize: fs - 1, color: DIM_FG, marginLeft: 'auto' }}>
+        {/* eslint-disable-next-line no-inline-style/no-inline-style */}
+        <span className={HINT} style={{ fontSize: fs - 1 }}>
           swipe ↓ to close
         </span>
       </div>
 
-      <div style={{ overflowY: 'auto', flex: 1 }}>
+      <div className="flex-1 overflow-y-auto">
         {signals.length === 0 ? (
           <div
-            style={{
-              padding: pad,
-              fontSize: fs,
-              color: MUTED_FG,
-              textAlign: 'center',
-              paddingTop: pad * 3,
-            }}
+            className={EMPTY}
+            // eslint-disable-next-line no-inline-style/no-inline-style
+            style={{ padding: pad, paddingTop: pad * 3, fontSize: fs }}
           >
             No signals configured.
           </div>
