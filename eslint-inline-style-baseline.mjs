@@ -12,7 +12,6 @@ export const INLINE_STYLE_BASELINE = [
   'src/components/cli/CliOutput.tsx',
   'src/components/cli/CommandForm.tsx',
   'src/components/ecu/EcuCatalogueList.tsx',
-  'src/components/ecu/SignalPreviewTable.tsx',
   'src/components/ecu/XmlImportZone.tsx',
   'src/components/editor/AlignToolbar.tsx',
   'src/components/editor/Canvas.tsx',
