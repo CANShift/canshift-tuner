@@ -1,5 +1,6 @@
-import type { ChangeEvent, CSSProperties, ReactNode } from 'react'
+import type { ChangeEvent, ReactNode } from 'react'
 import { useRef, useState } from 'react'
+import { cva } from 'class-variance-authority'
 import type { ReleaseInfo } from '@canshift/core'
 import type { FirmwareSelection } from '../../stores/firmware-selection.store'
 import type { FirmwareReleasesState } from '../../hooks/useFirmwareReleases'
@@ -9,7 +10,8 @@ import { readFirmwareFile } from '../../lib/firmware/local-firmware'
 import { findMergedAsset } from '../../lib/firmware/releases'
 import { errorMessage } from '../../lib/error-message'
 import { formatBytes } from '../../lib/format'
-import { MONO_FONT } from '../../lib/typography'
+import { cn } from '@/lib/utils'
+import { Eyebrow, MetaText } from '../ui/meta-text'
 
 export interface BuildChooserProps {
   releasesState: FirmwareReleasesState
@@ -51,15 +53,15 @@ const ReleaseRow = ({ release, active, installedVersion, onPick }: ReleaseRowPro
       onClick={() => {
         onPick(release.tag)
       }}
-      style={releaseRowStyle(active, asset === null)}
+      className={cn(row({ shape: 'release', active, disabled: asset === null }))}
     >
-      <span style={radioStyle(active)} />
-      <span style={tagStyle}>{release.tag}</span>
-      <span style={active ? descriptionActiveStyle : descriptionStyle}>
+      <span className={cn(radio({ active }))} />
+      <span className={TAG}>{release.tag}</span>
+      <span className={cn(description({ active }))}>
         {describeRelease(release, installedVersion)}
       </span>
-      <span style={metaStyle}>{formatDate(release.publishedAt)}</span>
-      <span style={metaStyle}>{asset ? formatBytes(asset.sizeBytes) : 'no build'}</span>
+      <MetaText>{formatDate(release.publishedAt)}</MetaText>
+      <MetaText>{asset ? formatBytes(asset.sizeBytes) : 'no build'}</MetaText>
     </button>
   )
 }
@@ -73,10 +75,10 @@ interface ReleaseListProps {
 
 const RELEASE_LIST: Record<FirmwareReleasesState['kind'], (props: ReleaseListProps) => ReactNode> =
   {
-    loading: () => <div style={hintRowStyle}>Loading releases from GitHub…</div>,
+    loading: () => <div className={HINT_ROW}>Loading releases from GitHub…</div>,
     error: ({ releasesState }) =>
       releasesState.kind !== 'error' ? null : (
-        <div style={errorRowStyle}>Release fetch failed — {releasesState.message}</div>
+        <div className={ERROR_ROW}>Release fetch failed — {releasesState.message}</div>
       ),
     ok: ({ releasesState, pickedTag, installedVersion, onPickRelease }) =>
       releasesState.kind !== 'ok'
@@ -142,52 +144,49 @@ export const BuildChooser = ({
 
   return (
     <section>
-      <div style={sectionHeaderStyle}>
+      <Eyebrow className="flex items-center justify-between px-6 pb-2.5 pt-[22px]">
         <span>CHOOSE A BUILD</span>
         <button
           type="button"
-          className="shell-link-button"
+          className={cn('shell-link-button', GHOST_BUTTON, 'px-2.5 py-1')}
           onClick={onRefresh}
-          style={refreshStyle}
         >
           REFRESH
         </button>
-      </div>
-      <div style={listStyle}>
+      </Eyebrow>
+      <div className="border-y-2 border-brand-divider">
         {RELEASE_LIST[releasesState.kind]({
           releasesState,
           pickedTag,
           installedVersion,
           onPickRelease,
         })}
-        <div style={localRowStyle(localActive)}>
-          <span style={radioStyle(localActive)} />
-          <span style={tagStyle}>Local</span>
+        <div className={cn(row({ shape: 'local', active: localActive }))}>
+          <span className={cn(radio({ active: localActive }))} />
+          <span className={TAG}>Local</span>
           {localActive && selection.kind === 'local' ? (
-            <span style={descriptionActiveStyle}>
+            <span className={cn(description({ active: true }))}>
               {selection.firmware.name} · {formatBytes(selection.firmware.size)} · sha256{' '}
               {selection.firmware.sha256.slice(0, SHA_PREFIX_CHARS)}…
             </span>
           ) : (
-            <span style={descriptionStyle}>
+            <span className={cn(description({ active: false }))}>
               Pick a .bin from disk — files over 16 MiB are rejected
             </span>
           )}
-          <span style={localActionsStyle}>
+          <span className="flex gap-2">
             <button
               type="button"
-              className="shell-link-button"
+              className={cn('shell-link-button', GHOST_BUTTON, 'px-3 py-[5px]')}
               onClick={() => inputRef.current?.click()}
-              style={localButtonStyle}
             >
               CHOOSE FILE
             </button>
             {localActive && (
               <button
                 type="button"
-                className="shell-link-button"
+                className={cn('shell-link-button', GHOST_BUTTON, 'px-3 py-[5px]')}
                 onClick={handleClearLocal}
-                style={localButtonStyle}
               >
                 CLEAR
               </button>
@@ -198,133 +197,59 @@ export const BuildChooser = ({
             type="file"
             accept=".bin,application/octet-stream"
             onChange={handleFile}
-            style={{ display: 'none' }}
+            className="hidden"
           />
         </div>
-        {localError && <div style={errorRowStyle}>Local firmware read failed — {localError}</div>}
+        {localError && <div className={ERROR_ROW}>Local firmware read failed — {localError}</div>}
       </div>
     </section>
   )
 }
 
-const sectionHeaderStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '22px 24px 10px',
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.2em',
-  color: 'hsl(var(--brand-neutral-600))',
-}
+const GHOST_BUTTON =
+  'cursor-pointer border border-brand-neutral-400 bg-none text-[10px] font-extrabold tracking-[0.08em] text-brand-text'
 
-const refreshStyle: CSSProperties = {
-  padding: '4px 10px',
-  background: 'none',
-  border: '1px solid hsl(var(--brand-neutral-400))',
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.08em',
-  color: 'hsl(var(--brand-text))',
-  cursor: 'pointer',
-}
+const TAG = 'overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[14px] text-brand-text'
 
-const listStyle: CSSProperties = {
-  borderTop: '2px solid var(--brand-divider)',
-  borderBottom: '2px solid var(--brand-divider)',
-}
+const HINT_ROW = 'px-6 py-3.5 text-[12px] text-brand-neutral-500'
 
-const rowBase: CSSProperties = {
-  width: '100%',
-  display: 'grid',
-  gridTemplateColumns: '26px 96px 1fr 120px 96px',
-  alignItems: 'center',
-  gap: 12,
-  padding: '14px 24px',
-  background: 'none',
-  border: 'none',
-  borderBottom: '1px solid hsl(var(--brand-neutral-300))',
-  textAlign: 'left',
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-}
+const ERROR_ROW = 'px-6 py-2.5 text-[12px] text-brand-accent'
 
-const releaseRowStyle = (active: boolean, disabled: boolean): CSSProperties => ({
-  ...rowBase,
-  boxShadow: active ? 'inset 3px 0 0 hsl(var(--brand-accent))' : undefined,
-  background: active ? 'hsl(var(--brand-neutral-100))' : 'none',
-  opacity: disabled ? 0.45 : 1,
-  cursor: disabled ? 'not-allowed' : 'pointer',
+const row = cva('grid w-full items-center gap-3 border-none px-6 py-3.5 text-left font-[inherit]', {
+  variants: {
+    shape: {
+      release:
+        'grid-cols-[26px_96px_1fr_120px_96px] border-b border-solid border-b-brand-neutral-300 cursor-pointer',
+      local: 'grid-cols-[26px_96px_1fr_auto] cursor-default',
+    },
+    active: {
+      true: 'bg-brand-neutral-100 shadow-[inset_3px_0_0_hsl(var(--brand-accent))]',
+      false: 'bg-transparent',
+    },
+    disabled: {
+      true: 'cursor-not-allowed opacity-45',
+      false: '',
+    },
+  },
+  defaultVariants: { active: false, disabled: false },
 })
 
-const localRowStyle = (active: boolean): CSSProperties => ({
-  ...rowBase,
-  gridTemplateColumns: '26px 96px 1fr auto',
-  boxShadow: active ? 'inset 3px 0 0 hsl(var(--brand-accent))' : undefined,
-  background: active ? 'hsl(var(--brand-neutral-100))' : 'none',
-  borderBottom: 'none',
-  cursor: 'default',
+const radio = cva('size-[15px] border-2 border-solid', {
+  variants: {
+    active: {
+      true: 'border-brand-accent bg-brand-accent',
+      false: 'border-brand-neutral-400 bg-transparent',
+    },
+  },
+  defaultVariants: { active: false },
 })
 
-const radioStyle = (active: boolean): CSSProperties => ({
-  width: 15,
-  height: 15,
-  border: `2px solid ${active ? 'hsl(var(--brand-accent))' : 'hsl(var(--brand-neutral-400))'}`,
-  background: active ? 'hsl(var(--brand-accent))' : 'none',
+const description = cva('overflow-hidden text-ellipsis whitespace-nowrap text-[13px]', {
+  variants: {
+    active: {
+      true: 'text-brand-text',
+      false: 'text-brand-neutral-700',
+    },
+  },
+  defaultVariants: { active: false },
 })
-
-const tagStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 14,
-  color: 'hsl(var(--brand-text))',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-}
-
-const descriptionStyle: CSSProperties = {
-  fontSize: 13,
-  color: 'hsl(var(--brand-neutral-700))',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-}
-
-const descriptionActiveStyle: CSSProperties = {
-  ...descriptionStyle,
-  color: 'hsl(var(--brand-text))',
-}
-
-const metaStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const localActionsStyle: CSSProperties = {
-  display: 'flex',
-  gap: 8,
-}
-
-const localButtonStyle: CSSProperties = {
-  padding: '5px 12px',
-  background: 'none',
-  border: '1px solid hsl(var(--brand-neutral-400))',
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.08em',
-  color: 'hsl(var(--brand-text))',
-  cursor: 'pointer',
-}
-
-const hintRowStyle: CSSProperties = {
-  padding: '14px 24px',
-  fontSize: 12,
-  color: 'hsl(var(--brand-neutral-500))',
-}
-
-const errorRowStyle: CSSProperties = {
-  padding: '10px 24px',
-  fontSize: 12,
-  color: 'hsl(var(--brand-accent))',
-}
