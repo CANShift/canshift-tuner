@@ -7,8 +7,6 @@ import { useUndoToastStore } from '../../stores/undo-toast.store'
 import { PageConfigPanel } from './property-panel/panels/page-config-panel'
 import { WidgetEditorPanel } from './property-panel/panels/widget-editor-panel'
 
-const PANEL_HINT = 'hsl(var(--brand-neutral-500))'
-
 interface PropertyPanelProps {
   pageId: string
 }
@@ -49,8 +47,8 @@ const PropertyPanel = ({ pageId }: PropertyPanelProps) => {
   if (!widget) {
     if (!page || !config) {
       return (
-        <div style={{ padding: 12 }}>
-          <p style={{ color: PANEL_HINT, fontSize: 11 }}>No config loaded.</p>
+        <div className="p-3">
+          <p className="text-[11px] text-brand-neutral-500">No config loaded.</p>
         </div>
       )
     }

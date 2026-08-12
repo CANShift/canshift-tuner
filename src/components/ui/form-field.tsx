@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
+import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 export interface SectionProps {
@@ -112,6 +113,31 @@ export const PanelRow = ({ children }: { children: ReactNode }) => (
 export const FieldLabel = ({ children }: { children: ReactNode }) => (
   <div className="mb-0.5 text-[9px] text-brand-neutral-600">{children}</div>
 )
+
+export const segmentPill = cva('flex-1 cursor-pointer border border-solid py-[3px] text-[10px]', {
+  variants: {
+    tone: { blue: '', green: '' },
+    active: {
+      true: '',
+      false: 'border-brand-neutral-300 bg-brand-neutral-100 text-brand-neutral-600',
+    },
+  },
+  compoundVariants: [
+    {
+      tone: 'blue',
+      active: true,
+      class: 'border-[#5566AA] bg-[color-mix(in_srgb,#5566AA_14%,transparent)] text-[#7788CC]',
+    },
+    {
+      tone: 'green',
+      active: true,
+      class:
+        'border-[#448844] bg-[color-mix(in_srgb,#448844_14%,transparent)] font-bold text-[#66AA66]',
+    },
+    { tone: 'green', active: false, class: 'font-normal' },
+  ],
+  defaultVariants: { tone: 'green', active: false },
+})
 
 export type PanelInputProps = InputHTMLAttributes<HTMLInputElement>
 

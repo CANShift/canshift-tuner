@@ -52,7 +52,7 @@ export const ButtonFields = ({ widget, onChange }: ConfigFieldsProps) => {
   return (
     <>
       <PanelField label="Active state">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+        <div className="mb-0.5 flex items-center gap-2">
           <div
             style={{
               border: `1px solid ${previewActive ? widget.style.primaryColor : 'hsl(var(--brand-neutral-300))'}`,
@@ -138,10 +138,8 @@ export const ButtonFields = ({ widget, onChange }: ConfigFieldsProps) => {
       </PanelField>
 
       <PanelField label="Show">
-        <div
-          style={{ display: 'flex', gap: 12, fontSize: 12, color: 'hsl(var(--brand-neutral-600))' }}
-        >
-          <label style={{ display: 'flex', alignItems: 'center', gap: 5, cursor: 'pointer' }}>
+        <div className="flex gap-3 text-[12px] text-brand-neutral-600">
+          <label className="flex cursor-pointer items-center gap-[5px]">
             <Checkbox
               checked={cfg.showLabel !== false}
               onCheckedChange={(checked) => {

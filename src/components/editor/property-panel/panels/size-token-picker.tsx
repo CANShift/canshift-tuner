@@ -1,14 +1,8 @@
+import { cn } from '@/lib/utils'
 import type { Widget } from '@canshift/core'
 
 import { SIZE_TOKENS, STANDARD_TOKEN_IDS, tokenFromSpans } from '../../../../utils/size-tokens'
-import { PanelField } from '@/components/ui/form-field'
-
-const PANEL_LABEL = 'hsl(var(--brand-neutral-600))'
-const TOKEN_TILE_BG = 'hsl(var(--brand-neutral-100))'
-const TOKEN_TILE_BORDER = 'hsl(var(--brand-neutral-300))'
-const TOKEN_TILE_ACTIVE_BG = 'color-mix(in srgb, #448844 14%, transparent)'
-const TOKEN_TILE_ACTIVE_BORDER = '#448844'
-const TOKEN_TILE_ACTIVE_FG = '#66AA66'
+import { PanelField, segmentPill } from '@/components/ui/form-field'
 
 interface SizeTokenPickerProps {
   widget: Widget
@@ -21,7 +15,7 @@ export const SizeTokenPicker = ({ widget, onChange }: SizeTokenPickerProps) => {
 
   return (
     <PanelField label="Size">
-      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+      <div className="flex flex-wrap gap-1">
         {STANDARD_TOKEN_IDS.map((tokenId) => {
           const token = SIZE_TOKENS[tokenId]
           const isActive = tokenId === activeTokenId
@@ -34,16 +28,7 @@ export const SizeTokenPicker = ({ widget, onChange }: SizeTokenPickerProps) => {
                 })
               }}
               title={token.description}
-              style={{
-                flex: 1,
-                padding: '3px 0',
-                background: isActive ? TOKEN_TILE_ACTIVE_BG : TOKEN_TILE_BG,
-                border: `1px solid ${isActive ? TOKEN_TILE_ACTIVE_BORDER : TOKEN_TILE_BORDER}`,
-                color: isActive ? TOKEN_TILE_ACTIVE_FG : PANEL_LABEL,
-                cursor: 'pointer',
-                fontSize: 10,
-                fontWeight: isActive ? 700 : 400,
-              }}
+              className={cn(segmentPill({ tone: 'green', active: isActive }))}
             >
               {token.label}
             </button>
