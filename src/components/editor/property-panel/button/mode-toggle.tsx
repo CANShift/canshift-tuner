@@ -1,6 +1,7 @@
 import { MAX_CYCLE_STATES } from '@canshift/core'
 
-import { modePillStyle } from './shared'
+import { cn } from '@/lib/utils'
+import { modePill } from './shared'
 
 interface ModeToggleProps {
   mode: 'single' | 'cycle'
@@ -8,9 +9,9 @@ interface ModeToggleProps {
 }
 
 export const ModeToggle = ({ mode, onChange }: ModeToggleProps) => (
-  <div style={{ display: 'flex', gap: 4 }}>
+  <div className="flex gap-1">
     <button
-      style={modePillStyle(mode === 'single')}
+      className={cn(modePill({ active: mode === 'single' }))}
       onClick={() => {
         onChange('single')
       }}
@@ -18,7 +19,7 @@ export const ModeToggle = ({ mode, onChange }: ModeToggleProps) => (
       Single action
     </button>
     <button
-      style={modePillStyle(mode === 'cycle')}
+      className={cn(modePill({ active: mode === 'cycle' }))}
       onClick={() => {
         onChange('cycle')
       }}
