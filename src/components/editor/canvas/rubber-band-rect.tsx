@@ -5,20 +5,20 @@ export interface RubberBandRectProps {
   effScale: number
 }
 
+const RECT =
+  'pointer-events-none absolute z-[100] border border-solid border-[#6688FF] bg-[#3344FF18]'
+
 export const RubberBandRect = ({ rubberBand, effScale }: RubberBandRectProps) => {
   if (!rubberBand) return null
   return (
     <div
+      className={RECT}
+      // eslint-disable-next-line no-inline-style/no-inline-style
       style={{
-        position: 'absolute',
         left: rubberBand.x * effScale,
         top: rubberBand.y * effScale,
         width: Math.max(0, rubberBand.w * effScale),
         height: Math.max(0, rubberBand.h * effScale),
-        border: '1px solid #6688FF',
-        background: '#3344FF18',
-        pointerEvents: 'none',
-        zIndex: 100,
       }}
     />
   )

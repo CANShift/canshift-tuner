@@ -1,5 +1,4 @@
 import { useMemo } from 'react'
-import type { CSSProperties } from 'react'
 import { LAYOUT_GRID, resolveGridRect } from '@canshift/core'
 
 export interface GridGuidesProps {
@@ -8,25 +7,9 @@ export interface GridGuidesProps {
   effScale: number
 }
 
-const GUIDE_COLOR = '#FFFFFF0A'
+const VERTICAL_GUIDE = 'absolute bottom-0 top-0 w-px bg-[#FFFFFF0A]'
 
-const verticalGuideStyle = (x: number): CSSProperties => ({
-  position: 'absolute',
-  top: 0,
-  bottom: 0,
-  left: x,
-  width: 1,
-  background: GUIDE_COLOR,
-})
-
-const horizontalGuideStyle = (y: number): CSSProperties => ({
-  position: 'absolute',
-  left: 0,
-  right: 0,
-  top: y,
-  height: 1,
-  background: GUIDE_COLOR,
-})
+const HORIZONTAL_GUIDE = 'absolute left-0 right-0 h-px bg-[#FFFFFF0A]'
 
 export const GridGuides = ({ areaWidth, areaHeight, effScale }: GridGuidesProps) => {
   const guides = useMemo(() => {
@@ -45,12 +28,14 @@ export const GridGuides = ({ areaWidth, areaHeight, effScale }: GridGuidesProps)
   }, [areaWidth, areaHeight])
 
   return (
-    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+    <div className="pointer-events-none absolute inset-0">
       {guides.verticals.map((x, i) => (
-        <div key={`v${String(i)}`} style={verticalGuideStyle(x * effScale)} />
+        // eslint-disable-next-line no-inline-style/no-inline-style
+        <div key={`v${String(i)}`} className={VERTICAL_GUIDE} style={{ left: x * effScale }} />
       ))}
       {guides.horizontals.map((y, i) => (
-        <div key={`h${String(i)}`} style={horizontalGuideStyle(y * effScale)} />
+        // eslint-disable-next-line no-inline-style/no-inline-style
+        <div key={`h${String(i)}`} className={HORIZONTAL_GUIDE} style={{ top: y * effScale }} />
       ))}
     </div>
   )

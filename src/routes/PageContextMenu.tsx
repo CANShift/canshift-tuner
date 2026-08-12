@@ -1,4 +1,36 @@
 import { useEffect, useRef } from 'react'
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
+
+const MENU = [
+  'fixed z-[9999] min-w-[140px] py-[3px]',
+  'border border-solid border-brand-neutral-300 bg-brand-chrome-surface',
+  'shadow-[0_4px_16px_#00000066]',
+].join(' ')
+
+const menuItem = cva(
+  'block w-full border-none bg-transparent px-3 py-[5px] text-left text-[12px]',
+  {
+    variants: {
+      tone: {
+        disabled: 'cursor-default text-brand-neutral-400',
+        danger:
+          'cursor-pointer text-status-danger hover:bg-[color-mix(in_srgb,hsl(var(--brand-accent))_14%,transparent)]',
+        normal: 'cursor-pointer text-brand-neutral-700 hover:bg-brand-neutral-200',
+      },
+    },
+    defaultVariants: { tone: 'normal' },
+  }
+)
+
+const toneOf = (item: {
+  disabled?: boolean
+  danger?: boolean
+}): 'disabled' | 'danger' | 'normal' => {
+  if (item.disabled === true) return 'disabled'
+  if (item.danger === true) return 'danger'
+  return 'normal'
+}
 
 export interface PageContextMenuProps {
   pageId: string
@@ -83,17 +115,9 @@ export const PageContextMenu = ({
   return (
     <div
       ref={ref}
-      style={{
-        position: 'fixed',
-        top: y,
-        left: x,
-        zIndex: 9999,
-        background: 'hsl(var(--brand-chrome-surface))',
-        border: '1px solid hsl(var(--brand-neutral-300))',
-        padding: '3px 0',
-        minWidth: 140,
-        boxShadow: '0 4px 16px #00000066',
-      }}
+      className={MENU}
+      // eslint-disable-next-line no-inline-style/no-inline-style
+      style={{ top: y, left: x }}
     >
       {items.map((item) => (
         <button
@@ -105,30 +129,7 @@ export const PageContextMenu = ({
               onClose()
             }
           }}
-          style={{
-            display: 'block',
-            width: '100%',
-            textAlign: 'left',
-            padding: '5px 12px',
-            background: 'none',
-            border: 'none',
-            fontSize: 12,
-            color: item.disabled
-              ? 'hsl(var(--brand-neutral-400))'
-              : item.danger
-                ? 'hsl(var(--status-danger))'
-                : 'hsl(var(--brand-neutral-700))',
-            cursor: item.disabled ? 'default' : 'pointer',
-          }}
-          onMouseEnter={(e) => {
-            if (!item.disabled)
-              e.currentTarget.style.background = item.danger
-                ? 'color-mix(in srgb, hsl(var(--brand-accent)) 14%, transparent)'
-                : 'hsl(var(--brand-neutral-200))'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'none'
-          }}
+          className={cn(menuItem({ tone: toneOf(item) }))}
         >
           {item.label}
         </button>
