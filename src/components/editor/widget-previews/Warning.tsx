@@ -1,14 +1,29 @@
 import { memo } from 'react'
 import { SensorIcon } from '../../icons/SensorIcons'
-import { BLINK_ANIM } from '../widget-preview.styles'
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
-import { uiLabelAtSize } from '../../../lib/typography'
 
 export interface WarningRendererProps extends BaseRendererProps {
   noAnimate: boolean
 }
 
 const DEFAULT_ICON = 'warning' as const
+
+const frame = cva(
+  'relative box-border flex flex-col items-center justify-center gap-1 overflow-hidden rounded-none',
+  {
+    variants: {
+      blink: { true: '[animation:canshift-blink_0.7s_step-end_infinite]', false: '' },
+    },
+    defaultVariants: { blink: false },
+  }
+)
+
+const LABEL = [
+  'whitespace-nowrap font-sans text-[9px] font-medium uppercase',
+  'leading-none tracking-[0.06em]',
+].join(' ')
 
 export const WarningPreview = memo(function WarningPreview({
   widget,
@@ -28,34 +43,16 @@ export const WarningPreview = memo(function WarningPreview({
 
   return (
     <div
-      style={{
-        width: w,
-        height: h,
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 4,
-        background: st.criticalColor + '22',
-        borderRadius: 0,
-        animation: noAnimate ? undefined : BLINK_ANIM,
-        overflow: 'hidden',
-        boxSizing: 'border-box',
-      }}
+      className={cn(frame({ blink: !noAnimate }))}
+      // eslint-disable-next-line no-inline-style/no-inline-style
+      style={{ width: w, height: h, background: st.criticalColor + '22' }}
     >
       <SensorIcon name={iconName} size={iconSize} color={st.criticalColor} />
       {showSignalLabel && (
         <span
-          style={{
-            ...uiLabelAtSize(sigFontSize),
-            fontWeight: 500,
-            color: st.criticalColor + '99',
-            lineHeight: 1,
-            whiteSpace: 'nowrap',
-            letterSpacing: '0.06em',
-            textTransform: 'uppercase',
-          }}
+          className={LABEL}
+          // eslint-disable-next-line no-inline-style/no-inline-style
+          style={{ color: st.criticalColor + '99' }}
         >
           {formatSignalLabel(widget.signal).toUpperCase()}
         </span>

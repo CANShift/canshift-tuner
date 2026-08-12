@@ -7,15 +7,31 @@ import {
   valueUnitFontSize,
   widgetTopRulePx,
 } from '@canshift/core'
+import { cn } from '@/lib/utils'
 import {
-  BLINK_ANIM,
+  BLINK,
   WIDGET_DIM_COLOR,
-  widgetKickerStyle,
-  widgetTopRuleStyle,
+  WIDGET_KICKER,
+  ruleTier,
+  widgetTopRule,
 } from '../widget-preview.styles'
 import { effectiveValue } from './gauge-math'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
-import { MONO_FONT } from '../../../lib/typography'
+
+const FRAME = 'relative box-border flex flex-col items-center justify-center gap-0 overflow-hidden'
+
+const BAR_TRACK = 'absolute bottom-0 left-1 right-1'
+
+const BAR_FILL = 'block h-full'
+
+const VALUE_ROW = 'flex w-full shrink-0 flex-row items-baseline justify-center gap-1'
+
+const VALUE = [
+  'overflow-hidden whitespace-nowrap text-left [text-overflow:clip]',
+  'font-mono font-extrabold leading-none',
+].join(' ')
+
+const UNIT = 'pointer-events-none whitespace-nowrap font-mono font-medium leading-none'
 
 export interface GaugeNumericRendererProps extends BaseRendererProps {
   danger: boolean
@@ -62,82 +78,47 @@ export const GaugeNumericPreview = memo(function GaugeNumericPreview({
 
   return (
     <div
-      style={{
-        width: w,
-        height: h,
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: `${String(sigHeaderH + 2)}px 4px 2px`,
-        boxSizing: 'border-box',
-        overflow: 'hidden',
-        gap: 0,
-      }}
+      className={FRAME}
+      // eslint-disable-next-line no-inline-style/no-inline-style
+      style={{ width: w, height: h, padding: `${String(sigHeaderH + 2)}px 4px 2px` }}
     >
-      <span aria-hidden="true" style={widgetTopRuleStyle(rulePx, ruleColor, danger)} />
+      <span
+        aria-hidden="true"
+        className={cn(widgetTopRule({ tier: ruleTier(rulePx), blink: danger }))}
+        // eslint-disable-next-line no-inline-style/no-inline-style
+        style={{ background: ruleColor }}
+      />
       {showBar && (
         <span
           aria-hidden="true"
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 4,
-            right: 4,
-            height: SECONDARY_BAR.heightPx,
-            background: WIDGET_TOP_RULE.trackColor,
-          }}
+          className={BAR_TRACK}
+          // eslint-disable-next-line no-inline-style/no-inline-style
+          style={{ height: SECONDARY_BAR.heightPx, background: WIDGET_TOP_RULE.trackColor }}
         >
           <span
+            className={BAR_FILL}
+            // eslint-disable-next-line no-inline-style/no-inline-style
             style={{
-              display: 'block',
               width: `${String(Math.round(Math.max(0, Math.min(1, valuePct)) * 100))}%`,
-              height: '100%',
               background: valueColor,
             }}
           />
         </span>
       )}
-      <span style={widgetKickerStyle}>{signalLabel.toUpperCase()}</span>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'baseline',
-          justifyContent: 'center',
-          gap: 4,
-          width: '100%',
-          flexShrink: 0,
-        }}
-      >
+      <span className={WIDGET_KICKER}>{signalLabel.toUpperCase()}</span>
+      <div className={VALUE_ROW}>
         <span
-          style={{
-            color: valueColor,
-            fontFamily: MONO_FONT,
-            fontWeight: 800,
-            fontSize,
-            lineHeight: 1,
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'clip',
-            textAlign: 'left',
-            animation: danger ? BLINK_ANIM : undefined,
-          }}
+          className={cn(VALUE, danger && BLINK)}
+          // eslint-disable-next-line no-inline-style/no-inline-style
+          style={{ color: valueColor, fontSize }}
         >
           {prefix + valueStr}
         </span>
         {signalUnit !== '' && (
           <span
-            style={{
-              color: WIDGET_DIM_COLOR,
-              fontSize: valueUnitFontSize(Math.round(fontSize)),
-              fontFamily: MONO_FONT,
-              fontWeight: 500,
-              lineHeight: 1,
-              whiteSpace: 'nowrap',
-              pointerEvents: 'none',
-            }}
+            className={UNIT}
+            // eslint-disable-next-line no-inline-style/no-inline-style
+            style={{ color: WIDGET_DIM_COLOR, fontSize: valueUnitFontSize(Math.round(fontSize)) }}
           >
             {signalUnit}
           </span>

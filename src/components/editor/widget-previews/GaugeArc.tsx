@@ -1,6 +1,7 @@
 import { memo } from 'react'
 import { GAUGE_ARC, GAUGE_TRACK_COLORS, STALE_PLACEHOLDER, deviceValueFontPx } from '@canshift/core'
-import { BLINK_ANIM, thresholdPct } from '../widget-preview.styles'
+import { cn } from '@/lib/utils'
+import { thresholdPct } from '../widget-preview.styles'
 import { effectiveValue, gaugeArcD } from './gauge-math'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
 import { MONO_FONT, UI_FONT, UI_LABEL_TRACKING, UI_LABEL_WEIGHT } from '../../../lib/typography'
@@ -13,6 +14,8 @@ export interface GaugeArcRendererProps extends BaseRendererProps {
 }
 
 const SIGNAL_LABEL_FONT_SIZE = 9
+
+const BLINK = '[animation:canshift-blink_0.7s_step-end_infinite]'
 
 export const GaugeArcPreview = memo(function GaugeArcPreview({
   widget,
@@ -51,7 +54,7 @@ export const GaugeArcPreview = memo(function GaugeArcPreview({
   const valueFontSize = cfg.big !== undefined ? deviceValueFontPx(cfg.big) : autoValueSize
 
   return (
-    <svg width={w} height={h} style={{ display: 'block', overflow: 'hidden' }} aria-hidden="true">
+    <svg width={w} height={h} className="block overflow-hidden" aria-hidden="true">
       {showRevFlash && <rect x={0} y={0} width={w} height={h} fill="#FF000022" />}
       {revFlash && (
         <circle
@@ -78,7 +81,7 @@ export const GaugeArcPreview = memo(function GaugeArcPreview({
         stroke={inkColor}
         strokeWidth={strokeW}
         strokeLinecap="butt"
-        style={{ animation: danger ? BLINK_ANIM : undefined }}
+        className={cn(danger && BLINK)}
       />
       <text
         x={cx}
@@ -89,7 +92,7 @@ export const GaugeArcPreview = memo(function GaugeArcPreview({
         fontSize={valueFontSize}
         fontWeight="900"
         fontFamily={MONO_FONT}
-        style={{ animation: danger ? BLINK_ANIM : undefined }}
+        className={cn(danger && BLINK)}
       >
         {valueStr}
       </text>
@@ -103,7 +106,7 @@ export const GaugeArcPreview = memo(function GaugeArcPreview({
         fontFamily={UI_FONT}
         fontWeight={UI_LABEL_WEIGHT}
         letterSpacing={UI_LABEL_TRACKING}
-        style={{ textTransform: 'uppercase' }}
+        className="uppercase"
       >
         {formatSignalLabel(widget.signal).toUpperCase()}
       </text>

@@ -5,9 +5,15 @@ import {
   deviceValueFontPx,
   widgetTopRulePx,
 } from '@canshift/core'
+import { cn } from '@/lib/utils'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
-import { MONO_FONT } from '../../../lib/typography'
-import { widgetKickerStyle, widgetTopRuleStyle } from '../widget-preview.styles'
+import { WIDGET_KICKER, ruleTier, widgetTopRule } from '../widget-preview.styles'
+
+const FRAME = 'relative box-border flex flex-col items-center justify-center overflow-hidden'
+
+const VALUE_ROW = 'flex w-full shrink-0 items-center justify-center'
+
+const VALUE = 'inline-block w-full text-center font-mono font-extrabold leading-none'
 
 interface GearRendererProps extends BaseRendererProps {
   unbound?: boolean
@@ -38,41 +44,20 @@ export const GearPreview = memo(function GearPreview({
   const ruleColor = rulePx === WIDGET_TOP_RULE.primaryPx ? st.textColor : WIDGET_TOP_RULE.trackColor
 
   return (
-    <div
-      style={{
-        width: w,
-        height: h,
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        boxSizing: 'border-box',
-        overflow: 'hidden',
-      }}
-    >
-      <span aria-hidden="true" style={widgetTopRuleStyle(rulePx, ruleColor, false)} />
-      <span style={widgetKickerStyle}>{formatSignalLabel(widget.signal)}</span>
-      <div
-        style={{
-          display: 'flex',
-          width: '100%',
-          justifyContent: 'center',
-          alignItems: 'center',
-          flexShrink: 0,
-        }}
-      >
+    // eslint-disable-next-line no-inline-style/no-inline-style
+    <div className={FRAME} style={{ width: w, height: h }}>
+      <span
+        aria-hidden="true"
+        className={cn(widgetTopRule({ tier: ruleTier(rulePx) }))}
+        // eslint-disable-next-line no-inline-style/no-inline-style
+        style={{ background: ruleColor }}
+      />
+      <span className={WIDGET_KICKER}>{formatSignalLabel(widget.signal)}</span>
+      <div className={VALUE_ROW}>
         <span
-          style={{
-            color: st.textColor,
-            fontSize,
-            fontWeight: 800,
-            fontFamily: MONO_FONT,
-            lineHeight: 1,
-            textAlign: 'center',
-            width: '100%',
-            display: 'inline-block',
-          }}
+          className={VALUE}
+          // eslint-disable-next-line no-inline-style/no-inline-style
+          style={{ color: st.textColor, fontSize }}
         >
           {unbound ? STALE_PLACEHOLDER : '3'}
         </span>
