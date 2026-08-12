@@ -7,57 +7,75 @@ export interface ThemeStatusCardProps {
   simulationMode: boolean
 }
 
-export const ThemeStatusCard = ({ isDayMode, connected, simulationMode }: ThemeStatusCardProps) => {
-  if (simulationMode) {
-    return (
-      <div className={cn(card({ variant: 'night' }))}>
-        <div className={ICON}>◐</div>
-        <div className="flex flex-col gap-1">
-          <div className={LABEL}>Theme</div>
-          <div className={VALUE}>Simulation</div>
-          <div className={HINT}>Connect a real device to control its theme.</div>
-        </div>
-      </div>
-    )
-  }
+type ThemeStatus = 'simulation' | 'disconnected' | 'reading' | 'day' | 'night'
 
-  if (!connected) {
-    return (
-      <div className={cn(card({ variant: 'night' }))}>
-        <div className={ICON}>◐</div>
-        <div className="flex flex-col gap-1">
-          <div className={LABEL}>Theme</div>
-          <div className={VALUE}>Disconnected</div>
-          <div className={HINT}>Plug the device in to read its current theme.</div>
-        </div>
-      </div>
-    )
-  }
+interface ThemeStatusVisual {
+  variant: 'day' | 'night'
+  icon: string
+  label: string
+  value: string
+  hint: string
+}
 
-  if (isDayMode === null) {
-    return (
-      <div className={cn(card({ variant: 'night' }))}>
-        <div className={ICON}>◐</div>
-        <div className="flex flex-col gap-1">
-          <div className={LABEL}>Theme</div>
-          <div className={VALUE}>Reading…</div>
-          <div className={HINT}>Waiting for the firmware handshake.</div>
-        </div>
-      </div>
-    )
-  }
+export const resolveThemeStatus = ({
+  isDayMode,
+  connected,
+  simulationMode,
+}: ThemeStatusCardProps): ThemeStatus => {
+  if (simulationMode) return 'simulation'
+  if (!connected) return 'disconnected'
+  if (isDayMode === null) return 'reading'
+  return isDayMode ? 'day' : 'night'
+}
+
+export const THEME_STATUS: Record<ThemeStatus, ThemeStatusVisual> = {
+  simulation: {
+    variant: 'night',
+    icon: '◐',
+    label: 'Theme',
+    value: 'Simulation',
+    hint: 'Connect a real device to control its theme.',
+  },
+  disconnected: {
+    variant: 'night',
+    icon: '◐',
+    label: 'Theme',
+    value: 'Disconnected',
+    hint: 'Plug the device in to read its current theme.',
+  },
+  reading: {
+    variant: 'night',
+    icon: '◐',
+    label: 'Theme',
+    value: 'Reading…',
+    hint: 'Waiting for the firmware handshake.',
+  },
+  day: {
+    variant: 'day',
+    icon: '☀',
+    label: 'Current theme',
+    value: 'Day',
+    hint: 'Bright palette: light background, dark text.',
+  },
+  night: {
+    variant: 'night',
+    icon: '☾',
+    label: 'Current theme',
+    value: 'Night',
+    hint: 'Dark palette: black background, white text.',
+  },
+}
+
+export const ThemeStatusCard = (props: ThemeStatusCardProps) => {
+  const visual = THEME_STATUS[resolveThemeStatus(props)]
 
   return (
-    <div className={cn(card({ variant: isDayMode ? 'day' : 'night' }))}>
-      <div className={ICON}>{isDayMode ? '☀' : '☾'}</div>
+    <div className={cn(card({ variant: visual.variant }))}>
+      <div className={ICON}>{visual.icon}</div>
       <div className="flex flex-col gap-1">
-        <div className={LABEL}>Current theme</div>
-        <div className={VALUE}>{isDayMode ? 'Day' : 'Night'}</div>
-        <div className={HINT}>
-          {isDayMode
-            ? 'Bright palette: light background, dark text.'
-            : 'Dark palette: black background, white text.'}
-        </div>
+        <div className={LABEL}>{visual.label}</div>
+        <div className={VALUE}>{visual.value}</div>
+        <div className={HINT}>{visual.hint}</div>
       </div>
     </div>
   )
