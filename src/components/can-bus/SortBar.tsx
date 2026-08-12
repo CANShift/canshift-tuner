@@ -1,4 +1,5 @@
-import type { CSSProperties } from 'react'
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 
 export type SortKey = 'id' | 'lastSeen' | 'rate' | 'count' | 'activity'
 
@@ -16,7 +17,7 @@ const SORT_OPTIONS: ReadonlyArray<{ key: SortKey; label: string }> = [
 ]
 
 export const SortBar = ({ sortKey, onChange }: SortBarProps) => (
-  <div style={groupStyle} role="group" aria-label="Sort frames by">
+  <div className="flex border border-brand-neutral-400" role="group" aria-label="Sort frames by">
     {SORT_OPTIONS.map((o) => (
       <button
         key={o.key}
@@ -25,7 +26,7 @@ export const SortBar = ({ sortKey, onChange }: SortBarProps) => (
         onClick={() => {
           onChange(o.key)
         }}
-        style={segmentStyle(o.key === sortKey)}
+        className={cn(segment({ active: o.key === sortKey }))}
       >
         {o.label}
       </button>
@@ -33,18 +34,15 @@ export const SortBar = ({ sortKey, onChange }: SortBarProps) => (
   </div>
 )
 
-const groupStyle: CSSProperties = {
-  display: 'flex',
-  border: '1px solid hsl(var(--brand-neutral-400))',
-}
-
-const segmentStyle = (active: boolean): CSSProperties => ({
-  padding: '5px 12px',
-  background: active ? 'hsl(var(--brand-text))' : 'none',
-  border: 'none',
-  fontWeight: 800,
-  fontSize: 11,
-  letterSpacing: '0.08em',
-  color: active ? 'hsl(var(--brand-chrome-bg))' : 'hsl(var(--brand-neutral-700))',
-  cursor: 'pointer',
-})
+const segment = cva(
+  'cursor-pointer border-none px-3 py-[5px] text-[11px] font-extrabold tracking-[0.08em]',
+  {
+    variants: {
+      active: {
+        true: 'bg-brand-text text-brand-chrome-bg',
+        false: 'bg-transparent text-brand-neutral-700',
+      },
+    },
+    defaultVariants: { active: false },
+  }
+)

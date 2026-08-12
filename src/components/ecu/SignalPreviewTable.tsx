@@ -2,18 +2,13 @@ import type { SignalDef } from '@canshift/core'
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 import { RoutePanel } from '../ui/route-shell'
+import { TABLE_HEAD_CELL, TABLE_SHELL } from '../ui/table'
 
 export interface SignalPreviewTableProps {
   signals: readonly SignalDef[]
   boundTo: ReadonlyMap<string, string>
   warnings?: readonly string[]
 }
-
-const HEAD_CELL = [
-  'sticky top-0 z-[1] bg-brand-chrome-bg py-[11px] pl-0 pr-5',
-  'border-b-2 border-brand-divider text-left',
-  'text-[10px] font-extrabold tracking-[0.18em] text-brand-neutral-600',
-].join(' ')
 
 const cell = cva(
   [
@@ -69,7 +64,7 @@ export const SignalPreviewTable = ({
         </div>
       )}
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <table className="w-full table-fixed border-separate border-spacing-0">
+        <table className={TABLE_SHELL}>
           <colgroup>
             <col className="w-40" />
             <col className="w-24" />
@@ -80,12 +75,12 @@ export const SignalPreviewTable = ({
           </colgroup>
           <thead>
             <tr>
-              <th className={cn(HEAD_CELL, 'pl-5')}>SIGNAL</th>
-              <th className={HEAD_CELL}>CAN ID</th>
-              <th className={HEAD_CELL}>BYTES</th>
-              <th className={HEAD_CELL}>SCALE</th>
-              <th className={HEAD_CELL}>UNIT</th>
-              <th className={HEAD_CELL}>BOUND TO</th>
+              <th className={cn(TABLE_HEAD_CELL, 'pl-5')}>SIGNAL</th>
+              <th className={TABLE_HEAD_CELL}>CAN ID</th>
+              <th className={TABLE_HEAD_CELL}>BYTES</th>
+              <th className={TABLE_HEAD_CELL}>SCALE</th>
+              <th className={TABLE_HEAD_CELL}>UNIT</th>
+              <th className={TABLE_HEAD_CELL}>BOUND TO</th>
             </tr>
           </thead>
           <tbody>

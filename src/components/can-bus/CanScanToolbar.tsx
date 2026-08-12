@@ -1,8 +1,9 @@
-import type { CSSProperties } from 'react'
+import { cva } from 'class-variance-authority'
 import { useEffect, useState } from 'react'
 import type { CanScannerStatus } from '../../hooks/useCanScanner'
 import type { LearnWindow } from '../../stores/can-scan/accumulator'
-import { MONO_FONT } from '../../lib/typography'
+import { cn } from '@/lib/utils'
+import { Eyebrow } from '../ui/meta-text'
 import { SortBar, type SortKey } from './SortBar'
 import { transportErrorText } from '../../transport/humanize-transport-error'
 
@@ -44,43 +45,48 @@ export const CanScanToolbar = ({
 
   return (
     <>
-      <header style={toolbarStyle}>
+      <header className="flex h-12 shrink-0 items-center gap-3 border-b-2 border-brand-divider px-5">
         {running ? (
           <button
             type="button"
-            className="editor-ghost-accent"
             disabled={status !== 'running'}
             onClick={onStop}
-            style={stopButtonStyle(status !== 'running')}
+            className={cn(
+              'editor-ghost-accent',
+              scanButton({ tone: 'stop', disabled: status !== 'running' })
+            )}
           >
             STOP SCAN
           </button>
         ) : (
           <button
             type="button"
-            className="shell-burn-button"
             disabled={!canControl || status === 'stopping'}
             onClick={onStart}
-            style={startButtonStyle(!canControl || status === 'stopping')}
+            className={cn(
+              'shell-burn-button',
+              scanButton({ tone: 'start', disabled: !canControl || status === 'stopping' })
+            )}
           >
             START SCAN
           </button>
         )}
         <button
           type="button"
-          className="shell-link-button"
           disabled={running || totalFrames === 0}
           onClick={onReset}
-          style={resetButtonStyle(running || totalFrames === 0)}
+          className={cn(
+            'shell-link-button',
+            scanButton({ tone: 'reset', disabled: running || totalFrames === 0 })
+          )}
         >
           RESET
         </button>
         {learn?.active === true ? (
           <button
             type="button"
-            className="editor-ghost-accent"
             onClick={onLearnStop}
-            style={learnButtonStyle(false, true)}
+            className={cn('editor-ghost-accent', learnButton({ disabled: false, active: true }))}
             title="Stop the learn window — the CHANGES column keeps the result"
           >
             ◉ LEARNING — STOP
@@ -88,26 +94,34 @@ export const CanScanToolbar = ({
         ) : (
           <button
             type="button"
-            className="editor-ghost-accent"
             disabled={status !== 'running'}
             onClick={onLearnStart}
-            style={learnButtonStyle(status !== 'running', false)}
+            className={cn(
+              'editor-ghost-accent',
+              learnButton({ disabled: status !== 'running', active: false })
+            )}
             title="Start a learn window, then do the thing in the car (rev, clutch, wheel) — the table ranks the IDs that changed the most"
           >
             LEARN
           </button>
         )}
-        <span style={sortLabelStyle}>SORT BY</span>
+        <Eyebrow className="ml-2 tracking-[0.18em]">SORT BY</Eyebrow>
         <SortBar sortKey={sortKey} onChange={onSortChange} />
-        {!canControl && <span style={hintStyle}>Connect a device to scan.</span>}
-        <div style={metricsStyle}>
+        {!canControl && (
+          <span className="text-[11px] text-brand-neutral-500">Connect a device to scan.</span>
+        )}
+        <div className="ml-auto flex gap-[30px] tabular-nums">
           <Metric label="FRAMES" value={formatCount(totalFrames)} />
           <Metric label="RATE" value={`${String(Math.round(totalRate))} Hz`} />
           <Metric label="ELAPSED" value={formatElapsed(elapsedSec)} />
           <Metric label="STATUS" value={prettyStatus(status)} accent={status === 'running'} />
         </div>
       </header>
-      {error && <div style={errorStyle}>Scan error: {transportErrorText(error)}</div>}
+      {error && (
+        <div className="border-b border-brand-neutral-300 px-5 py-2 text-[12px] text-brand-accent">
+          Scan error: {transportErrorText(error)}
+        </div>
+      )}
     </>
   )
 }
@@ -165,109 +179,61 @@ const Metric = ({
   value: string
   accent?: boolean
 }) => (
-  <div style={metricStyle}>
-    <span style={metricLabelStyle}>{label}</span>
-    <span style={metricValueStyle(accent)}>{value}</span>
+  <div className="flex flex-col items-end">
+    <span className="text-[9px] font-extrabold tracking-[0.18em] text-brand-neutral-600">
+      {label}
+    </span>
+    <span className={cn(metricValue({ accent }))}>{value}</span>
   </div>
 )
 
-const toolbarStyle: CSSProperties = {
-  height: 48,
-  flexShrink: 0,
-  display: 'flex',
-  alignItems: 'center',
-  gap: 12,
-  padding: '0 20px',
-  borderBottom: '2px solid var(--brand-divider)',
-}
-
-const startButtonStyle = (disabled: boolean): CSSProperties => ({
-  padding: '6px 18px',
-  background: disabled ? 'hsl(var(--brand-neutral-300))' : 'hsl(var(--brand-accent))',
-  border: 'none',
-  fontWeight: 800,
-  fontSize: 11,
-  letterSpacing: '0.09em',
-  color: disabled ? 'hsl(var(--brand-neutral-500))' : 'hsl(var(--brand-ground))',
-  cursor: disabled ? 'not-allowed' : 'pointer',
+const scanButton = cva('border-none text-[11px] font-extrabold', {
+  variants: {
+    tone: {
+      start: 'px-[18px] py-1.5 tracking-[0.09em]',
+      stop: 'border border-solid border-brand-accent bg-transparent px-[18px] py-1.5 tracking-[0.09em] text-brand-accent',
+      reset:
+        'border border-solid border-brand-neutral-400 bg-transparent px-3.5 py-1.5 tracking-[0.08em]',
+    },
+    disabled: {
+      true: 'cursor-not-allowed',
+      false: 'cursor-pointer',
+    },
+  },
+  compoundVariants: [
+    { tone: 'start', disabled: true, class: 'bg-brand-neutral-300 text-brand-neutral-500' },
+    { tone: 'start', disabled: false, class: 'bg-brand-accent text-brand-ground' },
+    { tone: 'stop', disabled: true, class: 'opacity-60' },
+    { tone: 'stop', disabled: false, class: 'opacity-100' },
+    { tone: 'reset', disabled: true, class: 'text-brand-neutral-500' },
+    { tone: 'reset', disabled: false, class: 'text-brand-text' },
+  ],
+  defaultVariants: { disabled: false },
 })
 
-const stopButtonStyle = (disabled: boolean): CSSProperties => ({
-  padding: '6px 18px',
-  background: 'none',
-  border: '1px solid hsl(var(--brand-accent))',
-  fontWeight: 800,
-  fontSize: 11,
-  letterSpacing: '0.09em',
-  color: 'hsl(var(--brand-accent))',
-  cursor: disabled ? 'not-allowed' : 'pointer',
-  opacity: disabled ? 0.6 : 1,
+const learnButton = cva(
+  'border border-solid px-3.5 py-1.5 text-[11px] font-extrabold tracking-[0.09em]',
+  {
+    variants: {
+      disabled: {
+        true: 'cursor-default border-brand-neutral-300 text-brand-neutral-400',
+        false: 'cursor-pointer border-brand-accent text-brand-accent',
+      },
+      active: {
+        true: 'bg-[color-mix(in_srgb,hsl(var(--brand-accent))_14%,transparent)]',
+        false: 'bg-transparent',
+      },
+    },
+    defaultVariants: { disabled: false, active: false },
+  }
+)
+
+const metricValue = cva('font-mono text-[15px]', {
+  variants: {
+    accent: {
+      true: 'text-brand-accent',
+      false: 'text-brand-text',
+    },
+  },
+  defaultVariants: { accent: false },
 })
-
-const resetButtonStyle = (disabled: boolean): CSSProperties => ({
-  padding: '6px 14px',
-  background: 'none',
-  border: '1px solid hsl(var(--brand-neutral-400))',
-  fontWeight: 800,
-  fontSize: 11,
-  letterSpacing: '0.08em',
-  color: disabled ? 'hsl(var(--brand-neutral-500))' : 'hsl(var(--brand-text))',
-  cursor: disabled ? 'not-allowed' : 'pointer',
-})
-
-const sortLabelStyle: CSSProperties = {
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.18em',
-  color: 'hsl(var(--brand-neutral-600))',
-  marginLeft: 8,
-}
-
-const hintStyle: CSSProperties = {
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-500))',
-}
-
-const metricsStyle: CSSProperties = {
-  marginLeft: 'auto',
-  display: 'flex',
-  gap: 30,
-  fontVariantNumeric: 'tabular-nums',
-}
-
-const metricStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'flex-end',
-}
-
-const metricLabelStyle: CSSProperties = {
-  fontWeight: 800,
-  fontSize: 9,
-  letterSpacing: '0.18em',
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const metricValueStyle = (accent: boolean): CSSProperties => ({
-  fontFamily: MONO_FONT,
-  fontSize: 15,
-  color: accent ? 'hsl(var(--brand-accent))' : 'hsl(var(--brand-text))',
-})
-
-const learnButtonStyle = (disabled: boolean, active: boolean): CSSProperties => ({
-  padding: '6px 14px',
-  background: active ? 'color-mix(in srgb, hsl(var(--brand-accent)) 14%, transparent)' : 'none',
-  border: `1px solid ${disabled ? 'hsl(var(--brand-neutral-300))' : 'hsl(var(--brand-accent))'}`,
-  fontWeight: 800,
-  fontSize: 11,
-  letterSpacing: '0.09em',
-  color: disabled ? 'hsl(var(--brand-neutral-400))' : 'hsl(var(--brand-accent))',
-  cursor: disabled ? 'default' : 'pointer',
-})
-
-const errorStyle: CSSProperties = {
-  padding: '8px 20px',
-  borderBottom: '1px solid hsl(var(--brand-neutral-300))',
-  fontSize: 12,
-  color: 'hsl(var(--brand-accent))',
-}

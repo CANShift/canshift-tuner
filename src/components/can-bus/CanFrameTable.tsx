@@ -1,9 +1,10 @@
-import type { CSSProperties } from 'react'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { CanFrameRow } from './CanFrameRow'
 import { CanHistogramRow } from './CanHistogramRow'
 import type { CanFrameStats } from '../../hooks/useCanScanner'
+import { cn } from '@/lib/utils'
+import { TABLE_HEAD_CELL, TABLE_SHELL } from '../ui/table'
 
 export interface CanFrameTableProps {
   frames: readonly CanFrameStats[]
@@ -15,8 +16,23 @@ export interface CanFrameTableProps {
 type VisualRow =
   { kind: 'main'; frame: CanFrameStats } | { kind: 'histogram'; frame: CanFrameStats }
 
-const COLUMN_WIDTHS = [110, 70, null, 100, 110, 180] as const
-const COLUMN_WIDTHS_LEARN = [110, 70, null, 100, 110, 100, 180] as const
+const COLUMN_WIDTHS = [
+  'w-[110px]',
+  'w-[70px]',
+  null,
+  'w-[100px]',
+  'w-[110px]',
+  'w-[180px]',
+] as const
+const COLUMN_WIDTHS_LEARN = [
+  'w-[110px]',
+  'w-[70px]',
+  null,
+  'w-[100px]',
+  'w-[110px]',
+  'w-[100px]',
+  'w-[180px]',
+] as const
 const ESTIMATED_ROW_HEIGHT = 45
 const OVERSCAN_ROWS = 16
 
@@ -64,35 +80,36 @@ export const CanFrameTable = ({ frames, mappedTo, learnScores, onPromote }: CanF
 
   if (frames.length === 0) {
     return (
-      <div style={emptyStyle}>
+      <div className="px-6 py-16 text-center text-[13px] text-brand-neutral-500">
         No frames captured yet. Start the scan and wait for the bus to send something.
       </div>
     )
   }
 
   return (
-    <div ref={scrollRef} style={wrapperStyle}>
-      <table style={tableStyle}>
+    <div ref={scrollRef} className="flex-1 overflow-y-auto">
+      <table className={TABLE_SHELL}>
         <colgroup>
-          {columnWidths.map((width, i) => (
-            <col key={i} style={width === null ? undefined : { width }} />
+          {columnWidths.map((widthClass, i) => (
+            <col key={i} className={widthClass ?? undefined} />
           ))}
         </colgroup>
         <thead>
           <tr>
-            <th style={thFirstStyle}>ID</th>
-            <th style={thStyle}>DLC</th>
-            <th style={thStyle}>DATA</th>
-            <th style={thStyle}>RATE</th>
-            <th style={thStyle}>COUNT</th>
-            {learnScores !== null && <th style={thStyle}>CHANGES</th>}
-            <th style={thStyle}>MAPPED TO</th>
+            <th className={cn(TABLE_HEAD_CELL, 'pl-5')}>ID</th>
+            <th className={TABLE_HEAD_CELL}>DLC</th>
+            <th className={TABLE_HEAD_CELL}>DATA</th>
+            <th className={TABLE_HEAD_CELL}>RATE</th>
+            <th className={TABLE_HEAD_CELL}>COUNT</th>
+            {learnScores !== null && <th className={TABLE_HEAD_CELL}>CHANGES</th>}
+            <th className={TABLE_HEAD_CELL}>MAPPED TO</th>
           </tr>
         </thead>
         <tbody>
           {paddingTop > 0 && (
+            // eslint-disable-next-line no-inline-style/no-inline-style
             <tr aria-hidden style={{ height: paddingTop }}>
-              <td colSpan={colCount} style={spacerCellStyle} />
+              <td colSpan={colCount} className="border-0 p-0" />
             </tr>
           )}
           {virtualItems.map((item) => {
@@ -123,55 +140,13 @@ export const CanFrameTable = ({ frames, mappedTo, learnScores, onPromote }: CanF
             )
           })}
           {paddingBottom > 0 && (
+            // eslint-disable-next-line no-inline-style/no-inline-style
             <tr aria-hidden style={{ height: paddingBottom }}>
-              <td colSpan={colCount} style={spacerCellStyle} />
+              <td colSpan={colCount} className="border-0 p-0" />
             </tr>
           )}
         </tbody>
       </table>
     </div>
   )
-}
-
-const wrapperStyle: CSSProperties = {
-  flex: 1,
-  overflowY: 'auto',
-}
-
-const tableStyle: CSSProperties = {
-  width: '100%',
-  borderCollapse: 'separate',
-  borderSpacing: 0,
-  tableLayout: 'fixed',
-}
-
-const thStyle: CSSProperties = {
-  position: 'sticky',
-  top: 0,
-  zIndex: 1,
-  background: 'hsl(var(--brand-chrome-bg))',
-  padding: '11px 20px 11px 0',
-  borderBottom: '2px solid var(--brand-divider)',
-  textAlign: 'left',
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.18em',
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const thFirstStyle: CSSProperties = {
-  ...thStyle,
-  paddingLeft: 20,
-}
-
-const spacerCellStyle: CSSProperties = {
-  padding: 0,
-  border: 0,
-}
-
-const emptyStyle: CSSProperties = {
-  padding: '64px 24px',
-  textAlign: 'center',
-  fontSize: 13,
-  color: 'hsl(var(--brand-neutral-500))',
 }
