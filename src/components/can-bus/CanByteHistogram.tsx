@@ -1,6 +1,6 @@
-import type { CSSProperties } from 'react'
+import { cva } from 'class-variance-authority'
 import type { CanFrameStats } from '../../hooks/useCanScanner'
-import { MONO_FONT } from '../../lib/typography'
+import { cn } from '@/lib/utils'
 
 const MAX_BARS_PER_BYTE = 16
 
@@ -10,9 +10,11 @@ export interface CanByteHistogramProps {
 
 export const CanByteHistogram = ({ frame }: CanByteHistogramProps) => {
   return (
-    <div style={containerStyle}>
-      <div style={headerStyle}>Per-byte value distribution (most-common first)</div>
-      <div style={gridStyle}>
+    <div className="border-t border-border bg-bg-inset px-3.5 pb-4 pt-3">
+      <div className="mb-2 text-[11px] uppercase tracking-[0.06em] text-text-muted">
+        Per-byte value distribution (most-common first)
+      </div>
+      <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(110px,1fr))]">
         {frame.byteValueCounts.slice(0, frame.lastDlc).map((counts, byteIndex) => (
           <ByteColumn key={byteIndex} byteIndex={byteIndex} counts={counts} />
         ))}
@@ -26,12 +28,35 @@ interface ByteColumnProps {
   counts: ReadonlyMap<number, number>
 }
 
+const COLUMN = 'flex flex-col gap-1'
+const COLUMN_HEADER = 'flex items-center justify-between font-mono text-[10px] text-text-dim'
+
+const distinctTag = cva('text-[9px] uppercase tracking-[0.04em]', {
+  variants: {
+    constant: {
+      true: 'text-text-muted',
+      false: 'text-brand-accent',
+    },
+  },
+  defaultVariants: { constant: false },
+})
+
+const barFill = cva('h-full', {
+  variants: {
+    constant: {
+      true: 'bg-text-muted',
+      false: 'bg-brand-accent',
+    },
+  },
+  defaultVariants: { constant: false },
+})
+
 const ByteColumn = ({ byteIndex, counts }: ByteColumnProps) => {
   if (counts.size === 0) {
     return (
-      <div style={columnStyle}>
-        <div style={columnHeaderStyle}>byte {byteIndex}</div>
-        <div style={emptyStyle}>—</div>
+      <div className={COLUMN}>
+        <div className={COLUMN_HEADER}>byte {byteIndex}</div>
+        <div className="text-[11px] text-text-muted">—</div>
       </div>
     )
   }
@@ -45,31 +70,33 @@ const ByteColumn = ({ byteIndex, counts }: ByteColumnProps) => {
   const constant = distinct === 1
 
   return (
-    <div style={columnStyle}>
-      <div style={columnHeaderStyle}>
+    <div className={COLUMN}>
+      <div className={COLUMN_HEADER}>
         <span>byte {byteIndex}</span>
-        <span style={distinctTagStyle(constant)}>
+        <span className={cn(distinctTag({ constant }))}>
           {constant ? 'const' : `${String(distinct)} vals`}
         </span>
       </div>
-      <div style={barsStyle}>
+      <div className="flex flex-col gap-0.5">
         {sorted.map(([value, count]) => (
-          <div key={value} style={barRowStyle}>
-            <span style={byteLabelStyle}>{formatByte(value)}</span>
-            <div style={barTrackStyle}>
+          <div key={value} className="flex items-center gap-1.5 text-[10px]">
+            <span className="min-w-8 font-mono text-text-dim">{formatByte(value)}</span>
+            <div className="h-1.5 flex-1 overflow-hidden bg-background">
               <div
-                style={{
-                  ...barFillStyle,
-                  width: `${String((count / max) * 100)}%`,
-                  background: constant ? 'hsl(var(--text-muted))' : 'hsl(var(--brand-accent))',
-                }}
+                className={cn(barFill({ constant }))}
+                // eslint-disable-next-line no-inline-style/no-inline-style
+                style={{ width: `${String((count / max) * 100)}%` }}
               />
             </div>
-            <span style={barCountStyle}>{formatPct(count, total)}</span>
+            <span className="min-w-[30px] text-right font-mono tabular-nums text-text-muted">
+              {formatPct(count, total)}
+            </span>
           </div>
         ))}
         {counts.size > MAX_BARS_PER_BYTE && (
-          <div style={overflowStyle}>+ {String(counts.size - MAX_BARS_PER_BYTE)} more</div>
+          <div className="text-[10px] italic text-text-muted">
+            + {String(counts.size - MAX_BARS_PER_BYTE)} more
+          </div>
         )}
       </div>
     </div>
@@ -83,95 +110,4 @@ const formatByte = (value: number): string => {
 const formatPct = (count: number, total: number): string => {
   if (total === 0) return '0 %'
   return `${((count / total) * 100).toFixed(0)} %`
-}
-
-const containerStyle: CSSProperties = {
-  padding: '12px 14px 16px',
-  background: 'hsl(var(--bg-inset))',
-  borderTop: '1px solid hsl(var(--border))',
-}
-
-const headerStyle: CSSProperties = {
-  fontSize: 11,
-  letterSpacing: '0.06em',
-  textTransform: 'uppercase',
-  color: 'hsl(var(--text-muted))',
-  marginBottom: 8,
-}
-
-const gridStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))',
-  gap: 12,
-}
-
-const columnStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 4,
-}
-
-const columnHeaderStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  fontSize: 10,
-  color: 'hsl(var(--text-dim))',
-  fontFamily: MONO_FONT,
-}
-
-const distinctTagStyle = (constant: boolean): CSSProperties => ({
-  fontSize: 9,
-  color: constant ? 'hsl(var(--text-muted))' : 'hsl(var(--brand-accent))',
-  letterSpacing: '0.04em',
-  textTransform: 'uppercase',
-})
-
-const emptyStyle: CSSProperties = {
-  fontSize: 11,
-  color: 'hsl(var(--text-muted))',
-}
-
-const barsStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 2,
-}
-
-const barRowStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 6,
-  fontSize: 10,
-}
-
-const byteLabelStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  color: 'hsl(var(--text-dim))',
-  minWidth: 32,
-}
-
-const barTrackStyle: CSSProperties = {
-  flex: 1,
-  height: 6,
-  background: 'hsl(var(--bg))',
-  overflow: 'hidden',
-}
-
-const barFillStyle: CSSProperties = {
-  height: '100%',
-}
-
-const barCountStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontVariantNumeric: 'tabular-nums',
-  color: 'hsl(var(--text-muted))',
-  minWidth: 30,
-  textAlign: 'right',
-}
-
-const overflowStyle: CSSProperties = {
-  fontSize: 10,
-  color: 'hsl(var(--text-muted))',
-  fontStyle: 'italic',
 }

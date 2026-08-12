@@ -2,7 +2,6 @@ export const INLINE_STYLE_BASELINE = [
   'src/App.tsx',
   'src/components/about/HeapStatsPanel.tsx',
   'src/components/about/HeapStatsSparkline.tsx',
-  'src/components/can-bus/CanByteHistogram.tsx',
   'src/components/can-bus/CanFrameRow.tsx',
   'src/components/can-bus/CanFrameTable.tsx',
   'src/components/can-bus/CanHistogramRow.tsx',
