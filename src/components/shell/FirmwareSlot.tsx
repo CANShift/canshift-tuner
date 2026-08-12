@@ -1,5 +1,4 @@
-import type { CSSProperties } from 'react'
-import { MONO_FONT } from '../../lib/typography'
+import { cn } from '@/lib/utils'
 
 export type FirmwareCompat =
   | { kind: 'unknown' }
@@ -15,7 +14,7 @@ export const FirmwareSlot = ({ version, compat }: FirmwareSlotProps) => {
   if (compat.kind === 'mismatch') {
     return (
       <span
-        style={mismatchStyle}
+        className={cn(SLOT, 'cursor-help border border-destructive px-2 py-0.5 text-destructive')}
         title={`Tuner expects firmware major ${String(compat.expected)}.x — device reports ${compat.version}. Burn disabled until the firmware is updated.`}
       >
         fw v{compat.version} · mismatch
@@ -24,32 +23,16 @@ export const FirmwareSlot = ({ version, compat }: FirmwareSlotProps) => {
   }
   if (version) {
     return (
-      <span style={baseStyle} title={`Firmware v${version}`}>
+      <span className={cn(SLOT, 'inline')} title={`Firmware v${version}`}>
         fw v{version}
       </span>
     )
   }
   return (
-    <span style={baseStyle} title="Firmware version — waiting for handshake">
+    <span className={cn(SLOT, 'inline')} title="Firmware version — waiting for handshake">
       fw —
     </span>
   )
 }
 
-const baseStyle: CSSProperties = {
-  display: 'inline',
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-600))',
-  fontFamily: MONO_FONT,
-  letterSpacing: '0.04em',
-}
-
-const mismatchStyle: CSSProperties = {
-  fontSize: 11,
-  color: 'hsl(var(--destructive))',
-  fontFamily: MONO_FONT,
-  letterSpacing: '0.04em',
-  padding: '2px 8px',
-  border: '1px solid hsl(var(--destructive))',
-  cursor: 'help',
-}
+const SLOT = 'font-mono text-[11px] tracking-[0.04em] text-brand-neutral-600'
