@@ -31,14 +31,7 @@ export const CruiseControlOverCapDialog = ({
             {maxPages.toString()}. Remove a page first, then enable cruise control.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <ol
-          style={{
-            margin: '12px 0 0',
-            paddingLeft: 24,
-            fontSize: 12,
-            color: 'hsl(var(--text-dim))',
-          }}
-        >
+        <ol className="mx-0 mb-0 mt-3 pl-6 text-[12px] text-text-dim">
           {pageIds.map((id) => (
             <li key={id}>{id}</li>
           ))}

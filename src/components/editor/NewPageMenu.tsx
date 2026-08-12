@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +9,11 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useTemplateStore } from '../../stores/template/template.store'
 import type { PageTemplateEntry } from '../../stores/template/storage'
+
+const TRIGGER = [
+  'w-[92px] shrink-0 cursor-pointer border-0 border-r border-solid border-brand-neutral-300',
+  'bg-transparent text-[12px] font-extrabold tracking-[0.06em] text-brand-neutral-700',
+].join(' ')
 
 export interface NewPageMenuProps {
   atCap: boolean
@@ -29,7 +33,7 @@ export const NewPageMenu = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button type="button" title="Add a new page" style={triggerStyle}>
+        <button type="button" title="Add a new page" className={TRIGGER}>
           + PAGE
         </button>
       </DropdownMenuTrigger>
@@ -72,17 +76,4 @@ export const NewPageMenu = ({
       </DropdownMenuContent>
     </DropdownMenu>
   )
-}
-
-const triggerStyle: CSSProperties = {
-  width: 92,
-  flexShrink: 0,
-  background: 'none',
-  border: 0,
-  borderRight: '1px solid hsl(var(--brand-neutral-300))',
-  fontWeight: 800,
-  fontSize: 12,
-  letterSpacing: '0.06em',
-  color: 'hsl(var(--brand-neutral-700))',
-  cursor: 'pointer',
 }

@@ -1,3 +1,5 @@
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 import { useState } from 'react'
 import type { ButtonWidgetConfig } from '@canshift/core'
 import { resolveGridRect, resolveScreenProfile } from '@canshift/core'
@@ -11,7 +13,16 @@ import { convertCycleToSingle, convertSingleToCycle, EMPTY_PAGES } from './butto
 import { SingleModeBody } from './button/single-mode-body'
 import { type ConfigFieldsProps } from './shared'
 import { PanelField, PanelInput } from '@/components/ui/form-field'
-import { MONO_FONT } from '../../../lib/typography'
+
+const previewToggle = cva('shrink-0 cursor-pointer border border-solid px-2 py-[3px] text-[10px]', {
+  variants: {
+    active: {
+      true: 'border-status-danger bg-[color-mix(in_srgb,hsl(var(--status-danger))_14%,transparent)] text-[#FF4444]',
+      false: 'border-brand-neutral-300 bg-transparent text-brand-neutral-600',
+    },
+  },
+  defaultVariants: { active: false },
+})
 
 export const ButtonFields = ({ widget, onChange }: ConfigFieldsProps) => {
   const pages = useDashboardStore((s) => s.config?.pages ?? EMPTY_PAGES)
@@ -54,11 +65,12 @@ export const ButtonFields = ({ widget, onChange }: ConfigFieldsProps) => {
       <PanelField label="Active state">
         <div className="mb-0.5 flex items-center gap-2">
           <div
+            className="inline-block shrink-0 overflow-hidden border border-solid"
+            // eslint-disable-next-line no-inline-style/no-inline-style
             style={{
-              border: `1px solid ${previewActive ? widget.style.primaryColor : 'hsl(var(--brand-neutral-300))'}`,
-              overflow: 'hidden',
-              display: 'inline-block',
-              flexShrink: 0,
+              borderColor: previewActive
+                ? widget.style.primaryColor
+                : 'hsl(var(--brand-neutral-300))',
             }}
           >
             <WidgetPreview
@@ -74,17 +86,7 @@ export const ButtonFields = ({ widget, onChange }: ConfigFieldsProps) => {
               onClick={() => {
                 setPreviewActive((v) => !v)
               }}
-              style={{
-                fontSize: 10,
-                padding: '3px 8px',
-                background: previewActive
-                  ? 'color-mix(in srgb, hsl(var(--status-danger)) 14%, transparent)'
-                  : 'transparent',
-                border: `1px solid ${previewActive ? 'hsl(var(--status-danger))' : 'hsl(var(--brand-neutral-300))'}`,
-                color: previewActive ? '#FF4444' : 'hsl(var(--brand-neutral-600))',
-                cursor: 'pointer',
-                flexShrink: 0,
-              }}
+              className={cn(previewToggle({ active: previewActive }))}
             >
               {previewActive ? 'Active' : 'Idle'}
             </button>
@@ -93,16 +95,7 @@ export const ButtonFields = ({ widget, onChange }: ConfigFieldsProps) => {
               onClick={() => {
                 setPreviewStateIdx((i) => (i + 1) % Math.max(1, cycleStateCount))
               }}
-              style={{
-                fontSize: 10,
-                padding: '3px 8px',
-                background: 'transparent',
-                border: '1px solid hsl(var(--brand-neutral-300))',
-                color: 'hsl(var(--brand-neutral-600))',
-                cursor: 'pointer',
-                flexShrink: 0,
-                fontFamily: MONO_FONT,
-              }}
+              className={cn(previewToggle({ active: false }), 'font-mono')}
               title="Click to preview next cycle state"
             >
               {clampedPreviewIdx + 1} / {Math.max(1, cycleStateCount)} ›

@@ -9,11 +9,15 @@ import { ButtonFields } from '../button-fields'
 import { GaugeFields } from '../gauge-fields'
 import { ShiftLightFields } from '../shift-light-fields'
 import { ConfigFieldsProps } from '../shared'
-import { CompactSelect, PanelField } from '@/components/ui/form-field'
+import { CompactSelect, PanelField, SectionLabel } from '@/components/ui/form-field'
 import { ButtonColorsRow } from './button-colors-row'
 import { SizeTokenPicker } from './size-token-picker'
 
-const PANEL_LABEL = 'hsl(var(--brand-neutral-600))'
+const DELETE_BUTTON = [
+  'flex cursor-pointer items-center gap-1 border border-solid border-status-danger-dim',
+  'bg-transparent px-[7px] py-[3px] text-[11px] text-status-danger',
+].join(' ')
+
 const DANGER_FG = 'hsl(var(--status-danger))'
 
 const CONFIG_FIELDS: Partial<
@@ -65,23 +69,9 @@ export const WidgetEditorPanel = ({
 
   return (
     <div className="flex-1 overflow-y-auto p-3">
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 14,
-        }}
-      >
+      <div className="mb-3.5 flex items-center justify-between">
         <div>
-          <div
-            style={{
-              fontSize: 10,
-              color: PANEL_LABEL,
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-            }}
-          >
+          <div className="text-[10px] uppercase tracking-[0.08em] text-brand-neutral-600">
             Properties
           </div>
           <div className="mt-0.5 text-[12px] font-semibold text-status-danger">{widget.type}</div>
@@ -92,17 +82,7 @@ export const WidgetEditorPanel = ({
             onRemove(pageId, widget.id)
           }}
           title="Delete widget (Del)"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 4,
-            background: 'none',
-            border: '1px solid hsl(var(--status-danger-dim))',
-            color: DANGER_FG,
-            cursor: 'pointer',
-            fontSize: 11,
-            padding: '3px 7px',
-          }}
+          className={DELETE_BUTTON}
         >
           <IconTrash size={11} color={DANGER_FG} />
           Delete
@@ -147,16 +127,7 @@ export const WidgetEditorPanel = ({
       )}
 
       <PanelField label="Follow day-mode text colour">
-        <label
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            fontSize: 12,
-            color: PANEL_LABEL,
-            cursor: 'pointer',
-          }}
-        >
+        <label className="flex cursor-pointer items-center gap-1.5 text-[12px] text-brand-neutral-600">
           <Checkbox
             checked={widget.style.respectDayMode !== false}
             onCheckedChange={(checked) => {
@@ -182,17 +153,8 @@ export const WidgetEditorPanel = ({
 
       {ConfigFields && (
         <>
-          <div
-            style={{
-              fontSize: 10,
-              color: PANEL_LABEL,
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              marginBottom: 6,
-              marginTop: 4,
-            }}
-          >
-            {widget.type} config
+          <div className="mb-1.5 mt-1">
+            <SectionLabel>{widget.type} config</SectionLabel>
           </div>
           <ConfigFields widget={widget} onChange={patch} signalDef={boundSignalDef} />
         </>

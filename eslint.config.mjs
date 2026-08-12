@@ -3,7 +3,6 @@ import tseslint from 'typescript-eslint'
 import prettierConfig from 'eslint-config-prettier'
 import reactPlugin from 'eslint-plugin-react'
 import reactHooksPlugin from 'eslint-plugin-react-hooks'
-import { INLINE_STYLE_BASELINE } from './eslint-inline-style-baseline.mjs'
 
 const KEEP_COMMENT_PATTERN =
   /^[\s/]*(eslint-(disable|enable)|@ts-(expect-error|ignore|nocheck)|@typescript-eslint|<reference)/
@@ -105,12 +104,6 @@ export default tseslint.config(
     plugins: { 'no-inline-style': noInlineStylePlugin },
     rules: {
       'no-inline-style/no-inline-style': 'error',
-    },
-  },
-  {
-    files: INLINE_STYLE_BASELINE,
-    rules: {
-      'no-inline-style/no-inline-style': 'off',
     },
   },
   {

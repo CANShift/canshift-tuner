@@ -114,6 +114,10 @@ export const FieldLabel = ({ children }: { children: ReactNode }) => (
   <div className="mb-0.5 text-[9px] text-brand-neutral-600">{children}</div>
 )
 
+export const SectionLabel = ({ children }: { children: ReactNode }) => (
+  <div className="text-[10px] uppercase tracking-[0.06em] text-brand-neutral-600">{children}</div>
+)
+
 export const segmentPill = cva('flex-1 cursor-pointer border border-solid py-[3px] text-[10px]', {
   variants: {
     tone: { blue: '', green: '' },

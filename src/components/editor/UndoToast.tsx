@@ -1,6 +1,21 @@
-import type { CSSProperties } from 'react'
+import { cn } from '@/lib/utils'
 import { useEffect } from 'react'
 import { UNDO_TOAST_MS, useUndoToastStore } from '../../stores/undo-toast.store'
+
+const TOAST = [
+  'fixed bottom-[52px] left-1/2 z-[200] flex -translate-x-1/2 items-center gap-3 px-3.5 py-[9px]',
+  'border border-solid border-brand-neutral-400 bg-brand-chrome-surface',
+  'shadow-[0_4px_16px_rgba(0,0,0,0.4)]',
+].join(' ')
+
+const LABEL = 'whitespace-nowrap text-[12px] text-brand-text'
+
+const UNDO_BUTTON = [
+  'cursor-pointer border border-solid border-brand-accent bg-transparent px-3 py-1',
+  'text-[11px] font-extrabold tracking-[0.09em] text-brand-accent',
+].join(' ')
+
+const DISMISS = 'cursor-pointer border-none bg-transparent p-0 text-[11px] text-brand-neutral-500'
 
 export const UndoToast = () => {
   const toast = useUndoToastStore((s) => s.toast)
@@ -21,13 +36,12 @@ export const UndoToast = () => {
   if (!toast) return null
 
   return (
-    <div role="status" style={toastStyle}>
-      <span style={labelStyle}>{toast.label}</span>
+    <div role="status" className={TOAST}>
+      <span className={LABEL}>{toast.label}</span>
       <button
         type="button"
-        className="editor-ghost-accent"
+        className={cn('editor-ghost-accent', UNDO_BUTTON)}
         onClick={undoFromToast}
-        style={undoButtonStyle}
       >
         UNDO
       </button>
@@ -37,51 +51,10 @@ export const UndoToast = () => {
           dismiss(toast.id)
         }}
         aria-label="Dismiss"
-        style={dismissStyle}
+        className={DISMISS}
       >
         ✕
       </button>
     </div>
   )
-}
-
-const toastStyle: CSSProperties = {
-  position: 'fixed',
-  bottom: 52,
-  left: '50%',
-  transform: 'translateX(-50%)',
-  display: 'flex',
-  alignItems: 'center',
-  gap: 12,
-  padding: '9px 14px',
-  background: 'hsl(var(--brand-chrome-surface))',
-  border: '1px solid hsl(var(--brand-neutral-400))',
-  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4)',
-  zIndex: 200,
-}
-
-const labelStyle: CSSProperties = {
-  fontSize: 12,
-  color: 'hsl(var(--brand-text))',
-  whiteSpace: 'nowrap',
-}
-
-const undoButtonStyle: CSSProperties = {
-  padding: '4px 12px',
-  background: 'none',
-  border: '1px solid hsl(var(--brand-accent))',
-  fontWeight: 800,
-  fontSize: 11,
-  letterSpacing: '0.09em',
-  color: 'hsl(var(--brand-accent))',
-  cursor: 'pointer',
-}
-
-const dismissStyle: CSSProperties = {
-  padding: 0,
-  background: 'none',
-  border: 'none',
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-500))',
-  cursor: 'pointer',
 }
