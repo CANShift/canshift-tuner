@@ -70,7 +70,8 @@
             "maxValue": 300,
             "dangerLevel": 280,
             "decimalPlaces": 0,
-            "iconName": "speed"
+            "iconName": "speed",
+            "big": 96
           }
         },
         {
@@ -94,7 +95,8 @@
           },
           "config": {
             "type": "gear",
-            "decimalPlaces": 0
+            "decimalPlaces": 0,
+            "big": 96
           }
         },
         {
@@ -123,7 +125,8 @@
             "maxValue": 8000,
             "dangerLevel": 7000,
             "decimalPlaces": 0,
-            "iconName": "rpm"
+            "iconName": "rpm",
+            "big": 44
           }
         },
         {
@@ -152,7 +155,8 @@
             "maxValue": 120,
             "dangerLevel": 110,
             "decimalPlaces": 0,
-            "iconName": "coolant"
+            "iconName": "coolant",
+            "big": 34
           }
         },
         {
@@ -181,7 +185,8 @@
             "maxValue": 6,
             "dangerLevel": 5.5,
             "decimalPlaces": 1,
-            "iconName": "fuel"
+            "iconName": "fuel",
+            "big": 34
           }
         },
         {
@@ -210,7 +215,8 @@
             "maxValue": 15,
             "dangerLevel": 14.8,
             "decimalPlaces": 1,
-            "iconName": "battery"
+            "iconName": "battery",
+            "big": 34
           }
         },
         {
@@ -305,7 +311,8 @@
             "maxValue": 8000,
             "dangerLevel": 7000,
             "decimalPlaces": 0,
-            "iconName": "rpm"
+            "iconName": "rpm",
+            "big": 88
           }
         },
         {
@@ -329,7 +336,8 @@
           },
           "config": {
             "type": "gear",
-            "decimalPlaces": 0
+            "decimalPlaces": 0,
+            "big": 88
           }
         },
         {
@@ -358,7 +366,8 @@
             "maxValue": 300,
             "dangerLevel": 280,
             "decimalPlaces": 0,
-            "iconName": "speed"
+            "iconName": "speed",
+            "big": 64
           }
         },
         {
@@ -387,7 +396,8 @@
             "maxValue": 6,
             "dangerLevel": 5.8,
             "decimalPlaces": 1,
-            "iconName": "oil_pressure"
+            "iconName": "oil_pressure",
+            "big": 64
           }
         },
         {
@@ -416,7 +426,8 @@
             "maxValue": 120,
             "dangerLevel": 110,
             "decimalPlaces": 0,
-            "iconName": "coolant"
+            "iconName": "coolant",
+            "big": 34
           }
         },
         {
@@ -445,7 +456,8 @@
             "maxValue": 150,
             "dangerLevel": 140,
             "decimalPlaces": 0,
-            "iconName": "oil_temp"
+            "iconName": "oil_temp",
+            "big": 34
           }
         },
         {
@@ -474,7 +486,8 @@
             "maxValue": 300,
             "dangerLevel": 270,
             "decimalPlaces": 0,
-            "iconName": "boost"
+            "iconName": "boost",
+            "big": 34
           }
         },
         {
@@ -503,7 +516,8 @@
             "maxValue": 15,
             "dangerLevel": 14.8,
             "decimalPlaces": 1,
-            "iconName": "battery"
+            "iconName": "battery",
+            "big": 34
           }
         }
       ]
@@ -540,7 +554,8 @@
             "maxValue": 120,
             "dangerLevel": 110,
             "decimalPlaces": 0,
-            "iconName": "coolant"
+            "iconName": "coolant",
+            "big": 64
           }
         },
         {
@@ -569,7 +584,8 @@
             "maxValue": 150,
             "dangerLevel": 140,
             "decimalPlaces": 0,
-            "iconName": "oil_temp"
+            "iconName": "oil_temp",
+            "big": 64
           }
         },
         {
@@ -598,7 +614,8 @@
             "maxValue": 6,
             "dangerLevel": 5.8,
             "decimalPlaces": 1,
-            "iconName": "oil_pressure"
+            "iconName": "oil_pressure",
+            "big": 64
           }
         },
         {
@@ -627,7 +644,8 @@
             "maxValue": 6,
             "dangerLevel": 5.5,
             "decimalPlaces": 1,
-            "iconName": "fuel"
+            "iconName": "fuel",
+            "big": 64
           }
         },
         {
@@ -656,7 +674,8 @@
             "maxValue": 80,
             "dangerLevel": 60,
             "decimalPlaces": 0,
-            "iconName": "iat"
+            "iconName": "iat",
+            "big": 34
           }
         },
         {
@@ -685,7 +704,8 @@
             "maxValue": 300,
             "dangerLevel": 270,
             "decimalPlaces": 0,
-            "iconName": "boost"
+            "iconName": "boost",
+            "big": 34
           }
         },
         {
@@ -714,7 +734,8 @@
             "maxValue": 15,
             "dangerLevel": 14.8,
             "decimalPlaces": 1,
-            "iconName": "battery"
+            "iconName": "battery",
+            "big": 34
           }
         }
       ]
@@ -751,7 +772,8 @@
             "maxValue": 300,
             "dangerLevel": 270,
             "decimalPlaces": 0,
-            "iconName": "boost"
+            "iconName": "boost",
+            "big": 88
           }
         },
         {
@@ -780,7 +802,8 @@
             "maxValue": 1.3,
             "dangerLevel": 1.2,
             "decimalPlaces": 2,
-            "iconName": "afr"
+            "iconName": "afr",
+            "big": 64
           }
         },
         {
@@ -810,7 +833,8 @@
             "dangerLevel": 95,
             "decimalPlaces": 0,
             "showBar": true,
-            "iconName": "throttle"
+            "iconName": "throttle",
+            "big": 64
           }
         },
         {
@@ -839,7 +863,8 @@
             "maxValue": 80,
             "dangerLevel": 60,
             "decimalPlaces": 0,
-            "iconName": "iat"
+            "iconName": "iat",
+            "big": 64
           }
         },
         {
@@ -868,7 +893,8 @@
             "maxValue": 8000,
             "dangerLevel": 7000,
             "decimalPlaces": 0,
-            "iconName": "rpm"
+            "iconName": "rpm",
+            "big": 34
           }
         },
         {
@@ -897,7 +923,8 @@
             "maxValue": 6,
             "dangerLevel": 5.5,
             "decimalPlaces": 1,
-            "iconName": "fuel"
+            "iconName": "fuel",
+            "big": 34
           }
         },
         {
@@ -926,7 +953,8 @@
             "maxValue": 15,
             "dangerLevel": 14.8,
             "decimalPlaces": 1,
-            "iconName": "battery"
+            "iconName": "battery",
+            "big": 34
           }
         }
       ]
