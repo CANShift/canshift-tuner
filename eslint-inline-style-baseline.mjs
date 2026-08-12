@@ -60,7 +60,6 @@ export const INLINE_STYLE_BASELINE = [
   'src/components/ErrorBoundary.tsx',
   'src/components/firmware/BoardProfileProvision.tsx',
   'src/components/firmware/BoardSelector.tsx',
-  'src/components/firmware/BuildChooser.tsx',
   'src/components/firmware/FirmwareSidePanel.tsx',
   'src/components/firmware/FlashActions.tsx',
   'src/components/firmware/KeyFigures.tsx',
