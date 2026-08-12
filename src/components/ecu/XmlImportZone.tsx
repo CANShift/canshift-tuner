@@ -1,7 +1,8 @@
-import type { CSSProperties, DragEvent, ChangeEvent } from 'react'
+import type { DragEvent, ChangeEvent } from 'react'
 import { useRef, useState } from 'react'
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 import { formatBytes } from '../../lib/format'
-import { MONO_FONT } from '../../lib/typography'
 import { errorMessage } from '../../lib/error-message'
 
 export interface XmlImportZoneProps {
@@ -69,33 +70,29 @@ export const XmlImportZone = ({
     e.target.value = ''
   }
 
+  const state: ZoneState = dragging ? 'dragging' : loadedFileName !== null ? 'loaded' : 'empty'
+
   return (
     <div
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
-      style={zoneStyle(dragging, loadedFileName !== null)}
+      className={cn(zone({ state }))}
     >
-      <input
-        ref={inputRef}
-        type="file"
-        accept=".xml"
-        onChange={onPick}
-        style={{ display: 'none' }}
-      />
+      <input ref={inputRef} type="file" accept=".xml" onChange={onPick} className="hidden" />
       {loadedFileName ? (
-        <div style={loadedStyle}>
-          <div style={loadedNameStyle}>{loadedFileName}</div>
-          <button type="button" onClick={onClear} style={clearButtonStyle}>
+        <div className="flex w-full items-center justify-between gap-3">
+          <div className="font-mono text-[12px] text-brand-text">{loadedFileName}</div>
+          <button type="button" onClick={onClear} className={CLEAR_BUTTON}>
             Remove
           </button>
         </div>
       ) : (
-        <div style={emptyStyle}>
-          <div style={iconStyle}>↓</div>
-          <div style={emptyTitleStyle}>Drop an XML file here</div>
-          <div style={emptyHintStyle}>or pick a file from disk</div>
-          <button type="button" onClick={() => inputRef.current?.click()} style={pickButtonStyle}>
+        <div className="flex flex-col items-center gap-2 text-center">
+          <div className="text-[22px] leading-none text-brand-neutral-500">↓</div>
+          <div className="text-[13px] font-extrabold text-brand-text">Drop an XML file here</div>
+          <div className="text-[12px] text-brand-neutral-500">or pick a file from disk</div>
+          <button type="button" onClick={() => inputRef.current?.click()} className={PICK_BUTTON}>
             Choose file…
           </button>
         </div>
@@ -104,76 +101,31 @@ export const XmlImportZone = ({
   )
 }
 
-const zoneStyle = (dragging: boolean, hasFile: boolean): CSSProperties => ({
-  border: `1px dashed ${dragging ? 'hsl(var(--brand-accent))' : 'hsl(var(--brand-neutral-400))'}`,
-  background: dragging
-    ? 'hsl(var(--brand-accent) / 0.06)'
-    : hasFile
-      ? 'hsl(var(--brand-neutral-100))'
-      : 'none',
-  padding: '24px 16px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  transition: 'background 100ms ease, border-color 100ms ease',
-})
+type ZoneState = 'dragging' | 'loaded' | 'empty'
 
-const emptyStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  gap: 8,
-  textAlign: 'center',
-}
+const zone = cva(
+  [
+    'flex items-center justify-center border border-dashed px-4 py-6',
+    '[transition:background_100ms_ease,border-color_100ms_ease]',
+  ].join(' '),
+  {
+    variants: {
+      state: {
+        dragging: 'border-brand-accent bg-brand-accent/[0.06]',
+        loaded: 'border-brand-neutral-400 bg-brand-neutral-100',
+        empty: 'border-brand-neutral-400 bg-transparent',
+      },
+    },
+    defaultVariants: { state: 'empty' },
+  }
+)
 
-const iconStyle: CSSProperties = {
-  fontSize: 22,
-  color: 'hsl(var(--brand-neutral-500))',
-  lineHeight: 1,
-}
+const PICK_BUTTON = [
+  'mt-2 cursor-pointer border-none bg-brand-accent px-[18px] py-2',
+  'text-[11px] font-extrabold tracking-[0.09em] text-brand-ground',
+].join(' ')
 
-const emptyTitleStyle: CSSProperties = {
-  fontSize: 13,
-  color: 'hsl(var(--brand-text))',
-  fontWeight: 800,
-}
-
-const emptyHintStyle: CSSProperties = {
-  fontSize: 12,
-  color: 'hsl(var(--brand-neutral-500))',
-}
-
-const pickButtonStyle: CSSProperties = {
-  marginTop: 8,
-  background: 'hsl(var(--brand-accent))',
-  color: 'hsl(var(--brand-ground))',
-  border: 'none',
-  padding: '8px 18px',
-  fontSize: 11,
-  fontWeight: 800,
-  cursor: 'pointer',
-  letterSpacing: '0.09em',
-}
-
-const loadedStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  gap: 12,
-  width: '100%',
-}
-
-const loadedNameStyle: CSSProperties = {
-  fontSize: 12,
-  color: 'hsl(var(--brand-text))',
-  fontFamily: MONO_FONT,
-}
-
-const clearButtonStyle: CSSProperties = {
-  background: 'transparent',
-  color: 'hsl(var(--brand-neutral-600))',
-  border: '1px solid hsl(var(--brand-neutral-400))',
-  padding: '4px 10px',
-  fontSize: 11,
-  cursor: 'pointer',
-}
+const CLEAR_BUTTON = [
+  'cursor-pointer border border-solid border-brand-neutral-400 bg-transparent',
+  'px-2.5 py-1 text-[11px] text-brand-neutral-600',
+].join(' ')

@@ -1,8 +1,6 @@
-import type { CSSProperties } from 'react'
 import type { HeapStatsEntry } from '../../stores/device.store'
 import { HeapStatsSparkline } from './HeapStatsSparkline'
 import { formatBytes } from '../../lib/format'
-import { MONO_FONT } from '../../lib/typography'
 
 export interface HeapStatsPanelProps {
   history: HeapStatsEntry[]
@@ -11,7 +9,7 @@ export interface HeapStatsPanelProps {
 export const HeapStatsPanel = ({ history }: HeapStatsPanelProps) => {
   if (history.length === 0) {
     return (
-      <div style={emptyStyle}>
+      <div className={EMPTY}>
         Waiting for the firmware to send a heap snapshot. The first frame lands within ~30 s of
         connect.
       </div>
@@ -32,7 +30,7 @@ export const HeapStatsPanel = ({ history }: HeapStatsPanelProps) => {
       <Row label="Largest free block" value={formatBytes(latest.largestInternal)} />
       <Row label="Fragmentation" value={fragmentationPct} />
       <Row label="PSRAM free" value={psramRow} />
-      <div style={sparklineRowStyle}>
+      <div className={SPARKLINE_ROW}>
         <HeapStatsSparkline history={history} />
       </div>
     </>
@@ -46,9 +44,9 @@ interface RowProps {
 
 const Row = ({ label, value }: RowProps) => {
   return (
-    <div style={rowStyle}>
-      <span style={labelStyle}>{label}</span>
-      <span style={valueStyle}>{value}</span>
+    <div className={ROW}>
+      <span className="text-text-dim">{label}</span>
+      <span className={VALUE}>{value}</span>
     </div>
   )
 }
@@ -59,35 +57,13 @@ const formatFragmentationPct = (free: number, largest: number): string => {
   return `${(ratio * 100).toFixed(1)} %`
 }
 
-const rowStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '11px 14px',
-  borderBottom: '1px solid hsl(var(--border))',
-  fontSize: 13,
-}
+const ROW = [
+  'flex items-center justify-between px-3.5 py-[11px]',
+  'border-b border-solid border-border text-[13px]',
+].join(' ')
 
-const labelStyle: CSSProperties = {
-  color: 'hsl(var(--text-dim))',
-}
+const VALUE = 'font-mono font-medium tabular-nums text-text'
 
-const valueStyle: CSSProperties = {
-  color: 'hsl(var(--text))',
-  fontWeight: 500,
-  fontFamily: MONO_FONT,
-  fontVariantNumeric: 'tabular-nums',
-}
+const SPARKLINE_ROW = 'border-t border-solid border-border bg-bg-inset px-3.5 py-3'
 
-const sparklineRowStyle: CSSProperties = {
-  padding: '12px 14px',
-  background: 'hsl(var(--bg-inset))',
-  borderTop: '1px solid hsl(var(--border))',
-}
-
-const emptyStyle: CSSProperties = {
-  padding: '14px',
-  fontSize: 11,
-  color: 'hsl(var(--text-muted))',
-  background: 'hsl(var(--bg-inset))',
-}
+const EMPTY = 'bg-bg-inset p-3.5 text-[11px] text-text-muted'

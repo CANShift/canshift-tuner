@@ -1,20 +1,19 @@
 interface IconProps {
   size?: number
   color?: string
-  style?: React.CSSProperties
 }
 
 type IconComponent = (props: IconProps) => React.JSX.Element
 
 const icon = (path: string, viewBox = '0 0 16 16'): IconComponent => {
-  return function Icon({ size = 14, color = 'currentColor', style }: IconProps) {
+  return function Icon({ size = 14, color = 'currentColor' }: IconProps) {
     return (
       <svg
         width={size}
         height={size}
         viewBox={viewBox}
         fill="none"
-        style={{ flexShrink: 0, ...style }}
+        className="shrink-0"
         aria-hidden
       >
         <path

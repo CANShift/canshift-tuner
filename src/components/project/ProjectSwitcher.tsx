@@ -168,7 +168,7 @@ export const ProjectSwitcher = () => {
         onChange={(event) => {
           void handleFileChange(event)
         }}
-        style={{ display: 'none' }}
+        className="hidden"
       />
       <NewProjectWizard open={wizardOpen} onOpenChange={setWizardOpen} />
     </>

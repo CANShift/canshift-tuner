@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react'
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import Header from './components/shell/Header'
 import Sidebar from './components/shell/Sidebar'
@@ -39,16 +39,7 @@ const ThemesRoute = lazy(() => import('./routes/ThemesRoute'))
 
 const RouteLoading = () => {
   return (
-    <div
-      style={{
-        flex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: 'hsl(var(--text-dim))',
-        fontSize: 12,
-      }}
-    >
+    <div className="flex flex-1 items-center justify-center text-[12px] text-text-dim">
       Loading…
     </div>
   )
@@ -116,12 +107,12 @@ const App = () => {
   }, [hasDashboardConfig])
 
   return (
-    <div style={shellStyle}>
+    <div className={SHELL}>
       <Header />
       <DeviceAlertBar />
-      <div style={bodyStyle}>
+      <div className={BODY}>
         <Sidebar />
-        <main style={mainStyle}>
+        <main className={MAIN}>
           <DisconnectedGuard>
             <Suspense fallback={<RouteLoading />}>
               <Routes>
@@ -140,26 +131,10 @@ const App = () => {
   )
 }
 
-const shellStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100vh',
-  background: 'hsl(var(--brand-chrome-bg))',
-  color: 'hsl(var(--brand-text))',
-  fontFamily: 'var(--font-ui)',
-}
+const SHELL = 'flex h-screen flex-col bg-brand-chrome-bg font-sans text-brand-text'
 
-const bodyStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  overflow: 'hidden',
-}
+const BODY = 'flex flex-1 overflow-hidden'
 
-const mainStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  overflow: 'hidden',
-}
+const MAIN = 'flex flex-1 flex-col overflow-hidden'
 
 export default App
