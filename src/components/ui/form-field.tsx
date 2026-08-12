@@ -109,6 +109,10 @@ export const PanelRow = ({ children }: { children: ReactNode }) => (
   <div className="flex gap-1.5">{children}</div>
 )
 
+export const FieldLabel = ({ children }: { children: ReactNode }) => (
+  <div className="mb-0.5 text-[9px] text-brand-neutral-600">{children}</div>
+)
+
 export type PanelInputProps = InputHTMLAttributes<HTMLInputElement>
 
 export const PanelInput = ({ className, ...props }: PanelInputProps) => (

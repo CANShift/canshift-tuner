@@ -1,8 +1,22 @@
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 import { MAX_CYCLE_STATES, MIN_CYCLE_STATES } from '@canshift/core'
 
 import type { ConfigFieldsProps } from '../shared'
 import { CycleStateRow } from './cycle-state-row'
 import { defaultNavigateAction, type CycleConfig, type CycleState } from './shared'
+
+const SECTION_LABEL = 'text-[10px] uppercase tracking-[0.06em] text-brand-neutral-600'
+
+const addStateButton = cva('mt-0.5 border border-solid bg-transparent px-2.5 py-1 text-[11px]', {
+  variants: {
+    enabled: {
+      true: 'cursor-pointer border-[#7788CC44] text-[#7788CC]',
+      false: 'cursor-not-allowed border-brand-neutral-300 text-brand-neutral-500',
+    },
+  },
+  defaultVariants: { enabled: true },
+})
 
 interface CycleModeBodyProps {
   cfg: CycleConfig
@@ -42,26 +56,9 @@ export const CycleModeBody = ({ cfg, pageIds, onChange }: CycleModeBodyProps) =>
 
   return (
     <>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'baseline',
-          gap: 8,
-          marginTop: 4,
-          marginBottom: 5,
-        }}
-      >
-        <div
-          style={{
-            fontSize: 10,
-            color: 'hsl(var(--brand-neutral-600))',
-            textTransform: 'uppercase',
-            letterSpacing: '0.06em',
-          }}
-        >
-          Cycle states
-        </div>
-        <div style={{ fontSize: 10, color: 'hsl(var(--brand-neutral-500))' }}>
+      <div className="mb-[5px] mt-1 flex items-baseline gap-2">
+        <div className={SECTION_LABEL}>Cycle states</div>
+        <div className="text-[10px] text-brand-neutral-500">
           {cfg.states.length} / {MAX_CYCLE_STATES}
         </div>
       </div>
@@ -89,15 +86,7 @@ export const CycleModeBody = ({ cfg, pageIds, onChange }: CycleModeBodyProps) =>
       <button
         onClick={addState}
         disabled={!canAdd}
-        style={{
-          fontSize: 11,
-          padding: '4px 10px',
-          background: 'transparent',
-          border: `1px solid ${canAdd ? '#7788CC44' : 'hsl(var(--brand-neutral-300))'}`,
-          color: canAdd ? '#7788CC' : 'hsl(var(--brand-neutral-500))',
-          cursor: canAdd ? 'pointer' : 'not-allowed',
-          marginTop: 2,
-        }}
+        className={cn(addStateButton({ enabled: canAdd }))}
       >
         + Add state
       </button>

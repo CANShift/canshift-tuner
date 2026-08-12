@@ -2,27 +2,24 @@ import type { ButtonAction } from '@canshift/core'
 
 import { buildActionPresets } from './shared'
 
+const PRESET_BUTTON = 'cursor-pointer border-solid bg-transparent px-[7px] py-0.5 text-[10px]'
+
 interface AddActionMenuProps {
   pageIds: string[]
   onAdd: (a: ButtonAction) => void
 }
 
 export const AddActionMenu = ({ pageIds, onAdd }: AddActionMenuProps) => (
-  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 2 }}>
+  <div className="flex flex-wrap gap-1 mt-0.5">
     {buildActionPresets(pageIds).map(({ label, color, build }) => (
       <button
         key={label}
         onClick={() => {
           onAdd(build())
         }}
-        style={{
-          fontSize: 10,
-          padding: '2px 7px',
-          background: 'transparent',
-          border: `1px solid ${color}44`,
-          color: color,
-          cursor: 'pointer',
-        }}
+        className={PRESET_BUTTON}
+        // eslint-disable-next-line no-inline-style/no-inline-style
+        style={{ border: `1px solid ${color}44`, color }}
       >
         + {label}
       </button>

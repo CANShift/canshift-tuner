@@ -32,16 +32,7 @@ export const SingleModeBody = ({ cfg, pageIds, onChange }: SingleModeBodyProps) 
   return (
     <>
       <PanelField label="Behaviour">
-        <label
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            fontSize: 12,
-            color: 'hsl(var(--brand-neutral-600))',
-            cursor: 'pointer',
-          }}
-        >
+        <label className="flex cursor-pointer items-center gap-1.5 text-[12px] text-brand-neutral-600">
           <Switch
             checked={cfg.isToggle === true}
             onCheckedChange={(checked) => {
@@ -52,23 +43,12 @@ export const SingleModeBody = ({ cfg, pageIds, onChange }: SingleModeBodyProps) 
         </label>
       </PanelField>
 
-      <div
-        style={{
-          fontSize: 10,
-          color: 'hsl(var(--brand-neutral-600))',
-          textTransform: 'uppercase',
-          letterSpacing: '0.06em',
-          marginBottom: 5,
-          marginTop: 4,
-        }}
-      >
+      <div className="mb-[5px] mt-1 text-[10px] uppercase tracking-[0.06em] text-brand-neutral-600">
         Actions
       </div>
 
       {cfg.actions.length === 0 && (
-        <div style={{ fontSize: 11, color: 'hsl(var(--brand-neutral-600))', marginBottom: 6 }}>
-          No actions yet.
-        </div>
+        <div className="mb-1.5 text-[11px] text-brand-neutral-600">No actions yet.</div>
       )}
 
       {cfg.actions.map((action, idx) => (

@@ -8,10 +8,8 @@ import {
   type NavigateAction,
 } from '@canshift/core'
 
-import { CompactSelect } from '@/components/ui/form-field'
-import { PanelInput } from '@/components/ui/form-field'
+import { CompactSelect, FieldLabel, PanelInput } from '@/components/ui/form-field'
 import { CRUISE_STEP_OPS, HEX_FRAME_ID_REGEX } from './shared'
-import { MONO_FONT } from '../../../../lib/typography'
 
 interface ActionEditorProps {
   action: ButtonAction
@@ -39,8 +37,8 @@ const NavigateFields = ({ action, pageIds, onUpdate }: FieldEditorProps<Navigate
 )
 
 const MapSwitchFields = ({ action, onUpdate }: FieldEditorProps<MapSwitchAction>) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-    <span style={{ fontSize: 10, color: 'hsl(var(--brand-neutral-500))' }}>Map</span>
+  <div className="flex items-center gap-1.5">
+    <span className="text-[10px] text-brand-neutral-500">Map</span>
     <PanelInput
       type="number"
       min={1}
@@ -55,11 +53,9 @@ const MapSwitchFields = ({ action, onUpdate }: FieldEditorProps<MapSwitchAction>
 )
 
 const CanRawFields = ({ action, onUpdate }: FieldEditorProps<CanRawAction>) => (
-  <div style={{ display: 'flex', gap: 6 }}>
-    <div style={{ flex: '0 0 70px' }}>
-      <div style={{ fontSize: 9, color: 'hsl(var(--brand-neutral-600))', marginBottom: 2 }}>
-        FRAME ID
-      </div>
+  <div className="flex gap-1.5">
+    <div className="flex-[0_0_70px]">
+      <FieldLabel>FRAME ID</FieldLabel>
       <PanelInput
         className="text-[10px]"
         placeholder="0x123"
@@ -71,13 +67,10 @@ const CanRawFields = ({ action, onUpdate }: FieldEditorProps<CanRawAction>) => (
         }}
       />
     </div>
-    <div style={{ flex: 1 }}>
-      <div style={{ fontSize: 9, color: 'hsl(var(--brand-neutral-600))', marginBottom: 2 }}>
-        DATA (HEX)
-      </div>
+    <div className="flex-1">
+      <FieldLabel>DATA (HEX)</FieldLabel>
       <PanelInput
-        className="text-[10px]"
-        style={{ fontFamily: MONO_FONT }}
+        className="font-mono text-[10px]"
         placeholder="0102030405060708"
         value={action.data}
         onChange={(e) => {
@@ -95,9 +88,9 @@ const withoutStep = (action: CruiseControlAction, nextOp: CruiseControlOp): Crui
 }
 
 const CruiseControlFields = ({ action, onUpdate }: FieldEditorProps<CruiseControlAction>) => (
-  <div style={{ display: 'flex', gap: 6, alignItems: 'flex-end' }}>
-    <div style={{ flex: 1 }}>
-      <div style={{ fontSize: 9, color: 'hsl(var(--brand-neutral-600))', marginBottom: 2 }}>OP</div>
+  <div className="flex items-end gap-1.5">
+    <div className="flex-1">
+      <FieldLabel>OP</FieldLabel>
       <CompactSelect
         value={action.op}
         options={CRUISE_CONTROL_OPS.map((op) => ({ value: op, label: op }))}
@@ -109,10 +102,8 @@ const CruiseControlFields = ({ action, onUpdate }: FieldEditorProps<CruiseContro
       />
     </div>
     {CRUISE_STEP_OPS.has(action.op) && (
-      <div style={{ flex: '0 0 80px' }}>
-        <div style={{ fontSize: 9, color: 'hsl(var(--brand-neutral-600))', marginBottom: 2 }}>
-          STEP (KM/H)
-        </div>
+      <div className="flex-[0_0_80px]">
+        <FieldLabel>STEP (KM/H)</FieldLabel>
         <PanelInput
           type="number"
           min={1}

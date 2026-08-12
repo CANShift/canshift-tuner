@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import { cva } from 'class-variance-authority'
 import {
   MAX_CYCLE_STATES,
   MIN_CYCLE_STATES,
@@ -92,13 +92,12 @@ export const convertCycleToSingle = (cfg: CycleConfig, pageIds: string[]): Butto
   }
 }
 
-export const modePillStyle = (active: boolean): CSSProperties => ({
-  flex: 1,
-  fontSize: 11,
-  padding: '5px 8px',
-  background: active ? 'color-mix(in srgb, #5577CC 14%, transparent)' : 'transparent',
-  border: `1px solid ${active ? '#5577CC' : 'hsl(var(--brand-neutral-300))'}`,
-  color: active ? '#7788CC' : 'hsl(var(--brand-neutral-500))',
-  cursor: 'pointer',
-  fontWeight: active ? 600 : 400,
+export const modePill = cva('flex-1 cursor-pointer border border-solid px-2 py-[5px] text-[11px]', {
+  variants: {
+    active: {
+      true: 'border-[#5577CC] bg-[color-mix(in_srgb,#5577CC_14%,transparent)] font-semibold text-[#7788CC]',
+      false: 'border-brand-neutral-300 bg-transparent font-normal text-brand-neutral-500',
+    },
+  },
+  defaultVariants: { active: false },
 })
