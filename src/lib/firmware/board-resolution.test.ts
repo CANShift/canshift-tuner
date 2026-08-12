@@ -12,14 +12,22 @@ const manifest = (): BoardManifest => ({
       chip: 'esp32',
       display: 'ILI9341 320x240',
       touch: 'XPT2046',
-      artifacts: { merged: 'a-merged.bin', firmware: 'a-firmware.bin', spiffs: 'a-spiffs.bin' },
+      artifacts: {
+        merged: { file: 'a-merged.bin', sha256: null },
+        firmware: { file: 'a-firmware.bin', sha256: null },
+        spiffs: { file: 'a-spiffs.bin', sha256: null },
+      },
     },
     {
       id: 'generic_ili9341_gt911',
       chip: 'esp32',
       display: 'ILI9341 320x240',
       touch: 'GT911',
-      artifacts: { merged: 'b-merged.bin', firmware: 'b-firmware.bin', spiffs: 'b-spiffs.bin' },
+      artifacts: {
+        merged: { file: 'b-merged.bin', sha256: null },
+        firmware: { file: 'b-firmware.bin', sha256: null },
+        spiffs: { file: 'b-spiffs.bin', sha256: null },
+      },
     },
   ],
 })
