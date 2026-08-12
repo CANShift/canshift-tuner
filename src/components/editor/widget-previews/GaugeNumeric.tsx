@@ -7,10 +7,15 @@ import {
   valueUnitFontSize,
   widgetTopRulePx,
 } from '@canshift/core'
-import { BLINK_ANIM } from '../widget-preview.styles'
+import {
+  BLINK_ANIM,
+  WIDGET_DIM_COLOR,
+  widgetKickerStyle,
+  widgetTopRuleStyle,
+} from '../widget-preview.styles'
 import { effectiveValue } from './gauge-math'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
-import { MONO_FONT, uiLabelAtSize } from '../../../lib/typography'
+import { MONO_FONT } from '../../../lib/typography'
 
 export interface GaugeNumericRendererProps extends BaseRendererProps {
   danger: boolean
@@ -71,18 +76,7 @@ export const GaugeNumericPreview = memo(function GaugeNumericPreview({
         gap: 0,
       }}
     >
-      <span
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: rulePx,
-          background: ruleColor,
-          animation: danger ? BLINK_ANIM : undefined,
-        }}
-      />
+      <span aria-hidden="true" style={widgetTopRuleStyle(rulePx, ruleColor, danger)} />
       {showBar && (
         <span
           aria-hidden="true"
@@ -105,25 +99,7 @@ export const GaugeNumericPreview = memo(function GaugeNumericPreview({
           />
         </span>
       )}
-      <span
-        style={{
-          position: 'absolute',
-          top: 4,
-          left: 4,
-          ...uiLabelAtSize(9),
-          fontWeight: 500,
-          color: '#888888',
-          lineHeight: 1,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          maxWidth: `calc(100% - 8px)`,
-          letterSpacing: '0.06em',
-          textTransform: 'uppercase',
-        }}
-      >
-        {signalLabel.toUpperCase()}
-      </span>
+      <span style={widgetKickerStyle}>{signalLabel.toUpperCase()}</span>
       <div
         style={{
           display: 'flex',
@@ -154,7 +130,7 @@ export const GaugeNumericPreview = memo(function GaugeNumericPreview({
         {signalUnit !== '' && (
           <span
             style={{
-              color: '#888888',
+              color: WIDGET_DIM_COLOR,
               fontSize: valueUnitFontSize(Math.round(fontSize)),
               fontFamily: MONO_FONT,
               fontWeight: 500,
