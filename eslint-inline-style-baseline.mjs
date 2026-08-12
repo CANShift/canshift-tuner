@@ -44,12 +44,8 @@ export const INLINE_STYLE_BASELINE = [
   'src/components/editor/WidgetBox.tsx',
   'src/components/editor/WidgetListPanel.tsx',
   'src/components/editor/WidgetPalette.tsx',
-  'src/routes/AboutRoute.tsx',
-  'src/routes/CanBusRoute.tsx',
   'src/routes/EditorRoute.tsx',
-  'src/routes/LiveDataRoute.tsx',
   'src/routes/PageContextMenu.tsx',
   'src/routes/PageThumbnail.tsx',
   'src/routes/RightSidebar.tsx',
-  'src/routes/WelcomeRoute.tsx',
 ]

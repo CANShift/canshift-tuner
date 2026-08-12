@@ -1,22 +1,64 @@
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { SCREEN_PROFILES } from '@canshift/core'
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 import { useDeviceStore } from '../stores/device.store'
 import { useObservabilityStore } from '../stores/observability.store'
 import { useConnectionStore } from '../stores/connection.store'
 import { BrandLockup } from '../components/brand/BrandLockup'
 import { Checkbox } from '../components/ui/checkbox'
 import { HeapStatsPanel } from '../components/about/HeapStatsPanel'
-import { MONO_FONT } from '../lib/typography'
+import { RouteBody } from '../components/ui/route-shell'
 
 const REPO_URL = 'https://github.com/CANShift/canshift-tuner'
 const DOCS_URL = 'https://canshift.app'
 const ISSUES_URL = 'https://github.com/CANShift/canshift-tuner/issues'
 
+type ConnectionStatus = ReturnType<typeof useConnectionStore.getState>['status']
+
+const STATUS_LABELS: Record<ConnectionStatus, string> = {
+  connected: 'Connected',
+  connecting: 'Connecting…',
+  reconnecting: 'Reconnecting…',
+  disconnected: 'Disconnected',
+}
+
+const MAIN_COLUMN = 'flex min-w-0 flex-1 flex-col gap-7 overflow-y-auto p-11 text-brand-text'
+
+const TABLE = 'max-w-[620px] border-t-2 border-solid border-brand-divider'
+
+const factRow = cva('flex justify-between gap-4 py-[13px] text-[14px]', {
+  variants: {
+    last: { true: '', false: 'border-b border-solid border-brand-neutral-300' },
+  },
+  defaultVariants: { last: false },
+})
+
+const LINK_BUTTON = [
+  'border border-solid border-brand-neutral-400 px-[22px] py-3',
+  'text-[12px] font-extrabold tracking-[0.08em] text-brand-text no-underline',
+].join(' ')
+
+const SIDE_PANEL = [
+  'w-[360px] shrink-0 overflow-y-auto',
+  'border-l-2 border-solid border-brand-divider bg-brand-neutral-100',
+].join(' ')
+
+const SIDE_HEADER = [
+  'border-b-2 border-solid border-brand-divider px-5 py-3.5',
+  'text-[10px] font-extrabold tracking-[0.2em] text-brand-neutral-600',
+].join(' ')
+
+const DIAGNOSTICS_ROW = [
+  'flex max-w-[520px] cursor-pointer items-start gap-2.5',
+  'text-[12px] leading-[1.5] text-brand-neutral-600',
+].join(' ')
+
 const DiagnosticsToggle = () => {
   const enabled = useObservabilityStore((s) => s.enabled)
   const setEnabled = useObservabilityStore((s) => s.setEnabled)
   return (
-    <label style={diagnosticsRowStyle}>
+    <label className={DIAGNOSTICS_ROW}>
       <Checkbox
         checked={enabled}
         onCheckedChange={(checked) => {
@@ -48,11 +90,11 @@ const AboutRoute = () => {
   const panels = SCREEN_PROFILES.map((p) => p.name).join(' · ')
 
   return (
-    <div style={containerStyle}>
-      <div style={mainColumnStyle}>
+    <RouteBody className="overflow-hidden">
+      <div className={MAIN_COLUMN}>
         <BrandLockup height={72} withBaseline />
 
-        <div style={tableStyle}>
+        <div className={TABLE}>
           <FactRow label="Tuner" value={`${tunerVersion} — web`} />
           <FactRow label="Firmware on device" value={firmwareVersion ?? '—'} />
           <FactRow label="Status" value={prettyStatus(status, simulationMode)} />
@@ -61,7 +103,7 @@ const AboutRoute = () => {
           <FactRow label="Licence" value="MIT · github.com/CANShift" last />
         </div>
 
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div className="flex gap-3">
           <LinkButton href={DOCS_URL} label="DOCUMENTATION" />
           <LinkButton href={REPO_URL} label="GITHUB" />
           <LinkButton href={ISSUES_URL} label="REPORT A BUG" />
@@ -70,13 +112,13 @@ const AboutRoute = () => {
         <DiagnosticsToggle />
       </div>
 
-      <aside style={sidePanelStyle}>
-        <div style={sideHeaderStyle}>DEVICE HEAP — LIVE</div>
-        <div style={{ padding: '16px 20px' }}>
+      <aside className={SIDE_PANEL}>
+        <div className={SIDE_HEADER}>DEVICE HEAP — LIVE</div>
+        <div className="px-5 py-4">
           <HeapStatsPanel history={heapStats} />
         </div>
       </aside>
-    </div>
+    </RouteBody>
   )
 }
 
@@ -87,9 +129,9 @@ interface FactRowProps {
 }
 
 const FactRow = ({ label, value, last = false }: FactRowProps) => (
-  <div style={factRowStyle(last)}>
-    <span style={{ color: 'hsl(var(--brand-neutral-600))' }}>{label}</span>
-    <span style={{ fontFamily: MONO_FONT, fontSize: 13 }}>{value}</span>
+  <div className={cn(factRow({ last }))}>
+    <span className="text-brand-neutral-600">{label}</span>
+    <span className="font-mono text-[13px]">{value}</span>
   </div>
 )
 
@@ -99,104 +141,14 @@ interface LinkButtonProps {
 }
 
 const LinkButton = ({ href, label }: LinkButtonProps) => (
-  <a
-    href={href}
-    target="_blank"
-    rel="noreferrer"
-    className="shell-link-button"
-    style={linkButtonStyle}
-  >
+  <a href={href} target="_blank" rel="noreferrer" className={cn('shell-link-button', LINK_BUTTON)}>
     {label}
   </a>
 )
 
-const prettyStatus = (
-  status: ReturnType<typeof useConnectionStore.getState>['status'],
-  simulationMode: boolean
-): string => {
+const prettyStatus = (status: ConnectionStatus, simulationMode: boolean): string => {
   if (simulationMode) return 'Simulation mode'
-  switch (status) {
-    case 'connected':
-      return 'Connected'
-    case 'connecting':
-      return 'Connecting…'
-    case 'reconnecting':
-      return 'Reconnecting…'
-    case 'disconnected':
-      return 'Disconnected'
-    default:
-      return status
-  }
-}
-
-const containerStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  minHeight: 0,
-  overflow: 'hidden',
-}
-
-const mainColumnStyle: CSSProperties = {
-  flex: 1,
-  minWidth: 0,
-  padding: 44,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 28,
-  overflowY: 'auto',
-  color: 'hsl(var(--brand-text))',
-}
-
-const tableStyle: CSSProperties = {
-  maxWidth: 620,
-  borderTop: '2px solid var(--brand-divider)',
-}
-
-const factRowStyle = (last: boolean): CSSProperties => ({
-  display: 'flex',
-  justifyContent: 'space-between',
-  gap: 16,
-  padding: '13px 0',
-  borderBottom: last ? 'none' : '1px solid hsl(var(--brand-neutral-300))',
-  fontSize: 14,
-})
-
-const linkButtonStyle: CSSProperties = {
-  padding: '12px 22px',
-  border: '1px solid hsl(var(--brand-neutral-400))',
-  fontWeight: 800,
-  fontSize: 12,
-  letterSpacing: '0.08em',
-  color: 'hsl(var(--brand-text))',
-  textDecoration: 'none',
-}
-
-const sidePanelStyle: CSSProperties = {
-  width: 360,
-  flexShrink: 0,
-  borderLeft: '2px solid var(--brand-divider)',
-  background: 'hsl(var(--brand-neutral-100))',
-  overflowY: 'auto',
-}
-
-const sideHeaderStyle: CSSProperties = {
-  padding: '14px 20px',
-  borderBottom: '2px solid var(--brand-divider)',
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.2em',
-  color: 'hsl(var(--brand-neutral-600))',
+  return STATUS_LABELS[status]
 }
 
 export default AboutRoute
-
-const diagnosticsRowStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'flex-start',
-  gap: 10,
-  maxWidth: 520,
-  fontSize: 12,
-  lineHeight: 1.5,
-  color: 'hsl(var(--brand-neutral-600))',
-  cursor: 'pointer',
-}

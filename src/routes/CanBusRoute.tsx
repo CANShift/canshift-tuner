@@ -1,5 +1,4 @@
 import { useCallback, useMemo, useState } from 'react'
-import type { CSSProperties } from 'react'
 import { useCanScanner } from '../hooks/useCanScanner'
 import { CanFrameTable } from '../components/can-bus/CanFrameTable'
 import { CanScanToolbar } from '../components/can-bus/CanScanToolbar'
@@ -9,6 +8,7 @@ import { useSignalStore } from '../stores/signal.store'
 import { useLogStore } from '../stores/log.store'
 import { formatFrameIdHex, parseHexFrameId } from '../utils/frame-id'
 import { buildDraftSignal, sortFrames } from '../utils/can-frames'
+import { RoutePage } from '../components/ui/route-shell'
 
 const CanBusRoute = () => {
   const connected = useDeviceStore((s) => s.connected)
@@ -52,7 +52,7 @@ const CanBusRoute = () => {
   const canControl = connected && !simulationMode
 
   return (
-    <div style={containerStyle}>
+    <RoutePage>
       <CanScanToolbar
         status={scanner.status}
         canControl={canControl}
@@ -82,16 +82,8 @@ const CanBusRoute = () => {
         learnScores={learn?.scores ?? null}
         onPromote={promote}
       />
-    </div>
+    </RoutePage>
   )
-}
-
-const containerStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  background: 'hsl(var(--brand-chrome-bg))',
-  overflow: 'hidden',
 }
 
 export default CanBusRoute
