@@ -1,41 +1,45 @@
-import type { CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { useProvisionBoardProfile } from '../../hooks/useProvisionBoardProfile'
-import { MONO_FONT } from '../../lib/typography'
+import { cn } from '@/lib/utils'
+import { Eyebrow } from '../ui/meta-text'
 
 export const BoardProfileProvision = () => {
   const { resolved, linked, canProvision, state, provision } = useProvisionBoardProfile()
 
   return (
-    <div style={wrapperStyle}>
-      <span style={labelStyle}>Board profile</span>
+    <div className="flex flex-col gap-2.5 border-t border-brand-neutral-200 px-6 py-4">
+      <Eyebrow className="uppercase tracking-[0.18em]">Board profile</Eyebrow>
 
       {resolved === null ? (
-        <span style={noteStyle}>
+        <span className={NOTE}>
           Pick a board on the{' '}
-          <Link to="/board" style={linkStyle}>
+          <Link to="/board" className="text-brand-accent underline">
             Board config
           </Link>{' '}
           page to provision it after flashing.
         </span>
       ) : (
         <>
-          <span style={summaryStyle}>
+          <span className="font-mono text-[12px] text-brand-text">
             {resolved.profile.boardName} ({resolved.source})
           </span>
-          <div style={actionsRowStyle}>
+          <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
-              className="shell-link-button"
               disabled={!canProvision}
               onClick={provision}
-              style={buttonStyle(!canProvision)}
+              className={cn(
+                'shell-link-button border border-brand-neutral-400 bg-transparent px-5 py-[11px] text-[13px] font-extrabold tracking-[0.07em]',
+                canProvision
+                  ? 'cursor-pointer text-brand-text'
+                  : 'cursor-not-allowed text-brand-neutral-500'
+              )}
             >
               {state.kind === 'writing' ? 'WRITING…' : 'PROVISION BOARD PROFILE'}
             </button>
-            {!linked && <span style={noteStyle}>Connect the dash to provision over USB.</span>}
+            {!linked && <span className={NOTE}>Connect the dash to provision over USB.</span>}
           </div>
-          <span style={hintStyle}>
+          <span className="text-[11px] leading-[1.5] text-brand-neutral-600">
             A full flash wipes NVS — provision the board profile so the dash boots configured. On an
             already-running dash this saves the profile and reboots it.
           </span>
@@ -43,94 +47,27 @@ export const BoardProfileProvision = () => {
       )}
 
       {state.kind === 'ok' && (
-        <div style={successCardStyle}>
+        <div className={cn(CARD, 'border-success')}>
           Board profile saved.
           {state.restart ? ' The dash is rebooting — reconnect from Welcome when it returns.' : ''}
         </div>
       )}
       {state.kind === 'invalid' && (
-        <div style={errorCardStyle}>
+        <div className={cn(CARD, ERROR_CARD)}>
           The firmware rejected this profile (invalid_board_profile). Re-check the board definition
           on the Board config page.
         </div>
       )}
       {state.kind === 'error' && (
-        <div style={errorCardStyle}>Board profile write failed — {state.message}.</div>
+        <div className={cn(CARD, ERROR_CARD)}>Board profile write failed — {state.message}.</div>
       )}
     </div>
   )
 }
 
-const wrapperStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 10,
-  padding: '16px 24px',
-  borderTop: '1px solid hsl(var(--brand-neutral-200))',
-}
+const NOTE = 'text-[12px] leading-[1.5] text-brand-neutral-700'
 
-const labelStyle: CSSProperties = {
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.18em',
-  textTransform: 'uppercase',
-  color: 'hsl(var(--brand-neutral-600))',
-}
+const CARD = 'border px-3.5 py-2.5 text-[12px] leading-[1.5] text-brand-text'
 
-const summaryStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 12,
-  color: 'hsl(var(--brand-text))',
-}
-
-const actionsRowStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 12,
-  flexWrap: 'wrap',
-}
-
-const buttonStyle = (disabled: boolean): CSSProperties => ({
-  padding: '11px 20px',
-  background: 'none',
-  border: '1px solid hsl(var(--brand-neutral-400))',
-  fontWeight: 800,
-  fontSize: 13,
-  letterSpacing: '0.07em',
-  color: disabled ? 'hsl(var(--brand-neutral-500))' : 'hsl(var(--brand-text))',
-  cursor: disabled ? 'not-allowed' : 'pointer',
-})
-
-const noteStyle: CSSProperties = {
-  fontSize: 12,
-  lineHeight: 1.5,
-  color: 'hsl(var(--brand-neutral-700))',
-}
-
-const hintStyle: CSSProperties = {
-  fontSize: 11,
-  lineHeight: 1.5,
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const linkStyle: CSSProperties = {
-  color: 'hsl(var(--brand-accent))',
-  textDecoration: 'underline',
-}
-
-const successCardStyle: CSSProperties = {
-  padding: '10px 14px',
-  border: '1px solid hsl(var(--success))',
-  fontSize: 12,
-  lineHeight: 1.5,
-  color: 'hsl(var(--brand-text))',
-}
-
-const errorCardStyle: CSSProperties = {
-  padding: '10px 14px',
-  border: '1px solid hsl(var(--brand-accent))',
-  background: 'color-mix(in srgb, hsl(var(--brand-accent)) 8%, transparent)',
-  fontSize: 12,
-  lineHeight: 1.5,
-  color: 'hsl(var(--brand-text))',
-}
+const ERROR_CARD =
+  'border-brand-accent bg-[color-mix(in_srgb,hsl(var(--brand-accent))_8%,transparent)]'

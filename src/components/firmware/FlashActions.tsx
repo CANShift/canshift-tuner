@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import type { ReleaseAsset, ReleaseInfo } from '@canshift/core'
 import type { FirmwareSelection } from '../../stores/firmware-selection.store'
@@ -9,8 +9,10 @@ import type { FlasherState } from '../../hooks/useFlasher'
 import { useLogStore } from '../../stores/log.store'
 import { downloadFirmwareAsset } from '../../lib/firmware/download'
 import { formatBytes } from '../../lib/format'
-import { MONO_FONT } from '../../lib/typography'
 import { errorMessage } from '../../lib/error-message'
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
+import { MetaText } from '../ui/meta-text'
 
 export interface FlashActionsProps {
   selection: FirmwareSelection
@@ -39,19 +41,20 @@ const RESETTABLE_KINDS: ReadonlySet<FlasherState['kind']> = new Set(['success', 
 const FLASH_STATUS_CARDS: Record<FlasherState['kind'], (state: FlasherState) => ReactNode> = {
   idle: () => null,
   flashing: (state) => (
-    <div style={progressTrackStyle}>
-      <div style={progressFillStyle(flashPct(state))} />
+    <div className={PROGRESS_TRACK}>
+      {/* eslint-disable-next-line no-inline-style/no-inline-style */}
+      <div className={PROGRESS_FILL} style={{ width: `${flashPct(state).toFixed(1)}%` }} />
     </div>
   ),
   success: () => (
-    <div style={successCardStyle}>
+    <div className={cn(CARD, 'border-success')}>
       Flash complete. Unplug the dash from USB and plug it back in to boot the new firmware — the
       flasher's automatic reset is unreliable on this board.
     </div>
   ),
   error: (state) =>
     state.kind !== 'error' ? null : (
-      <div style={errorCardStyle}>
+      <div className={cn(CARD, ERROR_CARD)}>
         Flash failed — {state.message}. Most common cause: BOOT was not held long enough. Press and
         hold BOOT, then retry.
       </div>
@@ -147,24 +150,28 @@ export const FlashActions = ({
     : `BURN ${selectionLabel(selection).toUpperCase()}`
 
   return (
-    <div style={wrapperStyle}>
-      <div style={actionsRowStyle}>
+    <div className="flex flex-col gap-3.5 px-6 py-5">
+      <div className="flex flex-wrap items-center gap-3">
         <button
           type="button"
-          className="shell-burn-button"
           disabled={!canFlash || flashing}
           onClick={handleFlash}
-          style={burnButtonStyle(!canFlash || flashing)}
+          className={cn(
+            'shell-burn-button',
+            flashButton({ tone: 'burn', disabled: !canFlash || flashing })
+          )}
         >
           {burnLabel}
         </button>
         {needsDownload && (
           <button
             type="button"
-            className="shell-link-button"
             disabled={downloading || pickedAsset === null}
             onClick={handleDownload}
-            style={secondaryButtonStyle(downloading || pickedAsset === null)}
+            className={cn(
+              'shell-link-button',
+              flashButton({ tone: 'secondary', disabled: downloading || pickedAsset === null })
+            )}
           >
             {downloading ? 'DOWNLOADING…' : 'DOWNLOAD .BIN'}
           </button>
@@ -172,22 +179,22 @@ export const FlashActions = ({
         {RESETTABLE_KINDS.has(state.kind) && (
           <button
             type="button"
-            className="shell-link-button"
             onClick={reset}
-            style={secondaryButtonStyle(false)}
+            className={cn('shell-link-button', flashButton({ tone: 'secondary', disabled: false }))}
           >
             RESET
           </button>
         )}
-        <span style={etaStyle}>≈ 30 s · do not unplug</span>
+        <MetaText align="end">≈ 30 s · do not unplug</MetaText>
       </div>
 
       {downloading && pickedAsset && (
-        <div style={progressGroupStyle}>
-          <div style={progressTrackStyle}>
-            <div style={progressFillStyle(progress * 100)} />
+        <div className="flex flex-col gap-1">
+          <div className={PROGRESS_TRACK}>
+            {/* eslint-disable-next-line no-inline-style/no-inline-style */}
+            <div className={PROGRESS_FILL} style={{ width: `${(progress * 100).toFixed(1)}%` }} />
           </div>
-          <div style={progressMetaStyle}>
+          <div className="flex justify-between font-mono text-[10px] text-brand-neutral-500">
             <span>
               {formatBytes(loadedBytes)} / {formatBytes(pickedAsset.sizeBytes)}
             </span>
@@ -195,11 +202,13 @@ export const FlashActions = ({
           </div>
         </div>
       )}
-      {downloadError && <div style={errorCardStyle}>Download failed — {downloadError}</div>}
+      {downloadError && (
+        <div className={cn(CARD, ERROR_CARD)}>Download failed — {downloadError}</div>
+      )}
 
       {FLASH_STATUS_CARDS[state.kind](state)}
 
-      <ol style={instructionsStyle}>
+      <ol className="m-0 flex flex-col gap-1 pl-[18px] text-[12px] leading-[1.45] text-brand-neutral-700">
         <li>Press and hold the BOOT button on the back of the dash — keep it held.</li>
         <li>Start the burn while still holding BOOT.</li>
         <li>Pick the dash's serial port in the browser prompt (USB-SERIAL CH340).</li>
@@ -209,101 +218,32 @@ export const FlashActions = ({
   )
 }
 
-const wrapperStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 14,
-  padding: '20px 24px',
-}
+const PROGRESS_TRACK = 'h-1.5 w-full overflow-hidden bg-brand-neutral-200'
 
-const actionsRowStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 12,
-  flexWrap: 'wrap',
-}
+const PROGRESS_FILL = 'h-full bg-brand-accent [transition:width_120ms_linear]'
 
-const burnButtonStyle = (disabled: boolean): CSSProperties => ({
-  padding: '13px 26px',
-  background: disabled ? 'hsl(var(--brand-neutral-300))' : 'hsl(var(--brand-accent))',
-  border: 'none',
-  fontWeight: 800,
-  fontSize: 13,
-  letterSpacing: '0.09em',
-  color: disabled ? 'hsl(var(--brand-neutral-500))' : 'hsl(var(--brand-ground))',
-  cursor: disabled ? 'not-allowed' : 'pointer',
+const CARD = 'border px-3.5 py-2.5 text-[12px] leading-[1.5] text-brand-text'
+
+const ERROR_CARD =
+  'border-brand-accent bg-[color-mix(in_srgb,hsl(var(--brand-accent))_8%,transparent)]'
+
+const flashButton = cva('border-none text-[13px] font-extrabold', {
+  variants: {
+    tone: {
+      burn: 'px-[26px] py-[13px] tracking-[0.09em]',
+      secondary:
+        'border border-solid border-brand-neutral-400 bg-transparent px-5 py-[13px] tracking-[0.07em]',
+    },
+    disabled: {
+      true: 'cursor-not-allowed',
+      false: 'cursor-pointer',
+    },
+  },
+  compoundVariants: [
+    { tone: 'burn', disabled: true, class: 'bg-brand-neutral-300 text-brand-neutral-500' },
+    { tone: 'burn', disabled: false, class: 'bg-brand-accent text-brand-ground' },
+    { tone: 'secondary', disabled: true, class: 'text-brand-neutral-500' },
+    { tone: 'secondary', disabled: false, class: 'text-brand-text' },
+  ],
+  defaultVariants: { disabled: false },
 })
-
-const secondaryButtonStyle = (disabled: boolean): CSSProperties => ({
-  padding: '13px 20px',
-  background: 'none',
-  border: '1px solid hsl(var(--brand-neutral-400))',
-  fontWeight: 800,
-  fontSize: 13,
-  letterSpacing: '0.07em',
-  color: disabled ? 'hsl(var(--brand-neutral-500))' : 'hsl(var(--brand-text))',
-  cursor: disabled ? 'not-allowed' : 'pointer',
-})
-
-const etaStyle: CSSProperties = {
-  marginLeft: 'auto',
-  fontFamily: MONO_FONT,
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const progressGroupStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 4,
-}
-
-const progressTrackStyle: CSSProperties = {
-  width: '100%',
-  height: 6,
-  background: 'hsl(var(--brand-neutral-200))',
-  overflow: 'hidden',
-}
-
-const progressFillStyle = (pct: number): CSSProperties => ({
-  width: `${pct.toFixed(1)}%`,
-  height: '100%',
-  background: 'hsl(var(--brand-accent))',
-  transition: 'width 120ms linear',
-})
-
-const progressMetaStyle: CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  fontFamily: MONO_FONT,
-  fontSize: 10,
-  color: 'hsl(var(--brand-neutral-500))',
-}
-
-const successCardStyle: CSSProperties = {
-  padding: '10px 14px',
-  border: '1px solid hsl(var(--success))',
-  fontSize: 12,
-  lineHeight: 1.5,
-  color: 'hsl(var(--brand-text))',
-}
-
-const errorCardStyle: CSSProperties = {
-  padding: '10px 14px',
-  border: '1px solid hsl(var(--brand-accent))',
-  background: 'color-mix(in srgb, hsl(var(--brand-accent)) 8%, transparent)',
-  fontSize: 12,
-  lineHeight: 1.5,
-  color: 'hsl(var(--brand-text))',
-}
-
-const instructionsStyle: CSSProperties = {
-  margin: 0,
-  paddingLeft: 18,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 4,
-  fontSize: 12,
-  lineHeight: 1.45,
-  color: 'hsl(var(--brand-neutral-700))',
-}

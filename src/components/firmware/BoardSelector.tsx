@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react'
 import {
   Select,
   SelectContent,
@@ -9,7 +8,7 @@ import {
 import { boardLabel, boardSummary, type BoardManifestEntry } from '../../lib/firmware/manifest'
 import { FALLBACK_BOARD_ID } from '../../lib/firmware/manifest'
 import type { ManifestState } from '../../hooks/useFirmwareManifest'
-import { MONO_FONT } from '../../lib/typography'
+import { Eyebrow, MetaText } from '../ui/meta-text'
 
 export interface BoardSelectorProps {
   manifestState: ManifestState
@@ -30,18 +29,18 @@ export const BoardSelector = ({
 
   if (manifestState.kind === 'loading') {
     return (
-      <div style={wrapperStyle}>
-        <span style={labelStyle}>Board</span>
-        <span style={noteStyle}>Reading the release board manifest…</span>
+      <div className={PANEL_BLOCK}>
+        <Eyebrow className="uppercase tracking-[0.18em]">Board</Eyebrow>
+        <span className={NOTE}>Reading the release board manifest…</span>
       </div>
     )
   }
 
   if (manifestState.kind === 'none' || manifestState.kind === 'error') {
     return (
-      <div style={wrapperStyle}>
-        <span style={labelStyle}>Board</span>
-        <span style={noteStyle}>
+      <div className={PANEL_BLOCK}>
+        <Eyebrow className="uppercase tracking-[0.18em]">Board</Eyebrow>
+        <span className={NOTE}>
           {manifestState.kind === 'error'
             ? `Couldn't read the board manifest (${manifestState.message}). `
             : 'This release predates per-board builds. '}
@@ -54,10 +53,12 @@ export const BoardSelector = ({
   const selected = boards.find((board) => board.id === selectedId) ?? null
 
   return (
-    <div style={wrapperStyle}>
-      <span style={labelStyle}>Board</span>
+    <div className={PANEL_BLOCK}>
+      <Eyebrow className="uppercase tracking-[0.18em]">Board</Eyebrow>
       {detected && selected && (
-        <span style={detectedPillStyle}>Detected: {boardLabel(selected.id)}</span>
+        <MetaText className="self-start border border-success px-2.5 py-[3px] text-brand-text">
+          Detected: {boardLabel(selected.id)}
+        </MetaText>
       )}
       <Select {...(selectedId !== null ? { value: selectedId } : {})} onValueChange={onSelect}>
         <SelectTrigger>
@@ -71,44 +72,11 @@ export const BoardSelector = ({
           ))}
         </SelectContent>
       </Select>
-      {selected && <span style={summaryStyle}>{boardSummary(selected)}</span>}
+      {selected && <MetaText>{boardSummary(selected)}</MetaText>}
     </div>
   )
 }
 
-const wrapperStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 8,
-  padding: '16px 24px',
-  borderBottom: '1px solid hsl(var(--brand-neutral-200))',
-}
+const PANEL_BLOCK = 'flex flex-col gap-2 border-b border-brand-neutral-200 px-6 py-4'
 
-const labelStyle: CSSProperties = {
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.18em',
-  textTransform: 'uppercase',
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const detectedPillStyle: CSSProperties = {
-  alignSelf: 'flex-start',
-  padding: '3px 10px',
-  border: '1px solid hsl(var(--success))',
-  fontFamily: MONO_FONT,
-  fontSize: 11,
-  color: 'hsl(var(--brand-text))',
-}
-
-const summaryStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const noteStyle: CSSProperties = {
-  fontSize: 12,
-  lineHeight: 1.5,
-  color: 'hsl(var(--brand-neutral-700))',
-}
+const NOTE = 'text-[12px] leading-[1.5] text-brand-neutral-700'

@@ -1,8 +1,8 @@
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import type { FirmwareSelection } from '../../stores/firmware-selection.store'
 import { formatBytes } from '../../lib/format'
-import { MONO_FONT } from '../../lib/typography'
 import { Eyebrow } from '../ui/meta-text'
+import { cn } from '@/lib/utils'
 
 export interface WriteAndPreflightProps {
   selection: FirmwareSelection
@@ -12,8 +12,10 @@ const isWebSerialAvailable = (): boolean =>
   typeof navigator !== 'undefined' && 'serial' in navigator
 
 const CheckRow = ({ ok, children }: { ok: boolean; children: ReactNode }) => (
-  <div style={ok ? checkRowStyle : pendingRowStyle}>
-    <span style={ok ? checkMarkStyle : pendingMarkStyle}>{ok ? '✓' : '—'}</span>
+  <div className={cn(STAT_ROW, ok ? 'text-brand-text' : 'text-brand-neutral-700')}>
+    <span className={cn('font-mono', ok ? 'text-brand-accent' : 'text-brand-neutral-500')}>
+      {ok ? '✓' : '—'}
+    </span>
     {children}
   </div>
 )
@@ -23,23 +25,23 @@ export const WriteAndPreflight = ({ selection }: WriteAndPreflightProps) => {
   const webSerial = isWebSerialAvailable()
 
   return (
-    <div style={columnsStyle}>
-      <div style={leftColumnStyle}>
+    <div className="grid grid-cols-2 border-b-2 border-brand-divider">
+      <div className="flex flex-col gap-3 border-r border-brand-neutral-300 px-6 py-5">
         <Eyebrow>WHAT GETS WRITTEN</Eyebrow>
-        <div style={writtenRowStyle}>
-          <span style={checkedBoxStyle} />
+        <div className={cn(STAT_ROW, 'text-brand-text')}>
+          <span className="size-[15px] shrink-0 border-2 border-brand-accent bg-brand-accent" />
           Firmware image — full flash, checksum-verified
         </div>
-        <div style={writtenDimRowStyle}>
-          <span style={uncheckedBoxStyle} />
+        <div className={cn(STAT_ROW, 'text-brand-neutral-700')}>
+          <span className="size-[15px] shrink-0 border-2 border-brand-neutral-400" />
           Dashboard layout — burned separately via BURN TO DEVICE
         </div>
-        <div style={writtenDimRowStyle}>
-          <span style={uncheckedBoxStyle} />
+        <div className={cn(STAT_ROW, 'text-brand-neutral-700')}>
+          <span className="size-[15px] shrink-0 border-2 border-brand-neutral-400" />
           User settings and logs — kept, never erased by the flasher
         </div>
       </div>
-      <div style={rightColumnStyle}>
+      <div className="flex flex-col gap-3 px-6 py-5">
         <Eyebrow>PRE-FLIGHT</Eyebrow>
         <CheckRow ok={webSerial}>
           {webSerial
@@ -57,74 +59,4 @@ export const WriteAndPreflight = ({ selection }: WriteAndPreflightProps) => {
   )
 }
 
-const columnsStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: '1fr 1fr',
-  borderBottom: '2px solid var(--brand-divider)',
-}
-
-const leftColumnStyle: CSSProperties = {
-  padding: '20px 24px',
-  borderRight: '1px solid hsl(var(--brand-neutral-300))',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 12,
-}
-
-const rightColumnStyle: CSSProperties = {
-  padding: '20px 24px',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 12,
-}
-
-const writtenRowStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 10,
-  fontSize: 13,
-  color: 'hsl(var(--brand-text))',
-}
-
-const writtenDimRowStyle: CSSProperties = {
-  ...writtenRowStyle,
-  color: 'hsl(var(--brand-neutral-700))',
-}
-
-const checkedBoxStyle: CSSProperties = {
-  width: 15,
-  height: 15,
-  flexShrink: 0,
-  border: '2px solid hsl(var(--brand-accent))',
-  background: 'hsl(var(--brand-accent))',
-}
-
-const uncheckedBoxStyle: CSSProperties = {
-  width: 15,
-  height: 15,
-  flexShrink: 0,
-  border: '2px solid hsl(var(--brand-neutral-400))',
-}
-
-const checkRowStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 10,
-  fontSize: 13,
-  color: 'hsl(var(--brand-text))',
-}
-
-const pendingRowStyle: CSSProperties = {
-  ...checkRowStyle,
-  color: 'hsl(var(--brand-neutral-700))',
-}
-
-const checkMarkStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  color: 'hsl(var(--brand-accent))',
-}
-
-const pendingMarkStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  color: 'hsl(var(--brand-neutral-500))',
-}
+const STAT_ROW = 'flex items-center gap-2.5 text-[13px]'

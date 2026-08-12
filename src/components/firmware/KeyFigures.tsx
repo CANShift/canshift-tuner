@@ -1,9 +1,8 @@
-import type { CSSProperties } from 'react'
 import type { ReleaseInfo } from '@canshift/core'
 import type { FirmwareSelection } from '../../stores/firmware-selection.store'
 import { findMergedAsset } from '../../lib/firmware/releases'
 import { formatBytes } from '../../lib/format'
-import { MONO_FONT } from '../../lib/typography'
+import { cn } from '@/lib/utils'
 
 export interface KeyFiguresProps {
   installedVersion: string | null
@@ -34,86 +33,40 @@ export const KeyFigures = ({ installedVersion, latestStable, selection }: KeyFig
       : `${formatBytes(selection.firmware.size)} · sha256 ${selection.firmware.sha256.slice(0, 12)}…`
 
   return (
-    <div style={rowStyle}>
-      <div style={cellStyle}>
-        <span style={labelStyle}>INSTALLED</span>
-        <span style={valueStyle}>{installedVersion ?? '—'}</span>
-        <span style={detailStyle}>
+    <div className="grid grid-cols-3 border-b-2 border-brand-divider">
+      <div className={CELL}>
+        <span className={LABEL}>INSTALLED</span>
+        <span className={VALUE}>{installedVersion ?? '—'}</span>
+        <span className={DETAIL}>
           {installedVersion ? 'read from the device' : 'no device link'}
         </span>
       </div>
-      <div style={cellStyle}>
-        <span style={updateAvailable ? accentLabelStyle : labelStyle}>AVAILABLE</span>
-        <span style={updateAvailable ? accentValueStyle : valueStyle}>
+      <div className={CELL}>
+        <span className={cn(LABEL, updateAvailable && 'text-brand-accent')}>AVAILABLE</span>
+        <span className={cn(VALUE, updateAvailable && 'text-brand-accent')}>
           {latestStable?.version ?? '—'}
         </span>
-        <span style={detailStyle}>
+        <span className={DETAIL}>
           {latestStable
             ? `released ${formatDate(latestStable.publishedAt)}${latestAsset ? ` · ${formatBytes(latestAsset.sizeBytes)}` : ''}`
             : 'no stable release found'}
         </span>
       </div>
-      <div style={lastCellStyle}>
-        <span style={labelStyle}>SELECTED</span>
-        <span style={valueStyle}>{selectedLabel}</span>
-        <span style={detailStyle}>{selectedDetail}</span>
+      <div className={cn(CELL, 'border-r-0')}>
+        <span className={LABEL}>SELECTED</span>
+        <span className={VALUE}>{selectedLabel}</span>
+        <span className={DETAIL}>{selectedDetail}</span>
       </div>
     </div>
   )
 }
 
-const rowStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: '1fr 1fr 1fr',
-  borderBottom: '2px solid var(--brand-divider)',
-}
+const CELL = 'flex min-w-0 flex-col gap-[5px] border-r border-brand-neutral-300 px-6 py-5'
 
-const cellStyle: CSSProperties = {
-  padding: '20px 24px',
-  borderRight: '1px solid hsl(var(--brand-neutral-300))',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 5,
-  minWidth: 0,
-}
+const LABEL = 'text-[10px] font-extrabold tracking-[0.18em] text-brand-neutral-600'
 
-const lastCellStyle: CSSProperties = {
-  ...cellStyle,
-  borderRight: 'none',
-}
+const VALUE =
+  'overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[30px] leading-[1.1] text-brand-text'
 
-const labelStyle: CSSProperties = {
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.18em',
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const accentLabelStyle: CSSProperties = {
-  ...labelStyle,
-  color: 'hsl(var(--brand-accent))',
-}
-
-const valueStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 30,
-  lineHeight: 1.1,
-  color: 'hsl(var(--brand-text))',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-}
-
-const accentValueStyle: CSSProperties = {
-  ...valueStyle,
-  color: 'hsl(var(--brand-accent))',
-}
-
-const detailStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-600))',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-}
+const DETAIL =
+  'overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[11px] text-brand-neutral-600'
