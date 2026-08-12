@@ -22,38 +22,25 @@ const PageThumbnailImpl = ({ page, topBar }: PageThumbnailProps) => {
 
   return (
     <div
-      style={{
-        width: THUMB_W,
-        height: thumbH,
-        background: page.backgroundColor,
-        overflow: 'hidden',
-        position: 'relative',
-        flexShrink: 0,
-      }}
+      className="relative shrink-0 overflow-hidden"
+      // eslint-disable-next-line no-inline-style/no-inline-style
+      style={{ width: THUMB_W, height: thumbH, background: page.backgroundColor }}
     >
       <div
+        className="absolute left-0 top-0 origin-top-left"
+        // eslint-disable-next-line no-inline-style/no-inline-style
         style={{
           width: profile.width,
           height: profile.height,
-          position: 'absolute',
-          top: 0,
-          left: 0,
           background: page.backgroundColor,
           transform: `scale(${String(thumbScale)})`,
-          transformOrigin: 'top left',
         }}
       >
         {page.showTopBar !== false && (
           <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: fullBarH,
-              background: topBar.bgColor,
-              borderBottom: '1px solid #1E1E1E',
-            }}
+            className="absolute left-0 right-0 top-0 border-b border-solid border-[#1E1E1E]"
+            // eslint-disable-next-line no-inline-style/no-inline-style
+            style={{ height: fullBarH, background: topBar.bgColor }}
           />
         )}
 
@@ -73,14 +60,9 @@ const PageThumbnailImpl = ({ page, topBar }: PageThumbnailProps) => {
             return (
               <div
                 key={widget.id}
-                style={{
-                  position: 'absolute',
-                  left: rect.x,
-                  top: fullBarH + rect.y,
-                  width: rect.w,
-                  height: rect.h,
-                  overflow: 'hidden',
-                }}
+                className="absolute overflow-hidden"
+                // eslint-disable-next-line no-inline-style/no-inline-style
+                style={{ left: rect.x, top: fullBarH + rect.y, width: rect.w, height: rect.h }}
               >
                 <WidgetPreview widget={widget} displayW={rect.w} displayH={rect.h} noAnimate />
               </div>

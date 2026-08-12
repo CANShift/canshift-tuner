@@ -34,16 +34,7 @@ const buildBlankPage = (): PageConfig => ({
 
 const CanvasFallback = () => {
   return (
-    <div
-      style={{
-        flex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: 'hsl(var(--text-muted))',
-        fontSize: 12,
-      }}
-    >
+    <div className="flex flex-1 items-center justify-center text-[12px] text-text-muted">
       Loading editor…
     </div>
   )
@@ -127,27 +118,10 @@ const EditorRoute = () => {
 
   if (!pages || !topBar) {
     return (
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 8,
-          color: 'hsl(var(--text-dim))',
-        }}
-      >
-        <div style={{ fontSize: 32, opacity: 0.2 }}>◫</div>
-        <p style={{ fontSize: 14, color: 'hsl(var(--text))' }}>No config loaded</p>
-        <p
-          style={{
-            fontSize: 11,
-            color: 'hsl(var(--text-muted))',
-            maxWidth: 360,
-            textAlign: 'center',
-          }}
-        >
+      <div className="flex flex-1 flex-col items-center justify-center gap-2 text-text-dim">
+        <div className="text-[32px] opacity-20">◫</div>
+        <p className="text-[14px] text-text">No config loaded</p>
+        <p className="max-w-[360px] text-center text-[11px] text-text-muted">
           Open the ECU Profile route, load a catalogue entry, then return here.
         </p>
       </div>
@@ -193,7 +167,7 @@ const EditorRoute = () => {
   )
 
   return (
-    <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+    <div className="flex flex-1 overflow-hidden">
       {currentPage ? (
         <ErrorBoundary scope="canvas">
           <Suspense fallback={<CanvasFallback />}>
@@ -207,15 +181,7 @@ const EditorRoute = () => {
           </Suspense>
         </ErrorBoundary>
       ) : (
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'hsl(var(--brand-neutral-500))',
-          }}
-        >
+        <div className="flex flex-1 items-center justify-center text-brand-neutral-500">
           No page selected
         </div>
       )}

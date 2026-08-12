@@ -1,12 +1,44 @@
 import { memo } from 'react'
 import type { PageConfig, TopBarConfig } from '@canshift/core'
 import { FIRMWARE_CAPS } from '@canshift/core'
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 import { PageCell } from './page-cell'
-import { MONO_FONT } from '../../lib/typography'
 import { Eyebrow } from '../ui/meta-text'
 
-const STRIP_HEIGHT = 100
+const STRIP = [
+  'flex h-[100px] shrink-0 items-stretch',
+  'border-b-2 border-solid border-brand-divider bg-brand-neutral-100',
+].join(' ')
+
+const HEADER_CELL = [
+  'flex w-24 shrink-0 flex-col justify-between px-3.5 py-3',
+  'border-r-2 border-solid border-brand-divider',
+].join(' ')
+
+const CELLS = 'flex flex-1 items-stretch overflow-x-auto'
+
+const capCount = cva('font-mono text-[11px]', {
+  variants: { atCap: { true: 'text-brand-accent', false: 'text-brand-neutral-600' } },
+  defaultVariants: { atCap: false },
+})
+
+const addButton = cva(
+  [
+    'w-[92px] shrink-0 border-0 border-r border-solid border-brand-neutral-300',
+    'bg-transparent text-[12px] font-extrabold tracking-[0.06em]',
+  ].join(' '),
+  {
+    variants: {
+      atCap: {
+        true: 'cursor-not-allowed text-brand-neutral-500',
+        false: 'cursor-pointer text-brand-neutral-700',
+      },
+    },
+    defaultVariants: { atCap: false },
+  }
+)
 
 export interface PageStripProps {
   pages: readonly PageConfig[]
@@ -41,21 +73,17 @@ const PageStripImpl = ({
 }: PageStripProps) => {
   const selectedIndex = pages.findIndex((p) => p.id === (selectedPageId ?? pages[0]?.id))
   return (
-    <div style={stripStyle}>
-      <div style={headerCellStyle}>
+    <div className={STRIP}>
+      <div className={HEADER_CELL}>
         <Eyebrow>PAGES</Eyebrow>
         <span
-          style={{
-            fontFamily: MONO_FONT,
-            fontSize: 11,
-            color: atCap ? 'hsl(var(--brand-accent))' : 'hsl(var(--brand-neutral-600))',
-          }}
+          className={cn(capCount({ atCap }))}
           title={`Firmware accepts at most ${String(FIRMWARE_CAPS.MAX_PAGES)} pages`}
         >
           {selectedIndex + 1} / {pages.length} · max {FIRMWARE_CAPS.MAX_PAGES}
         </span>
       </div>
-      <div style={cellsStyle}>
+      <div className={CELLS}>
         {pages.map((page, index) => (
           <PageCell
             key={page.id}
@@ -76,7 +104,7 @@ const PageStripImpl = ({
         {newPageControl ?? (
           <button
             type="button"
-            className="shell-nav-item"
+            className={cn('shell-nav-item', addButton({ atCap }))}
             disabled={atCap}
             onClick={onAdd}
             title={
@@ -84,7 +112,6 @@ const PageStripImpl = ({
                 ? `Firmware accepts at most ${String(FIRMWARE_CAPS.MAX_PAGES)} pages — remove one to add another`
                 : 'Add a new page'
             }
-            style={addButtonStyle(atCap)}
           >
             + PAGE
           </button>
@@ -93,44 +120,5 @@ const PageStripImpl = ({
     </div>
   )
 }
-
-const stripStyle: CSSProperties = {
-  height: STRIP_HEIGHT,
-  flexShrink: 0,
-  display: 'flex',
-  alignItems: 'stretch',
-  borderBottom: '2px solid var(--brand-divider)',
-  background: 'hsl(var(--brand-neutral-100))',
-}
-
-const headerCellStyle: CSSProperties = {
-  width: 96,
-  flexShrink: 0,
-  borderRight: '2px solid var(--brand-divider)',
-  padding: '12px 14px',
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'space-between',
-}
-
-const cellsStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  alignItems: 'stretch',
-  overflowX: 'auto',
-}
-
-const addButtonStyle = (atCap: boolean): CSSProperties => ({
-  width: 92,
-  flexShrink: 0,
-  background: 'none',
-  border: 0,
-  borderRight: '1px solid hsl(var(--brand-neutral-300))',
-  fontWeight: 800,
-  fontSize: 12,
-  letterSpacing: '0.06em',
-  color: atCap ? 'hsl(var(--brand-neutral-500))' : 'hsl(var(--brand-neutral-700))',
-  cursor: atCap ? 'not-allowed' : 'pointer',
-})
 
 export const PageStrip = memo(PageStripImpl)

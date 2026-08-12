@@ -1,6 +1,4 @@
-import type { CSSProperties } from 'react'
 import type { PageConfig, Widget } from '@canshift/core'
-import { MONO_FONT } from '../../../lib/typography'
 
 interface GridRect {
   x: number
@@ -15,11 +13,17 @@ export interface CanvasStatusBarProps {
   selectedRect: GridRect | null
 }
 
+const STATUS_BAR = [
+  'flex h-9 shrink-0 items-center gap-[22px] overflow-hidden px-5',
+  'border-t-2 border-solid border-brand-divider',
+  'whitespace-nowrap font-mono text-[11px] text-brand-neutral-600',
+].join(' ')
+
 const SelectionDetails = ({ widget, rect }: { widget: Widget; rect: GridRect }) => (
   <>
     <span>
       SELECTED{' '}
-      <span style={statusValueStyle}>
+      <span className="text-brand-text">
         {widget.type}
         {widget.signal ? `.${widget.signal}` : ''}
       </span>
@@ -37,7 +41,7 @@ const SelectionDetails = ({ widget, rect }: { widget: Widget; rect: GridRect }) 
 )
 
 export const CanvasStatusBar = ({ page, selectedWidget, selectedRect }: CanvasStatusBarProps) => (
-  <div style={statusBarStyle}>
+  <div className={STATUS_BAR}>
     {selectedWidget && selectedRect ? (
       <SelectionDetails widget={selectedWidget} rect={selectedRect} />
     ) : (
@@ -46,27 +50,8 @@ export const CanvasStatusBar = ({ page, selectedWidget, selectedRect }: CanvasSt
         inspect
       </span>
     )}
-    <span style={{ marginLeft: 'auto' }}>
+    <span className="ml-auto">
       {page.showTopBar !== false ? 'top bar shown' : 'top bar hidden'}
     </span>
   </div>
 )
-
-const statusBarStyle: CSSProperties = {
-  height: 36,
-  flexShrink: 0,
-  borderTop: '2px solid var(--brand-divider)',
-  display: 'flex',
-  alignItems: 'center',
-  gap: 22,
-  padding: '0 20px',
-  fontFamily: MONO_FONT,
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-600))',
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-}
-
-const statusValueStyle: CSSProperties = {
-  color: 'hsl(var(--brand-text))',
-}

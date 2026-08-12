@@ -1,5 +1,7 @@
 import { lazy, Suspense, useState } from 'react'
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 import { CollapseRail, CollapseButton } from '../components/shell/CollapseRail'
 import { useUiStore } from '../stores/ui.store'
 
@@ -10,6 +12,32 @@ const WidgetListPanel = lazy(() => import('../components/editor/WidgetListPanel'
 const HistoryPanel = lazy(() => import('../components/editor/HistoryPanel'))
 
 type Tab = 'properties' | 'widgets' | 'signals' | 'library' | 'history'
+
+const ASIDE = [
+  'flex w-80 shrink-0 flex-row overflow-hidden',
+  'min-h-0 border-l-2 border-solid border-brand-divider',
+].join(' ')
+
+const GUTTER = [
+  'flex shrink-0 flex-col items-center pt-2',
+  'border-r border-solid border-brand-divider bg-brand-neutral-100',
+].join(' ')
+
+const CONTENT_COL = 'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden'
+
+const TAB_LIST = 'flex shrink-0 border-b-2 border-solid border-brand-divider'
+
+const tab_ = cva(
+  'relative flex-1 cursor-pointer border-0 bg-transparent py-[11px] text-[9px] font-extrabold tracking-[0.06em]',
+  {
+    variants: { active: { true: 'text-brand-text', false: 'text-brand-neutral-600' } },
+    defaultVariants: { active: false },
+  }
+)
+
+const TAB_BAR = 'absolute bottom-0 left-0 right-0 h-[3px] bg-brand-accent'
+
+const FALLBACK = 'flex flex-1 items-center justify-center text-[11px] text-brand-neutral-500'
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'properties', label: 'PROPERTIES' },
@@ -23,7 +51,7 @@ export interface RightSidebarProps {
   pageId: string | undefined
 }
 
-const PanelFallback = () => <div style={fallbackStyle}>Loading…</div>
+const PanelFallback = () => <div className={FALLBACK}>Loading…</div>
 
 const TAB_PANELS: Record<Tab, (pageId: string | undefined) => ReactNode | null> = {
   properties: (pageId) => (pageId === undefined ? null : <PropertyPanel pageId={pageId} />),
@@ -45,12 +73,12 @@ export const RightSidebar = ({ pageId }: RightSidebarProps) => {
   const panel = TAB_PANELS[tab](pageId)
 
   return (
-    <aside style={asideStyle}>
-      <div style={gutterStyle}>
+    <aside className={ASIDE}>
+      <div className={GUTTER}>
         <CollapseButton side="right" label="Inspector" onCollapse={toggleInspector} />
       </div>
-      <div style={contentColStyle}>
-        <div role="tablist" aria-label="Editor sidebar tabs" style={tabListStyle}>
+      <div className={CONTENT_COL}>
+        <div role="tablist" aria-label="Editor sidebar tabs" className={TAB_LIST}>
           {TABS.map((t) => {
             const isActive = tab === t.id
             return (
@@ -62,11 +90,10 @@ export const RightSidebar = ({ pageId }: RightSidebarProps) => {
                 onClick={() => {
                   setTab(t.id)
                 }}
-                className={isActive ? undefined : 'shell-nav-item'}
-                style={tabStyle(isActive)}
+                className={cn(!isActive && 'shell-nav-item', tab_({ active: isActive }))}
               >
                 {t.label}
-                {isActive && <span aria-hidden="true" style={tabBarStyle} />}
+                {isActive && <span aria-hidden="true" className={TAB_BAR} />}
               </button>
             )
           })}
@@ -75,70 +102,4 @@ export const RightSidebar = ({ pageId }: RightSidebarProps) => {
       </div>
     </aside>
   )
-}
-
-const asideStyle: CSSProperties = {
-  width: 320,
-  flexShrink: 0,
-  borderLeft: '2px solid var(--brand-divider)',
-  display: 'flex',
-  flexDirection: 'row',
-  minHeight: 0,
-  overflow: 'hidden',
-}
-
-const gutterStyle: CSSProperties = {
-  flexShrink: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  paddingTop: 8,
-  borderRight: '1px solid var(--brand-divider)',
-  background: 'hsl(var(--brand-neutral-100))',
-}
-
-const contentColStyle: CSSProperties = {
-  flex: 1,
-  minWidth: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  minHeight: 0,
-  overflow: 'hidden',
-}
-
-const tabListStyle: CSSProperties = {
-  display: 'flex',
-  borderBottom: '2px solid var(--brand-divider)',
-  flexShrink: 0,
-}
-
-const tabStyle = (active: boolean): CSSProperties => ({
-  position: 'relative',
-  flex: 1,
-  padding: '11px 0',
-  background: 'none',
-  border: 0,
-  fontWeight: 800,
-  fontSize: 9,
-  letterSpacing: '0.06em',
-  color: active ? 'hsl(var(--brand-text))' : 'hsl(var(--brand-neutral-600))',
-  cursor: 'pointer',
-})
-
-const tabBarStyle: CSSProperties = {
-  position: 'absolute',
-  left: 0,
-  right: 0,
-  bottom: 0,
-  height: 3,
-  background: 'hsl(var(--brand-accent))',
-}
-
-const fallbackStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  color: 'hsl(var(--brand-neutral-500))',
-  fontSize: 11,
 }

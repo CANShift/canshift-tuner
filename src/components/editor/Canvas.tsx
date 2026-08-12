@@ -1,5 +1,5 @@
 import { useRef, useCallback, useMemo, useState } from 'react'
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import type { PageConfig, TopBarConfig } from '@canshift/core'
 import { resolveGridRect, resolveScreenProfile } from '@canshift/core'
 import { useDashboardStore } from '../../stores/dashboard.store'
@@ -26,7 +26,6 @@ import { useSwipeGestures } from '../../hooks/useSwipeGestures'
 import { useEffectivePalette } from '../../hooks/useEffectivePalette'
 import { useCanvasDialogs } from '../../hooks/useCanvasDialogs'
 
-import { MONO_FONT } from '../../lib/typography'
 import { Eyebrow } from '../ui/meta-text'
 
 const SCALE = 1.5
@@ -234,16 +233,20 @@ const Canvas = ({ page, topBar, pageIndex, pageStrip, inspector }: CanvasProps) 
   }
 
   return (
-    <div style={rootStyle}>
+    <div className={ROOT}>
       <CanvasToolbar {...toolbarProps} />
       {pageStrip}
-      <div style={bodyRowStyle}>
-        <div style={editorColStyle}>
-          <div onMouseDown={deselectOnBackground} style={canvasZoneStyle}>
-            <div style={frameColumnStyle}>
+      <div className={BODY_ROW}>
+        <div className={EDITOR_COL}>
+          <div onMouseDown={deselectOnBackground} className={CANVAS_ZONE}>
+            <div className={FRAME_COLUMN}>
               <CanvasTitle pageIndex={pageIndex} screenProfile={screenProfile} zoom={zoom} />
-              <div style={deviceFrameStyle}>
-                <div style={screenStyle(canvasW, canvasH, effectiveBgColor)}>
+              <div className={DEVICE_FRAME}>
+                <div
+                  className={SCREEN}
+                  // eslint-disable-next-line no-inline-style/no-inline-style
+                  style={{ width: canvasW, height: canvasH, background: effectiveBgColor }}
+                >
                   {page.showTopBar !== false && (
                     <DashTopBar
                       topBar={topBar}
@@ -262,7 +265,7 @@ const Canvas = ({ page, topBar, pageIndex, pageStrip, inspector }: CanvasProps) 
                     onPointerUp={onPointerUp}
                     onDragOver={handleSignalDragOver}
                     onDrop={handleSignalDrop}
-                    style={surfaceStyle}
+                    className={SURFACE}
                   >
                     <GridGuides
                       areaWidth={screenProfile.width}
@@ -301,82 +304,36 @@ interface CanvasTitleProps {
 }
 
 const CanvasTitle = ({ pageIndex, screenProfile, zoom }: CanvasTitleProps) => (
-  <div style={canvasTitleRowStyle}>
+  <div className={TITLE_ROW}>
     <Eyebrow>{pageIndex !== undefined ? `PAGE ${String(pageIndex + 1)}` : 'PAGE'}</Eyebrow>
-    <span style={canvasDimsStyle}>
+    <span className={DIMS}>
       {screenProfile.width} × {screenProfile.height} @ {SCALE * zoom}×
     </span>
   </div>
 )
 
-const rootStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-  overflow: 'hidden',
-}
+const ROOT = 'flex flex-1 flex-col overflow-hidden'
 
-const bodyRowStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  minHeight: 0,
-}
+const BODY_ROW = 'flex min-h-0 flex-1'
 
-const editorColStyle: CSSProperties = {
-  flex: 1,
-  minWidth: 0,
-  display: 'flex',
-  flexDirection: 'column',
-}
+const EDITOR_COL = 'flex min-w-0 flex-1 flex-col'
 
-const frameColumnStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 10,
-}
+const FRAME_COLUMN = 'flex flex-col gap-2.5'
 
-const screenStyle = (width: number, height: number, background: string): CSSProperties => ({
-  display: 'flex',
-  flexDirection: 'column',
-  width,
-  height,
-  background,
-  overflow: 'hidden',
-})
+const DEVICE_FRAME = 'border-2 border-solid border-brand-neutral-400'
 
-const surfaceStyle: CSSProperties = {
-  position: 'relative',
-  flex: 1,
-  overflow: 'hidden',
-  cursor: 'default',
-}
+const SCREEN = 'flex flex-col overflow-hidden'
 
-const canvasZoneStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  overflow: 'auto',
-  backgroundColor: 'hsl(var(--brand-neutral-100))',
-  backgroundImage:
-    'linear-gradient(hsl(var(--brand-neutral-200)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--brand-neutral-200)) 1px, transparent 1px)',
-  backgroundSize: '24px 24px',
-}
+const SURFACE = 'relative flex-1 cursor-default overflow-hidden'
 
-const canvasTitleRowStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'baseline',
-  gap: 10,
-}
+const CANVAS_ZONE = [
+  'flex flex-1 items-center justify-center overflow-auto bg-brand-neutral-100',
+  '[background-image:linear-gradient(hsl(var(--brand-neutral-200))_1px,transparent_1px),linear-gradient(90deg,hsl(var(--brand-neutral-200))_1px,transparent_1px)]',
+  '[background-size:24px_24px]',
+].join(' ')
 
-const canvasDimsStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-600))',
-}
+const TITLE_ROW = 'flex items-baseline gap-2.5'
 
-const deviceFrameStyle: CSSProperties = {
-  border: '2px solid hsl(var(--brand-neutral-400))',
-}
+const DIMS = 'font-mono text-[11px] text-brand-neutral-600'
 
 export default Canvas
