@@ -1,6 +1,5 @@
 export const INLINE_STYLE_BASELINE = [
   'src/components/editor/CruiseControlOverCapDialog.tsx',
-  'src/components/editor/CruiseControlPreview.tsx',
   'src/components/editor/NewPageMenu.tsx',
   'src/components/editor/property-panel/button-fields.tsx',
   'src/components/editor/property-panel/button/action-editor.tsx',
@@ -22,14 +21,4 @@ export const INLINE_STYLE_BASELINE = [
   'src/components/editor/ScreenSettingsPanel.tsx',
   'src/components/editor/ShortcutsDialog.tsx',
   'src/components/editor/UndoToast.tsx',
-  'src/components/editor/widget-previews/Button.tsx',
-  'src/components/editor/widget-previews/GaugeArc.tsx',
-  'src/components/editor/widget-previews/GaugeNumeric.tsx',
-  'src/components/editor/widget-previews/Gear.tsx',
-  'src/components/editor/widget-previews/Image.tsx',
-  'src/components/editor/widget-previews/ShiftLight.tsx',
-  'src/components/editor/widget-previews/Timer.tsx',
-  'src/components/editor/widget-previews/Warning.tsx',
-  'src/components/editor/WidgetListPanel.tsx',
-  'src/components/editor/WidgetPalette.tsx',
 ]

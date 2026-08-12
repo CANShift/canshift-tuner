@@ -19,7 +19,7 @@ export const ImagePreview = memo(function ImagePreview({ widget, w, h }: BaseRen
   ].join(' ')
 
   return (
-    <svg width={w} height={h} style={{ display: 'block', overflow: 'hidden' }} aria-hidden="true">
+    <svg width={w} height={h} className="block overflow-hidden" aria-hidden="true">
       <rect
         x={4}
         y={4}

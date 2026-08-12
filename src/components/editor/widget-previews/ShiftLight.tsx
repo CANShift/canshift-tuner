@@ -29,7 +29,7 @@ export const ShiftLightPreview = memo(function ShiftLightPreview({
     cfg.redSegments >= SHIFT_LIGHT.segments ? 0 : SHIFT_LIGHT.segments - cfg.redSegments
 
   return (
-    <svg width={w} height={h} style={{ display: 'block' }} aria-hidden="true">
+    <svg width={w} height={h} className="block" aria-hidden="true">
       {Array.from({ length: SHIFT_LIGHT.segments }, (_, i) => {
         const fill =
           i >= lit ? SHIFT_LIGHT.trackColor : i >= redFrom ? SHIFT_LIGHT.redColor : st.textColor

@@ -1,5 +1,5 @@
 import type { PagePalette } from '@canshift/core'
-import { MONO_FONT, UI_FONT, UI_LABEL_TRACKING, UI_LABEL_WEIGHT } from '../../lib/typography'
+import { UI_FONT, UI_LABEL_TRACKING, UI_LABEL_WEIGHT } from '../../lib/typography'
 
 const OUTER_PAD = 6
 const CENTER_W = 100
@@ -9,6 +9,16 @@ const CORNER_R = 8
 const INNER_R = 5
 const LABEL_PAD = 10
 const STROKE_W = 2
+
+const CENTER = 'absolute box-border flex flex-col items-center justify-center'
+
+const CENTER_LABEL = [
+  'text-center font-sans font-extrabold leading-none tracking-[0.18em] text-[#888888]',
+].join(' ')
+
+const CENTER_VALUE = [
+  'whitespace-nowrap text-center font-mono font-extrabold leading-none tracking-[0.02em]',
+].join(' ')
 
 const DEMO_SET_SPEED = 0
 const SPEED_UNIT = 'km/h'
@@ -157,10 +167,7 @@ export const CruiseControlPreview = ({
   const notchH = Math.round(CENTER_H / 2 + NOTCH_MARGIN)
 
   return (
-    <div
-      style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
-      data-testid="cruise-control-preview"
-    >
+    <div className="pointer-events-none absolute inset-0" data-testid="cruise-control-preview">
       {BUTTONS.map((btn) => {
         const box = layout[btn.corner]
         const w = box.w
@@ -178,13 +185,9 @@ export const CruiseControlPreview = ({
             width={w * scale}
             height={h * scale}
             viewBox={`0 0 ${String(w)} ${String(h)}`}
-            style={{
-              position: 'absolute',
-              left: box.x * scale,
-              top: box.y * scale,
-              overflow: 'visible',
-              opacity: 0.92,
-            }}
+            className="absolute overflow-visible opacity-[0.92]"
+            // eslint-disable-next-line no-inline-style/no-inline-style
+            style={{ left: box.x * scale, top: box.y * scale }}
             aria-label={`${btn.label} — ${btn.hint}`}
           >
             <title>{`${btn.label} — ${btn.hint}`}</title>
@@ -213,58 +216,35 @@ export const CruiseControlPreview = ({
       })}
 
       <div
+        className={CENTER}
+        // eslint-disable-next-line no-inline-style/no-inline-style
         style={{
-          position: 'absolute',
           left: layout.center.x * scale,
           top: layout.center.y * scale,
           width: layout.center.w * scale,
           height: layout.center.h * scale,
-          boxSizing: 'border-box',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
           gap: 2 * scale,
           color: palette.text,
         }}
       >
         <span
-          style={{
-            fontFamily: UI_FONT,
-            fontWeight: UI_LABEL_WEIGHT,
-            fontSize: 10 * scale,
-            color: '#888888',
-            lineHeight: 1,
-            letterSpacing: UI_LABEL_TRACKING,
-            textAlign: 'center',
-          }}
+          className={CENTER_LABEL}
+          // eslint-disable-next-line no-inline-style/no-inline-style
+          style={{ fontSize: 10 * scale }}
         >
           SET
         </span>
         <span
-          style={{
-            color: palette.text,
-            fontFamily: MONO_FONT,
-            fontWeight: 800,
-            fontSize: Math.round(40 * scale),
-            lineHeight: 1,
-            letterSpacing: '0.02em',
-            whiteSpace: 'nowrap',
-            textAlign: 'center',
-          }}
+          className={CENTER_VALUE}
+          // eslint-disable-next-line no-inline-style/no-inline-style
+          style={{ color: palette.text, fontSize: Math.round(40 * scale) }}
         >
           {DEMO_SET_SPEED}
         </span>
         <span
-          style={{
-            color: '#888888',
-            fontFamily: UI_FONT,
-            fontWeight: UI_LABEL_WEIGHT,
-            fontSize: Math.max(8, Math.round(10 * scale)),
-            lineHeight: 1,
-            letterSpacing: UI_LABEL_TRACKING,
-            textAlign: 'center',
-          }}
+          className={CENTER_LABEL}
+          // eslint-disable-next-line no-inline-style/no-inline-style
+          style={{ fontSize: Math.max(8, Math.round(10 * scale)) }}
         >
           {SPEED_UNIT}
         </span>

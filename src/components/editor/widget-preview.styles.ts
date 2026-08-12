@@ -1,39 +1,27 @@
-import type { CSSProperties } from 'react'
-import { uiLabelAtSize } from '../../lib/typography'
+import { cva } from 'class-variance-authority'
+import { WIDGET_TOP_RULE } from '@canshift/core'
 
-export const BLINK_ANIM = 'canshift-blink 0.7s step-end infinite'
+export const BLINK = '[animation:canshift-blink_0.7s_step-end_infinite]'
 
 export const WIDGET_DIM_COLOR = '#888888'
 
-const KICKER_FONT_PX = 10
-const KICKER_INSET_PX = 4
+export const WIDGET_KICKER = [
+  'absolute left-1 top-1 max-w-[calc(100%-8px)]',
+  'overflow-hidden text-ellipsis whitespace-nowrap',
+  'font-sans text-[10px] font-extrabold uppercase leading-none tracking-[0.18em]',
+  'text-[#888888]',
+].join(' ')
 
-export const widgetKickerStyle: CSSProperties = {
-  ...uiLabelAtSize(KICKER_FONT_PX),
-  position: 'absolute',
-  top: KICKER_INSET_PX,
-  left: KICKER_INSET_PX,
-  color: WIDGET_DIM_COLOR,
-  lineHeight: 1,
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  maxWidth: `calc(100% - ${String(KICKER_INSET_PX * 2)}px)`,
-}
-
-export const widgetTopRuleStyle = (
-  rulePx: number,
-  color: string,
-  blink: boolean
-): CSSProperties => ({
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  height: rulePx,
-  background: color,
-  animation: blink ? BLINK_ANIM : undefined,
+export const widgetTopRule = cva('absolute left-0 right-0 top-0', {
+  variants: {
+    tier: { primary: 'h-0.5', secondary: 'h-px' },
+    blink: { true: BLINK, false: '' },
+  },
+  defaultVariants: { tier: 'secondary', blink: false },
 })
+
+export const ruleTier = (rulePx: number): 'primary' | 'secondary' =>
+  rulePx === WIDGET_TOP_RULE.primaryPx ? 'primary' : 'secondary'
 
 export const thresholdPct = (level: number, min: number, max: number): number => {
   const range = max - min || 1

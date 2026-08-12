@@ -1,11 +1,11 @@
-import type { CSSProperties } from 'react'
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 import type { WidgetType, SensorIconName } from '@canshift/core'
 import { useDashboardStore } from '../../stores/dashboard.store'
 import { SensorIcon } from '../icons/SensorIcons'
 import { SIZE_TOKENS } from '../../utils/size-tokens'
 import { createId } from '../../utils/id'
 import { DEFAULT_WIDGET_STYLE, WIDGET_TYPE_DRAG_MIME } from '../../utils/default-widget'
-import { MONO_FONT } from '../../lib/typography'
 
 type PaletteWidgetType = Extract<WidgetType, 'gauge' | 'button' | 'gear' | 'shift_light'>
 
@@ -113,13 +113,13 @@ const WidgetPalette = ({ pageId }: WidgetPaletteProps) => {
   }
 
   return (
-    <div style={{ flex: 1, overflowY: 'auto', opacity: templateLocked ? 0.5 : 1 }}>
-      <div style={libraryHeaderStyle}>
+    <div className={cn(panel({ locked: templateLocked }))}>
+      <div className={HEADER}>
         <span>WIDGET LIBRARY</span>
         <span>{PALETTE_ITEMS.length}</span>
       </div>
       {templateLocked && (
-        <div style={lockedNoteStyle}>
+        <div className={LOCKED_NOTE}>
           This page uses a built-in template — widget edits are ignored. Switch the page template
           back to <em>Custom layout</em> to add widgets.
         </div>
@@ -128,7 +128,11 @@ const WidgetPalette = ({ pageId }: WidgetPaletteProps) => {
         <button
           key={item.label}
           type="button"
-          className={templateLocked ? undefined : 'shell-nav-item'}
+          className={cn(
+            !templateLocked && 'shell-nav-item',
+            ROW,
+            templateLocked && 'cursor-not-allowed'
+          )}
           onClick={() => {
             handleAdd(item)
           }}
@@ -139,13 +143,12 @@ const WidgetPalette = ({ pageId }: WidgetPaletteProps) => {
           }}
           disabled={templateLocked}
           title={templateLocked ? 'Disabled — page uses a template' : `Add ${item.label}`}
-          style={libraryRowStyle(templateLocked)}
         >
-          <span style={rowIconStyle}>
+          <span className={ROW_ICON}>
             <SensorIcon name={item.icon} size={13} color="currentColor" />
           </span>
-          <span style={{ fontSize: 13 }}>{item.label}</span>
-          <span style={rowSizeStyle}>
+          <span className="text-[13px]">{item.label}</span>
+          <span className={ROW_SIZE}>
             {item.defaultColSpan}×{item.defaultRowSpan}
           </span>
         </button>
@@ -154,51 +157,30 @@ const WidgetPalette = ({ pageId }: WidgetPaletteProps) => {
   )
 }
 
-const libraryHeaderStyle: CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  padding: '12px 16px',
-  borderBottom: '2px solid var(--brand-divider)',
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.18em',
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const lockedNoteStyle: CSSProperties = {
-  padding: '10px 16px',
-  fontSize: 11,
-  lineHeight: 1.4,
-  color: 'hsl(var(--brand-neutral-600))',
-  borderBottom: '1px solid hsl(var(--brand-neutral-200))',
-}
-
-const libraryRowStyle = (locked: boolean): CSSProperties => ({
-  width: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  gap: 9,
-  padding: '9px 16px',
-  background: 'none',
-  border: 0,
-  borderBottom: '1px solid hsl(var(--brand-neutral-200))',
-  color: 'hsl(var(--brand-neutral-700))',
-  cursor: locked ? 'not-allowed' : 'pointer',
-  textAlign: 'left',
+const panel = cva('flex-1 overflow-y-auto', {
+  variants: { locked: { true: 'opacity-50', false: 'opacity-100' } },
+  defaultVariants: { locked: false },
 })
 
-const rowIconStyle: CSSProperties = {
-  width: 20,
-  flexShrink: 0,
-  display: 'inline-flex',
-  color: 'hsl(var(--brand-accent))',
-}
+const HEADER = [
+  'flex justify-between px-4 py-3',
+  'border-b-2 border-solid border-brand-divider',
+  'text-[10px] font-extrabold tracking-[0.18em] text-brand-neutral-600',
+].join(' ')
 
-const rowSizeStyle: CSSProperties = {
-  marginLeft: 'auto',
-  fontFamily: MONO_FONT,
-  fontSize: 10,
-  color: 'hsl(var(--brand-neutral-600))',
-}
+const LOCKED_NOTE = [
+  'border-b border-solid border-brand-neutral-200 px-4 py-2.5',
+  'text-[11px] leading-[1.4] text-brand-neutral-600',
+].join(' ')
+
+const ROW = [
+  'flex w-full cursor-pointer items-center gap-[9px] px-4 py-[9px]',
+  'border-0 border-b border-solid border-brand-neutral-200',
+  'bg-transparent text-left text-brand-neutral-700',
+].join(' ')
+
+const ROW_ICON = 'inline-flex w-5 shrink-0 text-brand-accent'
+
+const ROW_SIZE = 'ml-auto font-mono text-[10px] text-brand-neutral-600'
 
 export default WidgetPalette

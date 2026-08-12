@@ -1,6 +1,7 @@
-import type { CSSProperties } from 'react'
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
+import { ActiveBar } from '@/components/ui/active-bar'
 import { useDashboardStore } from '../../stores/dashboard.store'
-import { MONO_FONT } from '../../lib/typography'
 
 interface WidgetListPanelProps {
   pageId: string
@@ -16,30 +17,29 @@ const WidgetListPanel = ({ pageId }: WidgetListPanelProps) => {
   if (!page) return null
 
   return (
-    <div style={panelStyle}>
-      <div style={headerStyle}>
+    <div className={PANEL}>
+      <div className={HEADER}>
         <span>PAGE {pageIndex + 1}</span>
         <span>
           {page.widgets.length} widget{page.widgets.length === 1 ? '' : 's'}
         </span>
       </div>
-      {page.widgets.length === 0 && <div style={emptyStyle}>No widgets on this page yet.</div>}
+      {page.widgets.length === 0 && <div className={EMPTY}>No widgets on this page yet.</div>}
       {page.widgets.map((widget, index) => {
         const selected = widget.id === selectedWidgetId
         return (
           <button
             key={widget.id}
             type="button"
-            className={selected ? undefined : 'shell-nav-item'}
+            className={cn(!selected && 'shell-nav-item', row({ selected }))}
             onClick={() => {
               selectWidget(widget.id)
             }}
-            style={rowStyle(selected)}
           >
-            {selected && <span aria-hidden="true" style={selectedBarStyle} />}
-            <span style={indexStyle}>{String(index + 1).padStart(2, '0')}</span>
-            <span style={nameStyle}>{widget.type}</span>
-            <span style={signalStyle}>{widget.signal || '—'}</span>
+            {selected && <ActiveBar />}
+            <span className={INDEX}>{String(index + 1).padStart(2, '0')}</span>
+            <span className="text-[13px]">{widget.type}</span>
+            <span className={SIGNAL}>{widget.signal || '—'}</span>
           </button>
         )
       })}
@@ -47,69 +47,34 @@ const WidgetListPanel = ({ pageId }: WidgetListPanelProps) => {
   )
 }
 
-const panelStyle: CSSProperties = {
-  flex: 1,
-  overflowY: 'auto',
-}
+const PANEL = 'flex-1 overflow-y-auto'
 
-const headerStyle: CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  padding: '12px 16px',
-  borderBottom: '2px solid var(--brand-divider)',
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.18em',
-  color: 'hsl(var(--brand-neutral-600))',
-}
+const HEADER = [
+  'flex justify-between px-4 py-3',
+  'border-b-2 border-solid border-brand-divider',
+  'text-[10px] font-extrabold tracking-[0.18em] text-brand-neutral-600',
+].join(' ')
 
-const emptyStyle: CSSProperties = {
-  padding: '14px 16px',
-  fontSize: 12,
-  color: 'hsl(var(--brand-neutral-500))',
-}
+const EMPTY = 'px-4 py-3.5 text-[12px] text-brand-neutral-500'
 
-const rowStyle = (selected: boolean): CSSProperties => ({
-  position: 'relative',
-  width: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  gap: 9,
-  padding: '9px 16px 9px 19px',
-  background: selected ? 'hsl(var(--brand-neutral-200))' : 'none',
-  border: 0,
-  borderBottom: '1px solid hsl(var(--brand-neutral-200))',
-  cursor: 'pointer',
-  textAlign: 'left',
-  color: selected ? 'hsl(var(--brand-text))' : 'hsl(var(--brand-neutral-700))',
-})
+const row = cva(
+  [
+    'relative flex w-full cursor-pointer items-center gap-[9px] py-[9px] pl-[19px] pr-4',
+    'border-0 border-b border-solid border-brand-neutral-200 text-left',
+  ].join(' '),
+  {
+    variants: {
+      selected: {
+        true: 'bg-brand-neutral-200 text-brand-text',
+        false: 'bg-transparent text-brand-neutral-700',
+      },
+    },
+    defaultVariants: { selected: false },
+  }
+)
 
-const selectedBarStyle: CSSProperties = {
-  position: 'absolute',
-  left: 0,
-  top: 0,
-  bottom: 0,
-  width: 3,
-  background: 'hsl(var(--brand-accent))',
-}
+const INDEX = 'w-5 shrink-0 font-mono text-[10px] text-brand-neutral-600'
 
-const indexStyle: CSSProperties = {
-  width: 20,
-  flexShrink: 0,
-  fontFamily: MONO_FONT,
-  fontSize: 10,
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const nameStyle: CSSProperties = {
-  fontSize: 13,
-}
-
-const signalStyle: CSSProperties = {
-  marginLeft: 'auto',
-  fontFamily: MONO_FONT,
-  fontSize: 10,
-  color: 'hsl(var(--brand-neutral-600))',
-}
+const SIGNAL = 'ml-auto font-mono text-[10px] text-brand-neutral-600'
 
 export default WidgetListPanel

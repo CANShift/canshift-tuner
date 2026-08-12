@@ -1,9 +1,24 @@
 import { memo } from 'react'
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 import type { BaseRendererProps } from './shared'
-import { MONO_FONT, uiLabelAtSize } from '../../../lib/typography'
 
 const DEMO_MMSS = '01:23'
 const DEMO_SS_MMM = '12.847'
+
+const FRAME = 'relative flex items-center justify-center overflow-hidden'
+
+const HEAVY_FONT_MIN_PX = 32
+
+const value = cva('font-mono tracking-[0.06em] tabular-nums', {
+  variants: { heavy: { true: 'font-black', false: 'font-bold' } },
+  defaultVariants: { heavy: false },
+})
+
+const KICKER = [
+  'absolute left-[3px] top-0.5 font-sans text-[9px] font-medium uppercase',
+  'leading-none tracking-[0.05em] text-[#888888]',
+].join(' ')
 
 export const TimerPreview = memo(function TimerPreview({ widget, w, h }: BaseRendererProps) {
   if (widget.config.type !== 'timer') return null
@@ -11,46 +26,18 @@ export const TimerPreview = memo(function TimerPreview({ widget, w, h }: BaseRen
   const st = widget.style
   const timeStr = cfg.format === 'ss.mmm' ? DEMO_SS_MMM : DEMO_MMSS
   const fontSize = Math.max(9, Math.min(h * 0.44, w * 0.22))
-  const sigFontSize = 9
 
   return (
-    <div
-      style={{
-        width: w,
-        height: h,
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
-      }}
-    >
+    // eslint-disable-next-line no-inline-style/no-inline-style
+    <div className={FRAME} style={{ width: w, height: h }}>
       <span
-        style={{
-          color: st.textColor,
-          fontSize,
-          fontWeight: fontSize >= 32 ? 900 : 700,
-          fontFamily: MONO_FONT,
-          letterSpacing: '0.06em',
-          fontVariantNumeric: 'tabular-nums',
-        }}
+        className={cn(value({ heavy: fontSize >= HEAVY_FONT_MIN_PX }))}
+        // eslint-disable-next-line no-inline-style/no-inline-style
+        style={{ color: st.textColor, fontSize }}
       >
         {timeStr}
       </span>
-      <span
-        style={{
-          position: 'absolute',
-          top: 2,
-          left: 3,
-          ...uiLabelAtSize(sigFontSize),
-          fontWeight: 500,
-          color: '#888888',
-          lineHeight: 1,
-          letterSpacing: '0.05em',
-        }}
-      >
-        TIMER
-      </span>
+      <span className={KICKER}>TIMER</span>
     </div>
   )
 })

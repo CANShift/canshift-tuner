@@ -1,7 +1,19 @@
 import { memo } from 'react'
 import { WIDGET_ACCENT_COLOR, WIDGET_MUTED_COLOR } from '@canshift/core'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
-import { UI_FONT, UI_LABEL_TRACKING, UI_LABEL_WEIGHT } from '../../../lib/typography'
+
+const FRAME = [
+  'box-border flex flex-col items-start justify-center gap-0.5 overflow-visible',
+  'rounded-none border-2 border-solid px-[7px] py-1',
+  '[transition:background_0.1s,border-color_0.1s]',
+].join(' ')
+
+const KICKER = 'font-sans text-[10px] font-extrabold uppercase leading-none tracking-[0.18em]'
+
+const LABEL = [
+  'min-w-0 overflow-visible whitespace-normal break-words',
+  'text-left font-sans font-extrabold leading-none',
+].join(' ')
 
 export interface ButtonRendererProps extends BaseRendererProps {
   active: boolean
@@ -90,52 +102,24 @@ export const ButtonPreview = memo(function ButtonPreview({
 
   return (
     <div
-      style={{
-        width: w,
-        height: h,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        gap: 2,
-        padding: '4px 7px',
-        boxSizing: 'border-box',
-        background: bgColor,
-        border: `2px solid ${borderColor}`,
-        borderRadius: 0,
-        overflow: 'visible',
-        transition: 'background 0.1s, border-color 0.1s',
-      }}
+      className={FRAME}
+      // eslint-disable-next-line no-inline-style/no-inline-style
+      style={{ width: w, height: h, background: bgColor, borderColor }}
     >
       {showLabel && kicker !== '' && (
         <span
-          style={{
-            color: kickerColor,
-            fontSize: 10,
-            fontFamily: UI_FONT,
-            fontWeight: UI_LABEL_WEIGHT,
-            letterSpacing: UI_LABEL_TRACKING,
-            textTransform: 'uppercase',
-            lineHeight: 1,
-          }}
+          className={KICKER}
+          // eslint-disable-next-line no-inline-style/no-inline-style
+          style={{ color: kickerColor }}
         >
           {kicker}
         </span>
       )}
       {showLabel && (
         <span
-          style={{
-            color: textColor,
-            fontSize,
-            fontFamily: UI_FONT,
-            fontWeight: 800,
-            whiteSpace: 'normal',
-            wordBreak: 'break-word',
-            overflow: 'visible',
-            minWidth: 0,
-            textAlign: 'left',
-            lineHeight: 1,
-          }}
+          className={LABEL}
+          // eslint-disable-next-line no-inline-style/no-inline-style
+          style={{ color: textColor, fontSize }}
         >
           {displayText}
         </span>
