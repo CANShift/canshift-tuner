@@ -12,7 +12,11 @@ const manifest: BoardManifest = {
       chip: 'esp32',
       display: 'ILI9341 320x240',
       touch: 'XPT2046',
-      artifacts: { merged: 'm.bin', firmware: 'f.bin', spiffs: 's.bin' },
+      artifacts: {
+        merged: { file: 'm.bin', sha256: null },
+        firmware: { file: 'f.bin', sha256: null },
+        spiffs: { file: 's.bin', sha256: null },
+      },
     },
   ],
 }

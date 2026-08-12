@@ -63,7 +63,7 @@ const FirmwareRoute = () => {
     pickedRelease === null
       ? null
       : selectedBoard
-        ? findAssetByName(pickedRelease, selectedBoard.artifacts.merged)
+        ? findAssetByName(pickedRelease, selectedBoard.artifacts.merged.file)
         : findMergedAsset(pickedRelease)
 
   const pickRelease = (tag: string) => {
@@ -115,6 +115,7 @@ const FirmwareRoute = () => {
             selection={selection}
             pickedRelease={pickedRelease}
             mergedAsset={mergedAsset}
+            mergedSha256={selectedBoard?.artifacts.merged.sha256 ?? null}
             {...(expectedChip !== undefined ? { expectedChip } : {})}
           />
           <BoardProfileProvision />

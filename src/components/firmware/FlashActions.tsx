@@ -17,6 +17,7 @@ export interface FlashActionsProps {
   pickedRelease: ReleaseInfo | null
   mergedAsset: ReleaseAsset | null
   expectedChip?: string
+  mergedSha256?: string | null
 }
 
 const SELECTION_LABELS: Record<FirmwareSelection['kind'], (s: FirmwareSelection) => string> = {
@@ -78,6 +79,7 @@ export const FlashActions = ({
   pickedRelease,
   mergedAsset,
   expectedChip,
+  mergedSha256,
 }: FlashActionsProps) => {
   const setReleaseFirmware = useFirmwareSelectionStore((s) => s.setReleaseFirmware)
   const log = useLogStore((s) => s.push)
@@ -109,10 +111,14 @@ export const FlashActions = ({
     setDownloadError(null)
     log('info', `Downloading ${asset.name} (${formatBytes(asset.sizeBytes)})`)
     try {
-      const firmware = await downloadFirmwareAsset(asset, (loaded, total) => {
-        setLoadedBytes(loaded)
-        setProgress(total > 0 ? loaded / total : 0)
-      })
+      const firmware = await downloadFirmwareAsset(
+        asset,
+        (loaded, total) => {
+          setLoadedBytes(loaded)
+          setProgress(total > 0 ? loaded / total : 0)
+        },
+        mergedSha256
+      )
       setReleaseFirmware(release, firmware)
       log(
         'success',

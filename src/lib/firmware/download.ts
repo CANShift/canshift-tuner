@@ -25,18 +25,24 @@ export const firmwareAssetProxyUrl = (downloadUrl: string): string => {
   return `${PROXY_PATH}?${params.toString()}`
 }
 
-const expectedDigestHex = (asset: ReleaseAsset): string => {
+const normaliseDigest = (raw: string): string =>
+  (raw.startsWith(DIGEST_PREFIX) ? raw.slice(DIGEST_PREFIX.length) : raw).toLowerCase()
+
+const expectedDigestHex = (asset: ReleaseAsset, manifestSha256?: string | null): string => {
   const raw = asset.digest
-  if (typeof raw !== 'string' || raw.length === 0) {
-    throw new Error(
-      `No checksum published for ${asset.name} — refusing to flash an image that cannot be verified.`
-    )
+  if (typeof raw === 'string' && raw.length > 0) {
+    const hex = normaliseDigest(raw)
+    if (!SHA256_HEX_RE.test(hex)) {
+      throw new Error(`Unusable checksum published for ${asset.name}: ${raw}`)
+    }
+    return hex
   }
-  const hex = (raw.startsWith(DIGEST_PREFIX) ? raw.slice(DIGEST_PREFIX.length) : raw).toLowerCase()
-  if (!SHA256_HEX_RE.test(hex)) {
-    throw new Error(`Unusable checksum published for ${asset.name}: ${raw}`)
+  if (typeof manifestSha256 === 'string' && SHA256_HEX_RE.test(manifestSha256.toLowerCase())) {
+    return manifestSha256.toLowerCase()
   }
-  return hex
+  throw new Error(
+    `No checksum published for ${asset.name} — refusing to flash an image that cannot be verified.`
+  )
 }
 
 const oversized = (received: number): LocalFirmwareError =>
@@ -47,7 +53,8 @@ const oversized = (received: number): LocalFirmwareError =>
 
 export const downloadFirmwareAsset = async (
   asset: ReleaseAsset,
-  onProgress?: DownloadProgress
+  onProgress?: DownloadProgress,
+  manifestSha256?: string | null
 ): Promise<LocalFirmware> => {
   if (asset.sizeBytes > FIRMWARE_MAX_BYTES) {
     throw new LocalFirmwareError(
@@ -56,7 +63,7 @@ export const downloadFirmwareAsset = async (
     )
   }
 
-  const expected = expectedDigestHex(asset)
+  const expected = expectedDigestHex(asset, manifestSha256)
   const proxyUrl = firmwareAssetProxyUrl(asset.downloadUrl)
 
   const controller = new AbortController()
