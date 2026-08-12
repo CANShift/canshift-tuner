@@ -48,29 +48,11 @@ interface FallbackPanelProps {
 
 const FallbackPanel = ({ error, onReset }: FallbackPanelProps) => {
   return (
-    <div
-      role="alert"
-      style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 24,
-        gap: 12,
-        background: 'hsl(var(--bg))',
-        color: 'hsl(var(--text))',
-        fontFamily: 'system-ui, sans-serif',
-        fontSize: 13,
-        textAlign: 'center',
-      }}
-    >
-      <div style={{ fontSize: 16, fontWeight: 600 }}>Something went wrong</div>
-      <div style={{ color: 'hsl(var(--text-dim))', maxWidth: 480 }}>
-        {error.message || 'Unknown render error'}
-      </div>
-      <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-        <button type="button" onClick={onReset} style={fallbackButtonStyle}>
+    <div role="alert" className={PANEL}>
+      <div className="text-[16px] font-semibold">Something went wrong</div>
+      <div className="max-w-[480px] text-text-dim">{error.message || 'Unknown render error'}</div>
+      <div className="mt-2 flex gap-2">
+        <button type="button" onClick={onReset} className={FALLBACK_BUTTON}>
           Try again
         </button>
         <button
@@ -78,36 +60,31 @@ const FallbackPanel = ({ error, onReset }: FallbackPanelProps) => {
           onClick={() => {
             window.location.reload()
           }}
-          style={fallbackButtonStyle}
+          className={FALLBACK_BUTTON}
         >
           Reload
         </button>
       </div>
-      <details style={{ marginTop: 12, color: 'hsl(var(--text-dim))', maxWidth: 560 }}>
-        <summary style={{ cursor: 'pointer', fontSize: 11 }}>Details</summary>
-        <pre
-          style={{
-            whiteSpace: 'pre-wrap',
-            textAlign: 'left',
-            fontSize: 11,
-            background: 'hsl(var(--bg-inset))',
-            border: '1px solid hsl(var(--border))',
-            padding: 8,
-            marginTop: 8,
-          }}
-        >
-          {error.stack ?? error.message}
-        </pre>
+      <details className="mt-3 max-w-[560px] text-text-dim">
+        <summary className="cursor-pointer text-[11px]">Details</summary>
+        <pre className={STACK}>{error.stack ?? error.message}</pre>
       </details>
     </div>
   )
 }
 
-const fallbackButtonStyle = {
-  padding: '6px 12px',
-  fontSize: 12,
-  background: 'hsl(var(--surface))',
-  color: 'hsl(var(--text))',
-  border: '1px solid hsl(var(--border))',
-  cursor: 'pointer',
-} as const
+const PANEL = [
+  'flex flex-1 flex-col items-center justify-center gap-3 p-6',
+  'bg-bg text-center text-[13px] text-text',
+  '[font-family:system-ui,sans-serif]',
+].join(' ')
+
+const FALLBACK_BUTTON = [
+  'cursor-pointer border border-solid border-border',
+  'bg-surface px-3 py-1.5 text-[12px] text-text',
+].join(' ')
+
+const STACK = [
+  'mt-2 whitespace-pre-wrap p-2 text-left text-[11px]',
+  'border border-solid border-border bg-bg-inset',
+].join(' ')

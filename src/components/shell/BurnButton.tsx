@@ -20,7 +20,7 @@ export const BurnButton = ({ disabled = false, busy = false, title, onClick }: B
       title={title}
       className={cn('h-auto gap-0 shell-burn-button', burnFace({ disabled: isDisabled }))}
     >
-      {busy ? <Spinner size={10} /> : null}
+      {busy ? <Spinner size="sm" /> : null}
       {busy ? 'BURNING…' : 'BURN TO DEVICE'}
     </Button>
   )
