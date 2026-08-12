@@ -1,6 +1,7 @@
-import type { CSSProperties } from 'react'
 import type { ReleaseInfo } from '@canshift/core'
 import { useFlashHistoryStore } from '../../stores/flash-history.store'
+import { cn } from '@/lib/utils'
+import { Eyebrow } from '../ui/meta-text'
 
 export interface FirmwareSidePanelProps {
   release: ReleaseInfo | null
@@ -26,29 +27,40 @@ export const FirmwareSidePanel = ({ release }: FirmwareSidePanelProps) => {
   const lines = release ? noteLines(release.notes) : []
 
   return (
-    <aside style={panelStyle}>
-      <div style={sectionHeaderStyle}>{release ? `CHANGELOG ${release.tag}` : 'CHANGELOG'}</div>
-      <div style={changelogStyle}>
+    <aside className="flex min-h-0 w-[392px] shrink-0 flex-col border-l-2 border-brand-divider bg-brand-neutral-100">
+      <Eyebrow className={SECTION_HEADER}>
+        {release ? `CHANGELOG ${release.tag}` : 'CHANGELOG'}
+      </Eyebrow>
+      <div className="flex max-h-[45%] flex-col gap-3.5 overflow-y-auto border-b-2 border-brand-divider px-6 py-[18px] text-[13px] text-brand-neutral-700">
         {lines.length === 0 && (
-          <div style={emptyStyle}>
+          <div className={EMPTY}>
             {release ? 'This release has no notes.' : 'Pick a build to see its release notes.'}
           </div>
         )}
         {lines.map((line, i) => (
-          <div key={i} style={i === 0 ? firstNoteStyle : noteStyle}>
+          <div
+            key={i}
+            className={cn(
+              'border-l-2 pl-[13px]',
+              i === 0 ? 'border-brand-accent' : 'border-brand-neutral-400'
+            )}
+          >
             {line}
           </div>
         ))}
       </div>
-      <div style={sectionHeaderStyle}>FLASH HISTORY</div>
-      <div style={historyStyle}>
-        {history.length === 0 && <div style={emptyStyle}>No flashes from this browser yet.</div>}
+      <Eyebrow className={SECTION_HEADER}>FLASH HISTORY</Eyebrow>
+      <div className="flex-1 overflow-y-auto font-mono text-[12px] text-brand-neutral-700">
+        {history.length === 0 && <div className={EMPTY}>No flashes from this browser yet.</div>}
         {history.map((entry, i) => (
-          <div key={i} style={historyRowStyle}>
+          <div
+            key={i}
+            className="flex justify-between border-b border-brand-neutral-300 px-6 py-[11px]"
+          >
             <span>{entry.label}</span>
             <span>
               {formatHistoryDate(entry.at)} ·{' '}
-              {entry.ok ? 'ok' : <span style={failedStyle}>failed</span>}
+              {entry.ok ? 'ok' : <span className="text-brand-accent">failed</span>}
             </span>
           </div>
         ))}
@@ -57,67 +69,6 @@ export const FirmwareSidePanel = ({ release }: FirmwareSidePanelProps) => {
   )
 }
 
-const panelStyle: CSSProperties = {
-  width: 392,
-  flexShrink: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  minHeight: 0,
-  borderLeft: '2px solid var(--brand-divider)',
-  background: 'hsl(var(--brand-neutral-100))',
-}
+const SECTION_HEADER = 'block border-b-2 border-brand-divider px-6 pb-[13px] pt-4 tracking-[0.2em]'
 
-const sectionHeaderStyle: CSSProperties = {
-  padding: '16px 24px 13px',
-  borderBottom: '2px solid var(--brand-divider)',
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.2em',
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const changelogStyle: CSSProperties = {
-  padding: '18px 24px',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 14,
-  fontSize: 13,
-  color: 'hsl(var(--brand-neutral-700))',
-  borderBottom: '2px solid var(--brand-divider)',
-  overflowY: 'auto',
-  maxHeight: '45%',
-}
-
-const firstNoteStyle: CSSProperties = {
-  borderLeft: '2px solid hsl(var(--brand-accent))',
-  paddingLeft: 13,
-}
-
-const noteStyle: CSSProperties = {
-  borderLeft: '2px solid hsl(var(--brand-neutral-400))',
-  paddingLeft: 13,
-}
-
-const historyStyle: CSSProperties = {
-  flex: 1,
-  overflowY: 'auto',
-  fontFamily: 'var(--font-mono)',
-  fontSize: 12,
-  color: 'hsl(var(--brand-neutral-700))',
-}
-
-const historyRowStyle: CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  padding: '11px 24px',
-  borderBottom: '1px solid hsl(var(--brand-neutral-300))',
-}
-
-const failedStyle: CSSProperties = {
-  color: 'hsl(var(--brand-accent))',
-}
-
-const emptyStyle: CSSProperties = {
-  fontSize: 12,
-  color: 'hsl(var(--brand-neutral-500))',
-}
+const EMPTY = 'text-[12px] text-brand-neutral-500'
