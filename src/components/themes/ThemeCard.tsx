@@ -1,6 +1,7 @@
-import type { CSSProperties } from 'react'
 import type { ThemePresetEntry } from '@canshift/core'
-import { MONO_FONT } from '../../lib/typography'
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
+import { MetaText } from '../ui/meta-text'
 
 export type ThemeSlotBadge = 'night' | 'day' | null
 
@@ -38,98 +39,50 @@ export const ThemeCard = ({ entry, badge, targetSlot, onSelect }: ThemeCardProps
       type="button"
       onClick={onSelect}
       title={`Set as the ${targetSlot} theme of the working dashboard`}
-      style={cardStyle(badge === 'night')}
+      className={cn(card({ active: badge === 'night' }))}
     >
-      <div style={headerStyle}>
-        <span style={labelStyle}>{entry.label}</span>
-        <span style={badge === 'night' ? activeNoteStyle : noteStyle}>
+      <div className="flex w-full items-baseline gap-2.5 border-b-2 border-brand-divider px-3.5 py-3">
+        <span className="text-[13px] font-extrabold text-brand-text">{entry.label}</span>
+        <MetaText align="end" className={cn(badge === 'night' && 'text-brand-accent')}>
           {badge === 'night' ? 'active — night' : badge === 'day' ? 'auto at day' : entry.note}
+        </MetaText>
+      </div>
+      <div
+        className="flex h-[140px] w-full items-end gap-4 p-4 font-mono"
+        // eslint-disable-next-line no-inline-style/no-inline-style
+        style={{ background: entry.preset.bgColor, color: palette.text }}
+      >
+        <span className="text-[52px] leading-[0.9]">5200</span>
+        {/* eslint-disable-next-line no-inline-style/no-inline-style */}
+        <span className={PREVIEW_MID} style={{ color: palette.textDim }}>
+          195
+        </span>
+        {/* eslint-disable-next-line no-inline-style/no-inline-style */}
+        <span className={cn(PREVIEW_MID, 'ml-auto')} style={{ color: palette.danger }}>
+          1.1
         </span>
       </div>
-      <div style={previewStyle(entry.preset.bgColor, palette.text)}>
-        <span style={previewBigStyle}>5200</span>
-        <span style={previewMidStyle(palette.textDim)}>195</span>
-        <span style={previewDangerStyle(palette.danger)}>1.1</span>
-      </div>
-      <div style={rampStyle}>
+      <div className="flex h-[26px] w-full">
         {ramp.map((color, i) => (
-          <div key={i} style={{ flex: 1, background: color }} />
+          // eslint-disable-next-line no-inline-style/no-inline-style
+          <div key={i} className="flex-1" style={{ background: color }} />
         ))}
       </div>
     </button>
   )
 }
 
-const cardStyle = (active: boolean): CSSProperties => ({
-  display: 'flex',
-  flexDirection: 'column',
-  padding: 0,
-  background: 'none',
-  border: `2px solid ${active ? 'hsl(var(--brand-accent))' : 'var(--brand-divider)'}`,
-  textAlign: 'left',
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-})
+const PREVIEW_MID = 'text-[30px] leading-[0.9]'
 
-const headerStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'baseline',
-  gap: 10,
-  padding: '12px 14px',
-  borderBottom: '2px solid var(--brand-divider)',
-  width: '100%',
-}
-
-const labelStyle: CSSProperties = {
-  fontWeight: 800,
-  fontSize: 13,
-  color: 'hsl(var(--brand-text))',
-}
-
-const noteStyle: CSSProperties = {
-  marginLeft: 'auto',
-  fontFamily: MONO_FONT,
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const activeNoteStyle: CSSProperties = {
-  ...noteStyle,
-  color: 'hsl(var(--brand-accent))',
-}
-
-const previewStyle = (bg: string, text: string): CSSProperties => ({
-  height: 140,
-  width: '100%',
-  background: bg,
-  display: 'flex',
-  alignItems: 'flex-end',
-  gap: 16,
-  padding: 16,
-  fontFamily: MONO_FONT,
-  color: text,
-})
-
-const previewBigStyle: CSSProperties = {
-  fontSize: 52,
-  lineHeight: 0.9,
-}
-
-const previewMidStyle = (color: string): CSSProperties => ({
-  fontSize: 30,
-  lineHeight: 0.9,
-  color,
-})
-
-const previewDangerStyle = (color: string): CSSProperties => ({
-  marginLeft: 'auto',
-  fontSize: 30,
-  lineHeight: 0.9,
-  color,
-})
-
-const rampStyle: CSSProperties = {
-  display: 'flex',
-  height: 26,
-  width: '100%',
-}
+const card = cva(
+  'flex cursor-pointer flex-col border-2 border-solid p-0 text-left [background:none] [font-family:inherit]',
+  {
+    variants: {
+      active: {
+        true: 'border-brand-accent',
+        false: 'border-[color:var(--brand-divider)]',
+      },
+    },
+    defaultVariants: { active: false },
+  }
+)

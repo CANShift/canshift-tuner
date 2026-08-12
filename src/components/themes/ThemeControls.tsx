@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react'
 import { Button } from '../ui/button'
 
 export interface ThemeControlsProps {
@@ -19,11 +18,11 @@ export const ThemeControls = ({
   onSetNight,
 }: ThemeControlsProps) => {
   return (
-    <div style={controlsStyle}>
+    <div className="flex flex-col gap-3">
       <Button onClick={onToggle} disabled={disabled || busy}>
         Toggle day / night
       </Button>
-      <div style={rowStyle}>
+      <div className="flex gap-2">
         <Button
           variant="outline"
           onClick={onSetDay}
@@ -39,25 +38,9 @@ export const ThemeControls = ({
           Force Night
         </Button>
       </div>
-      {busy && <div style={busyStyle}>Sending…</div>}
+      {busy && (
+        <div className="text-[11px] uppercase tracking-[0.06em] text-text-muted">Sending…</div>
+      )}
     </div>
   )
-}
-
-const controlsStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 12,
-}
-
-const rowStyle: CSSProperties = {
-  display: 'flex',
-  gap: 8,
-}
-
-const busyStyle: CSSProperties = {
-  fontSize: 11,
-  letterSpacing: '0.06em',
-  textTransform: 'uppercase',
-  color: 'hsl(var(--text-muted))',
 }

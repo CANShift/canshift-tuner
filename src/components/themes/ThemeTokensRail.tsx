@@ -1,6 +1,5 @@
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import type { ThemePreset } from '@canshift/core'
-import { MONO_FONT } from '../../lib/typography'
 import { Eyebrow } from '../ui/meta-text'
 
 export interface ThemeTokensRailProps {
@@ -28,14 +27,18 @@ export const ThemeTokensRail = ({ title, preset, children }: ThemeTokensRailProp
   ]
 
   return (
-    <aside style={railStyle}>
+    <aside className="flex w-[320px] shrink-0 flex-col gap-[18px] overflow-y-auto border-l-2 border-brand-divider bg-brand-neutral-100 p-5">
       <Eyebrow>{title}</Eyebrow>
-      <div style={tokenListStyle}>
+      <div className="flex flex-col gap-[9px]">
         {tokens.map(([name, value]) => (
-          <div key={name} style={tokenRowStyle}>
-            <span style={swatchStyle(value)} />
-            <span style={tokenNameStyle}>{name}</span>
-            <span style={tokenValueStyle}>{value}</span>
+          <div key={name} className="flex items-center gap-2.5 font-mono text-[12px]">
+            <span
+              className="size-3 shrink-0 border border-brand-neutral-300"
+              // eslint-disable-next-line no-inline-style/no-inline-style
+              style={{ background: value }}
+            />
+            <span className="text-brand-neutral-700">{name}</span>
+            <span className="ml-auto text-brand-neutral-600">{value}</span>
           </div>
         ))}
       </div>
@@ -43,47 +46,4 @@ export const ThemeTokensRail = ({ title, preset, children }: ThemeTokensRailProp
       {children}
     </aside>
   )
-}
-
-const railStyle: CSSProperties = {
-  width: 320,
-  flexShrink: 0,
-  borderLeft: '2px solid var(--brand-divider)',
-  background: 'hsl(var(--brand-neutral-100))',
-  padding: 20,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 18,
-  overflowY: 'auto',
-}
-
-const tokenListStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 9,
-}
-
-const tokenRowStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 10,
-  fontFamily: MONO_FONT,
-  fontSize: 12,
-}
-
-const swatchStyle = (color: string): CSSProperties => ({
-  width: 12,
-  height: 12,
-  flexShrink: 0,
-  background: color,
-  border: '1px solid hsl(var(--brand-neutral-300))',
-})
-
-const tokenNameStyle: CSSProperties = {
-  color: 'hsl(var(--brand-neutral-700))',
-}
-
-const tokenValueStyle: CSSProperties = {
-  marginLeft: 'auto',
-  color: 'hsl(var(--brand-neutral-600))',
 }
