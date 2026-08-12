@@ -1,5 +1,4 @@
 import { useCallback, useRef, useState } from 'react'
-import type { CSSProperties } from 'react'
 import { useDeviceStore } from '../stores/device.store'
 import { usbService, KNOWN_OPCODES } from '../transport'
 import { CommandForm } from '../components/cli/CommandForm'
@@ -7,7 +6,8 @@ import { CliOutput } from '../components/cli/CliOutput'
 import type { CliEntry } from '../components/cli/CliOutput'
 import { CliOfflineState } from '../components/cli/CliOfflineState'
 import { RouteHeader } from '../components/shell/RouteHeader'
-import { MONO_FONT } from '../lib/typography'
+import { RouteBody, RoutePage } from '../components/ui/route-shell'
+import { Eyebrow } from '../components/ui/meta-text'
 import { transportErrorText } from '../transport/humanize-transport-error'
 import { errorMessage } from '../lib/error-message'
 
@@ -93,11 +93,11 @@ const CliRoute = () => {
   }, [])
 
   return (
-    <div style={containerStyle}>
+    <RoutePage className="bg-transparent">
       <RouteHeader title="CLI" subtitle="raw firmware opcodes over USB" />
 
-      <div style={bodyStyle}>
-        <div style={terminalColumnStyle}>
+      <RouteBody>
+        <div className="flex min-w-0 flex-1 flex-col gap-3.5 overflow-hidden bg-[#0B0A0A] px-5 py-[18px]">
           {canControl ? (
             <>
               <CommandForm
@@ -114,72 +114,28 @@ const CliRoute = () => {
           )}
         </div>
 
-        <aside style={commandPanelStyle}>
-          <div style={commandHeaderStyle}>COMMANDS</div>
+        <aside className="w-[290px] shrink-0 overflow-y-auto border-l-2 border-brand-divider bg-brand-neutral-100">
+          <Eyebrow className="block border-b-2 border-brand-divider px-[18px] py-3.5">
+            COMMANDS
+          </Eyebrow>
           {KNOWN_OPCODES.map((op) => (
-            <div key={op.id} style={commandRowStyle} title={op.description}>
-              <span style={{ color: 'hsl(var(--brand-accent))' }}>{formatHex(op.id)}</span>{' '}
+            <div
+              key={op.id}
+              className="cursor-help border-b border-brand-neutral-300 px-[18px] py-[11px] font-mono text-[12px] text-brand-neutral-700"
+              title={op.description}
+            >
+              <span className="text-brand-accent">{formatHex(op.id)}</span>{' '}
               {op.name.replace(/^CMD_/, '').toLowerCase()}
             </div>
           ))}
         </aside>
-      </div>
-    </div>
+      </RouteBody>
+    </RoutePage>
   )
 }
 
 const formatHex = (id: number): string => {
   return `0x${id.toString(16).toUpperCase().padStart(2, '0')}`
-}
-
-const containerStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  overflow: 'hidden',
-}
-
-const bodyStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  minHeight: 0,
-}
-
-const terminalColumnStyle: CSSProperties = {
-  flex: 1,
-  minWidth: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 14,
-  padding: '18px 20px',
-  background: '#0B0A0A',
-  overflow: 'hidden',
-}
-
-const commandPanelStyle: CSSProperties = {
-  width: 290,
-  flexShrink: 0,
-  borderLeft: '2px solid var(--brand-divider)',
-  background: 'hsl(var(--brand-neutral-100))',
-  overflowY: 'auto',
-}
-
-const commandHeaderStyle: CSSProperties = {
-  padding: '14px 18px',
-  borderBottom: '2px solid var(--brand-divider)',
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.2em',
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const commandRowStyle: CSSProperties = {
-  padding: '11px 18px',
-  borderBottom: '1px solid hsl(var(--brand-neutral-300))',
-  fontFamily: MONO_FONT,
-  fontSize: 12,
-  color: 'hsl(var(--brand-neutral-700))',
-  cursor: 'help',
 }
 
 export default CliRoute

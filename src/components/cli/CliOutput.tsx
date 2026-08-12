@@ -1,6 +1,6 @@
-import type { CSSProperties } from 'react'
 import { useEffect, useRef } from 'react'
-import { MONO_FONT } from '../../lib/typography'
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 
 export type CliEntryKind = 'request' | 'ok' | 'error' | 'info'
 
@@ -32,31 +32,40 @@ export const CliOutput = ({ entries, onClear }: CliOutputProps) => {
   }, [entries])
 
   return (
-    <div style={wrapperStyle}>
-      <div style={headerStyle}>
-        <span style={titleStyle}>Console</span>
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden border border-border bg-surface">
+      <div className="flex items-center justify-between border-b border-border bg-background px-3.5 py-2">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-text-muted">
+          Console
+        </span>
         <button
           type="button"
           onClick={onClear}
           disabled={entries.length === 0}
-          style={clearButtonStyle(entries.length === 0)}
+          className={cn(clearButton({ disabled: entries.length === 0 }))}
         >
           Clear
         </button>
       </div>
-      <div ref={scrollRef} style={streamStyle}>
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3.5 py-2.5 font-mono text-[12px]">
         {entries.length === 0 ? (
-          <div style={emptyStyle}>Send a command to see the response here.</div>
+          <div className="py-8 text-center font-[system-ui,sans-serif] text-[12px] text-text-muted">
+            Send a command to see the response here.
+          </div>
         ) : (
           entries.map((entry) => (
-            <div key={entry.id} style={entryStyle}>
-              <span style={timestampStyle}>{formatTime(entry.timestamp)}</span>
-              <span style={{ ...kindStyle, color: kindColor(entry.kind) }}>
+            <div
+              key={entry.id}
+              className="grid grid-cols-[auto_auto_1fr] items-baseline gap-2.5 border-b border-border/50 py-1"
+            >
+              <span className="tabular-nums text-text-muted">{formatTime(entry.timestamp)}</span>
+              <span className={cn('w-[14px] text-center font-semibold', KIND_TEXT[entry.kind])}>
                 {kindLabel(entry.kind)}
               </span>
-              <span style={labelStyle}>{entry.label}</span>
+              <span className="break-words text-text">{entry.label}</span>
               {entry.payload && Object.keys(entry.payload).length > 0 && (
-                <pre style={payloadStyle}>{formatPayload(entry.payload)}</pre>
+                <pre className="col-[3/span_1] m-0 mt-1 whitespace-pre-wrap border border-border bg-background px-2.5 py-1.5 text-[11px] text-text-dim">
+                  {formatPayload(entry.payload)}
+                </pre>
               )}
             </div>
           ))
@@ -87,17 +96,11 @@ const kindLabel = (kind: CliEntryKind): string => {
   }
 }
 
-const kindColor = (kind: CliEntryKind): string => {
-  switch (kind) {
-    case 'request':
-      return 'hsl(var(--brand-accent))'
-    case 'ok':
-      return 'hsl(var(--success))'
-    case 'error':
-      return 'hsl(var(--destructive))'
-    case 'info':
-      return 'hsl(var(--text-dim))'
-  }
+const KIND_TEXT: Record<CliEntryKind, string> = {
+  request: 'text-brand-accent',
+  ok: 'text-success',
+  error: 'text-destructive',
+  info: 'text-text-dim',
 }
 
 const formatPayload = (payload: Record<string, unknown>): string => {
@@ -108,92 +111,15 @@ const formatPayload = (payload: Record<string, unknown>): string => {
   }
 }
 
-const wrapperStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-  minHeight: 0,
-  background: 'hsl(var(--surface))',
-  border: '1px solid hsl(var(--border))',
-  overflow: 'hidden',
-}
-
-const headerStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '8px 14px',
-  borderBottom: '1px solid hsl(var(--border))',
-  background: 'hsl(var(--bg))',
-}
-
-const titleStyle: CSSProperties = {
-  fontSize: 10,
-  fontWeight: 600,
-  letterSpacing: '0.08em',
-  textTransform: 'uppercase',
-  color: 'hsl(var(--text-muted))',
-}
-
-const clearButtonStyle = (disabled: boolean): CSSProperties => ({
-  background: disabled ? 'hsl(var(--bg-inset))' : 'hsl(var(--surface))',
-  color: disabled ? 'hsl(var(--text-muted))' : 'hsl(var(--text-dim))',
-  border: '1px solid hsl(var(--border))',
-  padding: '3px 10px',
-  fontSize: 10,
-  letterSpacing: '0.06em',
-  textTransform: 'uppercase',
-  cursor: disabled ? 'not-allowed' : 'pointer',
-})
-
-const streamStyle: CSSProperties = {
-  flex: 1,
-  overflowY: 'auto',
-  padding: '10px 14px',
-  fontFamily: MONO_FONT,
-  fontSize: 12,
-}
-
-const emptyStyle: CSSProperties = {
-  padding: '32px 0',
-  textAlign: 'center',
-  fontSize: 12,
-  color: 'hsl(var(--text-muted))',
-  fontFamily: 'system-ui, sans-serif',
-}
-
-const entryStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'auto auto 1fr',
-  alignItems: 'baseline',
-  gap: 10,
-  padding: '4px 0',
-  borderBottom: '1px solid hsl(var(--border) / 0.5)',
-}
-
-const timestampStyle: CSSProperties = {
-  color: 'hsl(var(--text-muted))',
-  fontVariantNumeric: 'tabular-nums',
-}
-
-const kindStyle: CSSProperties = {
-  fontWeight: 600,
-  textAlign: 'center',
-  width: 14,
-}
-
-const labelStyle: CSSProperties = {
-  color: 'hsl(var(--text))',
-  wordBreak: 'break-word',
-}
-
-const payloadStyle: CSSProperties = {
-  gridColumn: '3 / span 1',
-  margin: '4px 0 0',
-  padding: '6px 10px',
-  background: 'hsl(var(--bg))',
-  border: '1px solid hsl(var(--border))',
-  fontSize: 11,
-  color: 'hsl(var(--text-dim))',
-  whiteSpace: 'pre-wrap',
-}
+const clearButton = cva(
+  'border border-border px-2.5 py-[3px] text-[10px] uppercase tracking-[0.06em]',
+  {
+    variants: {
+      disabled: {
+        true: 'cursor-not-allowed bg-bg-inset text-text-muted',
+        false: 'cursor-pointer bg-surface text-text-dim',
+      },
+    },
+    defaultVariants: { disabled: false },
+  }
+)
