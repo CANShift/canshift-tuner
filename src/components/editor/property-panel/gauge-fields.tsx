@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
   GAUGE_DEFAULT_TOKEN,
@@ -6,7 +7,7 @@ import {
   tokenFromSpans,
 } from '../../../utils/size-tokens'
 import { ConfigFieldsProps, GAUGE_STYLES } from './shared'
-import { PanelField, PanelInput, PanelRow } from '@/components/ui/form-field'
+import { PanelField, PanelInput, PanelRow, segmentPill } from '@/components/ui/form-field'
 
 const resetAction = (enabled: boolean, run: () => void): (() => void) | undefined =>
   enabled ? run : undefined
@@ -32,7 +33,7 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
   return (
     <>
       <PanelField label="Style">
-        <div style={{ display: 'flex', gap: 4 }}>
+        <div className="flex gap-1">
           {GAUGE_STYLES.map(({ value, label }) => (
             <button
               key={value}
@@ -48,19 +49,7 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
                   },
                 })
               }}
-              style={{
-                flex: 1,
-                padding: '3px 0',
-                background:
-                  style === value
-                    ? 'color-mix(in srgb, #5566AA 14%, transparent)'
-                    : 'hsl(var(--brand-neutral-100))',
-                border: `1px solid ${style === value ? '#5566AA' : 'hsl(var(--brand-neutral-300))'}`,
-                color: style === value ? '#7788CC' : 'hsl(var(--brand-neutral-600))',
-                cursor: 'pointer',
-                fontSize: 10,
-                textTransform: 'uppercase',
-              }}
+              className={cn(segmentPill({ tone: 'blue', active: style === value }), 'uppercase')}
             >
               {label}
             </button>
@@ -69,7 +58,7 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
       </PanelField>
 
       <PanelField label="Type">
-        <div style={{ display: 'flex', gap: 4 }}>
+        <div className="flex gap-1">
           {BIG_CHOICES.map((choice) => {
             const isActive = (cfg.big ?? 0) === choice.big
             return (
@@ -84,18 +73,7 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
                   })
                 }}
                 title={choice.title}
-                style={{
-                  flex: 1,
-                  padding: '3px 0',
-                  background: isActive
-                    ? 'color-mix(in srgb, #448844 14%, transparent)'
-                    : 'hsl(var(--brand-neutral-100))',
-                  border: `1px solid ${isActive ? '#448844' : 'hsl(var(--brand-neutral-300))'}`,
-                  color: isActive ? '#66AA66' : 'hsl(var(--brand-neutral-600))',
-                  cursor: 'pointer',
-                  fontSize: 10,
-                  fontWeight: isActive ? 700 : 400,
-                }}
+                className={cn(segmentPill({ tone: 'green', active: isActive }))}
               >
                 {choice.label}
               </button>
@@ -105,7 +83,7 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
       </PanelField>
 
       <PanelField label="Size">
-        <div style={{ display: 'flex', gap: 4 }}>
+        <div className="flex gap-1">
           {allowedTokenIds.map((tokenId) => {
             const token = SIZE_TOKENS[tokenId]
             const isActive = tokenId === activeTokenId
@@ -118,18 +96,7 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
                   })
                 }}
                 title={token.description}
-                style={{
-                  flex: 1,
-                  padding: '3px 0',
-                  background: isActive
-                    ? 'color-mix(in srgb, #448844 14%, transparent)'
-                    : 'hsl(var(--brand-neutral-100))',
-                  border: `1px solid ${isActive ? '#448844' : 'hsl(var(--brand-neutral-300))'}`,
-                  color: isActive ? '#66AA66' : 'hsl(var(--brand-neutral-600))',
-                  cursor: 'pointer',
-                  fontSize: 10,
-                  fontWeight: isActive ? 700 : 400,
-                }}
+                className={cn(segmentPill({ tone: 'green', active: isActive }))}
               >
                 {token.label}
               </button>

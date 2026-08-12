@@ -1,3 +1,5 @@
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 import { useState } from 'react'
 import { SCREEN_SETTINGS_BOUNDS } from '@canshift/core'
 import { useScreenSettingsStore } from '../../stores/screen-settings.store'
@@ -16,18 +18,23 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import {
-  ACCENT_RED,
-  BTN_BG,
-  BTN_BORDER,
-  BTN_BORDER_DIM,
-  BTN_FG_DISABLED,
-  SCREEN_BG,
-  SCREEN_HEADER,
-  SCREEN_LABEL,
-  SegmentedPair,
-  SettingRow,
-} from './screen-settings-controls'
+import { SegmentedPair, SettingRow } from './screen-settings-controls'
+
+const OVERLAY = 'absolute inset-0 z-50 box-border flex flex-col overflow-y-auto bg-[#0D0D0D]'
+
+const HEADING = 'font-extrabold tracking-[0.05em] text-[#CCCCCC]'
+
+const calibrateButton = cva('w-full border border-solid bg-[#111111] leading-none', {
+  variants: {
+    enabled: {
+      true: 'border-[#2A2A2A] text-[#AAAAAA]',
+      false: 'border-[#1E1E1E] text-[#444444]',
+    },
+    busy: { true: 'cursor-default', false: '' },
+  },
+  compoundVariants: [{ enabled: true, busy: false, class: 'cursor-pointer' }],
+  defaultVariants: { enabled: false, busy: false },
+})
 
 interface ScreenSettingsPanelProps {
   scale: number
@@ -120,30 +127,17 @@ const ScreenSettingsPanel = ({ scale }: ScreenSettingsPanelProps) => {
   return (
     <>
       <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: SCREEN_BG,
-          zIndex: 50,
-          display: 'flex',
-          flexDirection: 'column',
-          padding: Math.round(scale * 8),
-          boxSizing: 'border-box',
-          gap,
-          overflowY: 'auto',
-        }}
+        className={OVERLAY}
+        // eslint-disable-next-line no-inline-style/no-inline-style
+        style={{ padding: Math.round(scale * 8), gap }}
         onMouseDown={(e) => {
           e.stopPropagation()
         }}
       >
         <span
-          style={{
-            fontSize: fsLg,
-            fontWeight: 800,
-            color: SCREEN_HEADER,
-            letterSpacing: '0.05em',
-            marginBottom: Math.round(scale * 2),
-          }}
+          className={HEADING}
+          // eslint-disable-next-line no-inline-style/no-inline-style
+          style={{ fontSize: fsLg, marginBottom: Math.round(scale * 2) }}
         >
           SCREEN SETTINGS
         </span>
@@ -160,12 +154,9 @@ const ScreenSettingsPanel = ({ scale }: ScreenSettingsPanelProps) => {
             onMouseUp={handleBrightnessCommit}
             onTouchEnd={handleBrightnessCommit}
             onKeyUp={handleBrightnessCommit}
-            style={{
-              width: '100%',
-              accentColor: ACCENT_RED,
-              cursor: 'pointer',
-              height: Math.round(scale * 3),
-            }}
+            className="w-full cursor-pointer accent-[#CC3333]"
+            // eslint-disable-next-line no-inline-style/no-inline-style
+            style={{ height: Math.round(scale * 3) }}
           />
         </SettingRow>
 
@@ -202,16 +193,9 @@ const ScreenSettingsPanel = ({ scale }: ScreenSettingsPanelProps) => {
             type="button"
             onClick={handleCalibrate}
             disabled={!canDeviceAction || calibrating}
-            style={{
-              width: '100%',
-              padding: `${String(Math.round(scale * 2))}px 0`,
-              background: BTN_BG,
-              border: `1px solid ${canDeviceAction ? BTN_BORDER : BTN_BORDER_DIM}`,
-              color: canDeviceAction ? SCREEN_LABEL : BTN_FG_DISABLED,
-              fontSize: fs,
-              cursor: canDeviceAction && !calibrating ? 'pointer' : 'default',
-              lineHeight: 1,
-            }}
+            className={cn(calibrateButton({ enabled: canDeviceAction, busy: calibrating }))}
+            // eslint-disable-next-line no-inline-style/no-inline-style
+            style={{ padding: `${String(Math.round(scale * 2))}px 0`, fontSize: fs }}
           >
             {calibrating ? '...' : 'CALIBRATE'}
           </button>

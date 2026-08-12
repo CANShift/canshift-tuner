@@ -2,9 +2,12 @@ import type { HexColor, Widget } from '@canshift/core'
 
 import { PanelField, PanelRow } from '@/components/ui/form-field'
 
-const PANEL_LABEL = 'hsl(var(--brand-neutral-600))'
-const INPUT_BG = 'hsl(var(--brand-neutral-100))'
-const INPUT_BORDER = 'hsl(var(--brand-neutral-300))'
+const SECTION_LABEL = 'mb-1.5 mt-1 text-[10px] uppercase tracking-[0.06em] text-brand-neutral-600'
+
+const COLOR_INPUT = [
+  'h-7 w-full cursor-pointer border border-solid border-brand-neutral-300',
+  'bg-brand-neutral-100 p-0.5',
+].join(' ')
 
 interface ButtonColorsRowProps {
   widget: Widget
@@ -26,31 +29,13 @@ export const ButtonColorsRow = ({
 
   return (
     <>
-      <div
-        style={{
-          fontSize: 10,
-          color: PANEL_LABEL,
-          textTransform: 'uppercase',
-          letterSpacing: '0.06em',
-          marginBottom: 6,
-          marginTop: 4,
-        }}
-      >
-        Button colors
-      </div>
+      <div className={SECTION_LABEL}>Button colors</div>
       <PanelRow>
         <PanelField label="Normal">
           <input
             type="color"
             value={normal}
-            style={{
-              width: '100%',
-              height: 28,
-              padding: 2,
-              background: INPUT_BG,
-              border: `1px solid ${INPUT_BORDER}`,
-              cursor: 'pointer',
-            }}
+            className={COLOR_INPUT}
             onChange={(e) => {
               const parsed = safeParseHex(e.target.value)
               if (parsed === null) return
@@ -66,14 +51,7 @@ export const ButtonColorsRow = ({
           <input
             type="color"
             value={active}
-            style={{
-              width: '100%',
-              height: 28,
-              padding: 2,
-              background: INPUT_BG,
-              border: `1px solid ${INPUT_BORDER}`,
-              cursor: 'pointer',
-            }}
+            className={COLOR_INPUT}
             onChange={(e) => {
               const parsed = safeParseHex(e.target.value)
               if (parsed === null) return
@@ -87,15 +65,7 @@ export const ButtonColorsRow = ({
         </PanelField>
       </PanelRow>
       {colorError !== null && (
-        <div
-          role="alert"
-          style={{
-            fontSize: 10,
-            color: 'hsl(var(--status-danger))',
-            marginTop: 4,
-            marginBottom: 4,
-          }}
-        >
+        <div role="alert" className="my-1 text-[10px] text-status-danger">
           {colorError}
         </div>
       )}

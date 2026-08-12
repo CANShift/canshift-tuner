@@ -12,7 +12,6 @@ import { ConfigFieldsProps } from '../shared'
 import { CompactSelect, PanelField } from '@/components/ui/form-field'
 import { ButtonColorsRow } from './button-colors-row'
 import { SizeTokenPicker } from './size-token-picker'
-import { MONO_FONT } from '../../../../lib/typography'
 
 const PANEL_LABEL = 'hsl(var(--brand-neutral-600))'
 const DANGER_FG = 'hsl(var(--status-danger))'
@@ -65,7 +64,7 @@ export const WidgetEditorPanel = ({
   const boundSignalDef = signals.find((s) => s.name === widget.signal)
 
   return (
-    <div style={{ padding: 12, overflowY: 'auto', flex: 1 }}>
+    <div className="flex-1 overflow-y-auto p-3">
       <div
         style={{
           display: 'flex',
@@ -85,9 +84,7 @@ export const WidgetEditorPanel = ({
           >
             Properties
           </div>
-          <div style={{ fontSize: 12, color: DANGER_FG, fontWeight: 600, marginTop: 2 }}>
-            {widget.type}
-          </div>
+          <div className="mt-0.5 text-[12px] font-semibold text-status-danger">{widget.type}</div>
         </div>
         <button
           type="button"
@@ -113,9 +110,7 @@ export const WidgetEditorPanel = ({
       </div>
 
       <PanelField label="ID">
-        <div style={{ fontSize: 10, color: PANEL_LABEL, fontFamily: MONO_FONT, padding: '3px 0' }}>
-          {widget.id}
-        </div>
+        <div className="py-[3px] font-mono text-[10px] text-brand-neutral-600">{widget.id}</div>
       </PanelField>
 
       {!SIZE_HIDDEN_TYPES.has(widget.type) && <SizeTokenPicker widget={widget} onChange={patch} />}

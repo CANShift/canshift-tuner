@@ -15,7 +15,6 @@ import { CompactSelect } from '@/components/ui/form-field'
 import { CruiseControlOverCapDialog } from '../../CruiseControlOverCapDialog'
 
 const PANEL_LABEL = 'hsl(var(--brand-neutral-600))'
-const PANEL_HINT = 'hsl(var(--brand-neutral-500))'
 const CRUISE_CONTROL_PAGE_ID = 'cruise_control'
 
 interface PageConfigPanelProps {
@@ -61,7 +60,7 @@ export const PageConfigPanel = ({
 
   return (
     <>
-      <div style={{ padding: 12, overflowY: 'auto', flex: 1 }}>
+      <div className="flex-1 overflow-y-auto p-3">
         <div
           style={{
             fontSize: 10,
@@ -84,7 +83,7 @@ export const PageConfigPanel = ({
             setTargetProfile(next as ScreenProfileId)
           }}
         />
-        <div style={{ fontSize: 10, color: PANEL_HINT, marginTop: 4, marginBottom: 4 }}>
+        <div className="my-1 text-[10px] text-brand-neutral-500">
           Drives the editor canvas size. Widgets are not auto-scaled — out-of-bounds widgets are
           flagged on the canvas so you can adjust manually.
         </div>
@@ -120,11 +119,11 @@ export const PageConfigPanel = ({
           />
           Cruise control page
         </label>
-        <div style={{ fontSize: 10, color: PANEL_HINT, marginTop: 4, marginBottom: 4 }}>
+        <div className="my-1 text-[10px] text-brand-neutral-500">
           Adds a dedicated cruise control page at the end of the dashboard.
         </div>
 
-        <div style={{ fontSize: 10, color: PANEL_HINT, marginTop: 12 }}>
+        <div className="mt-3 text-[10px] text-brand-neutral-500">
           Select a widget to edit its properties.
         </div>
       </div>
