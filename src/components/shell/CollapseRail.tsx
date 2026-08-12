@@ -1,4 +1,5 @@
-import type { CSSProperties } from 'react'
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 
 type Side = 'left' | 'right'
 
@@ -9,7 +10,7 @@ const Chevron = ({ dir }: { dir: Side }) => (
     viewBox="0 0 24 24"
     fill="none"
     aria-hidden="true"
-    style={{ transform: dir === 'left' ? 'rotate(180deg)' : undefined }}
+    className={cn(dir === 'left' && 'rotate-180')}
   >
     <path
       d="M9 6l6 6-6 6"
@@ -28,18 +29,19 @@ interface CollapseRailProps {
 }
 
 export const CollapseRail = ({ side, label, onExpand }: CollapseRailProps) => (
-  <div style={railStyle(side)}>
+  <div className={cn(rail({ side }))}>
     <button
       type="button"
       onClick={onExpand}
       title={`Expand ${label}`}
       aria-label={`Expand ${label}`}
-      className="shell-nav-item"
-      style={railButtonStyle}
+      className={cn('shell-nav-item', RAIL_ICON_BUTTON, 'size-6')}
     >
       <Chevron dir={side === 'left' ? 'right' : 'left'} />
     </button>
-    <span style={railLabelStyle}>{label}</span>
+    <span className="rotate-180 select-none text-[10px] font-extrabold uppercase tracking-[0.2em] text-brand-neutral-600 [writing-mode:vertical-rl]">
+      {label}
+    </span>
   </div>
 )
 
@@ -55,59 +57,20 @@ export const CollapseButton = ({ side, label, onCollapse }: CollapseButtonProps)
     onClick={onCollapse}
     title={`Collapse ${label}`}
     aria-label={`Collapse ${label}`}
-    className="shell-nav-item"
-    style={collapseButtonStyle}
+    className={cn('shell-nav-item', RAIL_ICON_BUTTON, 'size-[26px] shrink-0')}
   >
     <Chevron dir={side === 'left' ? 'left' : 'right'} />
   </button>
 )
 
-const railStyle = (side: Side): CSSProperties => ({
-  width: 30,
-  flexShrink: 0,
-  background: 'hsl(var(--brand-neutral-100))',
-  ...(side === 'left'
-    ? { borderRight: '2px solid var(--brand-divider)' }
-    : { borderLeft: '2px solid var(--brand-divider)' }),
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  gap: 12,
-  paddingTop: 10,
+const RAIL_ICON_BUTTON =
+  'flex cursor-pointer items-center justify-center border-0 bg-transparent text-brand-neutral-600'
+
+const rail = cva('flex w-[30px] shrink-0 flex-col items-center gap-3 bg-brand-neutral-100 pt-2.5', {
+  variants: {
+    side: {
+      left: 'border-r-2 border-brand-divider',
+      right: 'border-l-2 border-brand-divider',
+    },
+  },
 })
-
-const railButtonStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  width: 24,
-  height: 24,
-  border: 0,
-  background: 'transparent',
-  color: 'hsl(var(--brand-neutral-600))',
-  cursor: 'pointer',
-}
-
-const railLabelStyle: CSSProperties = {
-  writingMode: 'vertical-rl',
-  transform: 'rotate(180deg)',
-  fontSize: 10,
-  fontWeight: 800,
-  letterSpacing: '0.2em',
-  textTransform: 'uppercase',
-  color: 'hsl(var(--brand-neutral-600))',
-  userSelect: 'none',
-}
-
-const collapseButtonStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  width: 26,
-  height: 26,
-  flexShrink: 0,
-  border: 0,
-  background: 'transparent',
-  color: 'hsl(var(--brand-neutral-600))',
-  cursor: 'pointer',
-}

@@ -1,10 +1,12 @@
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { useDeviceStore } from '../../stores/device.store'
 import { RebootButton } from './RebootButton'
 import { formatBytes } from '../../lib/format'
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 
 type Severity = 'critical' | 'warning'
 
@@ -142,7 +144,7 @@ export const DeviceAlertBar = () => {
   }
 
   return (
-    <div style={containerStyle}>
+    <div className="flex shrink-0 flex-col">
       <AlertRow alert={primary} onDismiss={handleDismiss}>
         {rest.length > 0 && (
           <Button
@@ -170,9 +172,9 @@ interface AlertRowProps {
 }
 
 const AlertRow = ({ alert, onDismiss, children }: AlertRowProps) => (
-  <div role="alert" style={alert.severity === 'critical' ? criticalStyle : warningStyle}>
-    <span style={titleStyle}>{alert.title}</span>
-    <span style={messageStyle}>{alert.message}</span>
+  <div role="alert" className={cn(alertRow({ critical: alert.severity === 'critical' }))}>
+    <span className="font-bold uppercase tracking-[0.04em]">{alert.title}</span>
+    <span className="flex-1">{alert.message}</span>
     {alert.action}
     {children}
     {alert.dismissable && (
@@ -198,40 +200,12 @@ const formatElapsed = (sec: number): string => {
   return `${String(m)} m ${String(s).padStart(2, '0')} s`
 }
 
-const containerStyle: CSSProperties = {
-  flexShrink: 0,
-  display: 'flex',
-  flexDirection: 'column',
-}
-
-const baseRowStyle: CSSProperties = {
-  flexShrink: 0,
-  display: 'flex',
-  alignItems: 'center',
-  gap: 12,
-  padding: '8px 16px',
-  color: 'hsl(var(--text))',
-  fontSize: 12,
-}
-
-const criticalStyle: CSSProperties = {
-  ...baseRowStyle,
-  background: 'hsl(var(--destructive) / 0.18)',
-  borderBottom: '1px solid hsl(var(--destructive))',
-}
-
-const warningStyle: CSSProperties = {
-  ...baseRowStyle,
-  background: 'hsl(var(--accent) / 0.18)',
-  borderBottom: '1px solid hsl(var(--accent))',
-}
-
-const titleStyle: CSSProperties = {
-  fontWeight: 700,
-  letterSpacing: '0.04em',
-  textTransform: 'uppercase',
-}
-
-const messageStyle: CSSProperties = {
-  flex: 1,
-}
+const alertRow = cva('flex shrink-0 items-center gap-3 border-b px-4 py-2 text-[12px] text-text', {
+  variants: {
+    critical: {
+      true: 'border-destructive bg-destructive/[0.18]',
+      false: 'border-accent bg-accent/[0.18]',
+    },
+  },
+  defaultVariants: { critical: false },
+})

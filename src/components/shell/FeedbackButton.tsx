@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { submitFeedback } from '../../lib/feedback'
 import { readItem, writeItem, STORAGE_KEYS } from '../../lib/local-storage'
+import { cn } from '@/lib/utils'
 
 const STORAGE_KEY = STORAGE_KEYS.feedbackDismissedHint
 
@@ -70,43 +71,19 @@ const FeedbackButton = () => {
   }
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        right: 16,
-        bottom: 16,
-        zIndex: 9999,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-end',
-        gap: 8,
-        pointerEvents: 'none',
-      }}
-    >
+    <div className="pointer-events-none fixed bottom-4 right-4 z-[9999] flex flex-col items-end gap-2">
       {open && (
         <div
           role="dialog"
           aria-label="Send feedback"
-          style={{
-            background: 'hsl(var(--brand-chrome-surface))',
-            color: 'hsl(var(--brand-neutral-700))',
-            border: '1px solid hsl(var(--brand-neutral-300))',
-            padding: 14,
-            width: 320,
-            pointerEvents: 'auto',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 10,
-          }}
+          className={cn(
+            SURFACE,
+            'pointer-events-auto flex w-[320px] flex-col gap-2.5 p-3.5 shadow-[0_4px_16px_rgba(0,0,0,0.5)]'
+          )}
         >
-          <div style={{ fontSize: 13, fontWeight: 600, color: 'hsl(var(--brand-text))' }}>
-            Send feedback
-          </div>
+          <div className="text-[13px] font-semibold text-brand-text">Send feedback</div>
           {status === 'sent' ? (
-            <div style={{ fontSize: 12, color: 'hsl(var(--success))', padding: '8px 0' }}>
-              Thanks — your feedback was sent.
-            </div>
+            <div className="py-2 text-[12px] text-success">Thanks — your feedback was sent.</div>
           ) : (
             <>
               <textarea
@@ -118,16 +95,7 @@ const FeedbackButton = () => {
                 rows={4}
                 maxLength={1900}
                 autoFocus
-                style={{
-                  background: 'hsl(var(--brand-neutral-100))',
-                  border: '1px solid hsl(var(--brand-neutral-300))',
-                  color: 'hsl(var(--brand-neutral-700))',
-                  fontSize: 12,
-                  padding: 8,
-                  resize: 'vertical',
-                  outline: 'none',
-                  fontFamily: 'inherit',
-                }}
+                className={cn(FIELD, 'resize-y p-2')}
               />
               <input
                 type="email"
@@ -136,34 +104,19 @@ const FeedbackButton = () => {
                   setEmail(e.target.value)
                 }}
                 placeholder="Email (optional, for follow-up)"
-                style={{
-                  background: 'hsl(var(--brand-neutral-100))',
-                  border: '1px solid hsl(var(--brand-neutral-300))',
-                  color: 'hsl(var(--brand-neutral-700))',
-                  fontSize: 12,
-                  padding: '6px 8px',
-                  outline: 'none',
-                  fontFamily: 'inherit',
-                }}
+                className={cn(FIELD, 'px-2 py-1.5')}
               />
               {status === 'error' && (
-                <div role="alert" style={{ fontSize: 12, color: 'hsl(var(--brand-accent))' }}>
+                <div role="alert" className="text-[12px] text-brand-accent">
                   Couldn’t send your feedback ({errorMessage}). Please try again.
                 </div>
               )}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+              <div className="flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={closeDialog}
                   disabled={status === 'sending'}
-                  style={{
-                    background: 'transparent',
-                    border: '1px solid hsl(var(--brand-neutral-300))',
-                    color: 'hsl(var(--brand-neutral-600))',
-                    fontSize: 12,
-                    padding: '5px 10px',
-                    cursor: 'pointer',
-                  }}
+                  className="cursor-pointer border border-brand-neutral-300 bg-transparent px-2.5 py-[5px] text-[12px] text-brand-neutral-600"
                 >
                   Cancel
                 </button>
@@ -173,17 +126,12 @@ const FeedbackButton = () => {
                     void submit()
                   }}
                   disabled={status === 'sending' || message.trim().length === 0}
-                  style={{
-                    background:
-                      message.trim().length === 0
-                        ? 'hsl(var(--brand-accent-600) / 0.35)'
-                        : 'hsl(var(--brand-accent-600))',
-                    border: 'none',
-                    color: 'hsl(var(--brand-ground))',
-                    fontSize: 12,
-                    padding: '5px 12px',
-                    cursor: message.trim().length === 0 ? 'not-allowed' : 'pointer',
-                  }}
+                  className={cn(
+                    'border-none px-3 py-[5px] text-[12px] text-brand-ground',
+                    message.trim().length === 0
+                      ? 'cursor-not-allowed bg-brand-accent-600/35'
+                      : 'cursor-pointer bg-brand-accent-600'
+                  )}
                 >
                   {SEND_LABELS[status]}
                 </button>
@@ -195,30 +143,17 @@ const FeedbackButton = () => {
       {!open && showHint && (
         <div
           role="status"
-          style={{
-            background: 'hsl(var(--brand-chrome-surface))',
-            color: 'hsl(var(--brand-neutral-700))',
-            border: '1px solid hsl(var(--brand-neutral-300))',
-            padding: '8px 12px',
-            fontSize: 12,
-            lineHeight: 1.4,
-            maxWidth: 240,
-            pointerEvents: 'auto',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
-          }}
+          className={cn(
+            SURFACE,
+            'pointer-events-auto max-w-[240px] px-3 py-2 text-[12px] leading-[1.4]',
+            BUBBLE_SHADOW
+          )}
         >
           Got a bug or a suggestion? Click the bubble.
           <button
             type="button"
             onClick={dismissHint}
-            style={{
-              marginLeft: 8,
-              background: 'transparent',
-              border: 'none',
-              color: 'hsl(var(--brand-neutral-500))',
-              cursor: 'pointer',
-              fontSize: 12,
-            }}
+            className="ml-2 cursor-pointer border-none bg-transparent text-[12px] text-brand-neutral-500"
             aria-label="Dismiss hint"
           >
             ✕
@@ -230,19 +165,10 @@ const FeedbackButton = () => {
         onClick={openDialog}
         aria-label="Send feedback"
         title="Send feedback"
-        style={{
-          width: 44,
-          height: 44,
-          background: 'hsl(var(--brand-accent))',
-          color: 'hsl(var(--brand-ground))',
-          border: 'none',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          pointerEvents: 'auto',
-        }}
+        className={cn(
+          'pointer-events-auto flex size-11 cursor-pointer items-center justify-center border-none bg-brand-accent text-brand-ground',
+          BUBBLE_SHADOW
+        )}
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path
@@ -259,3 +185,10 @@ const FeedbackButton = () => {
 }
 
 export default FeedbackButton
+
+const SURFACE = 'border border-brand-neutral-300 bg-brand-chrome-surface text-brand-neutral-700'
+
+const FIELD =
+  'border border-brand-neutral-300 bg-brand-neutral-100 text-[12px] [font-family:inherit] text-brand-neutral-700'
+
+const BUBBLE_SHADOW = 'shadow-[0_4px_12px_rgba(0,0,0,0.4)]'

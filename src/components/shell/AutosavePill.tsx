@@ -1,6 +1,4 @@
-import type { CSSProperties } from 'react'
 import { useEffect, useState } from 'react'
-import { MONO_FONT } from '../../lib/typography'
 
 export interface AutosavePillProps {
   lastSavedAt: number | null
@@ -31,15 +29,9 @@ export const AutosavePill = ({ lastSavedAt }: AutosavePillProps) => {
 
   if (lastSavedAt === null) return null
 
-  return <span style={pillStyle}>{agoText(now - lastSavedAt)}</span>
-}
-
-const pillStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-600))',
-  border: '1px solid hsl(var(--brand-neutral-300))',
-  padding: '2px 7px',
-  whiteSpace: 'nowrap',
-  flexShrink: 0,
+  return (
+    <span className="shrink-0 whitespace-nowrap border border-brand-neutral-300 px-[7px] py-0.5 font-mono text-[11px] text-brand-neutral-600">
+      {agoText(now - lastSavedAt)}
+    </span>
+  )
 }

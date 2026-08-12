@@ -182,9 +182,9 @@ const BurnButton = () => {
       ? 'Burn dashboard to device (Cmd/Ctrl+S)'
       : 'Connect a device and edit the dashboard to enable Burn'
   return (
-    <span style={{ display: 'flex', alignItems: 'stretch' }}>
+    <span className="flex items-stretch">
       {lastBurnResult !== null && (
-        <span style={{ display: 'flex', alignItems: 'center', padding: '0 12px' }}>
+        <span className="flex items-center px-3">
           {lastBurnResult.kind === 'success' ? (
             <BurnOutcomePill kind="success" />
           ) : (
@@ -199,12 +199,13 @@ const BurnButton = () => {
         </span>
       )}
       <span
-        style={{
-          display: 'flex',
-          animation: shaking
-            ? `canshift-tuner-shake ${BURN_DENIED_SHAKE_MS}ms ease-in-out`
-            : undefined,
-        }}
+        className="flex"
+        // eslint-disable-next-line no-inline-style/no-inline-style
+        style={
+          shaking
+            ? { animation: `canshift-tuner-shake ${BURN_DENIED_SHAKE_MS}ms ease-in-out` }
+            : undefined
+        }
       >
         <UiBurnButton disabled={!canBurn} busy={isBurning} title={title} onClick={requestBurn} />
       </span>

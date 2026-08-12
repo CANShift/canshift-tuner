@@ -1,6 +1,7 @@
 import { Spinner } from '@/components/ui/spinner'
-import type { CSSProperties } from 'react'
 import { Button } from '@/components/ui/button'
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 
 export interface BurnButtonProps {
   disabled?: boolean
@@ -17,8 +18,7 @@ export const BurnButton = ({ disabled = false, busy = false, title, onClick }: B
       disabled={isDisabled}
       onClick={onClick}
       title={title}
-      className="h-auto gap-0 shell-burn-button"
-      style={isDisabled ? burnButtonStyleDisabled : burnButtonStyleEnabled}
+      className={cn('h-auto gap-0 shell-burn-button', burnFace({ disabled: isDisabled }))}
     >
       {busy ? <Spinner size={10} /> : null}
       {busy ? 'BURNING…' : 'BURN TO DEVICE'}
@@ -35,20 +35,27 @@ export interface BurnOutcomePillProps {
 export const BurnOutcomePill = ({ kind, message, onDismiss }: BurnOutcomePillProps) => {
   if (kind === 'success') {
     return (
-      <span role="status" style={successPillStyle}>
+      <span
+        role="status"
+        className={cn(OUTCOME_PILL, 'border-success bg-success/[0.12] text-success')}
+      >
         Burned ✓
       </span>
     )
   }
   return (
-    <span role="alert" title={message} style={errorPillStyle}>
-      <span style={errorMessageStyle}>{message}</span>
+    <span
+      role="alert"
+      title={message}
+      className={cn(OUTCOME_PILL, 'border-destructive bg-destructive/10 text-destructive')}
+    >
+      <span className="overflow-hidden text-ellipsis whitespace-nowrap">{message}</span>
       {onDismiss ? (
         <button
           type="button"
           aria-label="Dismiss burn error"
           onClick={onDismiss}
-          style={dismissButtonStyle}
+          className="shrink-0 cursor-pointer border-none bg-transparent p-0 text-[10px] leading-none text-inherit"
         >
           ✕
         </button>
@@ -57,66 +64,15 @@ export const BurnOutcomePill = ({ kind, message, onDismiss }: BurnOutcomePillPro
   )
 }
 
-const outcomePillStyleBase: CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 6,
-  padding: '3px 8px',
-  fontSize: 11,
-  fontWeight: 600,
-  maxWidth: 320,
-}
+const OUTCOME_PILL =
+  'inline-flex max-w-[320px] items-center gap-1.5 border px-2 py-[3px] text-[11px] font-semibold'
 
-const successPillStyle: CSSProperties = {
-  ...outcomePillStyleBase,
-  background: 'hsl(var(--success) / 0.12)',
-  border: '1px solid hsl(var(--success))',
-  color: 'hsl(var(--success))',
-}
-
-const errorPillStyle: CSSProperties = {
-  ...outcomePillStyleBase,
-  background: 'hsl(var(--destructive) / 0.1)',
-  border: '1px solid hsl(var(--destructive))',
-  color: 'hsl(var(--destructive))',
-}
-
-const errorMessageStyle: CSSProperties = {
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-}
-
-const dismissButtonStyle: CSSProperties = {
-  background: 'transparent',
-  border: 'none',
-  color: 'inherit',
-  cursor: 'pointer',
-  fontSize: 10,
-  lineHeight: 1,
-  padding: 0,
-  flexShrink: 0,
-}
-
-const burnButtonStyleBase: CSSProperties = {
-  height: '100%',
-  padding: '0 24px',
-  fontSize: 12,
-  fontWeight: 800,
-  letterSpacing: '0.09em',
-  border: 'none',
-}
-
-const burnButtonStyleDisabled: CSSProperties = {
-  ...burnButtonStyleBase,
-  background: 'hsl(var(--brand-neutral-200))',
-  color: 'hsl(var(--brand-neutral-500))',
-  cursor: 'not-allowed',
-}
-
-const burnButtonStyleEnabled: CSSProperties = {
-  ...burnButtonStyleBase,
-  background: 'hsl(var(--brand-accent))',
-  color: '#fff',
-  cursor: 'pointer',
-}
+const burnFace = cva('h-full border-none px-6 text-[12px] font-extrabold tracking-[0.09em]', {
+  variants: {
+    disabled: {
+      true: 'cursor-not-allowed bg-brand-neutral-200 text-brand-neutral-500',
+      false: 'cursor-pointer bg-brand-accent text-white',
+    },
+  },
+  defaultVariants: { disabled: false },
+})
