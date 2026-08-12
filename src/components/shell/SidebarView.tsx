@@ -1,5 +1,8 @@
-import type { ComponentType, CSSProperties, ReactNode } from 'react'
-import { MONO_FONT } from '../../lib/typography'
+import type { ComponentType, ReactNode } from 'react'
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
+import { ActiveBar } from '../ui/active-bar'
+import { MetaText } from '../ui/meta-text'
 import { CollapseButton } from './CollapseRail'
 
 export type SidebarRoute =
@@ -62,12 +65,9 @@ export const SIDEBAR_GROUPS: readonly NavGroup[] = [
   },
 ]
 
-const SIDEBAR_WIDTH = 236
-
 export interface SidebarLinkProps {
   to: string
-  style: CSSProperties
-  className?: string | undefined
+  className: string
   children: ReactNode
   title?: string
 }
@@ -81,14 +81,8 @@ export interface SidebarViewProps {
   onCollapse?: () => void
 }
 
-const DefaultLink: ComponentType<SidebarLinkProps> = ({
-  to,
-  style,
-  className,
-  children,
-  title,
-}) => (
-  <a href={to} style={style} className={className} title={title}>
+const DefaultLink: ComponentType<SidebarLinkProps> = ({ to, className, children, title }) => (
+  <a href={to} className={className} title={title}>
     {children}
   </a>
 )
@@ -101,17 +95,20 @@ export const SidebarView = ({
   LinkComponent = DefaultLink,
   onCollapse,
 }: SidebarViewProps) => (
-  <nav aria-label="Primary" style={navStyle}>
+  <nav
+    aria-label="Primary"
+    className="flex w-[236px] shrink-0 flex-col border-r-2 border-brand-divider bg-brand-neutral-100"
+  >
     {onCollapse && (
-      <div style={collapseHeaderStyle}>
+      <div className="flex justify-end px-2 pt-2">
         <CollapseButton side="left" label="Menu" onCollapse={onCollapse} />
       </div>
     )}
-    <div style={scrollAreaStyle}>
+    <div className="flex-1 overflow-y-auto py-4">
       {SIDEBAR_GROUPS.map((group, groupIdx) => (
         <div key={group.label ?? 'top'}>
           {group.label !== null && (
-            <div style={groupIdx === 1 ? firstGroupLabelStyle : groupLabelStyle}>{group.label}</div>
+            <div className={cn(GROUP_LABEL, groupIdx === 1 && 'pt-[14px]')}>{group.label}</div>
           )}
           {group.items.map((item) => (
             <SidebarItem
@@ -125,17 +122,17 @@ export const SidebarView = ({
         </div>
       ))}
     </div>
-    <div style={footerStyle}>
-      <div style={footerRowStyle}>
+    <div className="flex flex-col gap-2.5 border-t-2 border-brand-divider px-[18px] py-3.5">
+      <MetaText className="flex justify-between">
         <span>TARGET</span>
-        <span style={footerValueStyle}>{targetLabel ?? '—'}</span>
-      </div>
-      <div style={footerRowStyle}>
+        <span className="text-brand-text">{targetLabel ?? '—'}</span>
+      </MetaText>
+      <MetaText className="flex justify-between">
         <span>FIRMWARE</span>
-        <span style={footerValueStyle}>
+        <span className="text-brand-text">
           {firmwareVersion !== null ? `v${firmwareVersion}` : '—'}
         </span>
-      </div>
+      </MetaText>
     </div>
   </nav>
 )
@@ -156,7 +153,7 @@ const SidebarItem = ({ item, active, disabled, LinkComponent }: SidebarItemProps
         aria-disabled="true"
         aria-label={`${item.label} — connect a device to access this section`}
         title="Connect a device to access this section"
-        style={disabledItemStyle}
+        className={cn(navItem({ state: 'disabled' }))}
       >
         {item.label}
       </div>
@@ -165,98 +162,27 @@ const SidebarItem = ({ item, active, disabled, LinkComponent }: SidebarItemProps
   return (
     <LinkComponent
       to={item.to}
-      style={active ? activeItemStyle : itemStyle}
-      className={active ? undefined : 'shell-nav-item'}
+      className={cn(navItem({ state: active ? 'active' : 'default' }), !active && 'shell-nav-item')}
     >
-      {active && <span aria-hidden="true" style={activeBarStyle} />}
+      {active && <ActiveBar />}
       {item.label}
     </LinkComponent>
   )
 }
 
-const navStyle: CSSProperties = {
-  width: SIDEBAR_WIDTH,
-  flexShrink: 0,
-  background: 'hsl(var(--brand-neutral-100))',
-  borderRight: '2px solid var(--brand-divider)',
-  display: 'flex',
-  flexDirection: 'column',
-}
+const GROUP_LABEL =
+  'px-[18px] pb-2 pt-[22px] text-[9px] font-extrabold tracking-[0.22em] text-brand-neutral-600'
 
-const collapseHeaderStyle: CSSProperties = {
-  display: 'flex',
-  justifyContent: 'flex-end',
-  padding: '8px 8px 0',
-}
-
-const scrollAreaStyle: CSSProperties = {
-  flex: 1,
-  overflowY: 'auto',
-  padding: '16px 0',
-}
-
-const groupLabelStyle: CSSProperties = {
-  padding: '22px 18px 8px',
-  fontWeight: 800,
-  fontSize: 9,
-  letterSpacing: '0.22em',
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const firstGroupLabelStyle: CSSProperties = {
-  ...groupLabelStyle,
-  paddingTop: 14,
-}
-
-const itemStyle: CSSProperties = {
-  position: 'relative',
-  width: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  padding: '9px 18px 9px 21px',
-  fontSize: 13,
-  textDecoration: 'none',
-  color: 'hsl(var(--brand-neutral-700))',
-}
-
-const activeItemStyle: CSSProperties = {
-  ...itemStyle,
-  background: 'hsl(var(--brand-neutral-200))',
-  color: 'hsl(var(--brand-text))',
-  fontWeight: 800,
-}
-
-const disabledItemStyle: CSSProperties = {
-  ...itemStyle,
-  color: 'hsl(var(--brand-neutral-500))',
-  cursor: 'not-allowed',
-}
-
-const activeBarStyle: CSSProperties = {
-  position: 'absolute',
-  left: 0,
-  top: 0,
-  bottom: 0,
-  width: 3,
-  background: 'hsl(var(--brand-accent))',
-}
-
-const footerStyle: CSSProperties = {
-  borderTop: '2px solid var(--brand-divider)',
-  padding: '14px 18px',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 10,
-}
-
-const footerRowStyle: CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  fontFamily: MONO_FONT,
-  fontSize: 11,
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const footerValueStyle: CSSProperties = {
-  color: 'hsl(var(--brand-text))',
-}
+const navItem = cva(
+  'relative flex w-full items-center py-[9px] pl-[21px] pr-[18px] text-[13px] no-underline',
+  {
+    variants: {
+      state: {
+        default: 'text-brand-neutral-700',
+        active: 'bg-brand-neutral-200 font-extrabold text-brand-text',
+        disabled: 'cursor-not-allowed text-brand-neutral-500',
+      },
+    },
+    defaultVariants: { state: 'default' },
+  }
+)

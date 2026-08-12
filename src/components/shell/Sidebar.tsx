@@ -7,8 +7,8 @@ import { useDashboardStore } from '../../stores/dashboard.store'
 import { useDeviceStore } from '../../stores/device.store'
 import { useUiStore } from '../../stores/ui.store'
 
-const RouterLink = ({ to, style, className, children, title }: SidebarLinkProps) => (
-  <NavLink to={to} end={to === '/'} style={style} className={className ?? ''} title={title}>
+const RouterLink = ({ to, className, children, title }: SidebarLinkProps) => (
+  <NavLink to={to} end={to === '/'} className={className} title={title}>
     {children}
   </NavLink>
 )
