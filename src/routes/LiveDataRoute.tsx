@@ -1,14 +1,51 @@
 import { useMemo, useState } from 'react'
-import type { CSSProperties } from 'react'
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 import { SourceBadge, type SignalSource } from '../components/live-data/SourceBadge'
 import { RouteHeader } from '../components/shell/RouteHeader'
+import { RoutePage } from '../components/ui/route-shell'
 import { useLiveSignals } from '../hooks/useLiveSignals'
 import { useSignalStore } from '../stores/signal.store'
 import { useDeviceStore } from '../stores/device.store'
 import { Input } from '../components/ui/input'
-import { MONO_FONT } from '../lib/typography'
 
 const DANGER_FRACTION = 0.9
+
+const EXPORT_BUTTON = [
+  'border border-solid border-brand-neutral-400 bg-transparent px-3.5 py-1.5',
+  'text-[11px] font-extrabold tracking-[0.08em]',
+  'text-brand-text disabled:cursor-not-allowed disabled:text-brand-neutral-500',
+].join(' ')
+
+const EMPTY = 'px-6 py-16 text-center text-[13px] text-brand-neutral-500'
+
+const GRID = 'grid flex-1 grid-cols-4 overflow-y-auto [grid-auto-rows:minmax(150px,1fr)]'
+
+const CELL = [
+  'flex min-w-0 flex-col justify-center gap-[9px] px-5 py-[18px]',
+  'border-r border-b border-solid border-brand-neutral-300',
+].join(' ')
+
+const CELL_LABEL = [
+  'overflow-hidden text-ellipsis whitespace-nowrap',
+  'text-[10px] font-extrabold tracking-[0.18em] text-brand-neutral-600',
+].join(' ')
+
+const tinted = cva('', {
+  variants: {
+    danger: { true: 'text-brand-accent', false: 'text-brand-text' },
+  },
+  defaultVariants: { danger: false },
+})
+
+const barFill = cva('h-full', {
+  variants: {
+    danger: { true: 'bg-brand-accent', false: 'bg-brand-text' },
+  },
+  defaultVariants: { danger: false },
+})
+
+const CELL_VALUE = 'font-mono text-[44px] leading-[1.1] tabular-nums'
 
 const LiveDataRoute = () => {
   const signals = useSignalStore((s) => s.signals)
@@ -50,7 +87,7 @@ const LiveDataRoute = () => {
   }
 
   return (
-    <div style={containerStyle}>
+    <RoutePage>
       <RouteHeader
         title="Live data"
         subtitle={
@@ -72,10 +109,9 @@ const LiveDataRoute = () => {
             />
             <button
               type="button"
-              className="editor-ghost-accent"
+              className={cn('editor-ghost-accent', EXPORT_BUTTON)}
               onClick={handleExport}
               disabled={signals.length === 0}
-              style={exportButtonStyle(signals.length === 0)}
             >
               EXPORT CSV
             </button>
@@ -84,35 +120,32 @@ const LiveDataRoute = () => {
       />
 
       {filteredSignals.length === 0 ? (
-        <div style={emptyStyle}>
+        <div className={EMPTY}>
           {signals.length === 0
             ? 'No signals configured. Pick an ECU profile in the Editor to see live values here.'
             : 'No signals match the current filter.'}
         </div>
       ) : (
-        <div style={gridStyle}>
+        <div className={GRID}>
           {filteredSignals.map((sig) => {
             const raw = values[sig.name]
             const range = sig.max - sig.min || 1
             const pct = raw !== undefined ? Math.max(0, Math.min(1, (raw - sig.min) / range)) : 0
             const danger = pct >= DANGER_FRACTION
-            const tint = danger ? 'hsl(var(--brand-accent))' : 'hsl(var(--brand-text))'
             return (
-              <div key={sig.name} style={cellStyle}>
-                <span style={cellLabelStyle}>{sig.name.replace(/_/g, ' ').toUpperCase()}</span>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                  <span style={{ ...cellValueStyle, color: tint }}>
+              <div key={sig.name} className={CELL}>
+                <span className={CELL_LABEL}>{sig.name.replace(/_/g, ' ').toUpperCase()}</span>
+                <div className="flex items-baseline gap-1.5">
+                  <span className={cn(CELL_VALUE, tinted({ danger }))}>
                     {raw !== undefined ? formatValue(raw) : '—'}
                   </span>
-                  <span style={cellUnitStyle}>{sig.unit}</span>
+                  <span className="font-mono text-[13px] text-brand-neutral-600">{sig.unit}</span>
                 </div>
-                <div style={barTrackStyle}>
+                <div className="h-1 bg-brand-neutral-300">
                   <div
-                    style={{
-                      width: `${String(Math.round(pct * 100))}%`,
-                      height: '100%',
-                      background: tint,
-                    }}
+                    className={cn(barFill({ danger }))}
+                    // eslint-disable-next-line no-inline-style/no-inline-style
+                    style={{ width: `${String(Math.round(pct * 100))}%` }}
                   />
                 </div>
               </div>
@@ -120,7 +153,7 @@ const LiveDataRoute = () => {
           })}
         </div>
       )}
-    </div>
+    </RoutePage>
   )
 }
 
@@ -130,78 +163,6 @@ const formatValue = (value: number): string =>
 const escapeCsv = (value: string): string => {
   if (/[",\n]/.test(value)) return `"${value.replace(/"/g, '""')}"`
   return value
-}
-
-const containerStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  overflow: 'hidden',
-}
-
-const exportButtonStyle = (disabled: boolean): CSSProperties => ({
-  padding: '6px 14px',
-  background: 'none',
-  border: `1px solid ${disabled ? 'hsl(var(--brand-neutral-400))' : 'hsl(var(--brand-neutral-400))'}`,
-  fontWeight: 800,
-  fontSize: 11,
-  letterSpacing: '0.08em',
-  color: disabled ? 'hsl(var(--brand-neutral-500))' : 'hsl(var(--brand-text))',
-  cursor: disabled ? 'not-allowed' : 'pointer',
-})
-
-const emptyStyle: CSSProperties = {
-  textAlign: 'center',
-  fontSize: 13,
-  color: 'hsl(var(--brand-neutral-500))',
-  padding: '64px 24px',
-}
-
-const gridStyle: CSSProperties = {
-  flex: 1,
-  overflowY: 'auto',
-  display: 'grid',
-  gridTemplateColumns: 'repeat(4, 1fr)',
-  gridAutoRows: 'minmax(150px, 1fr)',
-}
-
-const cellStyle: CSSProperties = {
-  borderRight: '1px solid hsl(var(--brand-neutral-300))',
-  borderBottom: '1px solid hsl(var(--brand-neutral-300))',
-  padding: '18px 20px',
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  gap: 9,
-  minWidth: 0,
-}
-
-const cellLabelStyle: CSSProperties = {
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.18em',
-  color: 'hsl(var(--brand-neutral-600))',
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-}
-
-const cellValueStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 44,
-  lineHeight: 1.1,
-  fontVariantNumeric: 'tabular-nums',
-}
-
-const cellUnitStyle: CSSProperties = {
-  fontFamily: MONO_FONT,
-  fontSize: 13,
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const barTrackStyle: CSSProperties = {
-  height: 4,
-  background: 'hsl(var(--brand-neutral-300))',
 }
 
 export default LiveDataRoute
