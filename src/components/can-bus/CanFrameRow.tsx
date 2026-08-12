@@ -1,7 +1,7 @@
-import type { CSSProperties } from 'react'
 import { forwardRef, memo, useEffect, useState } from 'react'
+import { cva } from 'class-variance-authority'
 import type { CanFrameStats } from '../../hooks/useCanScanner'
-import { MONO_FONT } from '../../lib/typography'
+import { cn } from '@/lib/utils'
 import { formatFrameIdHex } from '../../utils/frame-id'
 
 export interface CanFrameRowProps {
@@ -40,34 +40,44 @@ export const CanFrameRow = memo(
       }, [frame.lastSeenMs])
 
       return (
-        <tr ref={ref} data-index={dataIndex} style={rowStyle(stale)}>
-          <td style={idCellStyle}>
+        <tr
+          ref={ref}
+          data-index={dataIndex}
+          className={cn(
+            'bg-transparent [transition:opacity_200ms_linear]',
+            stale ? 'opacity-55' : 'opacity-100'
+          )}
+        >
+          <td className={cn(cell({ tone: 'id' }))}>
             <button
               type="button"
               onClick={() => {
                 onToggle(frame.id)
               }}
-              style={expandButtonStyle}
+              className="inline-flex cursor-pointer items-center gap-1.5 border-none bg-transparent p-0 text-inherit [font:inherit]"
               aria-label={expanded ? 'Collapse byte histogram' : 'Expand byte histogram'}
             >
-              <span style={{ display: 'inline-block', width: 10 }}>{expanded ? '▾' : '▸'}</span>
+              <span className="inline-block w-2.5">{expanded ? '▾' : '▸'}</span>
               {idHex}
             </button>
           </td>
-          <td style={dlcCellStyle}>{String(frame.lastDlc)}</td>
-          <td style={dataCellStyle}>{formatPayload(frame.lastPayload, frame.lastDlc)}</td>
-          <td style={dimCellStyle}>{String(frame.rateHz)} Hz</td>
-          <td style={dimCellStyle}>{formatCount(frame.count)}</td>
-          {learnScore !== null && <td style={dimCellStyle}>{formatCount(learnScore)}</td>}
-          <td style={mappedCellStyle}>
+          <td className={cn(cell({ tone: 'dlc' }))}>{String(frame.lastDlc)}</td>
+          <td className={cn(cell({ tone: 'data' }))}>
+            {formatPayload(frame.lastPayload, frame.lastDlc)}
+          </td>
+          <td className={cn(cell({ tone: 'dim' }))}>{String(frame.rateHz)} Hz</td>
+          <td className={cn(cell({ tone: 'dim' }))}>{formatCount(frame.count)}</td>
+          {learnScore !== null && (
+            <td className={cn(cell({ tone: 'dim' }))}>{formatCount(learnScore)}</td>
+          )}
+          <td className={cn(cell({ tone: 'mapped' }))}>
             {mappedName ?? (
               <button
                 type="button"
-                className="editor-ghost-accent"
+                className="editor-ghost-accent cursor-pointer border border-brand-accent bg-transparent px-2.5 py-[3px] text-[10px] font-extrabold tracking-[0.08em] text-brand-accent"
                 onClick={() => {
                   onPromote(frame.id)
                 }}
-                style={promoteButtonStyle}
               >
                 PROMOTE
               </button>
@@ -91,72 +101,17 @@ const formatPayload = (bytes: readonly number[], dlc: number): string => {
   return slice.map((b) => b.toString(16).toUpperCase().padStart(2, '0')).join(' ')
 }
 
-const rowStyle = (stale: boolean): CSSProperties => ({
-  background: 'transparent',
-  opacity: stale ? 0.55 : 1,
-  transition: 'opacity 200ms linear',
-})
-
-const cellStyle: CSSProperties = {
-  padding: '12px 20px 12px 0',
-  borderBottom: '1px solid hsl(var(--brand-neutral-300))',
-  fontFamily: MONO_FONT,
-  fontSize: 13,
-  color: 'hsl(var(--brand-text))',
-  verticalAlign: 'middle',
-  fontVariantNumeric: 'tabular-nums',
-}
-
-const idCellStyle: CSSProperties = {
-  ...cellStyle,
-  paddingLeft: 20,
-  color: 'hsl(var(--brand-accent))',
-}
-
-const dlcCellStyle: CSSProperties = {
-  ...cellStyle,
-  color: 'hsl(var(--brand-neutral-600))',
-}
-
-const dataCellStyle: CSSProperties = {
-  ...cellStyle,
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-}
-
-const dimCellStyle: CSSProperties = {
-  ...cellStyle,
-  color: 'hsl(var(--brand-neutral-700))',
-}
-
-const mappedCellStyle: CSSProperties = {
-  ...cellStyle,
-  fontFamily: 'var(--font-ui)',
-  fontSize: 12,
-}
-
-const promoteButtonStyle: CSSProperties = {
-  padding: '3px 10px',
-  background: 'none',
-  border: '1px solid hsl(var(--brand-accent))',
-  fontWeight: 800,
-  fontSize: 10,
-  letterSpacing: '0.08em',
-  color: 'hsl(var(--brand-accent))',
-  cursor: 'pointer',
-}
-
-const expandButtonStyle: CSSProperties = {
-  background: 'none',
-  border: 'none',
-  padding: 0,
-  cursor: 'pointer',
-  color: 'inherit',
-  fontFamily: 'inherit',
-  fontSize: 'inherit',
-  fontWeight: 'inherit',
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 6,
-}
+const cell = cva(
+  'border-b border-brand-neutral-300 py-3 pl-0 pr-5 align-middle font-mono text-[13px] tabular-nums text-brand-text',
+  {
+    variants: {
+      tone: {
+        id: 'pl-5 text-brand-accent',
+        dlc: 'text-brand-neutral-600',
+        data: 'overflow-hidden text-ellipsis whitespace-nowrap',
+        dim: 'text-brand-neutral-700',
+        mapped: 'font-sans text-[12px]',
+      },
+    },
+  }
+)
