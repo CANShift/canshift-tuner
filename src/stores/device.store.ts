@@ -5,7 +5,7 @@ export type ConnectionStatus = 'disconnected' | 'connected' | 'burning' | 'error
 
 export type Transport = 'usb'
 
-export type BurnPhase = 'idle' | 'pushing' | 'rebooting' | 'done'
+export type BurnPhase = 'idle' | 'pushing' | 'verifying' | 'done'
 
 export type BurnResult = { kind: 'success' } | { kind: 'error'; message: string }
 
