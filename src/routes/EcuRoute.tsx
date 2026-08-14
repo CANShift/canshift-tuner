@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { SignalDef } from '@canshift/core'
 import { useDashboardStore } from '../stores/dashboard.store'
 import { useSignalStore } from '../stores/signal.store'
@@ -10,6 +11,7 @@ import { ApplyConfirmDialog } from '../components/ecu/ApplyConfirmDialog'
 import { cn } from '@/lib/utils'
 import { RouteHeader } from '../components/shell/RouteHeader'
 import { RouteBody, RoutePage, RoutePanel } from '../components/ui/route-shell'
+import { NoEcuProfileState } from '../components/states/NoEcuProfileState'
 import { prettyProfileKey } from '../utils/profile-key'
 import { useEcuSource } from '../hooks/useEcuSource'
 
@@ -24,6 +26,8 @@ const EcuRoute = () => {
   const { source, importError, setImportError, selectCatalogueItem, loadImport, clear } =
     useEcuSource()
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const navigate = useNavigate()
+  const searchRef = useRef<HTMLInputElement>(null)
 
   const previewSignals = useMemo<SignalDef[]>(() => {
     switch (source.kind) {
@@ -84,6 +88,8 @@ const EcuRoute = () => {
 
   const canApply = previewSignals.length > 0
 
+  const hasNothingToShow = shownSignals.length === 0 && previewWarnings.length === 0
+
   const onConfirmApply = () => {
     setConfirmOpen(false)
     applyProfile(selectedKey, previewSignals)
@@ -123,6 +129,7 @@ const EcuRoute = () => {
         <section className="flex w-[250px] min-h-0 shrink-0 flex-col overflow-hidden border-r-2 border-brand-divider">
           <RoutePanel>
             <EcuCatalogueList
+              searchRef={searchRef}
               activeKey={activeProfileKey}
               selectedId={selectedItemId}
               onSelect={(item) => {
@@ -146,7 +153,21 @@ const EcuRoute = () => {
         </section>
 
         <section className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-          <SignalPreviewTable signals={shownSignals} boundTo={boundTo} warnings={previewWarnings} />
+          {hasNothingToShow ? (
+            <NoEcuProfileState
+              className="mx-7 my-[26px] max-w-[560px]"
+              onPickProfile={() => searchRef.current?.focus()}
+              onCaptureBus={() => {
+                void navigate('/can')
+              }}
+            />
+          ) : (
+            <SignalPreviewTable
+              signals={shownSignals}
+              boundTo={boundTo}
+              warnings={previewWarnings}
+            />
+          )}
         </section>
       </RouteBody>
 

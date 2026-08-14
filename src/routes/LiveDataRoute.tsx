@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
+import { LiveDataEmpty } from '../components/live-data/LiveDataEmpty'
 import { SourceBadge, type SignalSource } from '../components/live-data/SourceBadge'
 import { RouteHeader } from '../components/shell/RouteHeader'
 import { RoutePage } from '../components/ui/route-shell'
@@ -17,8 +19,6 @@ const EXPORT_BUTTON = [
   'text-[11px] font-extrabold tracking-[0.08em]',
   'text-brand-text disabled:cursor-not-allowed disabled:text-brand-neutral-500',
 ].join(' ')
-
-const EMPTY = 'px-6 py-16 text-center text-[13px] text-brand-neutral-500'
 
 const GRID = 'grid flex-1 grid-cols-4 overflow-y-auto [grid-auto-rows:minmax(150px,1fr)]'
 
@@ -53,6 +53,7 @@ const LiveDataRoute = () => {
   const connected = useDeviceStore((s) => s.connected)
   const simulationMode = useDeviceStore((s) => s.simulationMode)
   const values = useLiveSignals()
+  const navigate = useNavigate()
   const [filter, setFilter] = useState('')
 
   const isLive = connected && !simulationMode
@@ -123,11 +124,15 @@ const LiveDataRoute = () => {
       <BusSilentNotice />
 
       {filteredSignals.length === 0 ? (
-        <div className={EMPTY}>
-          {signals.length === 0
-            ? 'No signals configured. Pick an ECU profile in the Editor to see live values here.'
-            : 'No signals match the current filter.'}
-        </div>
+        <LiveDataEmpty
+          hasProfile={signals.length > 0}
+          onPickProfile={() => {
+            void navigate('/ecu')
+          }}
+          onCaptureBus={() => {
+            void navigate('/can')
+          }}
+        />
       ) : (
         <div className={GRID}>
           {filteredSignals.map((sig) => {
