@@ -53,6 +53,7 @@ export class SerialClient {
   private lastError: string | undefined
   private intentionalDisconnect = false
   private suppressNextReconnect = false
+  private deviceHeard = false
   private readonly baudRate: number
   private readonly framer = new LineFramer()
   private readonly hub = new SerialEventHub()
@@ -65,6 +66,7 @@ export class SerialClient {
     this.acks = new AckQueue({
       canSend: () => this.active !== null && this.status === 'connected',
       write: (payload) => this.writePayload(payload),
+      deviceHeard: () => this.deviceHeard,
     })
     this.reconnect = new ReconnectScheduler({
       enabled: () => autoReconnect && !this.intentionalDisconnect,
@@ -200,6 +202,7 @@ export class SerialClient {
       writer: port.writable.getWriter(),
     }
     this.active = own
+    this.deviceHeard = false
     this.framer.reset()
     this.acks.clearStaleFlush()
     this.reconnect.noteOpened()
@@ -211,6 +214,7 @@ export class SerialClient {
 
   private dispatchChunk(value: Uint8Array | undefined): void {
     if (!value || value.byteLength === 0) return
+    this.deviceHeard = true
     for (const line of this.framer.push(value)) this.onFrame(line)
   }
 
