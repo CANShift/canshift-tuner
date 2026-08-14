@@ -12,7 +12,7 @@ import {
   CMD_SET_DAY_NIGHT,
   CMD_TOGGLE_DAY_NIGHT,
 } from './opcodes'
-import type { FirmwareIdentityResult, PingResult, RawAck, UsbResult } from './types'
+import type { BurnPushResult, FirmwareIdentityResult, PingResult, RawAck, UsbResult } from './types'
 import { toUsbResult } from './types'
 import {
   interpretBoardProfileAck,
@@ -24,19 +24,16 @@ import { burnConfigChunked } from './chunked-config'
 const OK: UsbResult = { success: true }
 
 export const usbService = {
-  pushConfig: async (config: DashboardConfig): Promise<UsbResult> => {
+  pushConfig: async (config: DashboardConfig): Promise<BurnPushResult> => {
     const validation = validateDashboard(config)
     if (!validation.valid) {
       return {
-        success: false,
-        error: `invalid_dashboard_config: ${validation.errors[0] ?? 'unknown_validation_error'}`,
+        kind: 'error',
+        code: 'invalid_config',
+        detail: validation.errors[0] ?? 'unknown_validation_error',
       }
     }
-    const burned = await burnConfigChunked(config)
-    if (!burned.success) {
-      return { success: false, error: burned.error ?? 'unknown_error' }
-    }
-    return OK
+    return burnConfigChunked(config)
   },
 
   getConfig: async (): Promise<

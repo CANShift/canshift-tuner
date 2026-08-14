@@ -23,6 +23,7 @@ import { useWidgetOverflowWarnings } from './hooks/useWidgetOverflowWarnings'
 import { useUnsavedChangesGuard } from './hooks/useUnsavedChangesGuard'
 import { useDocumentMeta } from './hooks/useDocumentMeta'
 import { DeviceConfigConflictNotice } from './components/shell/DeviceConfigConflictNotice'
+import { BurnFailureNotice } from './components/shell/BurnFailureNotice'
 import { ROUTE_PATHS, type RoutePath } from './constants/routes'
 
 const EditorRoute = lazy(() => import('./routes/EditorRoute'))
@@ -111,6 +112,7 @@ const App = () => {
       <Header />
       <DeviceAlertBar />
       <DeviceConfigConflictNotice />
+      <BurnFailureNotice />
       <div className={BODY}>
         <Sidebar />
         <main className={MAIN}>
