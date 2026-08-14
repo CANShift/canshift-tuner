@@ -13,6 +13,7 @@ export type { AckResult, SendOptions } from './ack-queue'
 export type { SerialActivityDirection, SerialStatus } from './serial-events'
 
 const DEFAULT_BAUD_RATE = 115_200
+const ESPRESSIF_USB_VENDOR_ID = 0x303a
 
 const ENCODER = new TextEncoder()
 
@@ -149,7 +150,7 @@ export class SerialClient {
     this.hub.emitActivity('tx')
   }
 
-  private async deassertResetSignals(port: SerialPort): Promise<void> {
+  private async applyNonResettingSignals(port: SerialPort): Promise<void> {
     const setSignals = (
       port as {
         setSignals?: (signals: {
@@ -159,8 +160,12 @@ export class SerialClient {
       }
     ).setSignals
     if (typeof setSignals !== 'function') return
+    const vendorId = port.getInfo?.().usbVendorId
     await bestEffort('[serial] setSignals', () =>
-      setSignals.call(port, { dataTerminalReady: false, requestToSend: false })
+      setSignals.call(port, {
+        dataTerminalReady: vendorId === ESPRESSIF_USB_VENDOR_ID,
+        requestToSend: false,
+      })
     )
   }
 
@@ -179,7 +184,7 @@ export class SerialClient {
     this.setStatus(this.reconnect.isBackedOff() ? 'reconnecting' : 'connecting')
     try {
       await port.open({ baudRate: this.baudRate })
-      await this.deassertResetSignals(port)
+      await this.applyNonResettingSignals(port)
     } catch (err) {
       const raw = errorMessage(err, 'open_failed')
       const msg = humanizeTransportError(raw)
