@@ -20,8 +20,8 @@ interface UseBurnDashboard {
 
 const verifyFailureMessage = (verify: Exclude<VerifyResult, { kind: 'ok' }>): string => {
   switch (verify.kind) {
-    case 'no_reboot':
-      return 'Device did not come back after reboot — try unplug/replug'
+    case 'unreachable':
+      return 'Device stopped answering after the burn — try unplug/replug'
     case 'fetch_failed':
       return `Could not read back config (${humanizeTransportError(verify.error)})`
     case 'mismatch':
@@ -68,8 +68,8 @@ export const useBurnDashboard = (): UseBurnDashboard => {
         captureFlowEvent('burn_completed', { outcome: 'push_failed', reason: code })
         return
       }
-      setBurnPhase('rebooting')
-      log('info', 'Burn acked — verifying after reboot…')
+      setBurnPhase('verifying')
+      log('info', 'Burn acked — verifying on device…')
       const verify = await verifyBurnedConfig(config)
       if (verify.kind === 'ok') {
         markPushed()
