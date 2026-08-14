@@ -1,10 +1,19 @@
-/* Design tokens — generated from canshift-core. Must precede @tailwind
-   directives so :root vars are available everywhere. */
 @import './styles/tokens.generated.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --brand-warning: 32 100% 50%;
+  --brand-accent-100: 9 62% 12%;
+  --brand-accent-700: 10 100% 76%;
+}
+
+:root[data-theme='light'] {
+  --brand-accent-100: 11 100% 97%;
+  --brand-accent-700: 8 100% 34%;
+}
 
 @font-face {
   font-family: Archivo;
@@ -14,9 +23,6 @@
   src: url('./assets/fonts/Archivo-Latin.woff2') format('woff2');
 }
 
-/* JetBrains Mono — self-hosted, matches the firmware's value typeface
-   (#1821 restyle). `swap` keeps the fallback rendering immediately so FCP
-   isn't blocked on a font fetch (#1343 / PR #1349). */
 @font-face {
   font-family: 'JetBrains Mono';
   font-weight: 500;
