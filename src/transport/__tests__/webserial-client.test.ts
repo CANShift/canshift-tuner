@@ -529,6 +529,8 @@ describe('SerialClient — stale ack discard after timeout', () => {
     const fake = makeFakePort()
     const client = new SerialClient({ disableReconnect: true })
     await client.connect(fake.port)
+    fake.pushBytes('{"tele":1,"v":{}}\n')
+    await flush()
 
     const first = client.send(0x01)
     const second = client.send(0x02)
@@ -562,6 +564,8 @@ describe('SerialClient — stale ack discard after timeout', () => {
     const fake = makeFakePort()
     const client = new SerialClient({ disableReconnect: true })
     await client.connect(fake.port)
+    fake.pushBytes('{"tele":1,"v":{}}\n')
+    await flush()
 
     const first = client.send(0x01)
     await flush()
@@ -579,6 +583,60 @@ describe('SerialClient — stale ack discard after timeout', () => {
     fake.pushBytes('{"status":"ok"}\n')
     const ack = await second
     expect(ack.ok).toBe(true)
+    client.disconnect()
+  })
+})
+
+describe('SerialClient — a device that has not spoken yet', () => {
+  it('waits past the normal ack timeout while the board is still booting', async () => {
+    vi.useFakeTimers()
+    const fake = makeFakePort()
+    const client = new SerialClient({ disableReconnect: true })
+    await client.connect(fake.port)
+
+    const pending = client.send(0x01)
+    await flush()
+
+    await vi.advanceTimersByTimeAsync(5_000)
+    let settled = false
+    void pending.then(() => {
+      settled = true
+    })
+    await flush()
+    expect(settled).toBe(false)
+
+    fake.pushBytes('{"status":"ok"}\n')
+    expect((await pending).ok).toBe(true)
+    client.disconnect()
+  })
+
+  it('gives up once the extended window elapses', async () => {
+    vi.useFakeTimers()
+    const fake = makeFakePort()
+    const client = new SerialClient({ disableReconnect: true })
+    await client.connect(fake.port)
+
+    const pending = client.send(0x01)
+    await flush()
+    await vi.advanceTimersByTimeAsync(20_000)
+
+    expect(await pending).toEqual({ ok: false, error: 'ack_timeout' })
+    client.disconnect()
+  })
+
+  it('returns to the normal timeout once the device has been heard', async () => {
+    vi.useFakeTimers()
+    const fake = makeFakePort()
+    const client = new SerialClient({ disableReconnect: true })
+    await client.connect(fake.port)
+    fake.pushBytes('{"tele":1,"v":{}}\n')
+    await flush()
+
+    const pending = client.send(0x01)
+    await flush()
+    await vi.advanceTimersByTimeAsync(5_000)
+
+    expect(await pending).toEqual({ ok: false, error: 'ack_timeout' })
     client.disconnect()
   })
 })

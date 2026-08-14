@@ -2,6 +2,7 @@ import { bestEffort } from './best-effort'
 import { errorMessage } from '../lib/error-message'
 
 const ACK_TIMEOUT_MS = 5_000
+const UNHEARD_DEVICE_TIMEOUT_MS = 20_000
 const PUT_CONFIG_BASE_TIMEOUT_MS = ACK_TIMEOUT_MS
 const PUT_CONFIG_PER_KB_MS = 50
 const PUT_CONFIG_MAX_TIMEOUT_MS = 60_000
@@ -35,6 +36,7 @@ interface QueuedSend {
 export interface AckQueueDeps {
   canSend: () => boolean
   write: (payload: string) => Promise<void>
+  deviceHeard?: () => boolean
 }
 
 export const putConfigTimeoutMs = (payloadBytes: number): number => {
@@ -113,6 +115,11 @@ export class AckQueue {
     }
   }
 
+  private idleTimeoutMs(): number {
+    const heard = this.deps.deviceHeard?.() ?? true
+    return heard ? ACK_TIMEOUT_MS : UNHEARD_DEVICE_TIMEOUT_MS
+  }
+
   private dispatch(
     cmd: number,
     fields: Record<string, unknown>,
@@ -121,7 +128,7 @@ export class AckQueue {
     const payload = JSON.stringify({ cmd, ...fields }) + '\n'
     const timeoutMs = opts.scaleWithPayload
       ? putConfigTimeoutMs(payload.length)
-      : (opts.timeoutMs ?? ACK_TIMEOUT_MS)
+      : (opts.timeoutMs ?? this.idleTimeoutMs())
 
     return new Promise((resolve) => {
       const timer = setTimeout(() => {
