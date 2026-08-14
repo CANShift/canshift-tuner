@@ -5,6 +5,20 @@ export interface UsbResult {
   error?: string
 }
 
+export interface BurnChunkPosition {
+  index: number
+  total: number
+}
+
+export type BurnPushResult =
+  | { kind: 'ok' }
+  | {
+      kind: 'error'
+      code: string
+      chunk?: BurnChunkPosition | undefined
+      detail?: string | undefined
+    }
+
 export interface FirmwareIdentity {
   version: string
   protocol: number
