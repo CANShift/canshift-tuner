@@ -155,6 +155,13 @@ export const DashTopBar = ({
             {formatPreviewSignal(item.signal, item.format)}
           </span>
         )
+      case 'signalMax':
+        return (
+          // eslint-disable-next-line no-inline-style/no-inline-style
+          <span key={key} className={dimClass} style={{ fontSize: fs }}>
+            {`${item.text} ${formatPreviewSignal(item.signal, item.format)}`}
+          </span>
+        )
       case 'canRate':
         return (
           // eslint-disable-next-line no-inline-style/no-inline-style
