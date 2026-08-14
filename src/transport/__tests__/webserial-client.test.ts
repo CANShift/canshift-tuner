@@ -587,6 +587,39 @@ describe('SerialClient — stale ack discard after timeout', () => {
   })
 })
 
+describe('SerialClient — reset lines on open', () => {
+  const makeSignalPort = (usbVendorId?: number) => {
+    const signals: Array<Record<string, boolean>> = []
+    const base = makeFakePort()
+    const port = base.port as unknown as Record<string, unknown>
+    port.getInfo = () => ({ usbVendorId })
+    port.setSignals = async (s: Record<string, boolean>) => {
+      signals.push(s)
+    }
+    return { base, signals }
+  }
+
+  it('holds DTR asserted on a native-USB board so opening the port does not reset it', async () => {
+    const { base, signals } = makeSignalPort(0x303a)
+    const client = new SerialClient({ disableReconnect: true })
+
+    await client.connect(base.port)
+
+    expect(signals).toEqual([{ dataTerminalReady: true, requestToSend: false }])
+    client.disconnect()
+  })
+
+  it('keeps DTR deasserted on a CH340 board, where asserting it triggers the auto-reset', async () => {
+    const { base, signals } = makeSignalPort(0x1a86)
+    const client = new SerialClient({ disableReconnect: true })
+
+    await client.connect(base.port)
+
+    expect(signals).toEqual([{ dataTerminalReady: false, requestToSend: false }])
+    client.disconnect()
+  })
+})
+
 describe('SerialClient — a device that has not spoken yet', () => {
   it('waits past the normal ack timeout while the board is still booting', async () => {
     vi.useFakeTimers()
