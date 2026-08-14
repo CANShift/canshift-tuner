@@ -1,5 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useDeviceStore } from './device.store'
+import type { BurnFailure } from '../lib/burn-failure'
+
+const FAILURE: BurnFailure = {
+  command: 'PUT_CONFIG',
+  code: 'E_CRC',
+  title: 'The dash rejected the write',
+  body: 'Checksum mismatch on chunk 7 of 12. The dash kept its previous config and is still running.',
+}
 
 const connectAndPopulate = (): void => {
   const s = useDeviceStore.getState()
@@ -15,7 +23,7 @@ const connectAndPopulate = (): void => {
     largestPsram: null,
   })
   s.setBurnPhase('pushing')
-  s.setLastBurnResult({ kind: 'error', message: 'boom' })
+  s.setLastBurnResult({ kind: 'error', failure: FAILURE })
   s.setIsDayMode(true)
 }
 
@@ -61,11 +69,8 @@ describe('device.store lastBurnResult (#1743)', () => {
     const s = useDeviceStore.getState()
     s.setLastBurnResult({ kind: 'success' })
     expect(useDeviceStore.getState().lastBurnResult).toEqual({ kind: 'success' })
-    s.setLastBurnResult({ kind: 'error', message: 'Device did not come back after reboot' })
-    expect(useDeviceStore.getState().lastBurnResult).toEqual({
-      kind: 'error',
-      message: 'Device did not come back after reboot',
-    })
+    s.setLastBurnResult({ kind: 'error', failure: FAILURE })
+    expect(useDeviceStore.getState().lastBurnResult).toEqual({ kind: 'error', failure: FAILURE })
   })
 
   it('clears on explicit reset and on disconnect', () => {

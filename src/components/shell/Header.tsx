@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { HeaderView, type HeaderStatus } from './HeaderView'
-import { BurnButton as UiBurnButton, BurnOutcomePill } from './BurnButton'
+import { BurnButton as UiBurnButton, BurnSuccessPill } from './BurnButton'
 import { FirmwareSlot as UiFirmwareSlot } from './FirmwareSlot'
 import { useConnectionStore } from '../../stores/connection.store'
 import { useDashboardStore } from '../../stores/dashboard.store'
@@ -26,7 +26,6 @@ const PULSE_HOLD_MS = 220
 const PULSE_THROTTLE_MS = 60
 
 const BURN_SUCCESS_FLASH_MS = 2_500
-const BURN_ERROR_AUTO_CLEAR_MS = 8_000
 const BURN_DENIED_SHAKE_MS = 400
 
 interface PortLike {
@@ -135,16 +134,14 @@ const ThemeToggle = () => {
   return <ThemeToggleButton theme={theme} onToggle={toggleTheme} />
 }
 
-const useBurnOutcomeAutoClear = (): void => {
+const useBurnSuccessAutoClear = (): void => {
   const lastBurnResult = useDeviceStore((s) => s.lastBurnResult)
   const setLastBurnResult = useDeviceStore((s) => s.setLastBurnResult)
   useEffect(() => {
-    if (lastBurnResult === null) return
-    const delay =
-      lastBurnResult.kind === 'success' ? BURN_SUCCESS_FLASH_MS : BURN_ERROR_AUTO_CLEAR_MS
+    if (lastBurnResult?.kind !== 'success') return
     const timer = setTimeout(() => {
       setLastBurnResult(null)
-    }, delay)
+    }, BURN_SUCCESS_FLASH_MS)
     return () => {
       clearTimeout(timer)
     }
@@ -170,10 +167,9 @@ const useBurnDeniedShake = (): boolean => {
 const BurnButton = () => {
   const { canBurn, isBurning, burn, requestBurn } = useBurnDashboard()
   const lastBurnResult = useDeviceStore((s) => s.lastBurnResult)
-  const setLastBurnResult = useDeviceStore((s) => s.setLastBurnResult)
   const unboundBurnConfirm = useUiStore((s) => s.unboundBurnConfirm)
   const clearUnboundBurnConfirm = useUiStore((s) => s.clearUnboundBurnConfirm)
-  useBurnOutcomeAutoClear()
+  useBurnSuccessAutoClear()
   const shaking = useBurnDeniedShake()
 
   const title = isBurning
@@ -183,19 +179,9 @@ const BurnButton = () => {
       : 'Connect a device and edit the dashboard to enable Burn'
   return (
     <span className="flex items-stretch">
-      {lastBurnResult !== null && (
+      {lastBurnResult?.kind === 'success' && (
         <span className="flex items-center px-3">
-          {lastBurnResult.kind === 'success' ? (
-            <BurnOutcomePill kind="success" />
-          ) : (
-            <BurnOutcomePill
-              kind="error"
-              message={lastBurnResult.message}
-              onDismiss={() => {
-                setLastBurnResult(null)
-              }}
-            />
-          )}
+          <BurnSuccessPill />
         </span>
       )}
       <span

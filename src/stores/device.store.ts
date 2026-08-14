@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import type { DashboardConfig } from '@canshift/core'
+import type { BurnFailure } from '../lib/burn-failure'
 
 export type ConnectionStatus = 'disconnected' | 'connected' | 'burning' | 'error'
 
@@ -7,7 +8,7 @@ export type Transport = 'usb'
 
 export type BurnPhase = 'idle' | 'pushing' | 'verifying' | 'done'
 
-export type BurnResult = { kind: 'success' } | { kind: 'error'; message: string }
+export type BurnResult = { kind: 'success' } | { kind: 'error'; failure: BurnFailure }
 
 export type FirmwareCompat =
   | { kind: 'unknown' }
