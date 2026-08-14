@@ -1,7 +1,9 @@
-import { useMemo, useState } from 'react'
-import { cva } from 'class-variance-authority'
+import { useMemo, useState, type ReactNode } from 'react'
+import type { SignalDef } from '@canshift/core'
 import { cn } from '@/lib/utils'
 import { SourceBadge, type SignalSource } from '../components/live-data/SourceBadge'
+import { LiveDataGrid } from '../components/live-data/LiveDataGrid'
+import { LiveDataSkeleton } from '../components/live-data/LiveDataSkeleton'
 import { RouteHeader } from '../components/shell/RouteHeader'
 import { RoutePage } from '../components/ui/route-shell'
 import { useLiveSignals } from '../hooks/useLiveSignals'
@@ -9,7 +11,7 @@ import { useSignalStore } from '../stores/signal.store'
 import { useDeviceStore } from '../stores/device.store'
 import { Input } from '../components/ui/input'
 
-const DANGER_FRACTION = 0.9
+type LiveDataView = 'empty' | 'listening' | 'values'
 
 const EXPORT_BUTTON = [
   'border border-solid border-brand-neutral-400 bg-transparent px-3.5 py-1.5',
@@ -19,33 +21,48 @@ const EXPORT_BUTTON = [
 
 const EMPTY = 'px-6 py-16 text-center text-[13px] text-brand-neutral-500'
 
-const GRID = 'grid flex-1 grid-cols-4 overflow-y-auto [grid-auto-rows:minmax(150px,1fr)]'
+const LISTENING = 'flex-1 overflow-y-auto px-6 py-5'
 
-const CELL = [
-  'flex min-w-0 flex-col justify-center gap-[9px] px-5 py-[18px]',
-  'border-r border-b border-solid border-brand-neutral-300',
-].join(' ')
+const escapeCsv = (value: string): string => {
+  if (/[",\n]/.test(value)) return `"${value.replace(/"/g, '""')}"`
+  return value
+}
 
-const CELL_LABEL = [
-  'overflow-hidden text-ellipsis whitespace-nowrap',
-  'text-[10px] font-extrabold tracking-[0.18em] text-brand-neutral-600',
-].join(' ')
+const buildCsv = (signals: readonly SignalDef[], values: Record<string, number>): string => {
+  const rows = [
+    ['name', 'value', 'unit', 'min', 'max'],
+    ...signals.map((s) => {
+      const v = values[s.name]
+      return [s.name, v !== undefined ? String(v) : '', s.unit, String(s.min), String(s.max)]
+    }),
+  ]
+  return rows.map((r) => r.map(escapeCsv).join(',')).join('\n')
+}
 
-const tinted = cva('', {
-  variants: {
-    danger: { true: 'text-brand-accent', false: 'text-brand-text' },
-  },
-  defaultVariants: { danger: false },
-})
+const downloadCsv = (signals: readonly SignalDef[], values: Record<string, number>): void => {
+  const blob = new Blob([buildCsv(signals, values)], { type: 'text/csv;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-')
+  a.href = url
+  a.download = `canshift-live-${stamp}.csv`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
 
-const barFill = cva('h-full', {
-  variants: {
-    danger: { true: 'bg-brand-accent', false: 'bg-brand-text' },
-  },
-  defaultVariants: { danger: false },
-})
+const resolveSource = (connected: boolean, simulationMode: boolean): SignalSource => {
+  if (simulationMode) return 'sim'
+  if (connected) return 'live'
+  return 'none'
+}
 
-const CELL_VALUE = 'font-mono text-[44px] leading-[1.1] tabular-nums'
+const resolveView = (hasRows: boolean, awaitingFirstFrame: boolean): LiveDataView => {
+  if (!hasRows) return 'empty'
+  if (awaitingFirstFrame) return 'listening'
+  return 'values'
+}
 
 const LiveDataRoute = () => {
   const signals = useSignalStore((s) => s.signals)
@@ -54,8 +71,7 @@ const LiveDataRoute = () => {
   const values = useLiveSignals()
   const [filter, setFilter] = useState('')
 
-  const isLive = connected && !simulationMode
-  const source: SignalSource = isLive ? 'live' : simulationMode ? 'sim' : 'none'
+  const source = resolveSource(connected, simulationMode)
 
   const filteredSignals = useMemo(() => {
     const q = filter.trim().toLowerCase()
@@ -65,25 +81,23 @@ const LiveDataRoute = () => {
     )
   }, [signals, filter])
 
-  const handleExport = () => {
-    const rows = [
-      ['name', 'value', 'unit', 'min', 'max'],
-      ...signals.map((s) => {
-        const v = values[s.name]
-        return [s.name, v !== undefined ? String(v) : '', s.unit, String(s.min), String(s.max)]
-      }),
-    ]
-    const csv = rows.map((r) => r.map(escapeCsv).join(',')).join('\n')
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    const stamp = new Date().toISOString().replace(/[:.]/g, '-')
-    a.href = url
-    a.download = `canshift-live-${stamp}.csv`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+  const awaitingFirstFrame = (connected || simulationMode) && Object.keys(values).length === 0
+  const view = resolveView(filteredSignals.length > 0, awaitingFirstFrame)
+
+  const views: Record<LiveDataView, ReactNode> = {
+    empty: (
+      <div className={EMPTY}>
+        {signals.length === 0
+          ? 'No signals configured. Pick an ECU profile in the Editor to see live values here.'
+          : 'No signals match the current filter.'}
+      </div>
+    ),
+    listening: (
+      <div className={LISTENING}>
+        <LiveDataSkeleton signalNames={filteredSignals.map((s) => s.name)} />
+      </div>
+    ),
+    values: <LiveDataGrid signals={filteredSignals} values={values} />,
   }
 
   return (
@@ -110,7 +124,9 @@ const LiveDataRoute = () => {
             <button
               type="button"
               className={cn('editor-ghost-accent', EXPORT_BUTTON)}
-              onClick={handleExport}
+              onClick={() => {
+                downloadCsv(signals, values)
+              }}
               disabled={signals.length === 0}
             >
               EXPORT CSV
@@ -118,51 +134,9 @@ const LiveDataRoute = () => {
           </>
         }
       />
-
-      {filteredSignals.length === 0 ? (
-        <div className={EMPTY}>
-          {signals.length === 0
-            ? 'No signals configured. Pick an ECU profile in the Editor to see live values here.'
-            : 'No signals match the current filter.'}
-        </div>
-      ) : (
-        <div className={GRID}>
-          {filteredSignals.map((sig) => {
-            const raw = values[sig.name]
-            const range = sig.max - sig.min || 1
-            const pct = raw !== undefined ? Math.max(0, Math.min(1, (raw - sig.min) / range)) : 0
-            const danger = pct >= DANGER_FRACTION
-            return (
-              <div key={sig.name} className={CELL}>
-                <span className={CELL_LABEL}>{sig.name.replace(/_/g, ' ').toUpperCase()}</span>
-                <div className="flex items-baseline gap-1.5">
-                  <span className={cn(CELL_VALUE, tinted({ danger }))}>
-                    {raw !== undefined ? formatValue(raw) : '—'}
-                  </span>
-                  <span className="font-mono text-[13px] text-brand-neutral-600">{sig.unit}</span>
-                </div>
-                <div className="h-1 bg-brand-neutral-300">
-                  <div
-                    className={cn(barFill({ danger }))}
-                    // eslint-disable-next-line no-inline-style/no-inline-style
-                    style={{ width: `${String(Math.round(pct * 100))}%` }}
-                  />
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
+      {views[view]}
     </RoutePage>
   )
-}
-
-const formatValue = (value: number): string =>
-  Number.isInteger(value) ? String(value) : value.toFixed(1)
-
-const escapeCsv = (value: string): string => {
-  if (/[",\n]/.test(value)) return `"${value.replace(/"/g, '""')}"`
-  return value
 }
 
 export default LiveDataRoute
