@@ -22,7 +22,7 @@ import { bootstrapProjects } from './stores/project/project.store'
 import { useWidgetOverflowWarnings } from './hooks/useWidgetOverflowWarnings'
 import { useUnsavedChangesGuard } from './hooks/useUnsavedChangesGuard'
 import { useDocumentMeta } from './hooks/useDocumentMeta'
-import { DeviceConfigConflictDialog } from './components/shell/DeviceConfigConflictDialog'
+import { DeviceConfigConflictNotice } from './components/shell/DeviceConfigConflictNotice'
 import { ROUTE_PATHS, type RoutePath } from './constants/routes'
 
 const EditorRoute = lazy(() => import('./routes/EditorRoute'))
@@ -110,6 +110,7 @@ const App = () => {
     <div className={SHELL}>
       <Header />
       <DeviceAlertBar />
+      <DeviceConfigConflictNotice />
       <div className={BODY}>
         <Sidebar />
         <main className={MAIN}>
@@ -126,7 +127,6 @@ const App = () => {
         </main>
       </div>
       <FeedbackButton />
-      <DeviceConfigConflictDialog />
     </div>
   )
 }

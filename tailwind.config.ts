@@ -1,6 +1,3 @@
-// tailwind.config.ts — Tokens flow from canshift-core (single source of
-// truth, #906).
-
 import type { Config } from 'tailwindcss'
 import tailwindcssAnimate from 'tailwindcss-animate'
 import {
@@ -54,6 +51,17 @@ const brandColorsFromTokens = (): Record<string, string> => {
   return out
 }
 
+const TUNER_BRAND_CSS_VARS: Record<string, string> = {
+  'brand-warning': '--brand-warning',
+  'brand-accent-100': '--brand-accent-100',
+  'brand-accent-700': '--brand-accent-700',
+}
+
+const tunerBrandColors = (): Record<string, string> =>
+  Object.fromEntries(
+    Object.entries(TUNER_BRAND_CSS_VARS).map(([name, cssVar]) => [name, cssVarReference(cssVar)])
+  )
+
 const COLOR_ALIASES: Record<string, string> = {
   background: cssVarReference(COLOR_KEY_TO_CSS_VAR.bg),
   input: cssVarReference(COLOR_KEY_TO_CSS_VAR.border),
@@ -71,6 +79,7 @@ const config: Config = {
       colors: {
         ...colorsFromTokens(),
         ...brandColorsFromTokens(),
+        ...tunerBrandColors(),
         ...COLOR_ALIASES,
       },
       keyframes: {

@@ -12,7 +12,7 @@ import {
 
 import { Checkbox } from '@/components/ui/checkbox'
 import { CompactSelect, SectionLabel } from '@/components/ui/form-field'
-import { CruiseControlOverCapDialog } from '../../CruiseControlOverCapDialog'
+import { CruiseControlOverCapNotice } from '../../CruiseControlOverCapNotice'
 
 const CRUISE_CONTROL_PAGE_ID = 'cruise_control'
 
@@ -100,13 +100,12 @@ export const PageConfigPanel = ({
         </div>
       </div>
       {overCapPageIds && (
-        <CruiseControlOverCapDialog
-          open
-          onOpenChange={(open) => {
-            if (!open) setOverCapPageIds(null)
-          }}
+        <CruiseControlOverCapNotice
           pageIds={overCapPageIds}
           maxPages={FIRMWARE_CAPS.MAX_PAGES}
+          onDismiss={() => {
+            setOverCapPageIds(null)
+          }}
         />
       )}
     </>
