@@ -75,7 +75,7 @@ const SKINS: Record<InlineStateSeverity, InlineStateSkin> = {
 const FRAMED_REGION = 'gap-[10px] px-4 py-[14px]'
 const HEADER_ROW =
   'flex items-center justify-between border-b border-brand-neutral-300 px-4 py-[11px] font-mono text-[11px] tracking-[0.12em] text-brand-neutral-600'
-const KICKER = 'font-mono text-[11px] uppercase tracking-[0.14em]'
+const KICKER = 'font-mono text-[11px] tracking-[0.14em]'
 const TITLE = 'font-sans text-[17px] font-extrabold'
 const BODY = 'text-[13.5px] leading-[1.55] text-brand-neutral-700'
 const FOOTNOTE = 'mt-3 text-[13px] leading-[1.55] text-brand-neutral-700'

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Spinner } from '@/components/ui/spinner'
+import { InlineState } from '@/components/states/InlineState'
 
 export interface ConnectColumnProps {
   supported: boolean
@@ -18,6 +18,21 @@ const STEPS = [
 ]
 
 const SUPPORTED_BROWSERS = ['Chrome 89+', 'Edge 89+', 'Brave', 'Opera']
+
+const CONNECT_LABELS = {
+  idle: 'Connect device',
+  connecting: 'Connecting…',
+  reconnecting: 'Reconnecting…',
+}
+
+type ConnectLabel = keyof typeof CONNECT_LABELS
+
+const connectLabel = (busy: boolean, reconnecting: boolean): ConnectLabel => {
+  if (!busy) return 'idle'
+  return reconnecting ? 'reconnecting' : 'connecting'
+}
+
+const OPENING_PORT_BODY = 'Handshake, then the firmware version. Usually under a second.'
 
 const KICKER = 'font-mono text-[10.5px] uppercase tracking-[0.2em] text-brand-neutral-600'
 
@@ -64,14 +79,7 @@ export const ConnectColumn = ({
     {supported ? (
       <div className="mt-8 flex flex-wrap gap-px">
         <button type="button" disabled={busy} onClick={onConnect} className={PRIMARY_ACTION}>
-          {busy ? (
-            <>
-              <Spinner size="sm" />
-              {reconnecting ? 'Reconnecting…' : 'Connecting…'}
-            </>
-          ) : (
-            'Connect device'
-          )}
+          {CONNECT_LABELS[connectLabel(busy, reconnecting)]}
         </button>
         {onExploreSimulation && (
           <button
@@ -86,6 +94,16 @@ export const ConnectColumn = ({
       </div>
     ) : (
       <UnsupportedBrowserPanel />
+    )}
+
+    {busy && (
+      <InlineState
+        className="mt-6"
+        severity="neutral"
+        kicker="USB CDC"
+        title="Opening the port…"
+        body={OPENING_PORT_BODY}
+      />
     )}
 
     {lastError !== null && (

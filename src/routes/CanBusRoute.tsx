@@ -9,6 +9,7 @@ import { useLogStore } from '../stores/log.store'
 import { formatFrameIdHex, parseHexFrameId } from '../utils/frame-id'
 import { buildDraftSignal, sortFrames } from '../utils/can-frames'
 import { RoutePage } from '../components/ui/route-shell'
+import { BusSilentNotice } from '../components/states/BusSilentNotice'
 
 const CanBusRoute = () => {
   const connected = useDeviceStore((s) => s.connected)
@@ -76,6 +77,7 @@ const CanBusRoute = () => {
         }}
         onLearnStop={scanner.stopLearn}
       />
+      <BusSilentNotice />
       <CanFrameTable
         frames={sortedFrames}
         mappedTo={mappedTo}

@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import { SourceBadge, type SignalSource } from '../components/live-data/SourceBadge'
 import { RouteHeader } from '../components/shell/RouteHeader'
 import { RoutePage } from '../components/ui/route-shell'
+import { BusSilentNotice } from '../components/states/BusSilentNotice'
 import { useLiveSignals } from '../hooks/useLiveSignals'
 import { useSignalStore } from '../stores/signal.store'
 import { useDeviceStore } from '../stores/device.store'
@@ -118,6 +119,8 @@ const LiveDataRoute = () => {
           </>
         }
       />
+
+      <BusSilentNotice />
 
       {filteredSignals.length === 0 ? (
         <div className={EMPTY}>
