@@ -9,6 +9,7 @@ export const CMD_SET_DAY_NIGHT = 0x09
 export const CMD_GET_INPUT_BINDINGS = 0x0b
 export const CMD_PUT_INPUT_BINDINGS = 0x0c
 export const CMD_SET_BOARD_PROFILE = 0x0d
+export const CMD_PUT_CONFIG_CHUNK = 0x0e
 export const CMD_QUERY_VERSION = 0x10
 export const CMD_PING = 0x11
 export const CMD_CAN_SCAN_START = 0x20
@@ -29,6 +30,11 @@ export interface KnownOpcode {
 export const KNOWN_OPCODES: readonly KnownOpcode[] = [
   { id: CMD_GET_CONFIG, name: 'CMD_GET_CONFIG', description: 'Read dashboard JSON from device' },
   { id: CMD_PUSH_CONFIG, name: 'CMD_PUSH_CONFIG', description: 'Write dashboard JSON (reboots)' },
+  {
+    id: CMD_PUT_CONFIG_CHUNK,
+    name: 'CMD_PUT_CONFIG_CHUNK',
+    description: 'Burn the dashboard in chunks — validated, then reloaded live',
+  },
   {
     id: CMD_GET_DEVICE_CONFIG,
     name: 'CMD_GET_DEVICE_CONFIG',

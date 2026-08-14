@@ -5,7 +5,6 @@ import {
   CMD_CALIBRATE_TOUCH,
   CMD_GET_CONFIG,
   CMD_PING,
-  CMD_PUSH_CONFIG,
   CMD_QUERY_VERSION,
   CMD_REBOOT,
   CMD_SCREEN_SETTINGS,
@@ -20,6 +19,7 @@ import {
   type BoardProfileWriteResult,
 } from '../lib/firmware/board-provision'
 import { getSerialClient } from './webserial-client'
+import { burnConfigChunked } from './chunked-config'
 
 const OK: UsbResult = { success: true }
 
@@ -32,12 +32,11 @@ export const usbService = {
         error: `invalid_dashboard_config: ${validation.errors[0] ?? 'unknown_validation_error'}`,
       }
     }
-    const result = await getSerialClient().send(
-      CMD_PUSH_CONFIG,
-      { payload: config },
-      { scaleWithPayload: true }
-    )
-    return toUsbResult(result)
+    const burned = await burnConfigChunked(config)
+    if (!burned.success) {
+      return { success: false, error: burned.error ?? 'unknown_error' }
+    }
+    return OK
   },
 
   getConfig: async (): Promise<
