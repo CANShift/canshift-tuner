@@ -3,7 +3,7 @@ import { useDeviceStore } from './device.store'
 import type { BurnFailure } from '../lib/burn-failure'
 
 const FAILURE: BurnFailure = {
-  command: 'PUT_CONFIG',
+  kicker: 'PUT_CONFIG · E_CRC',
   code: 'E_CRC',
   title: 'The dash rejected the write',
   body: 'Checksum mismatch on chunk 7 of 12. The dash kept its previous config and is still running.',

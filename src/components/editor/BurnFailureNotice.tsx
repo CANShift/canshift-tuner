@@ -15,7 +15,7 @@ export const BurnFailureNotice = () => {
     <InlineState
       className="shrink-0"
       severity="failure"
-      kicker={`${failure.command} · ${failure.code}`}
+      kicker={failure.kicker}
       title={failure.title}
       body={failure.body}
       primaryAction={{ label: 'RETRY BURN', onClick: requestBurn, disabled: !canBurn }}
