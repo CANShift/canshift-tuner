@@ -11,6 +11,7 @@ import DiagnosticsPanel from './DiagnosticsPanel'
 import { DashTopBar } from './DashTopBar'
 import { CanvasToolbar } from './CanvasToolbar'
 import { LayoutOverflowNotice } from './LayoutOverflowNotice'
+import { BurnFailureNotice } from './BurnFailureNotice'
 import { RevLimiterOverlay } from './RevLimiterOverlay'
 import { ShortcutsDialog } from './ShortcutsDialog'
 import { GridGuides } from './canvas/grid-guides'
@@ -239,6 +240,7 @@ const Canvas = ({ page, topBar, pageIndex, pageStrip, inspector }: CanvasProps) 
       {pageStrip}
       <div className={BODY_ROW}>
         <div className={EDITOR_COL}>
+          <BurnFailureNotice />
           <LayoutOverflowNotice />
           <div onMouseDown={deselectOnBackground} className={CANVAS_ZONE}>
             <div className={FRAME_COLUMN}>
