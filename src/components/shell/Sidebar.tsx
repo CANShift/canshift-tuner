@@ -18,11 +18,12 @@ const Sidebar = () => {
   const simulationMode = useDeviceStore((s) => s.simulationMode)
   const firmwareVersion = useDeviceStore((s) => s.firmwareVersion)
   const targetProfile = useDashboardStore((s) => s.config?.targetProfile)
+  const boardId = useDeviceStore((s) => s.boardId)
   const location = useLocation()
   const collapsed = useUiStore((s) => s.leftNavCollapsed)
   const toggleLeftNav = useUiStore((s) => s.toggleLeftNav)
   const offline = status !== 'connected' && !simulationMode
-  const targetLabel = resolveTargetLabel(offline, targetProfile)
+  const targetLabel = resolveTargetLabel(offline, targetProfile, boardId)
 
   if (collapsed) {
     return <CollapseRail side="left" label="Menu" onExpand={toggleLeftNav} />
