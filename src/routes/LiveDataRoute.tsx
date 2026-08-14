@@ -21,8 +21,6 @@ const EXPORT_BUTTON = [
 
 const EMPTY = 'px-6 py-16 text-center text-[13px] text-brand-neutral-500'
 
-const LISTENING = 'flex-1 overflow-y-auto px-6 py-5'
-
 const escapeCsv = (value: string): string => {
   if (/[",\n]/.test(value)) return `"${value.replace(/"/g, '""')}"`
   return value
@@ -92,11 +90,7 @@ const LiveDataRoute = () => {
           : 'No signals match the current filter.'}
       </div>
     ),
-    listening: (
-      <div className={LISTENING}>
-        <LiveDataSkeleton signalNames={filteredSignals.map((s) => s.name)} />
-      </div>
-    ),
+    listening: <LiveDataSkeleton signalNames={filteredSignals.map((s) => s.name)} />,
     values: <LiveDataGrid signals={filteredSignals} values={values} />,
   }
 

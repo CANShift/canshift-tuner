@@ -122,7 +122,11 @@ const InlineStateActions = ({
   )
 }
 
-const InlineStateHeaderRow = ({ header }: { header: InlineStateHeader | undefined }) => {
+export interface InlineStateHeaderRowProps {
+  header: InlineStateHeader | undefined
+}
+
+export const InlineStateHeaderRow = ({ header }: InlineStateHeaderRowProps) => {
   if (!header) return null
   return (
     <div className={HEADER_ROW}>

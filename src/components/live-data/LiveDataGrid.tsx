@@ -1,6 +1,7 @@
 import { cva } from 'class-variance-authority'
 import type { SignalDef } from '@canshift/core'
 import { cn } from '@/lib/utils'
+import { LIVE_DATA_CELL, LIVE_DATA_GRID } from './grid-shape'
 
 export interface LiveDataGridProps {
   signals: readonly SignalDef[]
@@ -8,13 +9,6 @@ export interface LiveDataGridProps {
 }
 
 const DANGER_FRACTION = 0.9
-
-const GRID = 'grid flex-1 grid-cols-4 overflow-y-auto [grid-auto-rows:minmax(150px,1fr)]'
-
-const CELL = [
-  'flex min-w-0 flex-col justify-center gap-[9px] px-5 py-[18px]',
-  'border-r border-b border-solid border-brand-neutral-300',
-].join(' ')
 
 const CELL_LABEL = [
   'overflow-hidden text-ellipsis whitespace-nowrap',
@@ -47,13 +41,13 @@ const fractionOf = (signal: SignalDef, raw: number | undefined): number => {
 }
 
 export const LiveDataGrid = ({ signals, values }: LiveDataGridProps) => (
-  <div className={GRID}>
+  <div className={LIVE_DATA_GRID}>
     {signals.map((signal) => {
       const raw = values[signal.name]
       const fraction = fractionOf(signal, raw)
       const danger = fraction >= DANGER_FRACTION
       return (
-        <div key={signal.name} className={CELL}>
+        <div key={signal.name} className={LIVE_DATA_CELL}>
           <span className={CELL_LABEL}>{signal.name.replace(/_/g, ' ').toUpperCase()}</span>
           <div className="flex items-baseline gap-1.5">
             <span className={cn(CELL_VALUE, tinted({ danger }))}>
