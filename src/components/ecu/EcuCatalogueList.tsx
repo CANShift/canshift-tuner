@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type RefObject } from 'react'
 import { cva } from 'class-variance-authority'
 import { formatBytes } from '../../lib/format'
 import { cn } from '@/lib/utils'
@@ -28,6 +28,7 @@ export interface EcuCatalogueListProps {
   activeKey: string
   selectedId: string | null
   onSelect: (item: CatalogueItem) => Promise<void> | void
+  searchRef?: RefObject<HTMLInputElement | null> | undefined
 }
 
 type LoadState =
@@ -40,7 +41,12 @@ type SortKey = 'vendor' | 'label' | 'size'
 
 const CATALOGUE_URL = '/ecu-catalogue/index.json'
 
-export const EcuCatalogueList = ({ activeKey, selectedId, onSelect }: EcuCatalogueListProps) => {
+export const EcuCatalogueList = ({
+  activeKey,
+  selectedId,
+  onSelect,
+  searchRef,
+}: EcuCatalogueListProps) => {
   const [state, setState] = useState<LoadState>({ kind: 'idle' })
   const [query, setQuery] = useState('')
   const [sortKey, setSortKey] = useState<SortKey>('vendor')
@@ -98,6 +104,7 @@ export const EcuCatalogueList = ({ activeKey, selectedId, onSelect }: EcuCatalog
       <Eyebrow className="block border-b-2 border-brand-divider px-[18px] py-3">PROFILES</Eyebrow>
       <div className="flex flex-col gap-2 px-[18px]">
         <Input
+          ref={searchRef}
           type="search"
           value={query}
           onChange={(e) => {
