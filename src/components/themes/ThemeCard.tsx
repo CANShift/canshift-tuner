@@ -1,14 +1,12 @@
-import type { ThemePresetEntry } from '@canshift/core'
+import type { ThemeFace, ThemePresetEntry } from '@canshift/core'
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 import { MetaText } from '../ui/meta-text'
 
-export type ThemeSlotBadge = 'night' | 'day' | null
-
 export interface ThemeCardProps {
   entry: ThemePresetEntry
-  badge: ThemeSlotBadge
-  targetSlot: 'night' | 'day'
+  active: boolean
+  previewFace: 'night' | 'day'
   onSelect: () => void
 }
 
@@ -22,35 +20,42 @@ export const hexLuminance = (hex: string): number => {
 export const trackColorFor = (bgColor: string): string =>
   hexLuminance(bgColor) < 0.5 ? '#222222' : '#C4C4C4'
 
-export const ThemeCard = ({ entry, badge, targetSlot, onSelect }: ThemeCardProps) => {
-  const palette = entry.preset.palette
-  if (!palette) return null
-  const ramp = [
-    entry.preset.bgColor,
+const rampOf = (face: ThemeFace): string[] => {
+  const palette = face.palette
+  if (!palette) return [face.bgColor, trackColorFor(face.bgColor)]
+  return [
+    face.bgColor,
     palette.surface,
-    trackColorFor(entry.preset.bgColor),
+    trackColorFor(face.bgColor),
     palette.textDim,
     palette.danger,
     palette.accent,
   ]
+}
+
+export const ThemeCard = ({ entry, active, previewFace, onSelect }: ThemeCardProps) => {
+  const face = entry.preset[previewFace]
+  const palette = face.palette
+  if (!palette) return null
+  const otherFace = entry.preset[previewFace === 'night' ? 'day' : 'night']
 
   return (
     <button
       type="button"
       onClick={onSelect}
-      title={`Set as the ${targetSlot} theme of the working dashboard`}
-      className={cn(card({ active: badge === 'night' }))}
+      title={`Use "${entry.label}" — its ${previewFace} face is showing, its other face follows the mode`}
+      className={cn(card({ active }))}
     >
       <div className="flex w-full items-baseline gap-2.5 border-b-2 border-brand-divider px-3.5 py-3">
         <span className="text-[13px] font-extrabold text-brand-text">{entry.label}</span>
-        <MetaText align="end" className={cn(badge === 'night' && 'text-brand-accent')}>
-          {badge === 'night' ? 'active — night' : badge === 'day' ? 'auto at day' : entry.note}
+        <MetaText align="end" className={cn(active && 'text-brand-accent')}>
+          {active ? `active — ${previewFace}` : entry.note}
         </MetaText>
       </div>
       <div
         className="flex h-[140px] w-full items-end gap-4 p-4 font-mono"
         // eslint-disable-next-line no-inline-style/no-inline-style
-        style={{ background: entry.preset.bgColor, color: palette.text }}
+        style={{ background: face.bgColor, color: palette.text }}
       >
         <span className="text-[52px] leading-[0.9]">5200</span>
         {/* eslint-disable-next-line no-inline-style/no-inline-style */}
@@ -63,7 +68,13 @@ export const ThemeCard = ({ entry, badge, targetSlot, onSelect }: ThemeCardProps
         </span>
       </div>
       <div className="flex h-[26px] w-full">
-        {ramp.map((color, i) => (
+        {rampOf(face).map((color, i) => (
+          // eslint-disable-next-line no-inline-style/no-inline-style
+          <div key={i} className="flex-1" style={{ background: color }} />
+        ))}
+      </div>
+      <div className="flex h-[10px] w-full">
+        {rampOf(otherFace).map((color, i) => (
           // eslint-disable-next-line no-inline-style/no-inline-style
           <div key={i} className="flex-1" style={{ background: color }} />
         ))}

@@ -1,5 +1,5 @@
 import type { DashboardConfig } from '@canshift/core'
-import { DAY_THEME_PRESET } from '../../constants/theme'
+import { defaultThemePreset } from '@canshift/core'
 import { DEFAULT_SIM_CONFIG } from '../../config/default-sim-config'
 import { pushHistory } from './helpers'
 import type {
@@ -28,7 +28,7 @@ export const createLifecycleSlice: SliceCreator<LifecycleSlice> = (set) => ({
 
   setConfig: (config) => {
     set((s) => {
-      applyLoadedConfig(s, { ...config, dayTheme: config.dayTheme ?? DAY_THEME_PRESET })
+      applyLoadedConfig(s, { ...config, theme: config.theme ?? defaultThemePreset() })
     })
   },
 

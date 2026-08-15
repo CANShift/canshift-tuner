@@ -29,19 +29,18 @@ export const resolveBgColor = (
 ): string => (isDayMode ? (dayBgColor ?? DAY_BG_DEFAULT) : (nightBgColor ?? pageBgColor))
 
 export const useEffectivePalette = (page: PageConfig): EffectivePalette => {
-  const dayTheme = useDashboardStore((s) => s.config?.dayTheme)
-  const nightTheme = useDashboardStore((s) => s.config?.nightTheme)
+  const theme = useDashboardStore((s) => s.config?.theme)
   const isDayMode = useDeviceStore((s) => s.isDayMode) ?? false
 
   const palette = useMemo(
-    () => resolvePalette(isDayMode, dayTheme?.palette, nightTheme?.palette, page.palette),
-    [isDayMode, dayTheme?.palette, nightTheme?.palette, page.palette]
+    () => resolvePalette(isDayMode, theme?.day.palette, theme?.night.palette, page.palette),
+    [isDayMode, theme?.day.palette, theme?.night.palette, page.palette]
   )
 
   const bgColor = resolveBgColor(
     isDayMode,
-    dayTheme?.bgColor,
-    nightTheme?.bgColor,
+    theme?.day.bgColor,
+    theme?.night.bgColor,
     page.backgroundColor
   )
 

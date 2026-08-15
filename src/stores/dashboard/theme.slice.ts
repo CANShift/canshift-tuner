@@ -10,27 +10,14 @@ export const createThemeSlice: SliceCreator<ThemeSlice> = (set) => ({
     })
   },
 
-  setDayTheme: (theme) => {
+  setTheme: (theme) => {
     set((s) => {
       if (!s.config) return
-      pushHistory(s, theme === null ? 'Cleared day theme' : 'Changed day theme')
+      pushHistory(s, theme === null ? 'Cleared theme' : 'Changed theme')
       if (theme === null) {
-        delete s.config.dayTheme
+        delete s.config.theme
       } else {
-        s.config.dayTheme = theme
-      }
-      s.isDirty = true
-    })
-  },
-
-  setNightTheme: (theme) => {
-    set((s) => {
-      if (!s.config) return
-      pushHistory(s, theme === null ? 'Cleared night theme' : 'Changed night theme')
-      if (theme === null) {
-        delete s.config.nightTheme
-      } else {
-        s.config.nightTheme = theme
+        s.config.theme = theme
       }
       s.isDirty = true
     })
