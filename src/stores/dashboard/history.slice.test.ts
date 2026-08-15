@@ -117,13 +117,18 @@ describe('labelled undo stack (#1847)', () => {
     expect(useDashboardStore.getState().config?.targetProfile).toBe(before)
   })
 
-  it('labels theme changes and round-trips them', () => {
-    useDashboardStore.getState().setNightTheme({ bgColor: HexColorSchema.parse('#101010') })
-    expect(lastLabel()).toBe('Changed night theme')
+  it('labels theme changes and round-trips both faces', () => {
+    const before = useDashboardStore.getState().config?.theme
+    useDashboardStore.getState().setTheme({
+      night: { bgColor: HexColorSchema.parse('#101010') },
+      day: { bgColor: HexColorSchema.parse('#EFEFEF') },
+    })
+    expect(lastLabel()).toBe('Changed theme')
     useDashboardStore.getState().undo()
-    expect(useDashboardStore.getState().config?.nightTheme).toBeUndefined()
+    expect(useDashboardStore.getState().config?.theme).toEqual(before)
     useDashboardStore.getState().redo()
-    expect(useDashboardStore.getState().config?.nightTheme?.bgColor).toBe('#101010')
+    expect(useDashboardStore.getState().config?.theme?.night.bgColor).toBe('#101010')
+    expect(useDashboardStore.getState().config?.theme?.day.bgColor).toBe('#EFEFEF')
   })
 
   it('keeps the label across undo and redo', () => {

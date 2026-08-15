@@ -53,8 +53,7 @@ export interface PagesSlice {
 export interface ThemeSlice {
   isPreviewDayMode: boolean
   togglePreviewTheme: () => void
-  setDayTheme: (theme: ThemePreset | null) => void
-  setNightTheme: (theme: ThemePreset | null) => void
+  setTheme: (theme: ThemePreset | null) => void
 }
 
 export interface SelectionSlice {

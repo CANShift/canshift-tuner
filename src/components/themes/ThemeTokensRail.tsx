@@ -1,17 +1,17 @@
 import type { ReactNode } from 'react'
-import type { ThemePreset } from '@canshift/core'
+import type { ThemeFace } from '@canshift/core'
 import { Eyebrow } from '../ui/meta-text'
 
 export interface ThemeTokensRailProps {
   title: string
-  preset: ThemePreset
+  face: ThemeFace
   children: ReactNode
 }
 
-export const ThemeTokensRail = ({ title, preset, children }: ThemeTokensRailProps) => {
-  const palette = preset.palette
+export const ThemeTokensRail = ({ title, face, children }: ThemeTokensRailProps) => {
+  const palette = face.palette
   const tokens: [string, string][] = [
-    ['bg', preset.bgColor],
+    ['bg', face.bgColor],
     ...(palette
       ? ([
           ['surface', palette.surface],

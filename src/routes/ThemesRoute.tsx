@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { THEME_PRESETS, themePresetById } from '@canshift/core'
+import { THEME_PRESETS, defaultThemePreset } from '@canshift/core'
 import type { ThemePreset, ThemePresetEntry } from '@canshift/core'
 import { useDashboardStore } from '../stores/dashboard.store'
 import { useDeviceStore } from '../stores/device.store'
 import { useLogStore } from '../stores/log.store'
 import { usbService } from '../transport'
-import { ThemeCard, hexLuminance, type ThemeSlotBadge } from '../components/themes/ThemeCard'
+import { ThemeCard } from '../components/themes/ThemeCard'
 import { ThemeTokensRail } from '../components/themes/ThemeTokensRail'
 import { ThemeStatusCard } from '../components/themes/ThemeStatusCard'
 import { ThemeControls } from '../components/themes/ThemeControls'
@@ -13,18 +13,12 @@ import { transportErrorText } from '../transport/humanize-transport-error'
 import { RouteHeader } from '../components/shell/RouteHeader'
 import { RouteBody, RoutePage } from '../components/ui/route-shell'
 
-const LIGHT_BG_LUMINANCE = 0.5
-
 const samePreset = (a: ThemePreset | undefined, b: ThemePreset): boolean =>
   a !== undefined && JSON.stringify(a) === JSON.stringify(b)
 
-const slotFor = (entry: ThemePresetEntry): 'night' | 'day' =>
-  hexLuminance(entry.preset.bgColor) > LIGHT_BG_LUMINANCE ? 'day' : 'night'
-
 const ThemesRoute = () => {
   const config = useDashboardStore((s) => s.config)
-  const setDayTheme = useDashboardStore((s) => s.setDayTheme)
-  const setNightTheme = useDashboardStore((s) => s.setNightTheme)
+  const setTheme = useDashboardStore((s) => s.setTheme)
   const connected = useDeviceStore((s) => s.connected)
   const simulationMode = useDeviceStore((s) => s.simulationMode)
   const isDayMode = useDeviceStore((s) => s.isDayMode)
@@ -34,25 +28,14 @@ const ThemesRoute = () => {
 
   const canControl = connected && !simulationMode
 
-  const nightFallback = themePresetById('night')
-  const activeNight = config?.nightTheme ?? nightFallback?.preset ?? null
-
-  const badgeFor = (entry: ThemePresetEntry): ThemeSlotBadge => {
-    if (config && samePreset(config.nightTheme, entry.preset)) return 'night'
-    if (!config?.nightTheme && entry.id === 'night') return 'night'
-    if (config && samePreset(config.dayTheme, entry.preset)) return 'day'
-    return null
-  }
+  const activeTheme = config?.theme ?? defaultThemePreset()
+  const previewFace = isDayMode === true ? 'day' : 'night'
+  const isCustom =
+    config !== null && THEME_PRESETS.every((entry) => !samePreset(config.theme, entry.preset))
 
   const applyPreset = (entry: ThemePresetEntry) => {
-    const slot = slotFor(entry)
-    if (slot === 'day') {
-      setDayTheme(entry.preset)
-      log('success', `Day theme set to "${entry.label}" — burn to apply on the device`)
-    } else {
-      setNightTheme(entry.preset)
-      log('success', `Night theme set to "${entry.label}" — burn to apply on the device`)
-    }
+    setTheme(entry.preset)
+    log('success', `Theme set to "${entry.label}" — burn to apply on the device`)
   }
 
   const onToggle = async () => {
@@ -105,8 +88,8 @@ const ThemesRoute = () => {
               <ThemeCard
                 key={entry.id}
                 entry={entry}
-                badge={badgeFor(entry)}
-                targetSlot={slotFor(entry)}
+                active={samePreset(config?.theme, entry.preset)}
+                previewFace={previewFace}
                 onSelect={() => {
                   applyPreset(entry)
                 }}
@@ -114,34 +97,41 @@ const ThemesRoute = () => {
             ))}
           </div>
         </div>
-        {activeNight && (
-          <ThemeTokensRail title="NIGHT — TOKENS" preset={activeNight}>
-            <ThemeStatusCard
-              isDayMode={isDayMode}
-              connected={connected}
-              simulationMode={simulationMode}
-            />
-            <ThemeControls
-              isDayMode={isDayMode}
-              disabled={!canControl}
-              busy={busy}
-              onToggle={() => {
-                void onToggle()
-              }}
-              onSetDay={() => {
-                void onSetDay()
-              }}
-              onSetNight={() => {
-                void onSetNight()
-              }}
-            />
-            {!canControl && (
-              <div className="border border-brand-neutral-300 px-3.5 py-2.5 text-xs text-brand-neutral-500">
-                Theme commands are sent over USB. Connect a device to enable them.
-              </div>
-            )}
-          </ThemeTokensRail>
-        )}
+        <ThemeTokensRail
+          title={`${previewFace.toUpperCase()} — TOKENS`}
+          face={activeTheme[previewFace]}
+        >
+          <ThemeStatusCard
+            isDayMode={isDayMode}
+            connected={connected}
+            simulationMode={simulationMode}
+          />
+          <ThemeControls
+            isDayMode={isDayMode}
+            disabled={!canControl}
+            busy={busy}
+            onToggle={() => {
+              void onToggle()
+            }}
+            onSetDay={() => {
+              void onSetDay()
+            }}
+            onSetNight={() => {
+              void onSetNight()
+            }}
+          />
+          {isCustom && (
+            <div className="border border-brand-neutral-300 px-3.5 py-2.5 text-xs text-brand-neutral-500">
+              This dashboard carries a custom pair of faces that matches no preset. Picking one
+              below replaces both.
+            </div>
+          )}
+          {!canControl && (
+            <div className="border border-brand-neutral-300 px-3.5 py-2.5 text-xs text-brand-neutral-500">
+              Theme commands are sent over USB. Connect a device to enable them.
+            </div>
+          )}
+        </ThemeTokensRail>
       </RouteBody>
     </RoutePage>
   )
