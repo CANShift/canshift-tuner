@@ -2,12 +2,12 @@
 
 The Tuner is a single-page web app that talks to the dash over Web Serial. You move widgets, bind signals, pick an ECU profile — then click **Burn** and the dash reloads the new config in place. No re-flash, no reboot.
 
-The Tuner lives at [tuner.canshift.app](https://tuner.canshift.app) — open the URL, plug the dash in, you're in.
+The Tuner lives at [canshift.app](https://canshift.app) — open the URL, plug the dash in, you're in.
 
 ## Connecting
 
 1. Plug the dash in over USB-C.
-2. Open [tuner.canshift.app](https://tuner.canshift.app) in a Chromium-based browser.
+2. Open [canshift.app](https://canshift.app) in a Chromium-based browser.
 3. Click **Connect device** in the top-right and pick the serial port.
 
 The header switches from a red _Disconnected_ dot to a green _Connected_ one, with the device's `vendor:product` next to it. The firmware version slot fills in once the handshake completes (~50 ms).

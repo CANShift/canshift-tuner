@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://tuner.canshift.app/sitemap.xml
+Sitemap: https://canshift.app/sitemap.xml

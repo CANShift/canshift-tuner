@@ -8,7 +8,7 @@ let ipCounter = 0
 
 const request = (query: string): Request => {
   ipCounter += 1
-  return new Request(`https://tuner.canshift.app/api/firmware-download?${query}`, {
+  return new Request(`https://canshift.app/api/firmware-download?${query}`, {
     headers: { 'x-forwarded-for': `10.0.0.${String(ipCounter)}` },
   })
 }

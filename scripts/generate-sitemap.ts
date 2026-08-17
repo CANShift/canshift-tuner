@@ -6,7 +6,7 @@ import { ROUTE_PATHS } from '../src/constants/routes'
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url))
 const OUTPUT_PATH = resolve(SCRIPT_DIR, '..', 'public', 'sitemap.xml')
-const BASE_URL = 'https://tuner.canshift.app'
+const BASE_URL = 'https://canshift.app'
 
 const urlEntry = (path: string): string =>
   `  <url>\n    <loc>${BASE_URL}${path === '/' ? '/' : path}</loc>\n  </url>`
