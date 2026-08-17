@@ -30,6 +30,9 @@ jobs:
   deploy:
     name: deploy
     runs-on: ubuntu-latest
+    # Dependabot runs get their own secret store, so VERCEL_TOKEN is empty here
+    # and the deploy fails on every dependency PR.
+    if: github.actor != 'dependabot[bot]'
     env:
       TARGET: ${{ inputs.target || (github.ref == 'refs/heads/main' && 'production') || 'preview' }}
     steps:
