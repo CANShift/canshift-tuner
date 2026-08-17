@@ -8,8 +8,8 @@ interface SourceBadgeProps {
 
 const SOURCE_BADGE: Record<SignalSource, { label: string; tone: string }> = {
   live: { label: 'Live', tone: 'text-success' },
-  sim: { label: 'Simulation', tone: 'text-accent' },
-  none: { label: 'No data', tone: 'text-text-muted' },
+  sim: { label: 'Simulation', tone: 'text-ui-accent' },
+  none: { label: 'No data', tone: 'text-ui-muted' },
 }
 
 export const SourceBadge = ({ source }: SourceBadgeProps) => {

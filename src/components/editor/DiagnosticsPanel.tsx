@@ -19,7 +19,7 @@ const PANEL = 'absolute inset-0 z-[100] flex flex-col overflow-hidden bg-[#0D0D0
 
 const HEADER = 'flex shrink-0 items-baseline border-b border-solid border-[#2A2A2A]'
 
-const TITLE = 'font-semibold uppercase tracking-[0.08em] text-text'
+const TITLE = 'font-semibold uppercase tracking-[0.08em] text-ui-ink'
 
 const HINT = 'ml-auto text-[#444444]'
 

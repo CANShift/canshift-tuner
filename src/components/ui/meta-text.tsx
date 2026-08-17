@@ -2,7 +2,7 @@ import type { HTMLAttributes } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
-const metaTextVariants = cva('font-mono text-brand-neutral-600', {
+const metaTextVariants = cva('font-mono text-ui-muted', {
   variants: {
     size: {
       sm: 'text-[10px]',
@@ -30,7 +30,7 @@ export const MetaText = ({ className, size, truncate, align, ...props }: MetaTex
   <span className={cn(metaTextVariants({ size, truncate, align, className }))} {...props} />
 )
 
-const eyebrowVariants = cva('text-[10px] font-extrabold tracking-[0.2em] text-brand-neutral-600')
+const eyebrowVariants = cva('text-[10px] font-extrabold tracking-[0.2em] text-ui-muted')
 
 export type EyebrowProps = HTMLAttributes<HTMLSpanElement>
 

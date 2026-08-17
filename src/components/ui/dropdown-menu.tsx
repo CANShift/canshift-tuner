@@ -16,7 +16,7 @@ const DropdownMenuContent = forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        'z-50 min-w-[13rem] overflow-hidden border border-border bg-surface p-1 text-text shadow-md',
+        'z-50 min-w-[13rem] overflow-hidden border border-ui-line-strong bg-ui-bg p-1 text-ui-ink',
         'data-[state=open]:animate-in data-[state=closed]:animate-out',
         className
       )}
@@ -34,7 +34,7 @@ const DropdownMenuItem = forwardRef<
     ref={ref}
     className={cn(
       'relative flex cursor-pointer select-none items-center gap-2 px-2 py-1.5 text-sm outline-none transition-colors',
-      'focus:bg-brand-accent/15 focus:text-text active:brightness-95',
+      'focus:bg-ui-panel focus:text-ui-ink active:brightness-95',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className
     )}
@@ -50,7 +50,7 @@ const DropdownMenuLabel = forwardRef<
   <DropdownMenuPrimitive.Label
     ref={ref}
     className={cn(
-      'px-2 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-text-muted',
+      'px-2 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-ui-muted',
       className
     )}
     {...props}
@@ -64,7 +64,7 @@ const DropdownMenuSeparator = forwardRef<
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Separator
     ref={ref}
-    className={cn('-mx-1 my-1 h-px bg-border', className)}
+    className={cn('-mx-1 my-1 h-px bg-ui-line', className)}
     {...props}
   />
 ))

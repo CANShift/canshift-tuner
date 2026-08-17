@@ -20,16 +20,16 @@ const BoardCard = ({ title, summary, checked, onSelect, onDelete }: BoardCardPro
         onChange={onSelect}
         className="peer sr-only"
       />
-      <span className="block border border-border bg-surface px-3 py-2.5 pr-16 transition-colors hover:border-brand-accent peer-checked:border-brand-accent peer-checked:bg-brand-accent/10 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-accent">
-        <span className="block text-sm font-semibold text-text">{title}</span>
-        <span className="mt-0.5 block text-xs text-text-muted">{summary}</span>
+      <span className="block border border-ui-line-strong bg-ui-panel px-3 py-2.5 pr-16 transition-colors hover:border-brand-accent peer-checked:border-brand-accent peer-checked:bg-brand-accent/10 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-accent">
+        <span className="block text-sm font-semibold text-ui-ink">{title}</span>
+        <span className="mt-0.5 block text-xs text-ui-muted">{summary}</span>
       </span>
     </label>
     {onDelete && (
       <button
         type="button"
         onClick={onDelete}
-        className="absolute right-2 top-2 text-xs text-text-muted transition-colors hover:text-brand-accent"
+        className="absolute right-2 top-2 text-xs text-ui-muted transition-colors hover:text-brand-accent"
       >
         Delete
       </button>
@@ -53,7 +53,7 @@ export const BoardPicker = () => {
   return (
     <div className="grid gap-4">
       <div className="grid gap-2">
-        <span className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-text-muted">
+        <span className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-ui-muted">
           Known boards
         </span>
         {BOARD_PROFILES.map((board) => (
@@ -71,7 +71,7 @@ export const BoardPicker = () => {
 
       {customBoards.length > 0 && (
         <div className="grid gap-2">
-          <span className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-text-muted">
+          <span className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-ui-muted">
             Custom boards
           </span>
           {customBoards.map((entry) => (

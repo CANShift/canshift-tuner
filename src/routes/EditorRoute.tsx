@@ -34,7 +34,7 @@ const buildBlankPage = (): PageConfig => ({
 
 const CanvasFallback = () => {
   return (
-    <div className="flex flex-1 items-center justify-center text-[12px] text-text-muted">
+    <div className="flex flex-1 items-center justify-center text-[12px] text-ui-muted">
       Loading editor…
     </div>
   )
@@ -118,10 +118,10 @@ const EditorRoute = () => {
 
   if (!pages || !topBar) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-2 text-text-dim">
+      <div className="flex flex-1 flex-col items-center justify-center gap-2 text-ui-muted">
         <div className="text-[32px] opacity-20">◫</div>
-        <p className="text-[14px] text-text">No config loaded</p>
-        <p className="max-w-[360px] text-center text-[11px] text-text-muted">
+        <p className="text-[14px] text-ui-ink">No config loaded</p>
+        <p className="max-w-[360px] text-center text-[11px] text-ui-muted">
           Open the ECU Profile route, load a catalogue entry, then return here.
         </p>
       </div>

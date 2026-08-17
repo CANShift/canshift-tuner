@@ -10,8 +10,8 @@ export interface CanByteHistogramProps {
 
 export const CanByteHistogram = ({ frame }: CanByteHistogramProps) => {
   return (
-    <div className="border-t border-border bg-bg-inset px-3.5 pb-4 pt-3">
-      <div className="mb-2 text-[11px] uppercase tracking-[0.06em] text-text-muted">
+    <div className="border-t border-ui-line-strong bg-ui-panel px-3.5 pb-4 pt-3">
+      <div className="mb-2 text-[11px] uppercase tracking-[0.06em] text-ui-muted">
         Per-byte value distribution (most-common first)
       </div>
       <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(110px,1fr))]">
@@ -29,12 +29,12 @@ interface ByteColumnProps {
 }
 
 const COLUMN = 'flex flex-col gap-1'
-const COLUMN_HEADER = 'flex items-center justify-between font-mono text-[10px] text-text-dim'
+const COLUMN_HEADER = 'flex items-center justify-between font-mono text-[10px] text-ui-muted'
 
 const distinctTag = cva('text-[9px] uppercase tracking-[0.04em]', {
   variants: {
     constant: {
-      true: 'text-text-muted',
+      true: 'text-ui-muted',
       false: 'text-brand-accent',
     },
   },
@@ -56,7 +56,7 @@ const ByteColumn = ({ byteIndex, counts }: ByteColumnProps) => {
     return (
       <div className={COLUMN}>
         <div className={COLUMN_HEADER}>byte {byteIndex}</div>
-        <div className="text-[11px] text-text-muted">—</div>
+        <div className="text-[11px] text-ui-muted">—</div>
       </div>
     )
   }
@@ -80,21 +80,21 @@ const ByteColumn = ({ byteIndex, counts }: ByteColumnProps) => {
       <div className="flex flex-col gap-0.5">
         {sorted.map(([value, count]) => (
           <div key={value} className="flex items-center gap-1.5 text-[10px]">
-            <span className="min-w-8 font-mono text-text-dim">{formatByte(value)}</span>
-            <div className="h-1.5 flex-1 overflow-hidden bg-background">
+            <span className="min-w-8 font-mono text-ui-muted">{formatByte(value)}</span>
+            <div className="h-1.5 flex-1 overflow-hidden bg-ui-bg">
               <div
                 className={cn(barFill({ constant }))}
                 // eslint-disable-next-line no-inline-style/no-inline-style
                 style={{ width: `${String((count / max) * 100)}%` }}
               />
             </div>
-            <span className="min-w-[30px] text-right font-mono tabular-nums text-text-muted">
+            <span className="min-w-[30px] text-right font-mono tabular-nums text-ui-muted">
               {formatPct(count, total)}
             </span>
           </div>
         ))}
         {counts.size > MAX_BARS_PER_BYTE && (
-          <div className="text-[10px] italic text-text-muted">
+          <div className="text-[10px] italic text-ui-muted">
             + {String(counts.size - MAX_BARS_PER_BYTE)} more
           </div>
         )}

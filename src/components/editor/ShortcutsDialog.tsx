@@ -36,8 +36,8 @@ export const ShortcutsDialog = ({ open, onOpenChange }: ShortcutsDialogProps) =>
         <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[13px]">
           {SHORTCUTS.map(([keys, desc]) => (
             <Fragment key={keys}>
-              <kbd className="font-mono text-text">{keys}</kbd>
-              <span className="text-text-muted">{desc}</span>
+              <kbd className="font-mono text-ui-ink">{keys}</kbd>
+              <span className="text-ui-muted">{desc}</span>
             </Fragment>
           ))}
         </div>

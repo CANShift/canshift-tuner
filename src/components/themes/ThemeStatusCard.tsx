@@ -95,7 +95,7 @@ const card = cva(
     variants: {
       variant: {
         day: 'border-[hsl(45_70%_70%)] bg-[hsl(45_90%_95%)] text-[hsl(45_50%_18%)]',
-        night: 'border-border bg-bg-inset text-text',
+        night: 'border-ui-line-strong bg-ui-panel text-ui-ink',
       },
     },
     defaultVariants: { variant: 'night' },

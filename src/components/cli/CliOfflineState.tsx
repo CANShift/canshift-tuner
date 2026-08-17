@@ -16,8 +16,8 @@ export const CliOfflineState = () => {
   return (
     <div className="flex min-h-0 flex-1 flex-col items-stretch gap-5 overflow-auto">
       <div className="flex flex-col items-center gap-3 px-4 pb-8 pt-12 text-center">
-        <div className="text-[16px] font-semibold text-text">No device connected</div>
-        <div className="max-w-[360px] text-[13px] text-text-dim">
+        <div className="text-[16px] font-semibold text-ui-ink">No device connected</div>
+        <div className="max-w-[360px] text-[13px] text-ui-muted">
           Connect a device to send raw firmware commands over USB.
         </div>
         <Button
@@ -31,10 +31,10 @@ export const CliOfflineState = () => {
         </Button>
       </div>
 
-      <div className="border-t border-border pt-4">
+      <div className="border-t border-ui-line-strong pt-4">
         <button
           type="button"
-          className="flex w-full cursor-pointer items-center justify-between border border-border bg-transparent px-3 py-2 text-[13px] font-medium text-text"
+          className="flex w-full cursor-pointer items-center justify-between border border-ui-line-strong bg-transparent px-3 py-2 text-[13px] font-medium text-ui-ink"
           onClick={() => {
             setOpcodesOpen((v) => !v)
           }}
@@ -43,7 +43,7 @@ export const CliOfflineState = () => {
           <span>Known opcodes ({String(KNOWN_OPCODES.length)})</span>
           <span
             className={cn(
-              'inline-block text-[11px] text-text-dim [transition:transform_120ms]',
+              'inline-block text-[11px] text-ui-muted [transition:transform_120ms]',
               opcodesOpen ? 'rotate-90' : 'rotate-0'
             )}
             aria-hidden="true"
@@ -52,7 +52,7 @@ export const CliOfflineState = () => {
           </span>
         </button>
         {opcodesOpen && (
-          <table className="mt-3 w-full border-collapse text-[12px] text-text">
+          <table className="mt-3 w-full border-collapse text-[12px] text-ui-ink">
             <thead>
               <tr>
                 <th className={TH}>Hex</th>
@@ -63,11 +63,11 @@ export const CliOfflineState = () => {
             <tbody>
               {KNOWN_OPCODES.map((op) => (
                 <tr key={op.id}>
-                  <td className={cn(TD, 'whitespace-nowrap font-mono text-accent')}>
+                  <td className={cn(TD, 'whitespace-nowrap font-mono text-ui-accent')}>
                     {formatHex(op.id)}
                   </td>
                   <td className={cn(TD, 'whitespace-nowrap font-mono')}>{op.name}</td>
-                  <td className={cn(TD, 'text-text-dim')}>{op.description}</td>
+                  <td className={cn(TD, 'text-ui-muted')}>{op.description}</td>
                 </tr>
               ))}
             </tbody>
@@ -79,6 +79,6 @@ export const CliOfflineState = () => {
 }
 
 const TH =
-  'border-b border-border px-2.5 py-2 text-left text-[10px] font-medium uppercase tracking-[0.04em] text-text-dim'
+  'border-b border-ui-line-strong px-2.5 py-2 text-left text-[10px] font-medium uppercase tracking-[0.04em] text-ui-muted'
 
-const TD = 'border-b border-border/50 px-2.5 py-1.5'
+const TD = 'border-b border-ui-line-strong/50 px-2.5 py-1.5'

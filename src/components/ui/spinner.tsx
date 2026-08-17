@@ -8,7 +8,7 @@ export interface SpinnerProps {
 const spinner = cva(
   [
     'inline-block rounded-[50%] align-[-2px]',
-    'border-2 border-solid border-brand-ground border-t-transparent',
+    'border-2 border-solid border-ui-ink border-t-transparent',
     '[animation:canshift-tuner-spin_700ms_linear_infinite]',
   ].join(' '),
   {
