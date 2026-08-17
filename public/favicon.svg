@@ -1,12 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 116 100" width="116" height="100" fill="none">
   <style>
     .ink { stroke: #201E1D }
+    .accent { stroke: #EC3013 }
     @media (prefers-color-scheme: dark) {
       .ink { stroke: #F3F2F2 }
+      .accent { stroke: #FF4747 }
     }
   </style>
-  <g transform="translate(10,0) skewX(-11)" fill="none" stroke-linecap="butt">
-    <path d="M46 26 H22 V74 H46" class="ink" stroke-width="13"></path>
-    <path d="M96 26 H66 V50 H96 V74 H66" stroke="#EC3013" stroke-width="13"></path>
+  <g transform="translate(8,0)" fill="none">
+    <path d="M18 18 H98 V84 H18 Z" class="ink" stroke-width="15"></path>
+    <path d="M34 38 H74" class="accent" stroke-width="15"></path>
   </g>
 </svg>
