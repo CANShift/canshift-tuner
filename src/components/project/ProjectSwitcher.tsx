@@ -73,7 +73,7 @@ export const ProjectSwitcher = () => {
           <button
             type="button"
             title="Switch project"
-            className="flex max-w-[280px] items-center gap-1.5 text-[15px] font-extrabold text-text transition-colors hover:text-brand-accent focus-visible:text-brand-accent"
+            className="flex max-w-[280px] items-center gap-1.5 text-[15px] font-extrabold text-ui-ink transition-colors hover:text-brand-accent focus-visible:text-brand-accent"
           >
             <span className="truncate">{activeName}</span>
             <ChevronIcon />

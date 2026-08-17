@@ -50,10 +50,10 @@ const OptionCard = ({ group, value, checked, onSelect, title, subtitle }: Option
       }}
       className="peer sr-only"
     />
-    <span className="block border border-border bg-surface px-3 py-2.5 transition-colors hover:border-brand-accent peer-checked:border-brand-accent peer-checked:bg-brand-accent/10 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-accent">
-      <span className="block text-sm font-semibold text-text">{title}</span>
+    <span className="block border border-ui-line-strong bg-ui-panel px-3 py-2.5 transition-colors hover:border-brand-accent peer-checked:border-brand-accent peer-checked:bg-brand-accent/10 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-accent">
+      <span className="block text-sm font-semibold text-ui-ink">{title}</span>
       {subtitle !== undefined && (
-        <span className="mt-0.5 block text-xs text-text-muted">{subtitle}</span>
+        <span className="mt-0.5 block text-xs text-ui-muted">{subtitle}</span>
       )}
     </span>
   </label>

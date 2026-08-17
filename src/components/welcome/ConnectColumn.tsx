@@ -107,7 +107,7 @@ export const ConnectColumn = ({
     )}
 
     {lastError !== null && (
-      <p className="mt-4 border border-solid border-destructive px-3.5 py-2.5 text-[13px] text-destructive">
+      <p className="mt-4 border border-solid border-destructive px-3.5 py-2.5 text-[13px] text-ui-danger">
         {lastError}
       </p>
     )}

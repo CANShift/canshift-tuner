@@ -51,6 +51,32 @@ const brandColorsFromTokens = (): Record<string, string> => {
   return out
 }
 
+const UI_TOKEN_NAMES = [
+  'bg',
+  'panel',
+  'ink',
+  'muted',
+  'faint',
+  'line',
+  'line-strong',
+  'rule',
+  'header-bg',
+  'header-ink',
+  'header-dim',
+  'header-line',
+  'accent',
+  'accent-hover',
+  'warning',
+  'danger',
+  'engaged',
+  'ok',
+  'console',
+  'console-ink',
+] as const
+
+const uiColors = (): Record<string, string> =>
+  Object.fromEntries(UI_TOKEN_NAMES.map((name) => [name, `var(--ui-${name})`]))
+
 const TUNER_BRAND_CSS_VARS: Record<string, string> = {
   'brand-warning': '--brand-warning',
   'brand-accent-100': '--brand-accent-100',
@@ -81,6 +107,7 @@ const config: Config = {
         ...brandColorsFromTokens(),
         ...tunerBrandColors(),
         ...COLOR_ALIASES,
+        ui: uiColors(),
       },
       keyframes: {
         'accordion-down': {

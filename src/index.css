@@ -1,4 +1,5 @@
 @import './styles/tokens.generated.css';
+@import './styles/ui-tokens.css';
 
 @tailwind base;
 @tailwind components;
@@ -44,14 +45,15 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  border-radius: 0;
 }
 
 html,
 body,
 #root {
   height: 100%;
-  background: hsl(var(--brand-chrome-bg));
-  color: hsl(var(--brand-text));
+  background: var(--ui-bg);
+  color: var(--ui-ink);
 }
 
 body {
@@ -79,7 +81,7 @@ samp {
 }
 
 :focus-visible {
-  outline: 2px solid hsl(var(--brand-accent));
+  outline: 2px solid var(--ui-accent);
   outline-offset: 2px;
 }
 
@@ -88,13 +90,13 @@ samp {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: hsl(var(--brand-chrome-bg));
+  background: var(--ui-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--brand-neutral-300));
+  background: var(--ui-line-strong);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--brand-neutral-400));
+  background: var(--ui-muted);
 }
 
 @keyframes canshift-tuner-spin {

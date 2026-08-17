@@ -48,6 +48,7 @@ the whole folder has to stay together.
 | [Tuner app spec](design/PROMPT_TUNER_APP.md)       | The v2 app, end to end: tokens, shell, the five views, gestures, storage, keyboard |
 | [Dash design system](design/DASH_DESIGN_SYSTEM.md) | The dash's own grammar — binding on the canvas preview, not reinterpretable here   |
 | [Dash pages](design/DASH_PAGES.json)               | The six reference pages as data, in device pixels                                  |
+| [Tuner tokens](design/tokens.md)                   | The app's colour vocabulary — spec name, CSS variable, Tailwind class              |
 
 ## Elsewhere
 

@@ -14,7 +14,7 @@ export const FirmwareSlot = ({ version, compat }: FirmwareSlotProps) => {
   if (compat.kind === 'mismatch') {
     return (
       <span
-        className={cn(SLOT, 'cursor-help border border-destructive px-2 py-0.5 text-destructive')}
+        className={cn(SLOT, 'cursor-help border border-destructive px-2 py-0.5 text-ui-danger')}
         title={`Tuner expects firmware major ${String(compat.expected)}.x — device reports ${compat.version}. Burn disabled until the firmware is updated.`}
       >
         fw v{compat.version} · mismatch
