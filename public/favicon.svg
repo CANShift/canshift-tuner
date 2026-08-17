@@ -7,8 +7,10 @@
       .accent { stroke: #FF4747 }
     }
   </style>
-  <g transform="translate(8,0)" fill="none">
-    <path d="M18 18 H98 V84 H18 Z" class="ink" stroke-width="15"></path>
-    <path d="M34 38 H74" class="accent" stroke-width="15"></path>
+  <g transform="translate(10,0) skewX(-11)" fill="none">
+    <path d="M22 18 H98 V86 H22 Z" class="ink" stroke-width="7"></path>
+    <path d="M36 34 H74" class="accent" stroke-width="13"></path>
+    <path d="M36 52 H84" class="ink" stroke-width="13"></path>
+    <path d="M36 70 H62" class="ink" stroke-width="13"></path>
   </g>
 </svg>
