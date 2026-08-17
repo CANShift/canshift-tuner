@@ -50,7 +50,7 @@ const FallbackPanel = ({ error, onReset }: FallbackPanelProps) => {
   return (
     <div role="alert" className={PANEL}>
       <div className="text-[16px] font-semibold">Something went wrong</div>
-      <div className="max-w-[480px] text-text-dim">{error.message || 'Unknown render error'}</div>
+      <div className="max-w-[480px] text-ui-muted">{error.message || 'Unknown render error'}</div>
       <div className="mt-2 flex gap-2">
         <button type="button" onClick={onReset} className={FALLBACK_BUTTON}>
           Try again
@@ -65,7 +65,7 @@ const FallbackPanel = ({ error, onReset }: FallbackPanelProps) => {
           Reload
         </button>
       </div>
-      <details className="mt-3 max-w-[560px] text-text-dim">
+      <details className="mt-3 max-w-[560px] text-ui-muted">
         <summary className="cursor-pointer text-[11px]">Details</summary>
         <pre className={STACK}>{error.stack ?? error.message}</pre>
       </details>
@@ -75,16 +75,16 @@ const FallbackPanel = ({ error, onReset }: FallbackPanelProps) => {
 
 const PANEL = [
   'flex flex-1 flex-col items-center justify-center gap-3 p-6',
-  'bg-bg text-center text-[13px] text-text',
+  'bg-bg text-center text-[13px] text-ui-ink',
   '[font-family:system-ui,sans-serif]',
 ].join(' ')
 
 const FALLBACK_BUTTON = [
-  'cursor-pointer border border-solid border-border',
-  'bg-surface px-3 py-1.5 text-[12px] text-text',
+  'cursor-pointer border border-solid border-ui-line-strong',
+  'bg-ui-panel px-3 py-1.5 text-[12px] text-ui-ink',
 ].join(' ')
 
 const STACK = [
   'mt-2 whitespace-pre-wrap p-2 text-left text-[11px]',
-  'border border-solid border-border bg-bg-inset',
+  'border border-solid border-ui-line-strong bg-ui-panel',
 ].join(' ')

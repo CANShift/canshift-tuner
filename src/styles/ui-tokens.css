@@ -1,0 +1,40 @@
+:root {
+  --ui-bg: #17161a;
+  --ui-panel: #201f24;
+  --ui-ink: #f3f2f2;
+  --ui-muted: #a09da3;
+  --ui-faint: #7a777d;
+  --ui-line: rgba(243, 242, 242, 0.16);
+  --ui-line-strong: rgba(243, 242, 242, 0.32);
+  --ui-rule: #f3f2f2;
+  --ui-header-bg: #0d0d0f;
+  --ui-header-ink: #f3f2f2;
+  --ui-header-dim: #86838a;
+  --ui-header-line: #2b2a30;
+}
+
+:root[data-theme='light'] {
+  --ui-bg: #f3f2f2;
+  --ui-panel: #eae9e9;
+  --ui-ink: #201e1d;
+  --ui-muted: #605d5d;
+  --ui-faint: #8a8785;
+  --ui-line: rgba(32, 30, 29, 0.16);
+  --ui-line-strong: rgba(32, 30, 29, 0.3);
+  --ui-rule: #201e1d;
+  --ui-header-bg: #201e1d;
+  --ui-header-ink: #f3f2f2;
+  --ui-header-dim: #b9b6b4;
+  --ui-header-line: #3a3736;
+}
+
+:root {
+  --ui-accent: #ec3013;
+  --ui-accent-hover: #c62810;
+  --ui-warning: #ff8800;
+  --ui-danger: #ff4444;
+  --ui-engaged: #ff4747;
+  --ui-ok: #00cc2a;
+  --ui-console: #0d0d0d;
+  --ui-console-ink: #e8e6e3;
+}

@@ -71,7 +71,7 @@ export const ManageTemplatesDialog = ({ open, onOpenChange }: ManageTemplatesDia
           </DialogDescription>
         </DialogHeader>
         {templates.length === 0 ? (
-          <p className="text-sm text-text-muted">No templates yet.</p>
+          <p className="text-sm text-ui-muted">No templates yet.</p>
         ) : (
           <div className="grid gap-2">
             {templates.map((entry) => (

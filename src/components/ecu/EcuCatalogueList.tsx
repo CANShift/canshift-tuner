@@ -183,7 +183,7 @@ export const EcuCatalogueList = ({
                     className="flex justify-between font-normal uppercase tracking-[0.04em] text-brand-neutral-500"
                   >
                     <span>{item.vendor}</span>
-                    <span className="text-text-muted">{formatBytes(item.sizeBytes)}</span>
+                    <span className="text-ui-muted">{formatBytes(item.sizeBytes)}</span>
                   </MetaText>
                 </button>
               )

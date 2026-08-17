@@ -200,12 +200,15 @@ const formatElapsed = (sec: number): string => {
   return `${String(m)} m ${String(s).padStart(2, '0')} s`
 }
 
-const alertRow = cva('flex shrink-0 items-center gap-3 border-b px-4 py-2 text-[12px] text-text', {
-  variants: {
-    critical: {
-      true: 'border-destructive bg-destructive/[0.18]',
-      false: 'border-accent bg-accent/[0.18]',
+const alertRow = cva(
+  'flex shrink-0 items-center gap-3 border-b px-4 py-2 text-[12px] text-ui-ink',
+  {
+    variants: {
+      critical: {
+        true: 'border-destructive bg-ui-danger/[0.18]',
+        false: 'border-accent bg-accent/[0.18]',
+      },
     },
-  },
-  defaultVariants: { critical: false },
-})
+    defaultVariants: { critical: false },
+  }
+)

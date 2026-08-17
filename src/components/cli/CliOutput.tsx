@@ -32,9 +32,9 @@ export const CliOutput = ({ entries, onClear }: CliOutputProps) => {
   }, [entries])
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden border border-border bg-surface">
-      <div className="flex items-center justify-between border-b border-border bg-background px-3.5 py-2">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-text-muted">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden border border-ui-line-strong bg-ui-panel">
+      <div className="flex items-center justify-between border-b border-ui-line-strong bg-ui-bg px-3.5 py-2">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-ui-muted">
           Console
         </span>
         <button
@@ -48,22 +48,22 @@ export const CliOutput = ({ entries, onClear }: CliOutputProps) => {
       </div>
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-3.5 py-2.5 font-mono text-[12px]">
         {entries.length === 0 ? (
-          <div className="py-8 text-center font-[system-ui,sans-serif] text-[12px] text-text-muted">
+          <div className="py-8 text-center font-[system-ui,sans-serif] text-[12px] text-ui-muted">
             Send a command to see the response here.
           </div>
         ) : (
           entries.map((entry) => (
             <div
               key={entry.id}
-              className="grid grid-cols-[auto_auto_1fr] items-baseline gap-2.5 border-b border-border/50 py-1"
+              className="grid grid-cols-[auto_auto_1fr] items-baseline gap-2.5 border-b border-ui-line-strong/50 py-1"
             >
-              <span className="tabular-nums text-text-muted">{formatTime(entry.timestamp)}</span>
+              <span className="tabular-nums text-ui-muted">{formatTime(entry.timestamp)}</span>
               <span className={cn('w-[14px] text-center font-semibold', KIND_TEXT[entry.kind])}>
                 {kindLabel(entry.kind)}
               </span>
-              <span className="break-words text-text">{entry.label}</span>
+              <span className="break-words text-ui-ink">{entry.label}</span>
               {entry.payload && Object.keys(entry.payload).length > 0 && (
-                <pre className="col-[3/span_1] m-0 mt-1 whitespace-pre-wrap border border-border bg-background px-2.5 py-1.5 text-[11px] text-text-dim">
+                <pre className="col-[3/span_1] m-0 mt-1 whitespace-pre-wrap border border-ui-line-strong bg-ui-bg px-2.5 py-1.5 text-[11px] text-ui-muted">
                   {formatPayload(entry.payload)}
                 </pre>
               )}
@@ -99,8 +99,8 @@ const kindLabel = (kind: CliEntryKind): string => {
 const KIND_TEXT: Record<CliEntryKind, string> = {
   request: 'text-brand-accent',
   ok: 'text-success',
-  error: 'text-destructive',
-  info: 'text-text-dim',
+  error: 'text-ui-danger',
+  info: 'text-ui-muted',
 }
 
 const formatPayload = (payload: Record<string, unknown>): string => {
@@ -112,12 +112,12 @@ const formatPayload = (payload: Record<string, unknown>): string => {
 }
 
 const clearButton = cva(
-  'border border-border px-2.5 py-[3px] text-[10px] uppercase tracking-[0.06em]',
+  'border border-ui-line-strong px-2.5 py-[3px] text-[10px] uppercase tracking-[0.06em]',
   {
     variants: {
       disabled: {
-        true: 'cursor-not-allowed bg-bg-inset text-text-muted',
-        false: 'cursor-pointer bg-surface text-text-dim',
+        true: 'cursor-not-allowed bg-ui-panel text-ui-muted',
+        false: 'cursor-pointer bg-ui-panel text-ui-muted',
       },
     },
     defaultVariants: { disabled: false },

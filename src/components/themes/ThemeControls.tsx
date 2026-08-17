@@ -39,7 +39,7 @@ export const ThemeControls = ({
         </Button>
       </div>
       {busy && (
-        <div className="text-[11px] uppercase tracking-[0.06em] text-text-muted">Sending…</div>
+        <div className="text-[11px] uppercase tracking-[0.06em] text-ui-muted">Sending…</div>
       )}
     </div>
   )

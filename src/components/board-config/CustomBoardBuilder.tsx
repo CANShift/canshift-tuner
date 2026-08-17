@@ -52,10 +52,10 @@ export const CustomBoardBuilder = () => {
       />
 
       {issues.length > 0 && (
-        <div role="alert" className="grid gap-1 border border-brand-accent p-3 text-xs text-text">
+        <div role="alert" className="grid gap-1 border border-brand-accent p-3 text-xs text-ui-ink">
           <span className="font-semibold">This board profile isn’t valid yet:</span>
           {issues.map((issue) => (
-            <span key={issue} className="text-text-muted">
+            <span key={issue} className="text-ui-muted">
               {issue}
             </span>
           ))}

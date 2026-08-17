@@ -39,7 +39,7 @@ const ThemesRoute = lazy(() => import('./routes/ThemesRoute'))
 
 const RouteLoading = () => {
   return (
-    <div className="flex flex-1 items-center justify-center text-[12px] text-text-dim">
+    <div className="flex flex-1 items-center justify-center text-[12px] text-ui-muted">
       Loading…
     </div>
   )

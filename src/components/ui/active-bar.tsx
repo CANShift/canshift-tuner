@@ -7,6 +7,6 @@ export interface ActiveBarProps {
 export const ActiveBar = ({ className }: ActiveBarProps) => (
   <span
     aria-hidden="true"
-    className={cn('absolute bottom-0 left-0 top-0 w-[3px] bg-brand-accent', className)}
+    className={cn('absolute bottom-0 left-0 top-0 w-[3px] bg-ui-accent', className)}
   />
 )

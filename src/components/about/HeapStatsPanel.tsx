@@ -45,7 +45,7 @@ interface RowProps {
 const Row = ({ label, value }: RowProps) => {
   return (
     <div className={ROW}>
-      <span className="text-text-dim">{label}</span>
+      <span className="text-ui-muted">{label}</span>
       <span className={VALUE}>{value}</span>
     </div>
   )
@@ -59,11 +59,11 @@ const formatFragmentationPct = (free: number, largest: number): string => {
 
 const ROW = [
   'flex items-center justify-between px-3.5 py-[11px]',
-  'border-b border-solid border-border text-[13px]',
+  'border-b border-solid border-ui-line-strong text-[13px]',
 ].join(' ')
 
-const VALUE = 'font-mono font-medium tabular-nums text-text'
+const VALUE = 'font-mono font-medium tabular-nums text-ui-ink'
 
-const SPARKLINE_ROW = 'border-t border-solid border-border bg-bg-inset px-3.5 py-3'
+const SPARKLINE_ROW = 'border-t border-solid border-ui-line-strong bg-ui-panel px-3.5 py-3'
 
-const EMPTY = 'bg-bg-inset p-3.5 text-[11px] text-text-muted'
+const EMPTY = 'bg-ui-panel p-3.5 text-[11px] text-ui-muted'

@@ -10,7 +10,7 @@ const SPARKLINE_HEIGHT = 56
 export const HeapStatsSparkline = ({ history }: HeapStatsSparklineProps) => {
   if (history.length < 2) {
     return (
-      <div className="flex h-14 items-center justify-center text-[11px] text-text-muted">
+      <div className="flex h-14 items-center justify-center text-[11px] text-ui-muted">
         Collecting…
       </div>
     )
