@@ -37,6 +37,18 @@ Docs for the other repos: [firmware](https://github.com/CANShift/canshift-firmwa
 | [Tuner tour](tour.md)             | A map of every tab and what it is for |
 | [Layout editor](layout-editor.md) | Canvas, page strip, property panel    |
 
+## Design
+
+The binding references for what the app looks like. The comps they confirm live in
+[canshift-brand/design](https://github.com/CANShift/canshift-brand/tree/main/design) — open them there,
+the whole folder has to stay together.
+
+| Doc                                                | What it covers                                                                     |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| [Tuner app spec](design/PROMPT_TUNER_APP.md)       | The v2 app, end to end: tokens, shell, the five views, gestures, storage, keyboard |
+| [Dash design system](design/DASH_DESIGN_SYSTEM.md) | The dash's own grammar — binding on the canvas preview, not reinterpretable here   |
+| [Dash pages](design/DASH_PAGES.json)               | The six reference pages as data, in device pixels                                  |
+
 ## Elsewhere
 
 - The JSON the tuner reads and writes is defined in
