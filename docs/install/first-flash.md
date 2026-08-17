@@ -1,0 +1,72 @@
+# First flash
+
+The flasher is part of the tuner, at [`/firmware`](https://tuner.canshift.app/firmware). It walks three stages — **Device** → **Firmware** → **Flash** — reusing the same Web Serial connection the tuner already opened. There is no separate flasher app to install.
+
+> [!WARNING]
+> **Chromium-based browser required**
+>
+> Web Serial is a Chromium-only API. Use Chrome, Edge, Brave, Arc, or Opera. Firefox and Safari
+> won't surface the serial picker.
+
+## Before you start
+
+<div class="cs-spec-sheet">
+  <div class="title">Sanity check</div>
+  <dl>
+    <dt>Cable</dt>
+    <dd>USB-C, data — not a charge-only cable</dd>
+    <dt>Driver</dt>
+    <dd>CH340 driver installed (macOS bundles it; Windows + Linux usually too)</dd>
+    <dt>Port name</dt>
+    <dd>
+      macOS: <code>/dev/cu.usbserial-*</code> · Linux: <code>/dev/ttyUSB0</code> · Windows:{' '}
+      <code>COMx</code>
+    </dd>
+    <dt>Other monitors</dt>
+    <dd>Close any open serial monitor — only one process can hold the port</dd>
+  </dl>
+</div>
+
+## Walk-through
+
+1. **Plug the screen into your computer over USB-C.** A blue power LED should come on; the panel itself stays dark until firmware is on it.
+
+2. **Open [Tuner → Firmware](https://tuner.canshift.app/firmware).** The page loads in under a second from Vercel's edge. You should see three numbered cards: _Device_, _Firmware_, _Flash_.
+
+3. **Click _Connect device_.** The browser prompts you to pick a serial port. On most ESP32-WROOM boards the entry reads `USB JTAG/serial debug unit` or `cu.usbserial-303A`. Pick it and confirm.
+
+4. **Choose a release.** The dropdown defaults to the latest stable build from GitHub Releases. Pre-release / beta is one click away if you're tracking in-flight features. Local `.bin` is for developers building from source.
+
+5. **Hit _Flash_.** The wizard erases the flash, writes the firmware, verifies the checksum, then reboots into the new image. Total time: ~30 seconds for a stable release on a USB 2.0 host.
+
+## What you should see
+
+| Phase  | Visible                                              |               Timing |
+| ------ | ---------------------------------------------------- | -------------------: |
+| Erase  | "Erasing flash…" with a determinate progress bar     |                 ~3 s |
+| Write  | "Writing 0x10000…" climbing through the image        |                ~20 s |
+| Verify | Checksum compare, no progress bar                    |                 ~3 s |
+| Boot   | Screen comes alive: red CANShift splash + version    | within ~2 s of reset |
+| Ready  | Splash holds for 2 s, then your default page appears |          total ~30 s |
+
+The 2-second splash hold is intentional — it gives you time to read the firmware version. The dash is otherwise fully booted by then.
+
+## It hung at "Writing 0x…"
+
+The most common cause is the cable. Charge-only USB-C cables look identical to data cables and will pass enough current to power the board but won't enumerate. Swap cables and retry.
+
+If the cable is fine, the host may have stolen the port. Close any open `pio device monitor`, `screen`, or `minicom` and reconnect.
+
+## The splash appears but the bar stalls
+
+That's a heap problem, not a flash problem — the firmware is on the device and trying to boot. See [Boot diagnostics](../install/boot-issues.md) for the failure dictionary and how to read the `[BOOT]` markers on the serial line.
+
+## The screen stays black after a successful flash
+
+The flash succeeded but the panel never lights up. Check the SPI wiring — the reference build expects `MOSI=13`, `MISO=12`, `SCLK=14`, `CS=15`, `DC=2`, `BL=27`. Full table on [Pinout](https://github.com/CANShift/canshift-firmware/blob/main/docs/reference/pinout.md).
+
+If the panel stays dark but the serial logs print `[BOOT] Ready` cleanly, the dash is alive — the fault is at the LovyanGFX layer. Capture the boot log and open an issue.
+
+## Next
+
+You have a booting dash. Now point it at your ECU: [Configure with the Tuner](../configure/with-tuner.md).

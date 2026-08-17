@@ -4,6 +4,9 @@ Betaflight-style web configurator for CANShift dashes. Hosted on Vercel, talks
 to the firmware via **WebSerial** over the CH340 UART that already serves as
 the upload / serial port.
 
+📖 **[Documentation](docs/README.md)** — flashing, configuring, and a tour of
+every tab.
+
 ## Why this package
 
 `canshift-tuner` is the configurator surface for CANShift dashes.

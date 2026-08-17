@@ -1,0 +1,73 @@
+# Configure with the Tuner
+
+The Tuner is a single-page web app that talks to the dash over Web Serial. You move widgets, bind signals, pick an ECU profile — then click **Burn** and the dash reloads the new config in place. No re-flash, no reboot.
+
+The Tuner lives at [tuner.canshift.app](https://tuner.canshift.app) — open the URL, plug the dash in, you're in.
+
+## Connecting
+
+1. Plug the dash in over USB-C.
+2. Open [tuner.canshift.app](https://tuner.canshift.app) in a Chromium-based browser.
+3. Click **Connect device** in the top-right and pick the serial port.
+
+The header switches from a red _Disconnected_ dot to a green _Connected_ one, with the device's `vendor:product` next to it. The firmware version slot fills in once the handshake completes (~50 ms).
+
+> [!TIP]
+> **Simulation mode**
+>
+> No dash on hand? The Tuner runs in simulation when no device is connected — pages and widgets are
+> interactive, the signal store fakes values. Useful for laying out a dashboard the night before
+> fitting.
+
+## Edit the dashboard
+
+The **Dashboard** route is the visual editor. Page thumbnails on the left (up to `CONFIG_MAX_PAGES = 5`), the canvas in the middle, the inspector on the right. Click a widget to bind it to a signal, drop a new widget from the palette to add it, drag to reorder.
+
+Changes are local until you burn. The canvas previews exactly what the dash will render — same fonts, same tokens, same units.
+
+## Pick an ECU profile
+
+Open the **ECU** route. CANShift ships presets for the common aftermarket and stock setups:
+
+- **Aftermarket**: Haltech, Ecumaster EmuBlack, Adaptronic, AEM, Link, MaxxECU, MoTeC, Flagtronics.
+- **OEM-style**: stock OBD-II PIDs (works with most road cars supporting the standard).
+
+Pick a preset, preview the signals it would import, click _Apply_. The signal map writes to `signals.json` on the dash.
+
+Custom map? Drop a **CAN XML** export onto the page. The parser lives in `@tmbk/canshift-core/parseCanXml` and validates against the same schema the firmware enforces at boot.
+
+## Style with themes
+
+The **Themes** route swaps the dash's colour palette — day vs night, accent colours, gauge backgrounds. The Tuner reads the active mode from the device on connect and exposes three actions: toggle, force _Day_, force _Night_. The commands hit the dash as `CMD_TOGGLE_DAY_NIGHT` / `CMD_SET_DAY_NIGHT` over USB.
+
+## Burn = write the config
+
+Click **Burn** (top-right) and the Tuner ships the full JSON envelope to the dash. The dash:
+
+1. Shows the "Saving config…" overlay.
+2. Writes the new file to SPIFFS atomically (the previous one is renamed `.bak`).
+3. Reloads the config in memory.
+4. Rebuilds the pages on the next frame.
+
+End-to-end takes ~150–250 ms. The overlay vanishes when the burn completes; the new layout appears on the next page swipe (or immediately if you're on the page that changed).
+
+If the overlay flips red, see [Burn errors](../configure/burn-errors.md).
+
+> [!WARNING]
+> **Don't burn during a CAN scan**
+>
+> The dash's USB RX buffer doubles as the PUT_CONFIG receive buffer. A live CAN scan keeps that
+> buffer busy, and a burn that lands in the middle of a scan can time out. Stop the scan in the
+> **CAN bus** route first, then burn.
+
+## Schema vs firmware version
+
+The firmware validates `dashboard.json` against the schema it was compiled with. If you re-flash a newer firmware but SPIFFS still holds an older config, the dash boots into the built-in default and the ErrorBar shows `SCHEMA_MISMATCH`.
+
+The fix is always the same: re-burn from the Tuner. The Tuner always reads the current schema from `canshift-core`, so a fresh burn matches the running firmware by construction.
+
+## Next
+
+- [Burn errors](../configure/burn-errors.md) — what each red overlay message means and how to recover.
+- [Navigating pages](https://github.com/CANShift/canshift-firmware/blob/main/docs/guide/navigating-pages.md) — gestures, default page, the 5-page cap.
+- [Cruise control](https://github.com/CANShift/canshift-firmware/blob/main/docs/guide/cruise-control.md) — how the cruise page binds to your ECU's `cruise_setpoint`.
