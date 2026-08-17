@@ -11,7 +11,7 @@ import { HeapStatsPanel } from '../components/about/HeapStatsPanel'
 import { RouteBody } from '../components/ui/route-shell'
 
 const REPO_URL = 'https://github.com/CANShift/canshift-tuner'
-const DOCS_URL = 'https://canshift.app'
+const DOCS_URL = 'https://github.com/CANShift/canshift-tuner/tree/main/docs'
 const ISSUES_URL = 'https://github.com/CANShift/canshift-tuner/issues'
 
 type ConnectionStatus = ReturnType<typeof useConnectionStore.getState>['status']
