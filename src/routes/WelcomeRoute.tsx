@@ -116,7 +116,7 @@ const WelcomeRoute = () => {
             </Link>
             <span className="text-brand-neutral-500">·</span>
             <a
-              href="https://canshift.app/user-guide/install/boot-issues/"
+              href="https://github.com/CANShift/canshift-tuner/blob/main/docs/install/boot-issues.md"
               target="_blank"
               rel="noreferrer"
               className={LINK}
