@@ -1,6 +1,6 @@
 # First flash
 
-The flasher is part of the tuner, at [`/firmware`](https://tuner.canshift.app/firmware). It walks three stages — **Device** → **Firmware** → **Flash** — reusing the same Web Serial connection the tuner already opened. There is no separate flasher app to install.
+The flasher is part of the tuner, at [`/firmware`](https://canshift.app/firmware). It walks three stages — **Device** → **Firmware** → **Flash** — reusing the same Web Serial connection the tuner already opened. There is no separate flasher app to install.
 
 > [!WARNING]
 > **Chromium-based browser required**
@@ -31,7 +31,7 @@ The flasher is part of the tuner, at [`/firmware`](https://tuner.canshift.app/fi
 
 1. **Plug the screen into your computer over USB-C.** A blue power LED should come on; the panel itself stays dark until firmware is on it.
 
-2. **Open [Tuner → Firmware](https://tuner.canshift.app/firmware).** The page loads in under a second from Vercel's edge. You should see three numbered cards: _Device_, _Firmware_, _Flash_.
+2. **Open [Tuner → Firmware](https://canshift.app/firmware).** The page loads in under a second from Vercel's edge. You should see three numbered cards: _Device_, _Firmware_, _Flash_.
 
 3. **Click _Connect device_.** The browser prompts you to pick a serial port. On most ESP32-WROOM boards the entry reads `USB JTAG/serial debug unit` or `cu.usbserial-303A`. Pick it and confirm.
 

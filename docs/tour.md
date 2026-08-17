@@ -1,6 +1,6 @@
 # Tuner tour
 
-The Tuner ([canshift-tuner](https://tuner.canshift.app)) is a browser app that talks to the dash over Web Serial. It is organised as a set of tabs (`src/constants/routes.ts`); this page is the map, with links to the tabs that have their own guide.
+The Tuner ([canshift-tuner](https://canshift.app)) is a browser app that talks to the dash over Web Serial. It is organised as a set of tabs (`src/constants/routes.ts`); this page is the map, with links to the tabs that have their own guide.
 
 ## The tabs
 
