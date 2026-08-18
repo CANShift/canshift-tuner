@@ -62,6 +62,7 @@ export const PageFrame = ({
     {page.showTopBar !== false && (
       <DashTopBar
         topBar={topBar}
+        statusRow={page.statusRow}
         scale={scale}
         settingsOpen={interaction?.settingsOpen ?? false}
         isDayMode={isDayMode}
