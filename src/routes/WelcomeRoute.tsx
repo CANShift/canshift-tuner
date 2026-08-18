@@ -13,6 +13,8 @@ import { useFirmwareUpdate } from '../hooks/useFirmwareUpdate'
 import { buildNewProjectDashboard, BLANK_PAGE_SET, DEFAULT_PAGE_SET } from '../lib/new-project'
 import { PROJECT_FILE_ACCEPT } from '../lib/project-file'
 import { humanizeTransportError } from '../transport/humanize-transport-error'
+import { adoptDemoProfile } from '../lib/demo-signals'
+import { useSignalStore } from '../stores/signal.store'
 import { isWebSerialAvailable } from '../lib/web-serial'
 
 type ConnectionStatus = ReturnType<typeof useConnectionStore.getState>['status']
@@ -43,6 +45,8 @@ const WelcomeRoute = () => {
   const createProject = useProjectStore((s) => s.createProject)
   const deleteProject = useProjectStore((s) => s.deleteProject)
   const log = useLogStore((s) => s.push)
+  const selectedProfileKey = useSignalStore((s) => s.selectedProfileKey)
+  const applyProfile = useSignalStore((s) => s.applyProfile)
   const navigate = useNavigate()
   const entries = useBenchEntries()
   const { fileInputRef, exportProjectFile, handleImportChange } = useProjectFileActions()
@@ -63,6 +67,8 @@ const WelcomeRoute = () => {
   }
 
   const start = (pageSetId: string, name: string) => {
+    const demo = adoptDemoProfile(selectedProfileKey)
+    if (demo) applyProfile(demo.key, demo.signals)
     createProject(
       name,
       buildNewProjectDashboard({ name, targetProfile: DEFAULT_SCREEN_PROFILE_ID, pageSetId })

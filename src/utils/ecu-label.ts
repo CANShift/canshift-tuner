@@ -14,6 +14,7 @@ const RESOLVERS: Record<string, (rest: string, index: CatalogueIndex) => string>
   builtin: (rest) => ECU_PROFILES.find((profile) => profile.id === rest)?.name ?? titleCase(rest),
   catalogue: (rest, index) => index.labels.get(rest) ?? catalogueFallback(rest),
   import: (rest) => profileLabelFromFileName(rest),
+  demo: () => 'CANShift demo',
 }
 
 export const ecuLabelForKey = (key: string, index: CatalogueIndex): string => {
