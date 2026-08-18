@@ -95,17 +95,30 @@ const segment = cva(
   }
 )
 
+export interface SignalsActionProps {
+  onClick: () => void
+  disabled?: boolean
+  title?: string | undefined
+  children: ReactNode
+}
+
 export const SignalsAction = ({
   onClick,
+  disabled = false,
+  title,
   children,
-}: {
-  onClick: () => void
-  children: ReactNode
-}) => (
+}: SignalsActionProps) => (
   <button
     type="button"
     onClick={onClick}
-    className="cursor-pointer whitespace-nowrap border border-ui-ink bg-transparent px-4 py-2 text-left text-[12.5px] font-bold text-ui-ink hover:bg-ui-panel"
+    disabled={disabled}
+    title={title}
+    className={cn(
+      'whitespace-nowrap border px-4 py-2 text-left text-[12.5px] font-bold',
+      disabled
+        ? 'cursor-not-allowed border-ui-line bg-transparent text-ui-faint'
+        : 'cursor-pointer border-ui-ink bg-transparent text-ui-ink hover:bg-ui-panel'
+    )}
   >
     {children}
   </button>

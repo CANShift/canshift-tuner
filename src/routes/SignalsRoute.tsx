@@ -8,17 +8,21 @@ import {
   type SignalSource,
 } from '../components/signals/SignalsToolbar'
 import { CanSignalTable } from '../components/signals/CanSignalTable'
+import { BusScanPanel } from '../components/signals/BusScanPanel'
+import { useCanScanner } from '../hooks/useCanScanner'
+import { useDeviceStore } from '../stores/device.store'
+import { formatFrameIdHex, parseHexFrameId } from '../utils/frame-id'
 import { useSignalStore } from '../stores/signal.store'
 import { useLiveSignals } from '../hooks/useLiveSignals'
 import { useSignalUsage } from '../hooks/useSignalUsage'
 import { useCatalogueIndex } from '../hooks/useCatalogueIndex'
 import { ecuLabelForKey } from '../utils/ecu-label'
 
-const CanBusRoute = lazy(() => import('./CanBusRoute'))
 const EcuRoute = lazy(() => import('./EcuRoute'))
+const CanBusRoute = lazy(() => import('./CanBusRoute'))
 const Obd2Route = lazy(() => import('./Obd2Route'))
 
-type Pane = SignalSource | 'scan' | 'ecu'
+type Pane = SignalSource | 'ecu' | 'analysis'
 
 const SignalsRoute = () => {
   const signals = useSignalStore((s) => s.signals)
@@ -28,6 +32,9 @@ const SignalsRoute = () => {
   const values = useLiveSignals()
   const usage = useSignalUsage()
   const catalogue = useCatalogueIndex()
+  const scanner = useCanScanner()
+  const connected = useDeviceStore((s) => s.connected)
+  const simulationMode = useDeviceStore((s) => s.simulationMode)
 
   const [pane, setPane] = useState<Pane>('can')
   const [filter, setFilter] = useState('')
@@ -60,11 +67,20 @@ const SignalsRoute = () => {
     [signals, usage]
   )
 
+  const scanning = scanner.status === 'running' || scanner.status === 'starting'
+  const canScan = connected && !simulationMode
+  const frames = [...scanner.snapshot.frames.values()].sort((a, b) => a.id - b.id)
+  const boundTo = new Map<number, string>()
+  for (const signal of signals) {
+    const id = parseHexFrameId(signal.canFrameId)
+    if (id >= 0 && !boundTo.has(id)) boundTo.set(id, signal.name)
+  }
+
   const panes: Record<Pane, ReactNode> = {
     can: <CanSignalTable signals={shown} values={values} usage={usage} onPatch={updateSignal} />,
     obd2: <Obd2Route />,
-    scan: <CanBusRoute />,
     ecu: <EcuRoute />,
+    analysis: <CanBusRoute />,
   }
 
   const source: SignalSource = pane === 'obd2' ? 'obd2' : 'can'
@@ -87,11 +103,26 @@ const SignalsRoute = () => {
         actions={
           <>
             <SignalsAction
+              disabled={!canScan}
+              title={canScan ? undefined : 'Plug a dash in — simulation has no bus to listen to.'}
               onClick={() => {
-                setPane((current) => (current === 'scan' ? 'can' : 'scan'))
+                if (scanning) {
+                  void scanner.stop()
+                  return
+                }
+                setPane('can')
+                void scanner.start()
               }}
             >
-              {pane === 'scan' ? 'Back to signals' : 'Scan bus'}
+              {scanning ? 'Stop scan' : 'Scan bus'}
+            </SignalsAction>
+            <SignalsAction
+              onClick={() => {
+                setPane((current) => (current === 'analysis' ? 'can' : 'analysis'))
+              }}
+              title="Sort, byte histograms and learn mode — for mapping an unknown ECU"
+            >
+              {pane === 'analysis' ? 'Back to signals' : 'Analyse…'}
             </SignalsAction>
             <SignalsAction
               onClick={() => {
@@ -104,6 +135,18 @@ const SignalsRoute = () => {
         }
       />
       <div className="flex min-h-0 flex-1 flex-col">
+        {frames.length > 0 && pane === 'can' && (
+          <BusScanPanel
+            frames={frames}
+            totalFrames={scanner.snapshot.totalFrames}
+            signals={signals}
+            boundTo={boundTo}
+            onAssign={(frameId, signalName) => {
+              updateSignal(signalName, { canFrameId: formatFrameIdHex(frameId) })
+            }}
+            onClear={scanner.reset}
+          />
+        )}
         <Suspense fallback={<RouteLoading />}>{panes[pane]}</Suspense>
       </div>
     </div>
