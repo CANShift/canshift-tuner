@@ -40,6 +40,7 @@ interface RenderContext {
   danger: boolean
   signalUnit: string
   unbound: boolean
+  scale: number
 }
 
 type WidgetTypeKey = WidgetConfig['type']
@@ -73,6 +74,7 @@ const RENDERERS: RendererDispatch = {
         testValue={ctx.testValue}
         signalUnit={ctx.signalUnit}
         unbound={ctx.unbound}
+        scale={ctx.scale}
       />
     )
   },
@@ -88,7 +90,9 @@ const RENDERERS: RendererDispatch = {
       cycleStateIndex={ctx.cycleStateIndex}
     />
   ),
-  gear: (widget, ctx) => <GearPreview widget={widget} w={ctx.w} h={ctx.h} unbound={ctx.unbound} />,
+  gear: (widget, ctx) => (
+    <GearPreview widget={widget} w={ctx.w} h={ctx.h} unbound={ctx.unbound} scale={ctx.scale} />
+  ),
   timer: (widget, ctx) => <TimerPreview widget={widget} w={ctx.w} h={ctx.h} />,
   image: (widget, ctx) => <ImagePreview widget={widget} w={ctx.w} h={ctx.h} />,
 }
@@ -97,6 +101,7 @@ interface WidgetPreviewProps {
   widget: Widget
   displayW: number
   displayH: number
+  scale?: number
   palette?: PagePalette
   revLimiting?: boolean
   buttonState?: ControlState
@@ -122,6 +127,7 @@ const WidgetPreviewImpl = ({
   widget,
   displayW: rawW,
   displayH: rawH,
+  scale = 1,
   palette,
   revLimiting = false,
   buttonState = 'off',
@@ -148,6 +154,7 @@ const WidgetPreviewImpl = ({
     danger,
     signalUnit,
     unbound,
+    scale,
   }
 
   const render = RENDERERS[resolved.config.type]

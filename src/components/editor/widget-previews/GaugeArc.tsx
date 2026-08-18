@@ -1,5 +1,10 @@
 import { memo } from 'react'
-import { GAUGE_ARC, GAUGE_TRACK_COLORS, STALE_PLACEHOLDER, deviceValueFontPx } from '@canshift/core'
+import {
+  GAUGE_ARC,
+  GAUGE_TRACK_COLORS,
+  STALE_PLACEHOLDER,
+  gaugeValueFontSize,
+} from '@canshift/core'
 import { cn } from '@/lib/utils'
 import { WIDGET_DIM_COLOR, thresholdPct } from '../widget-preview.styles'
 import { effectiveValue, gaugeArcD } from './gauge-math'
@@ -7,6 +12,7 @@ import { type BaseRendererProps, formatSignalLabel } from './shared'
 import { MONO_FONT, UI_FONT, UI_LABEL_TRACKING, UI_LABEL_WEIGHT } from '../../../lib/typography'
 
 export interface GaugeArcRendererProps extends BaseRendererProps {
+  scale: number
   revLimiting: boolean
   danger: boolean
   testValue?: number | null
@@ -25,6 +31,7 @@ export const GaugeArcPreview = memo(function GaugeArcPreview({
   danger,
   testValue,
   unbound = false,
+  scale,
 }: GaugeArcRendererProps) {
   if (widget.config.type !== 'gauge') return null
   const cfg = widget.config
@@ -50,8 +57,7 @@ export const GaugeArcPreview = memo(function GaugeArcPreview({
   const revFlash = cfg.revFlash === true
   const showRevFlash = revFlash && revLimiting
 
-  const autoValueSize = Math.max(11, Math.min(r * 0.55, h * 0.3, 42))
-  const valueFontSize = cfg.big !== undefined ? deviceValueFontPx(cfg.big) : autoValueSize
+  const valueFontSize = gaugeValueFontSize(h / scale, cfg.big) * scale
 
   return (
     <svg width={w} height={h} className="block overflow-hidden" aria-hidden="true">
