@@ -21,6 +21,8 @@ import { useProjectFileActions } from '../hooks/useProjectFileActions'
 import { useCatalogueIndex } from '../hooks/useCatalogueIndex'
 import { ecuLabelForKey } from '../utils/ecu-label'
 import { useDisplayUnits } from '../hooks/useDisplayUnits'
+import { provisionMessage, useProvisionBoardProfile } from '../hooks/useProvisionBoardProfile'
+import { BoardProfileRow } from '../components/device/BoardProfileRow'
 import { useResolvedBoardProfile } from '../hooks/useResolvedBoardProfile'
 import { UNIT_SYSTEM_OPTIONS } from '../constants/units'
 import type { UnitSystem } from '@canshift/core'
@@ -32,6 +34,12 @@ const BRIGHTNESS_STEPS = [20, 40, 60, 80, 100]
 const displayFact = (screen: { width: number; height: number }, driver: string | null): string => {
   const size = `${String(screen.width)} × ${String(screen.height)}`
   return driver === null ? size : `${driver.toUpperCase()} · ${size}`
+}
+
+const provisionBlockedNote = (hasBoard: boolean, linked: boolean): string => {
+  if (!hasBoard) return 'No board picked — choose one in the board definition below.'
+  if (!linked) return 'Connect the dash over USB to write its board profile.'
+  return ''
 }
 
 const TRANSPORT = 'USB CDC'
@@ -59,6 +67,7 @@ const DeviceRoute = () => {
   const catalogue = useCatalogueIndex()
   const units = useDisplayUnits()
   const panelDriver = useResolvedBoardProfile()?.profile.lcd.driver ?? null
+  const provision = useProvisionBoardProfile()
   const { fileInputRef, exportProjectFile, openImportPicker, handleImportChange } =
     useProjectFileActions()
   const [advancedOpen, setAdvancedOpen] = useState(false)
@@ -146,6 +155,15 @@ const DeviceRoute = () => {
               }}
             />
           </div>
+          <BoardProfileRow
+            boardName={provision.resolved?.profile.boardName ?? null}
+            canProvision={provision.canProvision}
+            busy={provision.state.kind === 'writing'}
+            blockedNote={provisionBlockedNote(provision.resolved !== null, provision.linked)}
+            note={provisionMessage(provision.state)}
+            onProvision={provision.provision}
+          />
+
           <button
             type="button"
             onClick={() => {
