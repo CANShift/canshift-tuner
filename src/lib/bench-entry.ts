@@ -1,57 +1,12 @@
-import type { DashboardConfig, PageConfig, Project, ProjectMeta } from '@canshift/core'
-import { displayLabelForSignal } from '../utils/signal-labels'
-
-export type BenchTheme = 'day' | 'night'
+import type { DashboardConfig, Project, ProjectMeta } from '@canshift/core'
+import { resolveScreenProfile } from '@canshift/core'
 
 export interface BenchEntry {
   id: string
   name: string
-  ecuLabel: string
-  signalCount: number
-  pageCount: number
-  theme: BenchTheme
-  kicker: string
+  meta: string
   updatedAt: string
 }
-
-const NIGHT_LUMINANCE_MAX = 0.5
-const VALUE_WIDGET_TYPES = new Set(['gauge', 'gear', 'timer'])
-
-const relativeLuminance = (hex: string): number => {
-  const value = hex.replace('#', '')
-  if (value.length !== 6) return 0
-  const channel = (offset: number): number => parseInt(value.slice(offset, offset + 2), 16) / 255
-  return 0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4)
-}
-
-const defaultPage = (dashboard: DashboardConfig): PageConfig | null => {
-  const match = dashboard.pages.find((page) => page.id === dashboard.defaultPageId)
-  return match ?? dashboard.pages[0] ?? null
-}
-
-const themeOf = (page: PageConfig | null): BenchTheme => {
-  if (!page) return 'night'
-  return relativeLuminance(page.backgroundColor) > NIGHT_LUMINANCE_MAX ? 'day' : 'night'
-}
-
-const kickerOf = (page: PageConfig | null): string => {
-  if (!page) return '—'
-  const widget = page.widgets.find(
-    (candidate) => VALUE_WIDGET_TYPES.has(candidate.type) && candidate.signal !== ''
-  )
-  if (!widget) return page.id.toUpperCase()
-  return displayLabelForSignal(widget.signal).toUpperCase()
-}
-
-export interface BenchPreview {
-  theme: BenchTheme
-  kicker: string
-}
-
-export const benchPreviewOfPage = (page: PageConfig | null): BenchPreview => ({
-  theme: themeOf(page),
-  kicker: kickerOf(page),
-})
 
 export const benchEntryFrom = (
   project: Project,
@@ -59,15 +14,12 @@ export const benchEntryFrom = (
   ecuLabel: string
 ): BenchEntry => {
   const dashboard = project.dashboard as DashboardConfig
-  const preview = benchPreviewOfPage(defaultPage(dashboard))
+  const panel = resolveScreenProfile(dashboard.targetProfile).name
+  const pages = dashboard.pages.length
   return {
     id: meta.id,
     name: meta.name,
-    ecuLabel,
-    signalCount: project.signals.length,
-    pageCount: dashboard.pages.length,
-    theme: preview.theme,
-    kicker: preview.kicker,
+    meta: `${ecuLabel} · ${panel} · ${String(pages)} page${pages === 1 ? '' : 's'}`,
     updatedAt: meta.updatedAt,
   }
 }
