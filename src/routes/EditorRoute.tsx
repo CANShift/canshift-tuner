@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react'
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import type { PageConfig, ScreenProfileId } from '@canshift/core'
 import {
@@ -9,7 +9,6 @@ import {
   resolveScreenProfile,
 } from '@canshift/core'
 import { DashToolbar } from '../components/editor/DashToolbar'
-import { ZoomControl, ZOOM_STEPS } from '../components/editor/ZoomControl'
 import { useSignalStore } from '../stores/signal.store'
 import { useProjectFileActions } from '../hooks/useProjectFileActions'
 import { useProjectStore } from '../stores/project/project.store'
@@ -18,17 +17,14 @@ import { ecuLabelForKey } from '../utils/ecu-label'
 import { buildWidget, DEFAULT_NEW_WIDGET } from '../lib/new-widget'
 import { useCatalogueIndex } from '../hooks/useCatalogueIndex'
 import { useDashboardStore } from '../stores/dashboard.store'
-import { PageStrip } from '../components/editor/PageStrip'
-import { NewPageMenu } from '../components/editor/NewPageMenu'
 import { SaveTemplateDialog } from '../components/editor/SaveTemplateDialog'
 import { ManageTemplatesDialog } from '../components/editor/ManageTemplatesDialog'
 import { PageContextMenu } from './PageContextMenu'
 import { RightSidebar } from './RightSidebar'
 import { ErrorBoundary } from '../components/ErrorBoundary'
 import { createId } from '../utils/id'
-import { instantiateTemplate } from '../lib/page-template'
 import { useTemplateStore } from '../stores/template/template.store'
-import type { PageTemplateEntry } from '../stores/template/storage'
+import { instantiateTemplate } from '../lib/page-template'
 import { isEditableTarget } from '../utils/is-editable-target'
 import { useUndoToastStore } from '../stores/undo-toast.store'
 import { UndoToast } from '../components/editor/UndoToast'
@@ -97,16 +93,6 @@ const EditorRoute = () => {
   const configName = useDashboardStore((s) => s.config?.name ?? 'config')
   const { fileInputRef, exportProjectFile, openImportPicker, handleImportChange } =
     useProjectFileActions()
-  const [zoom, setZoom] = useState(1)
-
-  const stepZoom = useCallback((direction: 1 | -1) => {
-    setZoom((current) => {
-      const steps: readonly number[] = ZOOM_STEPS
-      const index = steps.indexOf(current)
-      const base = index === -1 ? steps.indexOf(1) : index
-      return steps[Math.max(0, Math.min(steps.length - 1, base + direction))] ?? current
-    })
-  }, [])
 
   const [contextMenu, setContextMenu] = useState<{
     pageId: string
@@ -115,10 +101,9 @@ const EditorRoute = () => {
   } | null>(null)
 
   const saveTemplate = useTemplateStore((s) => s.saveTemplate)
+  const templates = useTemplateStore((s) => s.templates)
   const [saveTemplatePageId, setSaveTemplatePageId] = useState<string | null>(null)
   const [manageOpen, setManageOpen] = useState(false)
-
-  const dragFromIndex = useRef<number | null>(null)
 
   const showUndoToast = useUndoToastStore((s) => s.showForLastAction)
 
@@ -148,18 +133,6 @@ const EditorRoute = () => {
     }
   }, [handleKeyDown])
 
-  const handlePageDragStart = useCallback((index: number) => {
-    dragFromIndex.current = index
-  }, [])
-  const handlePageDrop = useCallback(
-    (toIndex: number) => {
-      if (dragFromIndex.current !== null && dragFromIndex.current !== toIndex) {
-        movePage(dragFromIndex.current, toIndex)
-      }
-      dragFromIndex.current = null
-    },
-    [movePage]
-  )
   const handlePageContextMenu = useCallback((pageId: string, x: number, y: number) => {
     setContextMenu({ pageId, x, y })
   }, [])
@@ -180,39 +153,6 @@ const EditorRoute = () => {
   const atCap = pages.length >= FIRMWARE_CAPS.MAX_PAGES
 
   const currentPageIndex = currentPage ? pages.findIndex((p) => p.id === currentPage.id) : -1
-
-  const pageStrip = (
-    <PageStrip
-      pages={pages}
-      topBar={topBar}
-      selectedPageId={selectedPageId}
-      defaultPageId={defaultPageId}
-      atCap={atCap}
-      newPageControl={
-        <NewPageMenu
-          atCap={atCap}
-          onAddBlank={() => {
-            if (!atCap) addPage(buildBlankPage())
-          }}
-          onInsertTemplate={(entry: PageTemplateEntry) => {
-            if (!atCap) addPage(instantiateTemplate(entry))
-          }}
-          onManage={() => {
-            setManageOpen(true)
-          }}
-        />
-      }
-      onSelect={selectPage}
-      onAdd={() => {
-        if (!atCap) addPage(buildBlankPage())
-      }}
-      onDragStart={handlePageDragStart}
-      onDrop={handlePageDrop}
-      onSetDefault={setDefaultPage}
-      onRemove={deletePage}
-      onContextMenu={handlePageContextMenu}
-    />
-  )
 
   const screenProfile = resolveScreenProfile(targetProfile)
   const widgetCount = pages.reduce((total, p) => total + p.widgets.length, 0)
@@ -266,15 +206,6 @@ const EditorRoute = () => {
       onExport={() => {
         exportProjectFile(activeProjectId, configName)
       }}
-      extras={
-        <ZoomControl
-          zoom={zoom}
-          onStep={stepZoom}
-          onReset={() => {
-            setZoom(1)
-          }}
-        />
-      }
     />
   ) : null
 
@@ -286,11 +217,8 @@ const EditorRoute = () => {
             <Canvas
               page={currentPage}
               topBar={topBar}
-              pageIndex={currentPageIndex >= 0 ? currentPageIndex : undefined}
-              zoom={zoom}
-              onZoomStep={stepZoom}
               toolbar={toolbar}
-              pageStrip={pageStrip}
+              onPageContextMenu={handlePageContextMenu}
               inspector={<RightSidebar pageId={currentPage.id} />}
             />
           </Suspense>
@@ -327,6 +255,14 @@ const EditorRoute = () => {
           }}
           onDelete={() => {
             deletePage(contextMenu.pageId)
+          }}
+          templates={templates}
+          onInsertTemplate={(templateId) => {
+            const entry = templates.find((candidate) => candidate.id === templateId)
+            if (entry && !atCap) addPage(instantiateTemplate(entry))
+          }}
+          onManageTemplates={() => {
+            setManageOpen(true)
           }}
         />
       )}

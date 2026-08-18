@@ -1,19 +1,18 @@
-import { useRef, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import type { ReactNode } from 'react'
 import type { PageConfig, TopBarConfig } from '@canshift/core'
 import { resolveGridRect, resolveScreenProfile } from '@canshift/core'
 import { useDashboardStore } from '../../stores/dashboard.store'
+import { useDeviceStore } from '../../stores/device.store'
 import { overflowingWidgetIds, overlappingWidgetIds } from '../../utils/widget-diagnostics'
 import { useRebindFlashStore } from '../../stores/rebind-flash.store'
 import ScreenSettingsPanel from './ScreenSettingsPanel'
 import DiagnosticsPanel from './DiagnosticsPanel'
-import { DashTopBar } from './DashTopBar'
 import { LayoutOverflowNotice } from './LayoutOverflowNotice'
 import { BurnFailureNotice } from './BurnFailureNotice'
 import { RevLimiterOverlay } from './RevLimiterOverlay'
 import { ShortcutsDialog } from './ShortcutsDialog'
-import { GridGuides } from './canvas/grid-guides'
-import { WidgetLayer } from './canvas/widget-layer'
+import { PageFrame } from './canvas/page-frame'
 import { RubberBandRect } from './canvas/rubber-band-rect'
 import { CanvasStatusBar } from './canvas/canvas-status-bar'
 import { useDragState } from '../../hooks/useDragState'
@@ -23,45 +22,31 @@ import { useClipboardWidgets } from '../../hooks/useClipboardWidgets'
 import { useRubberBandSelection } from '../../hooks/useRubberBandSelection'
 import { useRevLimiterFlash } from '../../hooks/useRevLimiterFlash'
 import { useSwipeGestures } from '../../hooks/useSwipeGestures'
-import { useEffectivePalette } from '../../hooks/useEffectivePalette'
+import { useCarouselScale } from '../../hooks/useCarouselScale'
 import { useCanvasDialogs } from '../../hooks/useCanvasDialogs'
+import { resolveBgColor, resolvePalette } from '../../hooks/useEffectivePalette'
 
-import { Eyebrow } from '../ui/meta-text'
-
-const SCALE = 1.5
-
+const THUMBNAIL_RATIO = 0.42
+const STRIP_CHROME_PX = 66
 const EMPTY_PAGES: readonly PageConfig[] = []
 
 interface CanvasProps {
   page: PageConfig
   topBar: TopBarConfig
-  pageIndex?: number | undefined
-  zoom: number
-  onZoomStep: (direction: 1 | -1) => void
   toolbar?: ReactNode
-  pageStrip?: ReactNode
   inspector?: ReactNode
+  onPageContextMenu?: ((pageId: string, x: number, y: number) => void) | undefined
 }
 
-const Canvas = ({
-  page,
-  topBar,
-  pageIndex,
-  zoom,
-  onZoomStep,
-  toolbar,
-  pageStrip,
-  inspector,
-}: CanvasProps) => {
+const Canvas = ({ page, topBar, toolbar, inspector, onPageContextMenu }: CanvasProps) => {
   const targetProfileId = useDashboardStore((s) => s.config?.targetProfile)
   const screenProfile = useMemo(() => resolveScreenProfile(targetProfileId), [targetProfileId])
-  const effScale = SCALE * zoom
-  const canvasW = screenProfile.width * effScale
-  const canvasH = screenProfile.height * effScale
+  const pages = useDashboardStore((s) => s.config?.pages ?? EMPTY_PAGES)
+  const theme = useDashboardStore((s) => s.config?.theme)
+  const isDayMode = useDeviceStore((s) => s.isDayMode) ?? false
 
   const selectedWidgetId = useDashboardStore((s) => s.selectedWidgetId)
   const selectedWidgetIds = useDashboardStore((s) => s.selectedWidgetIds)
-
   const selectWidget = useDashboardStore((s) => s.selectWidget)
   const selectWidgets = useDashboardStore((s) => s.selectWidgets)
   const toggleWidgetSelection = useDashboardStore((s) => s.toggleWidgetSelection)
@@ -70,11 +55,16 @@ const Canvas = ({
   const pasteWidgets = useDashboardStore((s) => s.pasteWidgets)
   const nudgeWidgets = useDashboardStore((s) => s.nudgeWidgets)
   const selectPage = useDashboardStore((s) => s.selectPage)
-  const pages = useDashboardStore((s) => s.config?.pages ?? EMPTY_PAGES)
 
-  const containerRef = useRef<HTMLDivElement>(null)
-  const zoomRef = useRef<number>(1)
-  zoomRef.current = zoom
+  const { stripRef, scale } = useCarouselScale(screenProfile.height, STRIP_CHROME_PX)
+  const currentRef = useRef<HTMLDivElement>(null)
+  const surfaceRef = useRef<HTMLDivElement>(null)
+  const scaleRef = useRef(scale)
+  scaleRef.current = scale
+
+  useEffect(() => {
+    currentRef.current?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })
+  }, [page.id, pages.length, scale])
 
   const widgetAreaH =
     page.showTopBar !== false ? screenProfile.height - topBar.height : screenProfile.height
@@ -97,15 +87,8 @@ const Canvas = ({
   const kbdRef = useRef({ pageId: page.id, pageWidgets: page.widgets })
   kbdRef.current = { pageId: page.id, pageWidgets: page.widgets }
 
-  const {
-    isDayMode: activeDayMode,
-    palette: effectivePalette,
-    bgColor: effectiveBgColor,
-  } = useEffectivePalette(page)
-
   const { settingsOpen, diagOpen, shortcutsOpen, setSettingsOpen, setDiagOpen, setShortcutsOpen } =
     useCanvasDialogs()
-
   const { revLimiting, flashPhase, startRevLimiter } = useRevLimiterFlash()
 
   const overlappingIds = useMemo(() => overlappingWidgetIds(page.widgets), [page.widgets])
@@ -119,20 +102,19 @@ const Canvas = ({
     kbdRef,
     setShortcutsOpen,
   })
-
   useClipboardWidgets({ copyWidgets, removeWidgets, pasteWidgets })
 
-  const handleDragStart = useDragState({ dragInputsRef, zoomRef, scale: SCALE })
+  const handleDragStart = useDragState({ dragInputsRef, zoomRef: scaleRef, scale: 1 })
 
   const { rubberBand, startRubberBand } = useRubberBandSelection({
-    containerRef,
-    effScale,
+    containerRef: surfaceRef,
+    effScale: scale,
     pageId: page.id,
     selectWidgets,
   })
 
   const { onPointerDown, onPointerUp } = useSwipeGestures({
-    containerRef,
+    containerRef: surfaceRef,
     pageId: page.id,
     pages,
     rubberBand,
@@ -156,106 +138,124 @@ const Canvas = ({
   const selectedWidget =
     selectedWidgetId !== null ? page.widgets.find((w) => w.id === selectedWidgetId) : undefined
   const selectedRect = selectedWidget
-    ? resolveGridRect(selectedWidget.layout, {
-        width: screenProfile.width,
-        height: widgetAreaH,
-      })
+    ? resolveGridRect(selectedWidget.layout, { width: screenProfile.width, height: widgetAreaH })
     : null
 
-  const deselectOnBackground = (e: React.MouseEvent) => {
-    const target = e.target as HTMLElement
-    if (target.closest('[data-widget]') === null) selectWidget(null)
-  }
-
-  const handleZoomWheel = (e: React.WheelEvent) => {
-    if (!e.metaKey && !e.ctrlKey) return
-    e.preventDefault()
-    onZoomStep(e.deltaY < 0 ? 1 : -1)
-  }
-
-  const widgetLayerProps = {
-    page,
-    palette: effectivePalette,
-    effScale,
-    canvasW,
-    areaWidth: screenProfile.width,
-    areaHeight: widgetAreaH,
+  const interaction = {
+    surfaceRef,
+    surfaceProps: {
+      onPointerDown,
+      onPointerUp,
+      onDragOver: handleSignalDragOver,
+      onDrop: handleSignalDrop,
+      onMouseDown: (e: React.MouseEvent) => {
+        if ((e.target as HTMLElement).closest('[data-widget]') === null) selectWidget(null)
+      },
+    },
     selectedWidgetId,
     selectedWidgetIds,
     overlappingIds,
     overflowingIds,
-    revLimiting,
     flashWidgetId,
     onSelect: selectWidget,
     onShiftSelect: toggleWidgetSelection,
     onDragStart: handleDragStart,
     onSignalDrop: handleWidgetSignalDrop,
+    settingsOpen,
+    overlay: (
+      <>
+        <RubberBandRect rubberBand={rubberBand} effScale={scale} />
+        {settingsOpen && <ScreenSettingsPanel scale={scale} />}
+        {diagOpen && <DiagnosticsPanel scale={scale} />}
+        {revLimiting && (
+          <RevLimiterOverlay
+            canvasW={screenProfile.width * scale}
+            flashPhase={flashPhase}
+            scale={scale}
+          />
+        )}
+      </>
+    ),
   }
 
   return (
-    <div className={ROOT}>
+    <div className="flex flex-1 flex-col overflow-hidden">
       {toolbar}
-      {pageStrip}
-      <div className={BODY_ROW}>
-        <div className={EDITOR_COL}>
+      <div className="flex min-h-0 flex-1">
+        <div className="flex min-w-0 flex-1 flex-col">
           <BurnFailureNotice />
           <LayoutOverflowNotice />
-          <div onMouseDown={deselectOnBackground} className={CANVAS_ZONE}>
-            <div className={FRAME_COLUMN}>
-              <div className="flex items-baseline justify-between gap-4">
-                <CanvasTitle pageIndex={pageIndex} screenProfile={screenProfile} zoom={zoom} />
-                <button
-                  type="button"
-                  onClick={startRevLimiter}
-                  disabled={revLimiting}
-                  title="Preview the rev limiter for five seconds"
-                  className="cursor-pointer border border-ui-accent bg-transparent px-3 py-1.5 font-mono text-[11px] tracking-[0.08em] text-ui-accent disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  REV LIMIT
-                </button>
-              </div>
-              <div className={DEVICE_FRAME}>
-                <div
-                  className={SCREEN}
-                  // eslint-disable-next-line no-inline-style/no-inline-style
-                  style={{ width: canvasW, height: canvasH, background: effectiveBgColor }}
-                >
-                  {page.showTopBar !== false && (
-                    <DashTopBar
-                      topBar={topBar}
-                      scale={effScale}
-                      settingsOpen={settingsOpen}
-                      isDayMode={activeDayMode}
-                      onOpenSettings={() => {
-                        setSettingsOpen((o) => !o)
-                      }}
-                    />
+          <div ref={stripRef} className={STRIP}>
+            {pages.map((candidate, index) => (
+              <div
+                key={candidate.id}
+                ref={candidate.id === page.id ? currentRef : undefined}
+                className="flex flex-none flex-col gap-2"
+              >
+                <div className={LABEL}>
+                  <span className={candidate.id === page.id ? 'text-ui-ink' : 'text-ui-muted'}>
+                    PAGE {index + 1}
+                  </span>
+                  {candidate.id === page.id && (
+                    <button
+                      type="button"
+                      onClick={startRevLimiter}
+                      disabled={revLimiting}
+                      title="Preview the rev limiter for five seconds"
+                      className="cursor-pointer border-0 bg-transparent p-0 font-mono text-[10px] tracking-[0.16em] text-ui-accent disabled:opacity-60"
+                    >
+                      REV LIMIT
+                    </button>
                   )}
-                  <div
-                    ref={containerRef}
-                    onWheel={handleZoomWheel}
-                    onPointerDown={onPointerDown}
-                    onPointerUp={onPointerUp}
-                    onDragOver={handleSignalDragOver}
-                    onDrop={handleSignalDrop}
-                    className={SURFACE}
-                  >
-                    <GridGuides
-                      areaWidth={screenProfile.width}
-                      areaHeight={widgetAreaH}
-                      effScale={effScale}
-                    />
-                    <WidgetLayer {...widgetLayerProps} />
-                    <RubberBandRect rubberBand={rubberBand} effScale={effScale} />
-                    {settingsOpen && <ScreenSettingsPanel scale={effScale} />}
-                    {diagOpen && <DiagnosticsPanel scale={effScale} />}
-                    {revLimiting && (
-                      <RevLimiterOverlay canvasW={canvasW} flashPhase={flashPhase} scale={SCALE} />
-                    )}
-                  </div>
                 </div>
+                <PageWrapper
+                  current={candidate.id === page.id}
+                  onSelect={() => {
+                    selectPage(candidate.id)
+                  }}
+                  onContextMenu={(e) => {
+                    if (!onPageContextMenu) return
+                    e.preventDefault()
+                    onPageContextMenu(candidate.id, e.clientX, e.clientY)
+                  }}
+                >
+                  <PageFrame
+                    page={candidate}
+                    topBar={topBar}
+                    scale={candidate.id === page.id ? scale : scale * THUMBNAIL_RATIO}
+                    palette={resolvePalette(
+                      isDayMode,
+                      theme?.day.palette,
+                      theme?.night.palette,
+                      candidate.palette
+                    )}
+                    bgColor={resolveBgColor(
+                      isDayMode,
+                      theme?.day.bgColor,
+                      theme?.night.bgColor,
+                      candidate.backgroundColor
+                    )}
+                    isDayMode={isDayMode}
+                    areaWidth={screenProfile.width}
+                    areaHeight={
+                      candidate.showTopBar !== false
+                        ? screenProfile.height - topBar.height
+                        : screenProfile.height
+                    }
+                    screenHeight={screenProfile.height}
+                    revLimiting={candidate.id === page.id && revLimiting}
+                    interaction={candidate.id === page.id ? interaction : undefined}
+                    onOpenSettings={
+                      candidate.id === page.id
+                        ? () => {
+                            setSettingsOpen((open) => !open)
+                          }
+                        : undefined
+                    }
+                  />
+                </PageWrapper>
               </div>
-            </div>
+            ))}
           </div>
           <CanvasStatusBar
             page={page}
@@ -270,43 +270,36 @@ const Canvas = ({
   )
 }
 
-interface CanvasTitleProps {
-  pageIndex: number | undefined
-  screenProfile: { width: number; height: number }
-  zoom: number
+interface PageWrapperProps {
+  current: boolean
+  onSelect: () => void
+  onContextMenu: (e: React.MouseEvent) => void
+  children: ReactNode
 }
 
-const CanvasTitle = ({ pageIndex, screenProfile, zoom }: CanvasTitleProps) => (
-  <div className={TITLE_ROW}>
-    <Eyebrow>{pageIndex !== undefined ? `PAGE ${String(pageIndex + 1)}` : 'PAGE'}</Eyebrow>
-    <span className={DIMS}>
-      {screenProfile.width} × {screenProfile.height} @ {SCALE * zoom}×
-    </span>
-  </div>
-)
+const PageWrapper = ({ current, onSelect, onContextMenu, children }: PageWrapperProps) => {
+  if (current) {
+    return (
+      <div onContextMenu={onContextMenu} className="outline outline-2 outline-ui-accent">
+        {children}
+      </div>
+    )
+  }
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      onContextMenu={onContextMenu}
+      title="Edit this page"
+      className="cursor-pointer border-0 bg-transparent p-0 opacity-50 hover:opacity-100"
+    >
+      {children}
+    </button>
+  )
+}
 
-const ROOT = 'flex flex-1 flex-col overflow-hidden'
+const STRIP = 'flex min-h-0 flex-1 items-center gap-[26px] overflow-auto bg-ui-panel px-6 py-5'
 
-const BODY_ROW = 'flex min-h-0 flex-1'
-
-const EDITOR_COL = 'flex min-w-0 flex-1 flex-col'
-
-const FRAME_COLUMN = 'flex flex-col gap-2.5'
-
-const DEVICE_FRAME = 'border-2 border-solid border-brand-neutral-400'
-
-const SCREEN = 'flex flex-col overflow-hidden'
-
-const SURFACE = 'relative flex-1 cursor-default overflow-hidden'
-
-const CANVAS_ZONE = [
-  'flex flex-1 items-center justify-center overflow-auto bg-brand-neutral-100',
-  '[background-image:linear-gradient(hsl(var(--brand-neutral-200))_1px,transparent_1px),linear-gradient(90deg,hsl(var(--brand-neutral-200))_1px,transparent_1px)]',
-  '[background-size:24px_24px]',
-].join(' ')
-
-const TITLE_ROW = 'flex items-baseline gap-2.5'
-
-const DIMS = 'font-mono text-[11px] text-brand-neutral-600'
+const LABEL = 'flex items-baseline justify-between gap-3 font-mono text-[10px] tracking-[0.18em]'
 
 export default Canvas

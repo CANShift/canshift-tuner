@@ -3,9 +3,8 @@ import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const MENU = [
-  'fixed z-[9999] min-w-[140px] py-[3px]',
-  'border border-solid border-brand-neutral-300 bg-brand-chrome-surface',
-  'shadow-[0_4px_16px_#00000066]',
+  'fixed z-[9999] min-w-[180px] max-h-[70vh] overflow-y-auto py-[3px]',
+  'border border-solid border-ui-line-strong bg-ui-bg',
 ].join(' ')
 
 const menuItem = cva(
@@ -13,10 +12,9 @@ const menuItem = cva(
   {
     variants: {
       tone: {
-        disabled: 'cursor-default text-brand-neutral-400',
-        danger:
-          'cursor-pointer text-status-danger hover:bg-[color-mix(in_srgb,hsl(var(--brand-accent))_14%,transparent)]',
-        normal: 'cursor-pointer text-brand-neutral-700 hover:bg-brand-neutral-200',
+        disabled: 'cursor-default text-ui-faint',
+        danger: 'cursor-pointer text-ui-accent hover:bg-ui-panel',
+        normal: 'cursor-pointer text-ui-ink hover:bg-ui-panel',
       },
     },
     defaultVariants: { tone: 'normal' },
@@ -45,6 +43,9 @@ export interface PageContextMenuProps {
   onSetDefault: () => void
   onToggleVisible: () => void
   onDelete: () => void
+  templates: readonly { id: string; name: string }[]
+  onInsertTemplate: (templateId: string) => void
+  onManageTemplates: () => void
 }
 
 export const PageContextMenu = ({
@@ -59,6 +60,9 @@ export const PageContextMenu = ({
   onSetDefault,
   onToggleVisible,
   onDelete,
+  templates,
+  onInsertTemplate,
+  onManageTemplates,
 }: PageContextMenuProps) => {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -110,6 +114,13 @@ export const PageContextMenu = ({
     },
     { label: isVisible ? 'Hide page' : 'Show page', action: onToggleVisible },
     { label: 'Delete', action: onDelete, danger: true, disabled: !canDelete },
+    ...templates.map((template) => ({
+      label: `Insert “${template.name}”`,
+      action: () => {
+        onInsertTemplate(template.id)
+      },
+    })),
+    { label: 'Manage templates…', action: onManageTemplates, disabled: templates.length === 0 },
   ]
 
   return (
