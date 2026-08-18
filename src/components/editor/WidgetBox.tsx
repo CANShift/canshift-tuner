@@ -23,6 +23,7 @@ export interface WidgetBoxProps {
   onDragStart: (e: MouseEvent, widget: Widget) => void
   onResizeStart?: ((e: PointerEvent, widget: Widget) => void) | undefined
   onSignalDrop: (widget: Widget, signalName: string) => void
+  groundColor: string
 }
 
 const GRIP_WIDTH_PX = 12
@@ -38,7 +39,7 @@ const box = cva('absolute box-border cursor-move select-none overflow-hidden', {
       overflowing: 'bg-[#2A1A00]',
       selected: 'bg-selection-bg',
       multi: 'bg-[#0A0A1E]',
-      plain: 'bg-black',
+      plain: 'bg-transparent',
     },
     glow: {
       overlapping: 'shadow-[0_0_0_1px_#FF222244,0_0_8px_#FF222288]',
@@ -102,8 +103,11 @@ export const WidgetBox = memo(function WidgetBox({
   onDragStart,
   onResizeStart,
   onSignalDrop,
+  groundColor,
 }: WidgetBoxProps) {
   const acceptsSignal = SIGNAL_CONSUMING_TYPES.has(widget.type)
+  const fill = fillOf(isOverlapping, isOverflowing, isSelected, isInMultiSelection)
+  const isPlain = fill === 'plain'
   const { layout } = widget
   const rect = resolveGridRect(layout, { width: areaWidth, height: areaHeight })
   const displayW = rect.w * scale
@@ -144,7 +148,7 @@ export const WidgetBox = memo(function WidgetBox({
       }}
       className={cn(
         box({
-          fill: fillOf(isOverlapping, isOverflowing, isSelected, isInMultiSelection),
+          fill,
           glow: glowOf(isOverlapping, isOverflowing, isInMultiSelection),
           ring: ringOf(isFlashing, isSelected),
         }),
@@ -156,6 +160,7 @@ export const WidgetBox = memo(function WidgetBox({
         top: rect.y * scale,
         width: displayW,
         height: displayH,
+        ...(isPlain ? { background: groundColor } : {}),
       }}
     >
       {onResizeStart && (

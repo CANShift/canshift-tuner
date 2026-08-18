@@ -19,6 +19,7 @@ import { useDisplayUnits } from '../../hooks/useDisplayUnits'
 const FALLBACK_UNIT_TABLE: Readonly<Record<string, string>> = MAXXECU_SIGNAL_UNITS
 
 const applyPalette = (widget: Widget, palette: PagePalette): Widget => {
+  if (widget.style.respectDayMode === false) return widget
   return {
     ...widget,
     style: {
