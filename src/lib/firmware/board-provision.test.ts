@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { BOARD_PROFILES, parseBoardProfile } from '@canshift/core'
-import { boardProfileBlob, interpretBoardProfileAck } from './board-provision'
+import {
+  boardProfileBlob,
+  boardProvisionPayload,
+  interpretBoardProfileAck,
+} from './board-provision'
 
 const sampleProfile = () => {
   const profile = BOARD_PROFILES[0]
@@ -53,6 +57,36 @@ describe('interpretBoardProfileAck', () => {
     expect(interpretBoardProfileAck({ ok: false, error: 'timeout' })).toEqual({
       kind: 'error',
       error: 'timeout',
+    })
+  })
+})
+
+describe('boardProvisionPayload', () => {
+  it('sends a catalogue board by id, in the wire format', () => {
+    expect(boardProvisionPayload({ kind: 'catalog', boardId: 'waveshare_s3_28' })).toEqual({
+      board_id: 'waveshare_s3_28',
+    })
+  })
+
+  it('sends a custom board as the blob it has always sent', () => {
+    const blob = boardProfileBlob(sampleProfile())
+    expect(boardProvisionPayload({ kind: 'custom', blob })).toBe(blob)
+  })
+})
+
+describe('interpretBoardProfileAck, unknown board', () => {
+  it('tells an unknown id apart from an invalid profile', () => {
+    expect(interpretBoardProfileAck({ ok: false, error: 'unknown_board_id' })).toEqual({
+      kind: 'unknown-board',
+    })
+    expect(interpretBoardProfileAck({ ok: false, error: 'invalid_board_profile' })).toEqual({
+      kind: 'invalid',
+    })
+  })
+
+  it('reads the code out of the ack payload as well as the envelope', () => {
+    expect(interpretBoardProfileAck({ ok: true, data: { error: 'unknown_board_id' } })).toEqual({
+      kind: 'unknown-board',
     })
   })
 })
