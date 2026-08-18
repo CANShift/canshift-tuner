@@ -8,9 +8,8 @@
     }
   </style>
   <g transform="translate(10,0) skewX(-11)" fill="none">
-    <path d="M22 18 H98 V86 H22 Z" class="ink" stroke-width="7"></path>
-    <path d="M36 34 H74" class="accent" stroke-width="13"></path>
-    <path d="M36 52 H84" class="ink" stroke-width="13"></path>
-    <path d="M36 70 H62" class="ink" stroke-width="13"></path>
+    <path d="M30 26 H94 V78 H30 Z" class="ink" stroke-width="7" stroke-dasharray="18 12"></path>
+    <path d="M30 26 h0 M94 26 h0 M30 78 h0" class="ink" stroke-width="18" stroke-linecap="square"></path>
+    <path d="M94 78 h0" class="accent" stroke-width="18" stroke-linecap="square"></path>
   </g>
 </svg>

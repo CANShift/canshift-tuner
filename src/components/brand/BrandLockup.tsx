@@ -15,7 +15,14 @@ import {
   WORDMARK_SHIFT_PATH,
 } from '@canshift/core'
 import type { ReactElement } from 'react'
-import { TUNER_MARK_BAR_PATH, TUNER_MARK_SCREEN_PATH, TUNER_MARK_STROKE } from './tuner-mark'
+import {
+  TUNER_MARK_ACCENT_CORNER_PATH,
+  TUNER_MARK_CORNERS_PATH,
+  TUNER_MARK_CORNER_STROKE,
+  TUNER_MARK_FRAME_DASH,
+  TUNER_MARK_FRAME_PATH,
+  TUNER_MARK_FRAME_STROKE,
+} from './tuner-mark'
 
 export type BrandMark = 'monogram' | 'tuner'
 
@@ -35,8 +42,24 @@ const MonogramMark = () => (
 
 const TunerMark = () => (
   <>
-    <path d={TUNER_MARK_SCREEN_PATH} stroke="currentColor" strokeWidth={TUNER_MARK_STROKE} />
-    <path d={TUNER_MARK_BAR_PATH} stroke={BRAND_ACCENT} strokeWidth={TUNER_MARK_STROKE} />
+    <path
+      d={TUNER_MARK_FRAME_PATH}
+      stroke="currentColor"
+      strokeWidth={TUNER_MARK_FRAME_STROKE}
+      strokeDasharray={TUNER_MARK_FRAME_DASH}
+    />
+    <path
+      d={TUNER_MARK_CORNERS_PATH}
+      stroke="currentColor"
+      strokeWidth={TUNER_MARK_CORNER_STROKE}
+      strokeLinecap="square"
+    />
+    <path
+      d={TUNER_MARK_ACCENT_CORNER_PATH}
+      stroke={BRAND_ACCENT}
+      strokeWidth={TUNER_MARK_CORNER_STROKE}
+      strokeLinecap="square"
+    />
   </>
 )
 
