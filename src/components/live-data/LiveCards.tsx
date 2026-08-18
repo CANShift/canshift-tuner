@@ -45,7 +45,7 @@ export const LiveCards = ({ signals, values, units, selected, onToggle }: LiveCa
         >
           <div className="mb-2 flex items-baseline gap-2.5">
             <span className="truncate font-mono text-[10px] tracking-[0.16em] text-ui-muted">
-              {signal.name.replace(/_/g, ' ').toUpperCase()}
+              {signal.name}
             </span>
             <span className="ml-auto shrink-0 font-mono text-[10px] text-ui-accent">
               {signal.canFrameId}
