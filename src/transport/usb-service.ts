@@ -1,4 +1,4 @@
-import type { BoardProfileBlob, DashboardConfig, ScreenSettings } from '@canshift/core'
+import type { DashboardConfig, ScreenSettings } from '@canshift/core'
 import { validateDashboard } from '@canshift/core'
 
 import {
@@ -15,8 +15,10 @@ import {
 import type { BurnPushResult, FirmwareIdentityResult, PingResult, RawAck, UsbResult } from './types'
 import { toUsbResult } from './types'
 import {
+  boardProvisionPayload,
   interpretBoardProfileAck,
   type BoardProfileWriteResult,
+  type BoardProvision,
 } from '../lib/firmware/board-provision'
 import { getSerialClient } from './webserial-client'
 import { burnConfigChunked } from './chunked-config'
@@ -55,10 +57,10 @@ export const usbService = {
     return toUsbResult(result)
   },
 
-  setBoardProfile: async (blob: BoardProfileBlob): Promise<BoardProfileWriteResult> => {
+  setBoardProfile: async (provision: BoardProvision): Promise<BoardProfileWriteResult> => {
     const result = await getSerialClient().send(
       CMD_SET_BOARD_PROFILE,
-      { payload: blob },
+      { payload: boardProvisionPayload(provision) },
       { scaleWithPayload: true, timeoutMs: 5_000 }
     )
     return interpretBoardProfileAck(result)

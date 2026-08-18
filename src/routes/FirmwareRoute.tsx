@@ -11,7 +11,7 @@ import { useFlashTarget } from '../hooks/useFlashTarget'
 import { useFlashRun } from '../hooks/useFlashRun'
 import { useFlashProgress } from '../hooks/useFlashProgress'
 import { useFlasherStore } from '../stores/flasher.store'
-import { useProvisionBoardProfile } from '../hooks/useProvisionBoardProfile'
+import { provisionMessage, useProvisionBoardProfile } from '../hooks/useProvisionBoardProfile'
 import { useProjectFileActions } from '../hooks/useProjectFileActions'
 import { useProjectStore } from '../stores/project/project.store'
 import { useConnectionStore } from '../stores/connection.store'
@@ -123,6 +123,7 @@ const FirmwareRoute = () => {
       <FlashDonePanel
         outcome={`${target.release?.version ?? 'Firmware'} is on the board.`}
         provisionLabel={provision.canProvision ? 'Provision the board profile' : null}
+        provisionNote={provisionMessage(provision.state)}
         onOpenDash={() => {
           void navigate('/dash')
         }}

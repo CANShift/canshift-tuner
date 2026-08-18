@@ -2,6 +2,7 @@ const DONE_BORDER = 'border-t-[3px] border-t-[#00cc2a]'
 
 export interface FlashDonePanelProps {
   outcome: string
+  provisionNote: string | null
   provisionLabel: string | null
   onOpenDash: () => void
   onFlashAnother: () => void
@@ -10,6 +11,7 @@ export interface FlashDonePanelProps {
 
 export const FlashDonePanel = ({
   outcome,
+  provisionNote,
   provisionLabel,
   onOpenDash,
   onFlashAnother,
@@ -43,5 +45,8 @@ export const FlashDonePanel = ({
         </button>
       )}
     </div>
+    {provisionNote !== null && (
+      <p className="mt-5 text-[13px] leading-[1.5] text-ui-muted">{provisionNote}</p>
+    )}
   </div>
 )
