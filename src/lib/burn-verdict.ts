@@ -1,5 +1,5 @@
-import type { DashboardConfig } from '@canshift/core'
-import { unboundWidgetCount } from '../utils/unbound-widgets'
+import type { DashboardConfig, SignalDef } from '@canshift/core'
+import { unreadableWidgetCount } from '../utils/unbound-widgets'
 import { describeLayoutOverflow } from './layout-overflow'
 
 export type BurnVerdict =
@@ -16,6 +16,7 @@ export interface BurnInputs {
   simulation: boolean
   firmwareMismatch: boolean
   config: DashboardConfig | null
+  signals: readonly SignalDef[]
   isDirty: boolean
 }
 
@@ -32,11 +33,14 @@ const LABELS: Record<BurnVerdict['kind'], (verdict: BurnVerdict) => string> = {
 export type ConfigVerdict =
   { kind: 'ok' } | { kind: 'out-of-bounds'; pageId: string } | { kind: 'unbound'; count: number }
 
-export const configVerdict = (config: DashboardConfig | null): ConfigVerdict => {
+export const configVerdict = (
+  config: DashboardConfig | null,
+  signals: readonly SignalDef[]
+): ConfigVerdict => {
   if (config === null) return { kind: 'ok' }
   const overflow = describeLayoutOverflow(config)
   if (overflow !== null) return { kind: 'out-of-bounds', pageId: overflow.pageId }
-  const unbound = unboundWidgetCount(config)
+  const unbound = unreadableWidgetCount(config, signals)
   if (unbound > 0) return { kind: 'unbound', count: unbound }
   return { kind: 'ok' }
 }
@@ -46,7 +50,7 @@ export const burnVerdict = (inputs: BurnInputs): BurnVerdict => {
   if (inputs.config === null) return { kind: 'no-config' }
   if (inputs.firmwareMismatch) return { kind: 'firmware-mismatch' }
 
-  const config = configVerdict(inputs.config)
+  const config = configVerdict(inputs.config, inputs.signals)
   if (config.kind !== 'ok') return config
 
   return inputs.isDirty ? { kind: 'ready' } : { kind: 'clean' }

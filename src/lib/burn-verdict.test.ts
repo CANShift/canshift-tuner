@@ -1,4 +1,4 @@
-import type { DashboardConfig } from '@canshift/core'
+import type { DashboardConfig, SignalDef } from '@canshift/core'
 import { describe, expect, it } from 'vitest'
 import { burnBlocks, burnLabel, burnVerdict, configVerdict, type BurnInputs } from './burn-verdict'
 
@@ -19,8 +19,14 @@ const config = (widgets: { type: string; signal: string }[] = []): DashboardConf
     ],
   }) as unknown as DashboardConfig
 
+const SIGNALS = [
+  { name: 'rpm', canFrameId: '0x0AA' },
+  { name: 'gear', canFrameId: '0x0BC' },
+] as unknown as SignalDef[]
+
 const inputs = (overrides: Partial<BurnInputs> = {}): BurnInputs => ({
   hasDevice: true,
+  signals: SIGNALS,
   simulation: false,
   firmwareMismatch: false,
   config: config([{ type: 'gauge', signal: 'rpm' }]),
@@ -82,12 +88,12 @@ describe('burnVerdict', () => {
 
 describe('configVerdict', () => {
   it('reports a config problem regardless of whether a board is attached', () => {
-    const verdict = configVerdict(config([{ type: 'gauge', signal: '' }]))
+    const verdict = configVerdict(config([{ type: 'gauge', signal: '' }]), SIGNALS)
     expect(verdict).toEqual({ kind: 'unbound', count: 1 })
   })
 
   it('is ok on a config with nothing wrong, and on no config at all', () => {
-    expect(configVerdict(config([{ type: 'gauge', signal: 'rpm' }])).kind).toBe('ok')
-    expect(configVerdict(null).kind).toBe('ok')
+    expect(configVerdict(config([{ type: 'gauge', signal: 'rpm' }]), SIGNALS).kind).toBe('ok')
+    expect(configVerdict(null, SIGNALS).kind).toBe('ok')
   })
 })

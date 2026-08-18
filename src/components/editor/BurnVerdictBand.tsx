@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useDashboardStore } from '../../stores/dashboard.store'
+import { useSignalStore } from '../../stores/signal.store'
 import { configVerdict, type ConfigVerdict } from '../../lib/burn-verdict'
 
 const MESSAGES: Record<ConfigVerdict['kind'], (verdict: ConfigVerdict) => string> = {
@@ -19,7 +20,8 @@ const KICKERS: Record<ConfigVerdict['kind'], string> = {
 
 export const BurnVerdictBand = () => {
   const config = useDashboardStore((s) => s.config)
-  const verdict = useMemo(() => configVerdict(config), [config])
+  const signals = useSignalStore((s) => s.signals)
+  const verdict = useMemo(() => configVerdict(config, signals), [config, signals])
   if (verdict.kind === 'ok') return null
   const message = MESSAGES[verdict.kind]
   const kicker = KICKERS[verdict.kind]

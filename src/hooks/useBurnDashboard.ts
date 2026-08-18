@@ -3,6 +3,7 @@ import type { DashboardConfig } from '@canshift/core'
 import { useDashboardStore } from '../stores/dashboard.store'
 import { useDeviceStore, type BurnPhase, type BurnResult } from '../stores/device.store'
 import { useConnectionStore } from '../stores/connection.store'
+import { useSignalStore } from '../stores/signal.store'
 import { useLogStore, type LogLevel } from '../stores/log.store'
 import { usbService } from '../transport'
 import { BURN_COMMAND } from '../transport/chunked-config'
@@ -84,6 +85,7 @@ export const useBurnDashboard = (): UseBurnDashboard => {
   const simulationMode = useDeviceStore((s) => s.simulationMode)
   const firmwareCompat = useDeviceStore((s) => s.firmwareCompat)
   const connectionStatus = useConnectionStore((s) => s.status)
+  const signals = useSignalStore((s) => s.signals)
   const log = useLogStore((s) => s.push)
 
   const burnPhase = useDeviceStore((s) => s.burnPhase)
@@ -98,9 +100,10 @@ export const useBurnDashboard = (): UseBurnDashboard => {
         simulation: simulationMode,
         firmwareMismatch: firmwareCompat.kind === 'mismatch',
         config,
+        signals,
         isDirty,
       }),
-    [connected, connectionStatus, simulationMode, firmwareCompat.kind, config, isDirty]
+    [connected, connectionStatus, simulationMode, firmwareCompat.kind, config, signals, isDirty]
   )
 
   const canBurn = !isBurning && !burnBlocks(verdict)

@@ -1,6 +1,6 @@
 import { lazy, Suspense, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import { ECU_PROFILES } from '@canshift/core'
+import { ECU_PROFILES, OBD2_DEFAULT_INTERVAL_MS, OBD2_MODE01_PIDS } from '@canshift/core'
 import { RouteLoading } from '../components/shell/RouteLoading'
 import {
   SignalsToolbar,
@@ -9,6 +9,7 @@ import {
 } from '../components/signals/SignalsToolbar'
 import { CanSignalTable } from '../components/signals/CanSignalTable'
 import { BusScanPanel } from '../components/signals/BusScanPanel'
+import { Obd2Table } from '../components/signals/Obd2Table'
 import { useCanScanner } from '../hooks/useCanScanner'
 import { useDeviceStore } from '../stores/device.store'
 import { formatFrameIdHex, parseHexFrameId } from '../utils/frame-id'
@@ -20,8 +21,11 @@ import { ecuLabelForKey } from '../utils/ecu-label'
 
 const EcuRoute = lazy(() => import('./EcuRoute'))
 const CanBusRoute = lazy(() => import('./CanBusRoute'))
-const Obd2Route = lazy(() => import('./Obd2Route'))
+const DtcPanel = lazy(() =>
+  import('../components/obd2/DtcPanel').then((m) => ({ default: m.DtcPanel }))
+)
 
+const POLL_INTERVALS = [100, 200, 500, 1000]
 type Pane = SignalSource | 'ecu' | 'analysis'
 
 const SignalsRoute = () => {
@@ -38,6 +42,7 @@ const SignalsRoute = () => {
 
   const [pane, setPane] = useState<Pane>('can')
   const [filter, setFilter] = useState('')
+  const [pollIntervalMs, setPollIntervalMs] = useState(OBD2_DEFAULT_INTERVAL_MS)
 
   const profiles = useMemo(() => {
     const builtin = ECU_PROFILES.map((profile) => ({
@@ -78,7 +83,30 @@ const SignalsRoute = () => {
 
   const panes: Record<Pane, ReactNode> = {
     can: <CanSignalTable signals={shown} values={values} usage={usage} onPatch={updateSignal} />,
-    obd2: <Obd2Route />,
+    obd2: (
+      <div className="flex min-h-0 flex-1 flex-col">
+        <Obd2Table
+          signals={signals}
+          values={values}
+          usage={usage}
+          intervalMs={pollIntervalMs}
+          intervals={POLL_INTERVALS}
+          onInterval={setPollIntervalMs}
+          onTogglePolled={(name, polled) => {
+            const entry = OBD2_MODE01_PIDS.find((pid) => pid.signal === name)
+            if (!entry) return
+            updateSignal(name, {
+              polling: polled ? { mode: 1, pid: entry.pid, intervalMs: pollIntervalMs } : undefined,
+            })
+          }}
+        />
+        <div className="shrink-0 border-t-2 border-ui-rule">
+          <Suspense fallback={<RouteLoading />}>
+            <DtcPanel />
+          </Suspense>
+        </div>
+      </div>
+    ),
     ecu: <EcuRoute />,
     analysis: <CanBusRoute />,
   }
