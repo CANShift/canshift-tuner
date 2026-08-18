@@ -71,7 +71,7 @@ const FeedbackButton = () => {
   }
 
   return (
-    <div className="pointer-events-none fixed bottom-4 right-4 z-[9999] flex flex-col items-end gap-2">
+    <div className="pointer-events-none fixed bottom-[46px] right-4 z-[9999] flex flex-col items-end gap-2">
       {open && (
         <div
           role="dialog"

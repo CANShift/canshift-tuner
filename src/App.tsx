@@ -1,11 +1,12 @@
-import { lazy, Suspense, useEffect } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import Header from './components/shell/Header'
-import Sidebar from './components/shell/Sidebar'
+import { Footer } from './components/shell/Footer'
+import { RouteLoading } from './components/shell/RouteLoading'
 import FeedbackButton from './components/shell/FeedbackButton'
 import { DeviceAlertBar } from './components/shell/DeviceAlertBar'
-import WelcomeRoute from './routes/WelcomeRoute'
+import HomeRoute from './routes/HomeRoute'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { useConnectionStore } from './stores/connection.store'
 import { useDashboardStore } from './stores/dashboard.store'
@@ -23,66 +24,52 @@ import { useWidgetOverflowWarnings } from './hooks/useWidgetOverflowWarnings'
 import { useUnsavedChangesGuard } from './hooks/useUnsavedChangesGuard'
 import { useDocumentMeta } from './hooks/useDocumentMeta'
 import { DeviceConfigConflictNotice } from './components/shell/DeviceConfigConflictNotice'
-import { ROUTE_PATHS, type RoutePath } from './constants/routes'
+import { CliPanel } from './components/cli/CliPanel'
+import { useUiStore } from './stores/ui.store'
+import {
+  DEVICE_GATED_PATHS,
+  LEGACY_REDIRECTS,
+  ROUTE_PATHS,
+  type RoutePath,
+} from './constants/routes'
 
 const EditorRoute = lazy(() => import('./routes/EditorRoute'))
-const AboutRoute = lazy(() => import('./routes/AboutRoute'))
-const CanBusRoute = lazy(() => import('./routes/CanBusRoute'))
-const CliRoute = lazy(() => import('./routes/CliRoute'))
-const EcuRoute = lazy(() => import('./routes/EcuRoute'))
-const FirmwareRoute = lazy(() => import('./routes/FirmwareRoute'))
-const BoardConfigRoute = lazy(() => import('./routes/BoardConfigRoute'))
+const SignalsRoute = lazy(() => import('./routes/SignalsRoute'))
 const LiveDataRoute = lazy(() => import('./routes/LiveDataRoute'))
-const LogsRoute = lazy(() => import('./routes/LogsRoute'))
-const Obd2Route = lazy(() => import('./routes/Obd2Route'))
-const ThemesRoute = lazy(() => import('./routes/ThemesRoute'))
-
-const RouteLoading = () => {
-  return (
-    <div className="flex flex-1 items-center justify-center text-[12px] text-ui-muted">
-      Loading…
-    </div>
-  )
-}
+const DeviceRoute = lazy(() => import('./routes/DeviceRoute'))
 
 const ROUTE_ELEMENTS: Record<RoutePath, ReactNode> = {
-  '/': <WelcomeRoute />,
-  '/dashboard': (
+  '/': <HomeRoute />,
+  '/flash': <HomeRoute />,
+  '/contact': <HomeRoute />,
+  '/dash': (
     <ErrorBoundary scope="editor">
       <EditorRoute />
     </ErrorBoundary>
   ),
-  '/can': <CanBusRoute />,
-  '/ecu': <EcuRoute />,
-  '/obd2': <Obd2Route />,
-  '/themes': <ThemesRoute />,
+  '/signals': <SignalsRoute />,
   '/live': <LiveDataRoute />,
-  '/logs': <LogsRoute />,
-  '/cli': <CliRoute />,
-  '/board': <BoardConfigRoute />,
-  '/firmware': <FirmwareRoute />,
-  '/about': <AboutRoute />,
+  '/device': <DeviceRoute />,
 }
 
-const DISCONNECTED_ALLOWED_PATHS = new Set([
-  '/',
-  '/board',
-  '/firmware',
-  '/about',
-  '/logs',
-  '/themes',
-])
+const LEGACY_PATHS = Object.keys(LEGACY_REDIRECTS)
 
-const DisconnectedGuard = ({ children }: { children: ReactNode }) => {
+const useSettledAfterMount = (): boolean => {
+  const [settled, setSettled] = useState(false)
+  useEffect(() => {
+    setSettled(true)
+  }, [])
+  return settled
+}
+
+const DeviceGate = ({ children }: { children: ReactNode }) => {
   const status = useConnectionStore((s) => s.status)
   const simulationMode = useDeviceStore((s) => s.simulationMode)
   const location = useLocation()
-  if (
-    status !== 'connected' &&
-    status !== 'reconnecting' &&
-    !simulationMode &&
-    !DISCONNECTED_ALLOWED_PATHS.has(location.pathname)
-  ) {
+  const settled = useSettledAfterMount()
+  const live = status === 'connected' || status === 'reconnecting'
+  const gated = DEVICE_GATED_PATHS.has(location.pathname as RoutePath)
+  if (settled && !live && !simulationMode && gated) {
     return <Navigate to="/" replace />
   }
   return <>{children}</>
@@ -111,30 +98,41 @@ const App = () => {
       <Header />
       <DeviceAlertBar />
       <DeviceConfigConflictNotice />
-      <div className={BODY}>
-        <Sidebar />
-        <main className={MAIN}>
-          <DisconnectedGuard>
-            <Suspense fallback={<RouteLoading />}>
-              <Routes>
-                {ROUTE_PATHS.map((path) => (
-                  <Route key={path} path={path} element={ROUTE_ELEMENTS[path]} />
-                ))}
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </Suspense>
-          </DisconnectedGuard>
-        </main>
-      </div>
+      <main className={MAIN}>
+        <DeviceGate>
+          <Suspense fallback={<RouteLoading />}>
+            <Routes>
+              {ROUTE_PATHS.map((path) => (
+                <Route key={path} path={path} element={ROUTE_ELEMENTS[path]} />
+              ))}
+              {LEGACY_PATHS.map((path) => (
+                <Route
+                  key={path}
+                  path={path}
+                  element={<Navigate to={LEGACY_REDIRECTS[path] ?? '/'} replace />}
+                />
+              ))}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
+        </DeviceGate>
+      </main>
+      <DashCli />
+      <Footer />
       <FeedbackButton />
     </div>
   )
 }
 
-const SHELL = 'flex h-screen flex-col bg-brand-chrome-bg font-sans text-brand-text'
+const DashCli = () => {
+  const cliOpen = useUiStore((s) => s.cliOpen)
+  const location = useLocation()
+  if (!cliOpen || location.pathname !== '/dash') return null
+  return <CliPanel />
+}
 
-const BODY = 'flex flex-1 overflow-hidden'
+const SHELL = 'flex h-screen min-w-[900px] flex-col bg-ui-bg font-sans text-ui-ink'
 
-const MAIN = 'flex flex-1 flex-col overflow-hidden'
+const MAIN = 'flex min-h-0 flex-1 flex-col overflow-hidden'
 
 export default App

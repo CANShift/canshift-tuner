@@ -89,29 +89,29 @@ describe('storage access never throws', () => {
 
 describe('legacy keys migrate once, without data loss', () => {
   it('moves a legacy value to its namespaced key and drops the old one', () => {
-    localStorage.setItem('cs-left-nav-collapsed', '1')
+    localStorage.setItem('cs-inspector-collapsed', '1')
     localStorage.setItem('canshift:signal-store-v1', '{"a":1}')
     localStorage.setItem('canshift.log.verbose', '1')
 
     migrateLegacyKeys()
 
-    expect(readItem(STORAGE_KEYS.leftNavCollapsed)).toBe('1')
+    expect(readItem(STORAGE_KEYS.inspectorCollapsed)).toBe('1')
     expect(readItem(STORAGE_KEYS.signals)).toBe('{"a":1}')
     expect(readItem(STORAGE_KEYS.logVerbose)).toBe('1')
-    expect(localStorage.getItem('cs-left-nav-collapsed')).toBeNull()
+    expect(localStorage.getItem('cs-inspector-collapsed')).toBeNull()
     expect(localStorage.getItem('canshift:signal-store-v1')).toBeNull()
   })
 
   it('never overwrites a value already stored under the new key', () => {
     writeItem(STORAGE_KEYS.theme, 'light')
     localStorage.setItem('canshift.tuner.theme', 'light')
-    localStorage.setItem('cs-left-nav-collapsed', '1')
-    writeItem(STORAGE_KEYS.leftNavCollapsed, '0')
+    localStorage.setItem('cs-inspector-collapsed', '1')
+    writeItem(STORAGE_KEYS.inspectorCollapsed, '0')
 
     migrateLegacyKeys()
 
-    expect(readItem(STORAGE_KEYS.leftNavCollapsed)).toBe('0')
-    expect(localStorage.getItem('cs-left-nav-collapsed')).toBeNull()
+    expect(readItem(STORAGE_KEYS.inspectorCollapsed)).toBe('0')
+    expect(localStorage.getItem('cs-inspector-collapsed')).toBeNull()
   })
 
   it('is idempotent — a second run changes nothing', () => {
@@ -125,6 +125,6 @@ describe('legacy keys migrate once, without data loss', () => {
 
   it('does nothing when there is no legacy data', () => {
     migrateLegacyKeys()
-    expect(readItem(STORAGE_KEYS.leftNavCollapsed)).toBeNull()
+    expect(readItem(STORAGE_KEYS.inspectorCollapsed)).toBeNull()
   })
 })

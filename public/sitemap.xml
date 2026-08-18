@@ -4,36 +4,21 @@
     <loc>https://canshift.app/</loc>
   </url>
   <url>
-    <loc>https://canshift.app/dashboard</loc>
+    <loc>https://canshift.app/flash</loc>
   </url>
   <url>
-    <loc>https://canshift.app/can</loc>
+    <loc>https://canshift.app/contact</loc>
   </url>
   <url>
-    <loc>https://canshift.app/ecu</loc>
+    <loc>https://canshift.app/dash</loc>
   </url>
   <url>
-    <loc>https://canshift.app/obd2</loc>
-  </url>
-  <url>
-    <loc>https://canshift.app/themes</loc>
+    <loc>https://canshift.app/signals</loc>
   </url>
   <url>
     <loc>https://canshift.app/live</loc>
   </url>
   <url>
-    <loc>https://canshift.app/logs</loc>
-  </url>
-  <url>
-    <loc>https://canshift.app/cli</loc>
-  </url>
-  <url>
-    <loc>https://canshift.app/board</loc>
-  </url>
-  <url>
-    <loc>https://canshift.app/firmware</loc>
-  </url>
-  <url>
-    <loc>https://canshift.app/about</loc>
+    <loc>https://canshift.app/device</loc>
   </url>
 </urlset>

@@ -1,8 +1,8 @@
 import { create } from 'zustand'
 import { readItem, writeItem, STORAGE_KEYS } from '../lib/local-storage'
 
-const LEFT_NAV_KEY = STORAGE_KEYS.leftNavCollapsed
 const INSPECTOR_KEY = STORAGE_KEYS.inspectorCollapsed
+const CLI_OPEN_KEY = STORAGE_KEYS.cliOpen
 
 const readCollapsed = (key: string): boolean => {
   try {
@@ -26,10 +26,10 @@ interface UiState {
   unboundBurnConfirm: number | null
   requestUnboundBurnConfirm: (count: number) => void
   clearUnboundBurnConfirm: () => void
-  leftNavCollapsed: boolean
-  toggleLeftNav: () => void
   inspectorCollapsed: boolean
   toggleInspector: () => void
+  cliOpen: boolean
+  toggleCli: () => void
 }
 
 export const useUiStore = create<UiState>((set) => ({
@@ -44,20 +44,20 @@ export const useUiStore = create<UiState>((set) => ({
   clearUnboundBurnConfirm: () => {
     set({ unboundBurnConfirm: null })
   },
-  leftNavCollapsed: readCollapsed(LEFT_NAV_KEY),
-  toggleLeftNav: () => {
-    set((s) => {
-      const next = !s.leftNavCollapsed
-      writeCollapsed(LEFT_NAV_KEY, next)
-      return { leftNavCollapsed: next }
-    })
-  },
   inspectorCollapsed: readCollapsed(INSPECTOR_KEY),
   toggleInspector: () => {
     set((s) => {
       const next = !s.inspectorCollapsed
       writeCollapsed(INSPECTOR_KEY, next)
       return { inspectorCollapsed: next }
+    })
+  },
+  cliOpen: readCollapsed(CLI_OPEN_KEY),
+  toggleCli: () => {
+    set((s) => {
+      const next = !s.cliOpen
+      writeCollapsed(CLI_OPEN_KEY, next)
+      return { cliOpen: next }
     })
   },
 }))

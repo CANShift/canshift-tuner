@@ -9,7 +9,7 @@ export const ThemeToggleButton = ({ theme, onToggle }: ThemeToggleButtonProps) =
   <button
     type="button"
     onClick={onToggle}
-    className="shell-theme-toggle cursor-pointer border-0 border-r-2 border-solid border-r-brand-divider bg-transparent px-4 font-sans text-[11px] font-extrabold tracking-[0.08em] text-brand-neutral-600"
+    className="cursor-pointer whitespace-nowrap border-0 border-l border-solid border-ui-header-line bg-transparent px-3 font-mono text-[11px] tracking-[0.14em] text-ui-header-dim hover:text-ui-header-ink"
     title={theme === 'dark' ? 'Switch to the light theme' : 'Switch to the dark theme'}
   >
     {theme === 'dark' ? 'DAY' : 'NIGHT'}

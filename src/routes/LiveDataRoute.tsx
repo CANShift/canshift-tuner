@@ -89,10 +89,10 @@ const LiveDataRoute = () => {
       <LiveDataEmpty
         hasProfile={signals.length > 0}
         onPickProfile={() => {
-          void navigate('/ecu')
+          void navigate('/signals')
         }}
         onCaptureBus={() => {
-          void navigate('/can')
+          void navigate('/signals')
         }}
       />
     ),

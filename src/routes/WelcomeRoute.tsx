@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { DEFAULT_SCREEN_PROFILE_ID } from '@canshift/core'
 import { WelcomeScreen } from '../components/shell/WelcomeScreen'
 import { NewProjectWizard } from '../components/project/NewProjectWizard'
@@ -46,7 +46,6 @@ const WelcomeRoute = () => {
   const status = useConnectionStore((s) => s.status)
   const lastError = useConnectionStore((s) => s.lastError)
   const connect = useConnectionStore((s) => s.connect)
-  const simulationMode = useDeviceStore((s) => s.simulationMode)
   const enterSimulation = useDeviceStore((s) => s.enterSimulation)
   const switchProject = useProjectStore((s) => s.switchProject)
   const createProject = useProjectStore((s) => s.createProject)
@@ -58,16 +57,12 @@ const WelcomeRoute = () => {
   const [wizardOpen, setWizardOpen] = useState(false)
   const [now] = useState(() => Date.now())
 
-  if (status === 'connected' || simulationMode) {
-    return <Navigate to="/dashboard" replace />
-  }
-
   const resume = (id: string) => {
     if (!switchProject(id)) {
       log('error', 'Could not open that config.')
       return
     }
-    void navigate('/dashboard')
+    void navigate('/dash')
   }
 
   const startFromPageSet = (pageSetId: string) => {
@@ -80,7 +75,7 @@ const WelcomeRoute = () => {
         pageSetId,
       })
     )
-    void navigate('/dashboard')
+    void navigate('/dash')
   }
 
   const newest = entries[0] ?? null

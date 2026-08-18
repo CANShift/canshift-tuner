@@ -158,7 +158,7 @@ const EcuRoute = () => {
               className="mx-7 my-[26px] max-w-[560px]"
               onPickProfile={() => searchRef.current?.focus()}
               onCaptureBus={() => {
-                void navigate('/can')
+                void navigate('/signals')
               }}
             />
           ) : (
