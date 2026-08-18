@@ -51,12 +51,17 @@ const WelcomeRoute = () => {
   const update = useFirmwareUpdate()
   const [updateDismissed, setUpdateDismissed] = useState(false)
 
+  const openEditor = () => {
+    if (status !== 'connected' && !simulationMode) enterSimulation()
+    void navigate('/dash')
+  }
+
   const open = (id: string) => {
     if (!switchProject(id)) {
       log('error', 'Could not open that config.')
       return
     }
-    void navigate('/dash')
+    openEditor()
   }
 
   const start = (pageSetId: string, name: string) => {
@@ -64,7 +69,7 @@ const WelcomeRoute = () => {
       name,
       buildNewProjectDashboard({ name, targetProfile: DEFAULT_SCREEN_PROFILE_ID, pageSetId })
     )
-    void navigate('/dash')
+    openEditor()
   }
 
   const remove = (id: string) => {
