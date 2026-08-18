@@ -40,6 +40,8 @@ export interface DashToolbarProps {
   previewMode: string
   onPreviewMode: (mode: string) => void
   onAddWidget: () => void
+  pageFull: boolean
+  fullNote: string
   onImport: () => void
   onExport: () => void
   extras?: ReactNode
@@ -72,6 +74,8 @@ export const DashToolbar = ({
   previewMode,
   onPreviewMode,
   onAddWidget,
+  pageFull,
+  fullNote,
   onImport,
   onExport,
   extras,
@@ -179,7 +183,9 @@ export const DashToolbar = ({
       {profileMeta}
     </span>
 
-    <GhostButton onClick={onAddWidget}>Add widget</GhostButton>
+    <GhostButton onClick={onAddWidget} disabled={pageFull} title={pageFull ? fullNote : undefined}>
+      Add widget
+    </GhostButton>
     <span className="hidden min-[1400px]:contents">
       <GhostButton onClick={onImport}>Import</GhostButton>
       <GhostButton onClick={onExport}>Export</GhostButton>
@@ -244,11 +250,25 @@ const previewSegment = cva(
   }
 )
 
-const GhostButton = ({ onClick, children }: { onClick: () => void; children: ReactNode }) => (
+interface GhostButtonProps {
+  onClick: () => void
+  disabled?: boolean
+  title?: string | undefined
+  children: ReactNode
+}
+
+const GhostButton = ({ onClick, disabled = false, title, children }: GhostButtonProps) => (
   <button
     type="button"
     onClick={onClick}
-    className="cursor-pointer whitespace-nowrap border border-ui-ink bg-transparent px-4 py-[9px] text-left text-[12.5px] font-bold text-ui-ink hover:bg-ui-panel"
+    disabled={disabled}
+    title={title}
+    className={cn(
+      'whitespace-nowrap border px-4 py-[9px] text-left text-[12.5px] font-bold',
+      disabled
+        ? 'cursor-not-allowed border-ui-line bg-transparent text-ui-faint'
+        : 'cursor-pointer border-ui-ink bg-transparent text-ui-ink hover:bg-ui-panel'
+    )}
   >
     {children}
   </button>
