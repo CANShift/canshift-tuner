@@ -7,6 +7,7 @@ import type {
   ScreenProfileId,
   ThemePreset,
   TopBarConfig,
+  UnitSystem,
   Widget,
   WidgetLayout,
 } from '@canshift/core'
@@ -22,6 +23,7 @@ export interface LifecycleSlice {
 
   setConfig: (config: DashboardConfig) => void
   setTargetProfile: (id: ScreenProfileId) => void
+  setUnits: (units: UnitSystem) => void
   loadFromDeviceOrDemo: (deviceConfig: DashboardConfig | null) => LoadFromDeviceOrDemoResult
   acceptPendingDeviceConfig: () => void
   dismissPendingDeviceConfig: () => void

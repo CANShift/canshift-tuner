@@ -2,9 +2,7 @@ import { memo } from 'react'
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 import type { BaseRendererProps } from './shared'
-
-const DEMO_MMSS = '01:23'
-const DEMO_SS_MMM = '12.847'
+import { timerDemoValue, timerKicker } from '../../../lib/timer-source'
 
 const FRAME = 'relative flex items-center justify-center overflow-hidden'
 
@@ -24,7 +22,7 @@ export const TimerPreview = memo(function TimerPreview({ widget, w, h }: BaseRen
   if (widget.config.type !== 'timer') return null
   const cfg = widget.config
   const st = widget.style
-  const timeStr = cfg.format === 'ss.mmm' ? DEMO_SS_MMM : DEMO_MMSS
+  const timeStr = timerDemoValue(cfg.source, cfg.format)
   const fontSize = Math.max(9, Math.min(h * 0.44, w * 0.22))
 
   return (
@@ -37,7 +35,7 @@ export const TimerPreview = memo(function TimerPreview({ widget, w, h }: BaseRen
       >
         {timeStr}
       </span>
-      <span className={KICKER}>TIMER</span>
+      <span className={KICKER}>{timerKicker(cfg.source)}</span>
     </div>
   )
 })

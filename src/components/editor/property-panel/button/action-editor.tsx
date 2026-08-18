@@ -1,11 +1,13 @@
 import {
   CRUISE_CONTROL_OPS,
+  TIMER_CONTROL_OPS,
   type ButtonAction,
   type CanRawAction,
   type CruiseControlAction,
   type CruiseControlOp,
   type MapSwitchAction,
   type NavigateAction,
+  type TimerControlAction,
 } from '@canshift/core'
 
 import { CompactSelect, FieldLabel, PanelInput } from '@/components/ui/form-field'
@@ -120,6 +122,16 @@ const CruiseControlFields = ({ action, onUpdate }: FieldEditorProps<CruiseContro
   </div>
 )
 
+const TimerControlFields = ({ action, onUpdate }: FieldEditorProps<TimerControlAction>) => (
+  <CompactSelect
+    value={action.op}
+    options={TIMER_CONTROL_OPS.map((op) => ({ value: op, label: op.toUpperCase() }))}
+    onChange={(op) => {
+      onUpdate({ ...action, op: op as TimerControlAction['op'] })
+    }}
+  />
+)
+
 const FIELD_EDITORS: Record<
   ButtonAction['type'],
   (props: FieldEditorProps<ButtonAction>) => React.JSX.Element | null
@@ -135,6 +147,10 @@ const FIELD_EDITORS: Record<
   can_raw: ({ action, pageIds, onUpdate }) =>
     action.type !== 'can_raw' ? null : (
       <CanRawFields action={action} pageIds={pageIds} onUpdate={onUpdate} />
+    ),
+  timer_control: ({ action, onUpdate }) =>
+    action.type !== 'timer_control' ? null : (
+      <TimerControlFields action={action} pageIds={[]} onUpdate={onUpdate} />
     ),
   cruise_control: ({ action, pageIds, onUpdate }) =>
     action.type !== 'cruise_control' ? null : (

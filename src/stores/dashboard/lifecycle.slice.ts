@@ -1,5 +1,5 @@
 import type { DashboardConfig } from '@canshift/core'
-import { defaultThemePreset } from '@canshift/core'
+import { DEFAULT_UNIT_SYSTEM, defaultThemePreset } from '@canshift/core'
 import { DEFAULT_SIM_CONFIG } from '../../config/default-sim-config'
 import { pushHistory } from './helpers'
 import type {
@@ -38,6 +38,16 @@ export const createLifecycleSlice: SliceCreator<LifecycleSlice> = (set) => ({
       if (s.config.targetProfile === id) return
       pushHistory(s, 'Changed target screen')
       s.config.targetProfile = id
+      s.isDirty = true
+    })
+  },
+
+  setUnits: (units) => {
+    set((s) => {
+      if (!s.config) return
+      if ((s.config.units ?? DEFAULT_UNIT_SYSTEM) === units) return
+      pushHistory(s, 'Changed units')
+      s.config.units = units
       s.isDirty = true
     })
   },
