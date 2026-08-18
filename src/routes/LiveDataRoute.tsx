@@ -13,6 +13,7 @@ import { useLiveSignals } from '../hooks/useLiveSignals'
 import { useSignalStore } from '../stores/signal.store'
 import { useDeviceStore } from '../stores/device.store'
 import { Input } from '../components/ui/input'
+import { downloadFile } from '../lib/download'
 
 type LiveDataView = 'empty' | 'listening' | 'values'
 
@@ -39,16 +40,8 @@ const buildCsv = (signals: readonly SignalDef[], values: Record<string, number>)
 }
 
 const downloadCsv = (signals: readonly SignalDef[], values: Record<string, number>): void => {
-  const blob = new Blob([buildCsv(signals, values)], { type: 'text/csv;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
   const stamp = new Date().toISOString().replace(/[:.]/g, '-')
-  a.href = url
-  a.download = `canshift-live-${stamp}.csv`
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
+  downloadFile(`canshift-live-${stamp}.csv`, 'text/csv;charset=utf-8', buildCsv(signals, values))
 }
 
 const resolveSource = (connected: boolean, simulationMode: boolean): SignalSource => {
