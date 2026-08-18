@@ -9,7 +9,7 @@ import { platformLabel } from '../lib/platform-label'
 import type { FeedbackContext } from '../lib/feedback'
 
 const CONTEXT_LINES: readonly [keyof FeedbackContext, string][] = [
-  ['appVersion', 'Tuner'],
+  ['appVersion', 'Tuner build'],
   ['firmwareVersion', 'Firmware'],
   ['boardModel', 'Board'],
   ['platform', 'Platform'],
@@ -34,7 +34,7 @@ export const useContactContext = (): ContactContext => {
   return useMemo(() => {
     const widgets = config?.pages.reduce((total, page) => total + page.widgets.length, 0) ?? 0
     const context: FeedbackContext = {
-      appVersion: __TUNER_VERSION__,
+      appVersion: __TUNER_BUILD__,
       ...(firmwareVersion !== null ? { firmwareVersion } : {}),
       boardModel: resolveScreenProfile(config?.targetProfile).name,
       platform: platformLabel(),
