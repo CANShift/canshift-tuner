@@ -2,24 +2,33 @@ import { useEffect, useState } from 'react'
 import { errorMessage } from '../lib/error-message'
 import { useLogStore } from '../stores/log.store'
 
-export interface CatalogueIndexEntry {
+export interface CatalogueEntry {
   id: string
   vendor: string
   label: string
+  path: string
 }
 
 interface CatalogueManifest {
-  entries: CatalogueIndexEntry[]
+  entries: CatalogueEntry[]
 }
 
-export type CatalogueIndex = ReadonlyMap<string, string>
+export interface CatalogueIndex {
+  entries: readonly CatalogueEntry[]
+  labels: ReadonlyMap<string, string>
+}
 
 const CATALOGUE_URL = '/ecu-catalogue/index.json'
 
-const EMPTY_INDEX: CatalogueIndex = new Map()
+const EMPTY_INDEX: CatalogueIndex = { entries: [], labels: new Map() }
+
+const toIndex = (manifest: CatalogueManifest): CatalogueIndex => ({
+  entries: manifest.entries,
+  labels: new Map(manifest.entries.map((entry) => [entry.id, entry.label])),
+})
 
 export const useCatalogueIndex = (): CatalogueIndex => {
-  const [labels, setLabels] = useState<CatalogueIndex>(EMPTY_INDEX)
+  const [index, setIndex] = useState<CatalogueIndex>(EMPTY_INDEX)
   const log = useLogStore((s) => s.push)
 
   useEffect(() => {
@@ -31,11 +40,11 @@ export const useCatalogueIndex = (): CatalogueIndex => {
       })
       .then((manifest) => {
         if (cancelled) return
-        setLabels(new Map(manifest.entries.map((entry) => [entry.id, entry.label])))
+        setIndex(toIndex(manifest))
       })
       .catch((err: unknown) => {
         if (cancelled) return
-        setLabels(EMPTY_INDEX)
+        setIndex(EMPTY_INDEX)
         log('warn', `ECU catalogue index unavailable — ${errorMessage(err)}`)
       })
     return () => {
@@ -43,5 +52,5 @@ export const useCatalogueIndex = (): CatalogueIndex => {
     }
   }, [log])
 
-  return labels
+  return index
 }

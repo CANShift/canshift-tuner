@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { ecuLabelForKey } from './ecu-label'
+import type { CatalogueIndex } from '../hooks/useCatalogueIndex'
 
-const INDEX = new Map([['maxxecu/maxxecu_default_can.xml', 'Maxxecu Default CAN']])
+const index = (labels: [string, string][]): CatalogueIndex => ({
+  entries: [],
+  labels: new Map(labels),
+})
+
+const INDEX = index([['maxxecu/maxxecu_default_can.xml', 'Maxxecu Default CAN']])
 
 describe('ecuLabelForKey', () => {
   it('names a builtin profile from the core catalogue rather than its id', () => {
@@ -15,7 +21,7 @@ describe('ecuLabelForKey', () => {
   })
 
   it('degrades to the file name when the index has not loaded', () => {
-    expect(ecuLabelForKey('catalogue:maxxecu/maxxecu_default_can.xml', new Map())).toBe(
+    expect(ecuLabelForKey('catalogue:maxxecu/maxxecu_default_can.xml', index([]))).toBe(
       'Maxxecu Default Can'
     )
   })
