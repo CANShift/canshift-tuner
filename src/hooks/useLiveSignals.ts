@@ -15,7 +15,7 @@ export const useLiveSignals = (): Record<string, number> => {
   const lastSignalCommitRef = useRef<number>(0)
 
   useEffect(() => {
-    if (connected || !simulationMode || signals.length === 0) {
+    if (!simulationMode || signals.length === 0) {
       setValues({})
       return
     }
@@ -37,7 +37,7 @@ export const useLiveSignals = (): Record<string, number> => {
     return () => {
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current)
     }
-  }, [signals, simulationMode, connected])
+  }, [signals, simulationMode])
 
   useEffect(() => {
     if (!connected || simulationMode) return
