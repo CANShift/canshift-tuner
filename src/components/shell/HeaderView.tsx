@@ -68,7 +68,7 @@ export const HeaderView = ({
   return (
     <header className="flex h-[52px] shrink-0 items-stretch bg-ui-header-bg text-ui-header-ink">
       <div className="flex items-center gap-2.5 px-3 min-[1100px]:px-5">
-        <BrandLockup height={19} />
+        <BrandLockup height={19} mark="tuner" />
         <span className="hidden font-mono text-[11px] tracking-[0.16em] text-ui-faint min-[1000px]:inline">
           TUNER
         </span>

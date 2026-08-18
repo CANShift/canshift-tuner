@@ -1,0 +1,3 @@
+export const TUNER_MARK_SCREEN_PATH = 'M18 18 H98 V84 H18 Z'
+export const TUNER_MARK_BAR_PATH = 'M34 38 H74'
+export const TUNER_MARK_STROKE = 15

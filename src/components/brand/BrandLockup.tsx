@@ -14,18 +14,44 @@ import {
   WORDMARK_CAN_PATH,
   WORDMARK_SHIFT_PATH,
 } from '@canshift/core'
+import type { ReactElement } from 'react'
+import { TUNER_MARK_BAR_PATH, TUNER_MARK_SCREEN_PATH, TUNER_MARK_STROKE } from './tuner-mark'
+
+export type BrandMark = 'monogram' | 'tuner'
 
 export interface BrandLockupProps {
   height: number
+  mark?: BrandMark
   withBaseline?: boolean
   label?: string
 }
 
+const MonogramMark = () => (
+  <>
+    <path d={MONOGRAM_C_PATH} stroke="currentColor" strokeWidth={MONOGRAM_STROKE_WIDTH} />
+    <path d={MONOGRAM_S_PATH} stroke={BRAND_ACCENT} strokeWidth={MONOGRAM_STROKE_WIDTH} />
+  </>
+)
+
+const TunerMark = () => (
+  <>
+    <path d={TUNER_MARK_SCREEN_PATH} stroke="currentColor" strokeWidth={TUNER_MARK_STROKE} />
+    <path d={TUNER_MARK_BAR_PATH} stroke={BRAND_ACCENT} strokeWidth={TUNER_MARK_STROKE} />
+  </>
+)
+
+const MARKS: Record<BrandMark, () => ReactElement> = {
+  monogram: MonogramMark,
+  tuner: TunerMark,
+}
+
 export const BrandLockup = ({
   height,
+  mark = 'monogram',
   withBaseline = false,
   label = 'CANShift',
 }: BrandLockupProps) => {
+  const Mark = MARKS[mark]
   const viewBox = withBaseline ? LOCKUP_BASELINE_VIEWBOX : LOCKUP_VIEWBOX
   const viewBoxHeight = withBaseline ? 190 : 150
   return (
@@ -37,8 +63,7 @@ export const BrandLockup = ({
       aria-label={label}
     >
       <g transform={LOCKUP_MONOGRAM_TRANSFORM} fill="none" strokeLinecap="butt">
-        <path d={MONOGRAM_C_PATH} stroke="currentColor" strokeWidth={MONOGRAM_STROKE_WIDTH} />
-        <path d={MONOGRAM_S_PATH} stroke={BRAND_ACCENT} strokeWidth={MONOGRAM_STROKE_WIDTH} />
+        <Mark />
       </g>
       <rect
         x={LOCKUP_DIVIDER.x}
