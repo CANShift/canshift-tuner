@@ -2,7 +2,7 @@ import { SIGNAL_BYTE_LENGTHS } from '@canshift/core'
 import type { SignalByteLength } from '@canshift/core'
 
 const MAX_START_BYTE = 7
-const RANGE = /^\s*(\d+)\s*(?:[-–]\s*(\d+)\s*)?$/
+const RANGE = /^\s*(\d+)\s*(?:[:\-–]\s*(\d+)\s*)?$/
 
 export interface ByteRange {
   startByte: number
@@ -10,7 +10,7 @@ export interface ByteRange {
 }
 
 export const formatByteRange = (startByte: number, byteLength: number): string =>
-  byteLength <= 1 ? String(startByte) : `${String(startByte)}–${String(startByte + byteLength - 1)}`
+  byteLength <= 1 ? String(startByte) : `${String(startByte)}:${String(startByte + byteLength - 1)}`
 
 export const parseByteRange = (raw: string): ByteRange | null => {
   const match = RANGE.exec(raw)

@@ -152,7 +152,7 @@ const SignalsRoute = () => {
                 void scanner.start()
               }}
             >
-              {scanning ? 'Stop scan' : 'Scan bus'}
+              {scanning ? 'STOP SCAN' : 'SCAN BUS'}
             </SignalsAction>
             <SignalsAction
               onClick={() => {

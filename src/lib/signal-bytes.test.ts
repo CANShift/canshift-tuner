@@ -7,19 +7,20 @@ describe('formatByteRange', () => {
   })
 
   it('shows a multi-byte signal as an inclusive range', () => {
-    expect(formatByteRange(0, 2)).toBe('0–1')
-    expect(formatByteRange(4, 4)).toBe('4–7')
+    expect(formatByteRange(0, 2)).toBe('0:1')
+    expect(formatByteRange(4, 4)).toBe('4:7')
   })
 })
 
 describe('parseByteRange', () => {
   it('reads back what it wrote', () => {
-    expect(parseByteRange('0–1')).toEqual({ startByte: 0, byteLength: 2 })
+    expect(parseByteRange('0:1')).toEqual({ startByte: 0, byteLength: 2 })
     expect(parseByteRange('3')).toEqual({ startByte: 3, byteLength: 1 })
   })
 
-  it('accepts a plain hyphen, which is what a keyboard types', () => {
+  it('accepts the separators a keyboard and the old format produce', () => {
     expect(parseByteRange('4-7')).toEqual({ startByte: 4, byteLength: 4 })
+    expect(parseByteRange('4–7')).toEqual({ startByte: 4, byteLength: 4 })
   })
 
   it('tolerates surrounding whitespace', () => {
