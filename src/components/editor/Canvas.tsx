@@ -17,6 +17,7 @@ import { PageFrame } from './canvas/page-frame'
 import { RubberBandRect } from './canvas/rubber-band-rect'
 import { CanvasStatusBar } from './canvas/canvas-status-bar'
 import { useDragState } from '../../hooks/useDragState'
+import { useResizeState } from '../../hooks/useResizeState'
 import { useCanvasKeyboard } from '../../hooks/useCanvasKeyboard'
 import { useCanvasSignalDrop } from '../../hooks/useCanvasSignalDrop'
 import { useClipboardWidgets } from '../../hooks/useClipboardWidgets'
@@ -117,6 +118,10 @@ const Canvas = ({
 
   const handleDragStart = useDragState({ dragInputsRef, zoomRef: scaleRef, scale: 1 })
 
+  const resizeInputsRef = useRef({ pageId: page.id, canvasW: screenProfile.width })
+  resizeInputsRef.current = { pageId: page.id, canvasW: screenProfile.width }
+  const handleResizeStart = useResizeState({ inputsRef: resizeInputsRef, scaleRef })
+
   const { rubberBand, startRubberBand } = useRubberBandSelection({
     containerRef: surfaceRef,
     effScale: scale,
@@ -171,6 +176,7 @@ const Canvas = ({
     onSelect: selectWidget,
     onShiftSelect: toggleWidgetSelection,
     onDragStart: handleDragStart,
+    onResizeStart: handleResizeStart,
     onSignalDrop: handleWidgetSignalDrop,
     settingsOpen,
     overlay: (

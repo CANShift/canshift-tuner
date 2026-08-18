@@ -18,6 +18,7 @@ export interface WidgetLayerProps {
   onSelect: (widgetId: string) => void
   onShiftSelect: (widgetId: string) => void
   onDragStart: (e: React.MouseEvent, widget: Widget) => void
+  onResizeStart?: ((e: React.PointerEvent, widget: Widget) => void) | undefined
   onSignalDrop: (widget: Widget, signalName: string) => void
 }
 
@@ -46,6 +47,7 @@ const CustomBody = (props: WidgetLayerProps) => (
         onSelect={props.onSelect}
         onShiftSelect={props.onShiftSelect}
         onDragStart={props.onDragStart}
+        onResizeStart={props.onResizeStart}
         isFlashing={widget.id === props.flashWidgetId}
         onSignalDrop={props.onSignalDrop}
       />

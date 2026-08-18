@@ -1,4 +1,4 @@
-import { memo, type DragEvent, type MouseEvent } from 'react'
+import { memo, type DragEvent, type MouseEvent, type PointerEvent } from 'react'
 import type { PagePalette, Widget } from '@canshift/core'
 import { resolveGridRect } from '@canshift/core'
 import { cva } from 'class-variance-authority'
@@ -21,8 +21,11 @@ export interface WidgetBoxProps {
   onSelect: (id: string) => void
   onShiftSelect: (id: string) => void
   onDragStart: (e: MouseEvent, widget: Widget) => void
+  onResizeStart?: ((e: PointerEvent, widget: Widget) => void) | undefined
   onSignalDrop: (widget: Widget, signalName: string) => void
 }
+
+const GRIP_WIDTH_PX = 12
 
 type BoxFill = 'overlapping' | 'overflowing' | 'selected' | 'multi' | 'plain'
 type BoxGlow = 'overlapping' | 'overflowing' | 'multi' | 'none'
@@ -97,6 +100,7 @@ export const WidgetBox = memo(function WidgetBox({
   onSelect,
   onShiftSelect,
   onDragStart,
+  onResizeStart,
   onSignalDrop,
 }: WidgetBoxProps) {
   const acceptsSignal = SIGNAL_CONSUMING_TYPES.has(widget.type)
@@ -154,6 +158,22 @@ export const WidgetBox = memo(function WidgetBox({
         height: displayH,
       }}
     >
+      {onResizeStart && (
+        <div
+          role="separator"
+          aria-label={`Resize ${widget.type}`}
+          title="Drag to resize"
+          onPointerDown={(e) => {
+            onResizeStart(e, widget)
+          }}
+          onMouseDown={(e) => {
+            e.stopPropagation()
+          }}
+          className="absolute inset-y-0 right-0 z-[2] cursor-ew-resize bg-transparent hover:bg-white/10"
+          // eslint-disable-next-line no-inline-style/no-inline-style
+          style={{ width: GRIP_WIDTH_PX }}
+        />
+      )}
       <WidgetPreview
         widget={widget}
         palette={palette}
