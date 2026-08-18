@@ -47,7 +47,9 @@ const toArtifacts = (value: unknown): BoardArtifacts | null => {
   return { merged, firmware, spiffs }
 }
 
-const toEntry = (value: unknown): BoardManifestEntry | null => {
+type BoardIdentity = Omit<BoardManifestEntry, 'artifacts'>
+
+const toIdentity = (value: unknown): BoardIdentity | null => {
   if (typeof value !== 'object' || value === null) return null
   const e = value as Record<string, unknown>
   if (
@@ -58,10 +60,35 @@ const toEntry = (value: unknown): BoardManifestEntry | null => {
   ) {
     return null
   }
-  const artifacts = toArtifacts(e.artifacts)
-  if (!artifacts) return null
-  return { id: e.id, chip: e.chip, display: e.display, touch: e.touch, artifacts }
+  return { id: e.id, chip: e.chip, display: e.display, touch: e.touch }
 }
+
+export const normalizeChip = (chip: string): string => chip.toLowerCase().replace(/[^a-z0-9]/g, '')
+
+const toChipFirmwares = (value: unknown): Map<string, BoardArtifacts> => {
+  if (typeof value !== 'object' || value === null) return new Map()
+  const entries = Object.entries(value as Record<string, unknown>).flatMap(([chip, raw]) => {
+    const artifacts = toArtifacts(raw)
+    return artifacts === null ? [] : [[normalizeChip(chip), artifacts] as const]
+  })
+  return new Map(entries)
+}
+
+const perBoardEntry = (value: unknown): BoardManifestEntry | null => {
+  const identity = toIdentity(value)
+  if (!identity) return null
+  const artifacts = toArtifacts((value as Record<string, unknown>).artifacts)
+  return artifacts === null ? null : { ...identity, artifacts }
+}
+
+const perChipEntry =
+  (firmwares: Map<string, BoardArtifacts>) =>
+  (value: unknown): BoardManifestEntry | null => {
+    const identity = toIdentity(value)
+    if (!identity) return null
+    const artifacts = firmwares.get(normalizeChip(identity.chip))
+    return artifacts === undefined ? null : { ...identity, artifacts }
+  }
 
 export const parseManifest = (raw: string): BoardManifest | null => {
   let parsed: unknown
@@ -75,6 +102,8 @@ export const parseManifest = (raw: string): BoardManifest | null => {
   if (typeof manifest.schema !== 'number') return null
   if (typeof manifest.version !== 'string' || typeof manifest.tag !== 'string') return null
   if (!Array.isArray(manifest.boards)) return null
+  const firmwares = toChipFirmwares(manifest.firmwares)
+  const toEntry = firmwares.size > 0 ? perChipEntry(firmwares) : perBoardEntry
   const boards = manifest.boards.map(toEntry).filter((b): b is BoardManifestEntry => b !== null)
   if (boards.length === 0) return null
   return { schema: manifest.schema, version: manifest.version, tag: manifest.tag, boards }
