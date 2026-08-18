@@ -53,7 +53,7 @@ export const burnVerdict = (inputs: BurnInputs): BurnVerdict => {
 }
 
 const TITLES: Record<BurnVerdict['kind'], (verdict: BurnVerdict) => string> = {
-  ready: () => 'Write this config to the dash (Cmd/Ctrl+S)',
+  ready: () => 'Write this config to the dash',
   clean: () => 'Nothing has changed since the last burn',
   'no-device': () => 'Plug a dash in — burning is disabled without a board',
   'no-config': () => 'Open or start a config first',

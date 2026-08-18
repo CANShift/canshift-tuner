@@ -21,19 +21,17 @@ const writeCollapsed = (key: string, value: boolean): void => {
 }
 
 interface UiState {
-  burnDeniedAt: number | null
-  signalBurnDenied: () => void
   inspectorCollapsed: boolean
   toggleInspector: () => void
   cliOpen: boolean
   toggleCli: () => void
+  importNotice: string | null
+  setImportNotice: (notice: string | null) => void
+  savedAt: number | null
+  markSaved: () => void
 }
 
 export const useUiStore = create<UiState>((set) => ({
-  burnDeniedAt: null,
-  signalBurnDenied: () => {
-    set({ burnDeniedAt: Date.now() })
-  },
   inspectorCollapsed: readCollapsed(INSPECTOR_KEY),
   toggleInspector: () => {
     set((s) => {
@@ -41,6 +39,14 @@ export const useUiStore = create<UiState>((set) => ({
       writeCollapsed(INSPECTOR_KEY, next)
       return { inspectorCollapsed: next }
     })
+  },
+  importNotice: null,
+  setImportNotice: (notice) => {
+    set({ importNotice: notice })
+  },
+  savedAt: null,
+  markSaved: () => {
+    set({ savedAt: Date.now() })
   },
   cliOpen: readCollapsed(CLI_OPEN_KEY),
   toggleCli: () => {

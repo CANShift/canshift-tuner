@@ -18,7 +18,7 @@ import { useVersionHandshake } from './hooks/useVersionHandshake'
 import { useHeartbeat } from './hooks/useHeartbeat'
 import { useHeapStatsSubscription } from './hooks/useHeapStatsSubscription'
 import { useFirmwareLogBridge } from './hooks/useFirmwareLogBridge'
-import { useBurnShortcut } from './hooks/useBurnShortcut'
+import { useSaveShortcut } from './hooks/useSaveShortcut'
 import { bootstrapProjects } from './stores/project/project.store'
 import { useWidgetOverflowWarnings } from './hooks/useWidgetOverflowWarnings'
 import { useUnsavedChangesGuard } from './hooks/useUnsavedChangesGuard'
@@ -83,7 +83,7 @@ const App = () => {
   useHeapStatsSubscription()
   useFirmwareLogBridge()
   useDeviceConfigBootstrap()
-  useBurnShortcut()
+  useSaveShortcut()
   useWidgetOverflowWarnings()
   useUnsavedChangesGuard()
   useDocumentMeta()

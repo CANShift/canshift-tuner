@@ -4,6 +4,7 @@ import {
   PROJECT_NAME_MAX,
   describeCanshiftFileError,
   parseCanshiftFile,
+  resolveScreenProfile,
   serializeCanshiftFile,
 } from '@canshift/core'
 import type { DashboardConfig, Project, ProjectMeta, SignalDef } from '@canshift/core'
@@ -21,7 +22,9 @@ import {
 
 export const DEFAULT_PROJECT_NAME = 'My dashboard'
 
-export type ImportResult = { ok: true; id: string; name: string } | { ok: false; error: string }
+export type ImportResult =
+  | { ok: true; id: string; name: string; panelSwitchedTo: string | null }
+  | { ok: false; error: string }
 
 export interface ProjectEcuProfile {
   key: string
@@ -193,6 +196,7 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
     const result = parseCanshiftFile(raw)
     if (result.kind !== 'ok') return { ok: false, error: describeCanshiftFileError(result) }
     get().saveActiveProject()
+    const before = resolveScreenProfile(useDashboardStore.getState().config?.targetProfile)
     const newId = createId('proj')
     const imported: Project = { ...result.project, id: newId, updatedAt: nowIso() }
     if (!writeProject(imported)) return { ok: false, error: 'Could not save the imported project.' }
@@ -206,7 +210,13 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
     persistIndex(nextProjects, newId)
     loadProjectIntoStores(imported)
     captureFlowEvent('project_imported')
-    return { ok: true, id: newId, name: imported.name }
+    const after = resolveScreenProfile((imported.dashboard as DashboardConfig).targetProfile)
+    return {
+      ok: true,
+      id: newId,
+      name: imported.name,
+      panelSwitchedTo: after.id === before.id ? null : after.name,
+    }
   },
 
   exportProject: (id) => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { HeaderView, type HeaderLinkProps, type HeaderStatus } from './HeaderView'
 import { ConfigNameField } from './ConfigNameField'
@@ -8,14 +8,12 @@ import { useConnectionStore } from '../../stores/connection.store'
 import { useDashboardStore } from '../../stores/dashboard.store'
 import { useDeviceStore } from '../../stores/device.store'
 import { useThemeStore } from '../../stores/theme.store'
-import { useUiStore } from '../../stores/ui.store'
 import { ThemeToggleButton } from './ThemeToggleButton'
 import { useProjectStore } from '../../stores/project/project.store'
 import { useBurnDashboard } from '../../hooks/useBurnDashboard'
 import { burnLabel, burnTitle } from '../../lib/burn-verdict'
 
 const BURN_SUCCESS_FLASH_MS = 2_500
-const BURN_DENIED_SHAKE_MS = 400
 
 const HeaderLink = ({ to, className, children, ...rest }: HeaderLinkProps) => (
   <Link to={to} className={className} {...rest}>
@@ -89,27 +87,10 @@ const useBurnSuccessAutoClear = (): void => {
   }, [lastBurnResult, setLastBurnResult])
 }
 
-const useBurnDeniedShake = (): boolean => {
-  const burnDeniedAt = useUiStore((s) => s.burnDeniedAt)
-  const [shaking, setShaking] = useState(false)
-  useEffect(() => {
-    if (burnDeniedAt === null) return
-    setShaking(true)
-    const timer = setTimeout(() => {
-      setShaking(false)
-    }, BURN_DENIED_SHAKE_MS)
-    return () => {
-      clearTimeout(timer)
-    }
-  }, [burnDeniedAt])
-  return shaking
-}
-
 const BurnButton = () => {
   const { verdict, canBurn, isBurning, requestBurn } = useBurnDashboard()
   const lastBurnResult = useDeviceStore((s) => s.lastBurnResult)
   useBurnSuccessAutoClear()
-  const shaking = useBurnDeniedShake()
 
   return (
     <span className="flex items-stretch">
@@ -118,15 +99,7 @@ const BurnButton = () => {
           <BurnSuccessPill />
         </span>
       )}
-      <span
-        className="flex"
-        // eslint-disable-next-line no-inline-style/no-inline-style
-        style={
-          shaking
-            ? { animation: `canshift-tuner-shake ${BURN_DENIED_SHAKE_MS}ms ease-in-out` }
-            : undefined
-        }
-      >
+      <span className="flex">
         <UiBurnButton
           disabled={!canBurn}
           busy={isBurning}

@@ -105,22 +105,6 @@ samp {
   }
 }
 
-@keyframes canshift-tuner-shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-3px);
-  }
-  50% {
-    transform: translateX(3px);
-  }
-  75% {
-    transform: translateX(-2px);
-  }
-}
-
 .shell-nav-item:hover {
   background: var(--ui-panel);
   color: var(--ui-ink);

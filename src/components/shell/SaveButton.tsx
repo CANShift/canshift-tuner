@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
+import { useUiStore } from '../../stores/ui.store'
 
 const SAVED_FLASH_MS = 1_600
 
@@ -10,17 +11,20 @@ export interface SaveButtonProps {
 }
 
 export const SaveButton = ({ onSave, disabled }: SaveButtonProps) => {
+  const savedAt = useUiStore((s) => s.savedAt)
+  const markSaved = useUiStore((s) => s.markSaved)
   const [flashing, setFlashing] = useState(false)
 
   useEffect(() => {
-    if (!flashing) return
+    if (savedAt === null) return
+    setFlashing(true)
     const timer = setTimeout(() => {
       setFlashing(false)
     }, SAVED_FLASH_MS)
     return () => {
       clearTimeout(timer)
     }
-  }, [flashing])
+  }, [savedAt])
 
   return (
     <button
@@ -29,7 +33,7 @@ export const SaveButton = ({ onSave, disabled }: SaveButtonProps) => {
       title={disabled ? 'Nothing to save yet' : 'Save this config in the browser (Cmd/Ctrl+S)'}
       onClick={() => {
         onSave()
-        setFlashing(true)
+        markSaved()
       }}
       className={cn(saveFace({ disabled }))}
     >
