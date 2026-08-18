@@ -1,15 +1,17 @@
 import { lazy, Suspense, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import { ECU_PROFILES, OBD2_DEFAULT_INTERVAL_MS, OBD2_MODE01_PIDS } from '@canshift/core'
+import { OBD2_DEFAULT_INTERVAL_MS, OBD2_MODE01_PIDS } from '@canshift/core'
 import { RouteLoading } from '../components/shell/RouteLoading'
 import {
   SignalsToolbar,
   SignalsAction,
+  SignalsFileAction,
   type SignalSource,
 } from '../components/signals/SignalsToolbar'
 import { CanSignalTable } from '../components/signals/CanSignalTable'
 import { BusScanPanel } from '../components/signals/BusScanPanel'
 import { Obd2Table } from '../components/signals/Obd2Table'
+import { ProfileStrip } from '../components/signals/ProfileStrip'
 import { useCanScanner } from '../hooks/useCanScanner'
 import { useDeviceStore } from '../stores/device.store'
 import { formatFrameIdHex, parseHexFrameId } from '../utils/frame-id'
@@ -17,25 +19,33 @@ import { useSignalStore } from '../stores/signal.store'
 import { useLiveSignals } from '../hooks/useLiveSignals'
 import { useSignalUsage } from '../hooks/useSignalUsage'
 import { useCatalogueIndex } from '../hooks/useCatalogueIndex'
+import { useProfileChange } from '../hooks/useProfileChange'
 import { ecuLabelForKey } from '../utils/ecu-label'
+import { profileGroups } from '../lib/profile-options'
+import { downloadFile } from '../lib/download'
+import {
+  PROFILE_XML_ACCEPT,
+  PROFILE_XML_MIME,
+  profileXmlFilename,
+  serializeProfileXml,
+} from '../lib/profile-xml'
 
-const EcuRoute = lazy(() => import('./EcuRoute'))
 const CanBusRoute = lazy(() => import('./CanBusRoute'))
 const DtcPanel = lazy(() =>
   import('../components/obd2/DtcPanel').then((m) => ({ default: m.DtcPanel }))
 )
 
 const POLL_INTERVALS = [100, 200, 500, 1000]
-type Pane = SignalSource | 'ecu' | 'analysis'
+type Pane = SignalSource | 'analysis'
 
 const SignalsRoute = () => {
   const signals = useSignalStore((s) => s.signals)
   const selectedProfileKey = useSignalStore((s) => s.selectedProfileKey)
-  const applyProfile = useSignalStore((s) => s.applyProfile)
   const updateSignal = useSignalStore((s) => s.updateSignal)
   const values = useLiveSignals()
   const usage = useSignalUsage()
   const catalogue = useCatalogueIndex()
+  const profile = useProfileChange(catalogue)
   const scanner = useCanScanner()
   const connected = useDeviceStore((s) => s.connected)
   const simulationMode = useDeviceStore((s) => s.simulationMode)
@@ -44,17 +54,11 @@ const SignalsRoute = () => {
   const [filter, setFilter] = useState('')
   const [pollIntervalMs, setPollIntervalMs] = useState(OBD2_DEFAULT_INTERVAL_MS)
 
-  const profiles = useMemo(() => {
-    const builtin = ECU_PROFILES.map((profile) => ({
-      key: `builtin:${profile.id}`,
-      label: profile.name,
-    }))
-    if (builtin.some((entry) => entry.key === selectedProfileKey)) return builtin
-    return [
-      { key: selectedProfileKey, label: ecuLabelForKey(selectedProfileKey, catalogue) },
-      ...builtin,
-    ]
-  }, [selectedProfileKey, catalogue])
+  const profileLabel = ecuLabelForKey(selectedProfileKey, catalogue)
+  const groups = useMemo(
+    () => profileGroups(catalogue.entries, selectedProfileKey, profileLabel),
+    [catalogue, selectedProfileKey, profileLabel]
+  )
 
   const shown = useMemo(() => {
     const query = filter.trim().toLowerCase()
@@ -107,7 +111,6 @@ const SignalsRoute = () => {
         </div>
       </div>
     ),
-    ecu: <EcuRoute />,
     analysis: <CanBusRoute />,
   }
 
@@ -118,13 +121,9 @@ const SignalsRoute = () => {
       <SignalsToolbar
         source={source}
         onSource={setPane}
-        profiles={profiles}
+        groups={groups}
         profileKey={selectedProfileKey}
-        onProfile={(key) => {
-          const id = key.startsWith('builtin:') ? key.slice('builtin:'.length) : null
-          const profile = ECU_PROFILES.find((entry) => entry.id === id)
-          if (profile) applyProfile(key, [...profile.signals])
-        }}
+        onProfile={profile.selectKey}
         meta={`${String(bound)} of ${String(signals.length)} bound`}
         filter={filter}
         onFilter={setFilter}
@@ -152,16 +151,31 @@ const SignalsRoute = () => {
             >
               {pane === 'analysis' ? 'Back to signals' : 'Analyse…'}
             </SignalsAction>
-            <SignalsAction
-              onClick={() => {
-                setPane((current) => (current === 'ecu' ? 'can' : 'ecu'))
+            <SignalsFileAction
+              accept={PROFILE_XML_ACCEPT}
+              onFile={(file) => {
+                void file.text().then((xml) => {
+                  profile.importXml(file.name, xml)
+                })
               }}
             >
-              {pane === 'ecu' ? 'Back to signals' : 'ECU profile…'}
+              Import XML
+            </SignalsFileAction>
+            <SignalsAction
+              onClick={() => {
+                downloadFile(
+                  profileXmlFilename(profileLabel),
+                  PROFILE_XML_MIME,
+                  serializeProfileXml(signals)
+                )
+              }}
+            >
+              Download XML
             </SignalsAction>
           </>
         }
       />
+      <ProfileStrip change={profile.change} onApply={profile.apply} onDismiss={profile.dismiss} />
       <div className="flex min-h-0 flex-1 flex-col">
         {frames.length > 0 && pane === 'can' && (
           <BusScanPanel

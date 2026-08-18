@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { SignalDef } from '@canshift/core'
-import { DEFAULT_PROFILE_ID, ECU_PROFILES } from '@canshift/core'
+import { ECU_PROFILES } from '@canshift/core'
 import { readItem, writeItem, STORAGE_KEYS } from '../lib/local-storage'
 
 const FALLBACK_PROFILE_ID = 'maxxecu-street'
@@ -8,7 +8,7 @@ const FALLBACK_SIGNALS: SignalDef[] =
   ECU_PROFILES.find((p) => p.id === FALLBACK_PROFILE_ID)?.signals ?? []
 
 const STORAGE_KEY = STORAGE_KEYS.signals
-export const DEFAULT_PROFILE_KEY = `builtin:${DEFAULT_PROFILE_ID}`
+export const DEFAULT_PROFILE_KEY = `builtin:${FALLBACK_PROFILE_ID}`
 
 interface StoredState {
   selectedProfileKey: string

@@ -4,10 +4,20 @@ import { cn } from '@/lib/utils'
 
 export type SignalSource = 'can' | 'obd2'
 
+export interface ProfileOption {
+  key: string
+  label: string
+}
+
+export interface ProfileGroup {
+  label: string
+  options: readonly ProfileOption[]
+}
+
 export interface SignalsToolbarProps {
   source: SignalSource
   onSource: (source: SignalSource) => void
-  profiles: readonly { key: string; label: string }[]
+  groups: readonly ProfileGroup[]
   profileKey: string
   onProfile: (key: string) => void
   meta: string
@@ -22,7 +32,7 @@ const SOURCES = Object.keys(SOURCE_LABELS) as SignalSource[]
 export const SignalsToolbar = ({
   source,
   onSource,
-  profiles,
+  groups,
   profileKey,
   onProfile,
   meta,
@@ -54,10 +64,14 @@ export const SignalsToolbar = ({
       aria-label="ECU profile"
       className="max-w-[220px] border border-ui-ink bg-ui-bg py-2 pl-2.5 pr-[26px] font-mono text-[13px] font-bold text-ui-ink"
     >
-      {profiles.map((profile) => (
-        <option key={profile.key} value={profile.key}>
-          {profile.label}
-        </option>
+      {groups.map((group) => (
+        <optgroup key={group.label} label={group.label}>
+          {group.options.map((option) => (
+            <option key={option.key} value={option.key}>
+              {option.label}
+            </option>
+          ))}
+        </optgroup>
       ))}
     </select>
 
@@ -95,6 +109,32 @@ const segment = cva(
   }
 )
 
+const ACTION_BASE = 'whitespace-nowrap border px-4 py-2 text-left text-[12.5px] font-bold'
+const ACTION_ENABLED = 'cursor-pointer border-ui-ink bg-transparent text-ui-ink hover:bg-ui-panel'
+const ACTION_DISABLED = 'cursor-not-allowed border-ui-line bg-transparent text-ui-faint'
+
+export interface SignalsFileActionProps {
+  accept: string
+  onFile: (file: File) => void
+  children: ReactNode
+}
+
+export const SignalsFileAction = ({ accept, onFile, children }: SignalsFileActionProps) => (
+  <label className={cn(ACTION_BASE, ACTION_ENABLED)}>
+    {children}
+    <input
+      type="file"
+      accept={accept}
+      className="hidden"
+      onChange={(e) => {
+        const file = e.target.files?.[0]
+        if (file) onFile(file)
+        e.target.value = ''
+      }}
+    />
+  </label>
+)
+
 export interface SignalsActionProps {
   onClick: () => void
   disabled?: boolean
@@ -113,12 +153,7 @@ export const SignalsAction = ({
     onClick={onClick}
     disabled={disabled}
     title={title}
-    className={cn(
-      'whitespace-nowrap border px-4 py-2 text-left text-[12.5px] font-bold',
-      disabled
-        ? 'cursor-not-allowed border-ui-line bg-transparent text-ui-faint'
-        : 'cursor-pointer border-ui-ink bg-transparent text-ui-ink hover:bg-ui-panel'
-    )}
+    className={cn(ACTION_BASE, disabled ? ACTION_DISABLED : ACTION_ENABLED)}
   >
     {children}
   </button>
