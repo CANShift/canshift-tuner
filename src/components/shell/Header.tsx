@@ -12,16 +12,7 @@ import { useUiStore } from '../../stores/ui.store'
 import { ThemeToggleButton } from './ThemeToggleButton'
 import { useProjectStore } from '../../stores/project/project.store'
 import { useBurnDashboard } from '../../hooks/useBurnDashboard'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+import { burnLabel, burnTitle } from '../../lib/burn-verdict'
 
 const BURN_SUCCESS_FLASH_MS = 2_500
 const BURN_DENIED_SHAKE_MS = 400
@@ -115,21 +106,11 @@ const useBurnDeniedShake = (): boolean => {
 }
 
 const BurnButton = () => {
-  const { canBurn, isBurning, burn, requestBurn } = useBurnDashboard()
-  const connected = useDeviceStore((s) => s.connected)
-  const simulationMode = useDeviceStore((s) => s.simulationMode)
+  const { verdict, canBurn, isBurning, requestBurn } = useBurnDashboard()
   const lastBurnResult = useDeviceStore((s) => s.lastBurnResult)
-  const unboundBurnConfirm = useUiStore((s) => s.unboundBurnConfirm)
-  const clearUnboundBurnConfirm = useUiStore((s) => s.clearUnboundBurnConfirm)
   useBurnSuccessAutoClear()
   const shaking = useBurnDeniedShake()
 
-  const noDevice = simulationMode || !connected
-  const title = isBurning
-    ? 'Burning dashboard to the device…'
-    : canBurn
-      ? 'Burn dashboard to device (Cmd/Ctrl+S)'
-      : 'Connect a device and edit the dashboard to enable Burn'
   return (
     <span className="flex items-stretch">
       {lastBurnResult?.kind === 'success' && (
@@ -149,41 +130,11 @@ const BurnButton = () => {
         <UiBurnButton
           disabled={!canBurn}
           busy={isBurning}
-          title={title}
-          label={noDevice ? 'NO DEVICE' : 'BURN'}
+          title={burnTitle(verdict)}
+          label={burnLabel(verdict)}
           onClick={requestBurn}
         />
       </span>
-      <AlertDialog
-        open={unboundBurnConfirm !== null}
-        onOpenChange={(open) => {
-          if (!open) clearUnboundBurnConfirm()
-        }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {String(unboundBurnConfirm ?? 0)} widget
-              {(unboundBurnConfirm ?? 0) === 1 ? ' has' : 's have'} no signal bound
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Unbound widgets render “--” on the device. You can bind them by dragging a signal from
-              the Signals tab onto each widget, or burn as-is.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Keep editing</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                clearUnboundBurnConfirm()
-                void burn()
-              }}
-            >
-              Burn anyway
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </span>
   )
 }
