@@ -13,27 +13,42 @@ const SAMPLES = [
 
 describe('buildLiveCsv', () => {
   it('heads every column with the signal and its unit', () => {
-    const [head] = buildLiveCsv(SIGNALS, SAMPLES).split('\n')
+    const [head] = buildLiveCsv(SIGNALS, SAMPLES, 'metric').split('\n')
     expect(head).toBe('seconds,rpm (rpm),water (°C),gear')
   })
 
   it('writes one row per sample, in order, with the elapsed second', () => {
-    const rows = buildLiveCsv(SIGNALS, SAMPLES).split('\n')
+    const rows = buildLiveCsv(SIGNALS, SAMPLES, 'metric').split('\n')
     expect(rows).toHaveLength(3)
     expect(rows[1]).toBe('0.0,5200,88,')
     expect(rows[2]).toBe('0.1,5310.5,88,4')
   })
 
   it('leaves a cell empty rather than inventing a value the app never received', () => {
-    expect(buildLiveCsv(SIGNALS, SAMPLES).split('\n')[1]?.endsWith(',')).toBe(true)
+    expect(buildLiveCsv(SIGNALS, SAMPLES, 'metric').split('\n')[1]?.endsWith(',')).toBe(true)
   })
 
   it('quotes a field that would break the format', () => {
-    const csv = buildLiveCsv([signal('oil, hot', 'bar')], [{ t: 0, values: { 'oil, hot': 1 } }])
+    const csv = buildLiveCsv(
+      [signal('oil, hot', 'bar')],
+      [{ t: 0, values: { 'oil, hot': 1 } }],
+      'metric'
+    )
     expect(csv.split('\n')[0]).toBe('seconds,"oil, hot (bar)"')
   })
 
+  it('writes the imperial unit in the header and the converted value in the row', () => {
+    const csv = buildLiveCsv(
+      [signal('coolant', '°C')],
+      [{ t: 0, values: { coolant: 100 } }],
+      'imperial'
+    )
+    const [head, row] = csv.split('\n')
+    expect(head).toBe('seconds,coolant (°F)')
+    expect(row).toBe('0.0,212')
+  })
+
   it('produces a header even with no samples, so an empty recording is still readable', () => {
-    expect(buildLiveCsv(SIGNALS, []).split('\n')).toHaveLength(1)
+    expect(buildLiveCsv(SIGNALS, [], 'metric').split('\n')).toHaveLength(1)
   })
 })

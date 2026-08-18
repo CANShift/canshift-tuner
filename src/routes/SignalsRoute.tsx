@@ -20,6 +20,7 @@ import { useLiveSignals } from '../hooks/useLiveSignals'
 import { useSignalUsage } from '../hooks/useSignalUsage'
 import { useCatalogueIndex } from '../hooks/useCatalogueIndex'
 import { useProfileChange } from '../hooks/useProfileChange'
+import { useDisplayUnits } from '../hooks/useDisplayUnits'
 import { ecuLabelForKey } from '../utils/ecu-label'
 import { profileGroups } from '../lib/profile-options'
 import { downloadFile } from '../lib/download'
@@ -46,6 +47,7 @@ const SignalsRoute = () => {
   const usage = useSignalUsage()
   const catalogue = useCatalogueIndex()
   const profile = useProfileChange(catalogue)
+  const units = useDisplayUnits()
   const scanner = useCanScanner()
   const connected = useDeviceStore((s) => s.connected)
   const simulationMode = useDeviceStore((s) => s.simulationMode)
@@ -86,13 +88,22 @@ const SignalsRoute = () => {
   }
 
   const panes: Record<Pane, ReactNode> = {
-    can: <CanSignalTable signals={shown} values={values} usage={usage} onPatch={updateSignal} />,
+    can: (
+      <CanSignalTable
+        signals={shown}
+        values={values}
+        usage={usage}
+        units={units}
+        onPatch={updateSignal}
+      />
+    ),
     obd2: (
       <div className="flex min-h-0 flex-1 flex-col">
         <Obd2Table
           signals={signals}
           values={values}
           usage={usage}
+          units={units}
           intervalMs={pollIntervalMs}
           intervals={POLL_INTERVALS}
           onInterval={setPollIntervalMs}

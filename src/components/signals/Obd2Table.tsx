@@ -1,6 +1,7 @@
 import { OBD2_MODE01_PIDS } from '@canshift/core'
 import type { SignalDef } from '@canshift/core'
 import { cn } from '@/lib/utils'
+import type { DisplayUnits } from '../../hooks/useDisplayUnits'
 import type { SignalUsage } from '../../hooks/useSignalUsage'
 
 const GRID = [
@@ -16,6 +17,7 @@ const CONTEXT =
   'OBD-II is the fallback when the car has no ECU profile: the dash polls standard PIDs instead of listening to raw frames. Slower and fewer signals, but it works on any car built after 2008.'
 
 export interface Obd2TableProps {
+  units: DisplayUnits
   signals: readonly SignalDef[]
   values: Record<string, number>
   usage: SignalUsage
@@ -36,6 +38,7 @@ export const Obd2Table = ({
   signals,
   values,
   usage,
+  units,
   intervalMs,
   intervals,
   onInterval,
@@ -95,8 +98,14 @@ export const Obd2Table = ({
           <span className="truncate font-bold" title={entry.description}>
             {entry.signal}
           </span>
-          <span className="text-right tabular-nums">{formatValue(values[entry.signal])}</span>
-          <span className="text-[13px] text-ui-faint">{entry.unit}</span>
+          <span className="text-right tabular-nums">
+            {formatValue(
+              values[entry.signal] === undefined
+                ? undefined
+                : units.valueOf(values[entry.signal] as number, entry.unit)
+            )}
+          </span>
+          <span className="text-[13px] text-ui-faint">{units.unitOf(entry.unit)}</span>
           <span className="flex items-center gap-3">
             {signal === undefined ? (
               <span className="text-[12px] text-ui-faint">{NOT_IN_PROFILE}</span>

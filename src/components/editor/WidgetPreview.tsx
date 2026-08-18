@@ -14,6 +14,7 @@ import { TimerPreview } from './widget-previews/Timer'
 import { WarningPreview } from './widget-previews/Warning'
 import { isDangerState } from './widget-previews/gauge-math'
 import { isUnboundWidget } from '../../utils/unbound-widgets'
+import { useDisplayUnits } from '../../hooks/useDisplayUnits'
 
 const FALLBACK_UNIT_TABLE: Readonly<Record<string, string>> = MAXXECU_SIGNAL_UNITS
 
@@ -105,14 +106,15 @@ interface WidgetPreviewProps {
 
 const useResolvedSignalUnit = (widget: Widget): string => {
   const signals = useSignalStore((s) => s.signals)
+  const units = useDisplayUnits()
   const cfg = widget.config
   const configSuffix =
     cfg.type === 'gauge' || cfg.type === 'timer' ? ((cfg as { suffix?: string }).suffix ?? '') : ''
   if (configSuffix !== '') return configSuffix
   if (!widget.signal) return ''
   const def = signals.find((s) => s.name === widget.signal)
-  if (def?.unit) return def.unit
-  return FALLBACK_UNIT_TABLE[widget.signal] ?? ''
+  const stored = def?.unit ?? FALLBACK_UNIT_TABLE[widget.signal] ?? ''
+  return units.unitOf(stored)
 }
 
 const WidgetPreviewImpl = ({
