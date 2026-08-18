@@ -1,4 +1,5 @@
-import type { Widget } from '@canshift/core'
+import type { GridTracks, Widget } from '@canshift/core'
+import { BASE_GRID_TRACKS } from '@canshift/core'
 import { isSpanOverflowing, placementsOverlap } from '@canshift/core'
 
 export const overlappingWidgetIds = (widgets: readonly Widget[]): Set<string> => {
@@ -18,10 +19,13 @@ export const overlappingWidgetIds = (widgets: readonly Widget[]): Set<string> =>
   return ids
 }
 
-export const overflowingWidgetIds = (widgets: readonly Widget[]): Set<string> => {
+export const overflowingWidgetIds = (
+  widgets: readonly Widget[],
+  tracks: GridTracks = BASE_GRID_TRACKS
+): Set<string> => {
   const ids = new Set<string>()
   for (const w of widgets) {
-    if (isSpanOverflowing(w.layout)) ids.add(w.id)
+    if (isSpanOverflowing(w.layout, tracks)) ids.add(w.id)
   }
   return ids
 }

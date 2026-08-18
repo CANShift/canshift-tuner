@@ -1,6 +1,7 @@
 import { useCallback, useRef, type PointerEvent as ReactPointerEvent, type RefObject } from 'react'
 import type { Widget } from '@canshift/core'
 import { LAYOUT_GRID } from '@canshift/core'
+import { useDisplayTier } from './useDisplayTier'
 import { useDashboardStore } from '../stores/dashboard.store'
 
 const MIN_SPAN = 1
@@ -31,6 +32,7 @@ export const useResizeState = ({
   inputsRef,
   scaleRef,
 }: UseResizeStateOptions): ((e: ReactPointerEvent, widget: Widget) => void) => {
+  const tier = useDisplayTier()
   const moveWidget = useDashboardStore((s) => s.moveWidget)
   const beginDrag = useDashboardStore((s) => s.beginDrag)
   const stateRef = useRef<ResizeState | null>(null)
@@ -51,7 +53,7 @@ export const useResizeState = ({
         lastSpan: widget.layout.colSpan,
       }
 
-      const pitch = trackPitch(inputs.canvasW, LAYOUT_GRID.COLUMNS)
+      const pitch = trackPitch(inputs.canvasW, tier.columns)
       let began = false
 
       const onMove = (ev: PointerEvent) => {
@@ -59,7 +61,7 @@ export const useResizeState = ({
         if (!state) return
         const scale = scaleRef.current ?? 1
         const deltaCols = Math.round((ev.clientX - state.startX) / (pitch * scale))
-        const maxSpan = LAYOUT_GRID.COLUMNS - state.startCol
+        const maxSpan = tier.columns - state.startCol
         const nextSpan = Math.min(maxSpan, Math.max(MIN_SPAN, state.startSpan + deltaCols))
         if (nextSpan === state.lastSpan) return
         if (!began) {
@@ -79,6 +81,6 @@ export const useResizeState = ({
       window.addEventListener('pointermove', onMove)
       window.addEventListener('pointerup', onUp)
     },
-    [inputsRef, scaleRef, moveWidget, beginDrag]
+    [inputsRef, scaleRef, moveWidget, beginDrag, tier]
   )
 }

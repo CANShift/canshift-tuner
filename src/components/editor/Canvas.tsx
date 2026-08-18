@@ -27,6 +27,7 @@ import { useCarouselScale } from '../../hooks/useCarouselScale'
 import { useCanvasDialogs } from '../../hooks/useCanvasDialogs'
 import { resolveBgColor, resolvePalette } from '../../hooks/useEffectivePalette'
 import { useActiveDayMode } from '../../hooks/useActiveDayMode'
+import { useDisplayTier } from '../../hooks/useDisplayTier'
 import { PreviewOverlay } from './preview/PreviewOverlay'
 import type { PreviewMode } from './preview/preview-modes'
 
@@ -56,6 +57,7 @@ const Canvas = ({
   const pages = useDashboardStore((s) => s.config?.pages ?? EMPTY_PAGES)
   const theme = useDashboardStore((s) => s.config?.theme)
   const isDayMode = useActiveDayMode()
+  const tier = useDisplayTier()
 
   const selectedWidgetId = useDashboardStore((s) => s.selectedWidgetId)
   const selectedWidgetIds = useDashboardStore((s) => s.selectedWidgetIds)
@@ -104,7 +106,10 @@ const Canvas = ({
   const { revLimiting, flashPhase, startRevLimiter } = useRevLimiterFlash()
 
   const overlappingIds = useMemo(() => overlappingWidgetIds(page.widgets), [page.widgets])
-  const overflowingIds = useMemo(() => overflowingWidgetIds(page.widgets), [page.widgets])
+  const overflowingIds = useMemo(
+    () => overflowingWidgetIds(page.widgets, tier),
+    [page.widgets, tier]
+  )
 
   useCanvasKeyboard({
     selectWidget,
@@ -254,6 +259,7 @@ const Canvas = ({
                   }}
                 >
                   <PageFrame
+                    tracks={tier}
                     page={candidate}
                     topBar={topBar}
                     scale={candidate.id === page.id ? scale : scale * THUMBNAIL_RATIO}
