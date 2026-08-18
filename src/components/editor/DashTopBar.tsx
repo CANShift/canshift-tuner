@@ -1,8 +1,9 @@
 import { useRef, type PointerEvent } from 'react'
-import type { TopBarConfig, TopBarItem } from '@canshift/core'
+import type { TopBarConfig, TopBarItem, PageStatusRow } from '@canshift/core'
 import { DEFAULT_TOP_BAR_LAYOUT, TopBarMetrics } from '@canshift/core'
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
+import { mergePageStatusRow } from '../../lib/top-bar-layout'
 
 const SWIPE_DOWN_THRESHOLD = 18
 
@@ -73,6 +74,7 @@ const formatPreviewSignal = (signal: string, format?: string): string => {
 
 export interface DashTopBarProps {
   topBar: TopBarConfig
+  statusRow?: PageStatusRow | undefined
   scale: number
   settingsOpen: boolean
   isDayMode: boolean
@@ -81,6 +83,7 @@ export interface DashTopBarProps {
 
 export const DashTopBar = ({
   topBar,
+  statusRow,
   scale,
   settingsOpen,
   isDayMode,
@@ -112,7 +115,7 @@ export const DashTopBar = ({
   const dropStaleSeparators = (items: readonly TopBarItem[]): readonly TopBarItem[] =>
     items.filter((it, i) => it.type !== 'separator' || items[i - 1]?.type === 'modeFlag')
 
-  const layout: readonly TopBarItem[] = topBar.layout ?? DEFAULT_TOP_BAR_LAYOUT
+  const layout = mergePageStatusRow(topBar.layout ?? DEFAULT_TOP_BAR_LAYOUT, statusRow)
   const leftItems = dropStaleSeparators(layout.filter((it) => it.position === 'left'))
   const centerItems = dropStaleSeparators(layout.filter((it) => it.position === 'center'))
   const rightItems = dropStaleSeparators(layout.filter((it) => it.position === 'right'))
