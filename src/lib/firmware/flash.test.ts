@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   assertChipMatchesBoard,
+  chipIsSupported,
   flashFileArray,
   FlashError,
   handshakeFailureMessage,
@@ -45,6 +46,18 @@ describe('assertChipMatchesBoard', () => {
 
   it('passes when no board chip is known (old release / no manifest)', () => {
     expect(() => assertChipMatchesBoard(undefined, 'ESP32-S3')).not.toThrow()
+  })
+})
+
+describe('chipIsSupported', () => {
+  it('accepts both families CANShift publishes firmware for', () => {
+    expect(chipIsSupported('ESP32')).toBe(true)
+    expect(chipIsSupported('ESP32-S3')).toBe(true)
+  })
+
+  it('rejects a family that has no published firmware', () => {
+    expect(chipIsSupported('ESP32-C3')).toBe(false)
+    expect(chipIsSupported('ESP8266')).toBe(false)
   })
 })
 

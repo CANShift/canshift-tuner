@@ -7,7 +7,7 @@ const PRE_RESET_BAUD = 115_200
 const MERGED_FLASH_OFFSET = 0x0
 const NVS_FLASH_OFFSET = 0x9000
 
-const SUPPORTED_CHIPS: readonly string[] = ['ESP32']
+const SUPPORTED_CHIPS: readonly string[] = ['esp32', 'esp32s3']
 
 const PRE_RESET_HOLD_MS = 250
 const PRE_RESET_SETTLE_MS = 600
@@ -68,12 +68,15 @@ export class UnsupportedChipError extends Error {
   readonly detectedChip: string
   constructor(detectedChip: string) {
     super(
-      `Refusing to flash — detected ${detectedChip}, CANShift firmware is built only for classic ESP32. Writing it onto a different family will brick the device.`
+      `Refusing to flash — detected ${detectedChip}, CANShift publishes firmware for ESP32 and ESP32-S3 only. Writing it onto a different family will brick the device.`
     )
     this.name = 'UnsupportedChipError'
     this.detectedChip = detectedChip
   }
 }
+
+export const chipIsSupported = (detectedChip: string): boolean =>
+  SUPPORTED_CHIPS.some((chip) => chipFamiliesMatch(chip, detectedChip))
 
 export const assertChipMatchesBoard = (
   expectedChip: string | undefined,
@@ -185,7 +188,7 @@ const handshake = async (
   const detectedChip = loader.chip.CHIP_NAME
   onLog(`Detected chip: ${detectedChip}`)
   assertChipMatchesBoard(expectedChip, detectedChip)
-  if (!SUPPORTED_CHIPS.includes(detectedChip)) throw new UnsupportedChipError(detectedChip)
+  if (!chipIsSupported(detectedChip)) throw new UnsupportedChipError(detectedChip)
 }
 
 const writeImages = async (
