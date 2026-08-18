@@ -3,7 +3,7 @@ import {
   SECONDARY_BAR,
   STALE_PLACEHOLDER,
   WIDGET_TOP_RULE,
-  deviceValueFontPx,
+  gaugeValueFontSize,
   valueUnitFontSize,
   widgetTopRulePx,
 } from '@canshift/core'
@@ -38,6 +38,7 @@ export interface GaugeNumericRendererProps extends BaseRendererProps {
   testValue?: number | null
   signalUnit: string
   unbound?: boolean
+  scale: number
 }
 
 export const GaugeNumericPreview = memo(function GaugeNumericPreview({
@@ -48,6 +49,7 @@ export const GaugeNumericPreview = memo(function GaugeNumericPreview({
   testValue,
   signalUnit,
   unbound = false,
+  scale,
 }: GaugeNumericRendererProps) {
   if (widget.config.type !== 'gauge') return null
   const cfg = widget.config
@@ -63,12 +65,9 @@ export const GaugeNumericPreview = memo(function GaugeNumericPreview({
 
   const signalLabel = formatSignalLabel(widget.signal)
   const sigHeaderH = 14
-  const availH = h - sigHeaderH
 
   const valueStr = String(valueOnly)
-  const charBudget = valueStr.length + prefix.length + signalUnit.length * 0.45
-  const autoSize = Math.max(10, Math.min(availH * 0.85, (w - 16) / (charBudget * 0.68)))
-  const fontSize = cfg.big !== undefined ? deviceValueFontPx(cfg.big) : autoSize
+  const fontSize = gaugeValueFontSize(h / scale, cfg.big) * scale
   const rulePx = widgetTopRulePx(Math.round(fontSize))
   const ruleColor = danger
     ? WIDGET_TOP_RULE.dangerColor

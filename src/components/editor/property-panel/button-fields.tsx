@@ -92,6 +92,7 @@ export const ButtonFields = ({ widget, onChange }: ConfigFieldsProps) => {
               widget={widget}
               displayW={previewW}
               displayH={previewH}
+              scale={previewScale}
               buttonState={previewState}
               cycleStateIndex={cfg.mode === 'cycle' ? clampedPreviewIdx : undefined}
             />

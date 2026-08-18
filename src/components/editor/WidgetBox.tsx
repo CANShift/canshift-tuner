@@ -184,6 +184,7 @@ export const WidgetBox = memo(function WidgetBox({
         palette={palette}
         displayW={displayW}
         displayH={displayH}
+        scale={scale}
         revLimiting={revLimiting}
       />
     </div>
