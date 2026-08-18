@@ -5,6 +5,7 @@ import { LiveDataEmpty } from '../components/live-data/LiveDataEmpty'
 import { LiveCards } from '../components/live-data/LiveCards'
 import { LivePlot } from '../components/live-data/LivePlot'
 import { BusSilentNotice } from '../components/states/BusSilentNotice'
+import { useDisplayUnits } from '../hooks/useDisplayUnits'
 import { useLiveSignals } from '../hooks/useLiveSignals'
 import { useLiveSampler, WINDOW_MAX_S, WINDOW_MIN_S, WINDOW_STEP_S } from '../hooks/useLiveSampler'
 import { useSignalStore } from '../stores/signal.store'
@@ -36,6 +37,7 @@ const LiveDataRoute = () => {
 
   const values = paused ? frozen : live
   const sampler = useLiveSampler(values, windowSeconds)
+  const units = useDisplayUnits()
 
   const goToSignals = () => {
     void navigate('/signals')
@@ -57,7 +59,7 @@ const LiveDataRoute = () => {
     const samples = sampler.stopRecording()
     if (samples.length === 0) return
     const stamp = new Date().toISOString().replace(/[:.]/g, '-')
-    downloadFile(liveCsvFilename(stamp), CSV_MIME, buildLiveCsv(signals, samples))
+    downloadFile(liveCsvFilename(stamp), CSV_MIME, buildLiveCsv(signals, samples, units.system))
   }
 
   const meta = useMemo(
@@ -111,7 +113,13 @@ const LiveDataRoute = () => {
       <BusSilentNotice />
 
       <div className="min-h-0 flex-1 overflow-y-auto p-6">
-        <LiveCards signals={signals} values={values} selected={selected} onToggle={toggle} />
+        <LiveCards
+          signals={signals}
+          values={values}
+          units={units}
+          selected={selected}
+          onToggle={toggle}
+        />
         <LivePlot
           signals={signals}
           selected={selected}

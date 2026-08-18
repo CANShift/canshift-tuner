@@ -1,3 +1,4 @@
+import { displayUnit, displayValue, type UnitSystem } from '@canshift/core'
 import type { SignalDef } from '@canshift/core'
 import type { LiveSample } from '../hooks/useLiveSampler'
 
@@ -7,24 +8,26 @@ const NEEDS_QUOTES = /[",\n]/
 const escapeCsv = (value: string): string =>
   NEEDS_QUOTES.test(value) ? `"${value.replace(/"/g, '""')}"` : value
 
-const header = (signals: readonly SignalDef[]): string[] => [
+const header = (signals: readonly SignalDef[], system: UnitSystem): string[] => [
   'seconds',
-  ...signals.map((signal) =>
-    signal.unit.length > 0 ? `${signal.name} (${signal.unit})` : signal.name
-  ),
+  ...signals.map((signal) => {
+    const unit = displayUnit(signal.unit, system)
+    return unit.length > 0 ? `${signal.name} (${unit})` : signal.name
+  }),
 ]
 
 export const buildLiveCsv = (
   signals: readonly SignalDef[],
-  samples: readonly LiveSample[]
+  samples: readonly LiveSample[],
+  system: UnitSystem
 ): string => {
   const rows = [
-    header(signals),
+    header(signals, system),
     ...samples.map((sample) => [
       sample.t.toFixed(TIME_DECIMALS),
       ...signals.map((signal) => {
         const value = sample.values[signal.name]
-        return value === undefined ? '' : String(value)
+        return value === undefined ? '' : String(displayValue(value, signal.unit, system))
       }),
     ]),
   ]

@@ -1,7 +1,10 @@
 import { useState } from 'react'
+import { displayUnit } from '@canshift/core'
 import type { SignalDef } from '@canshift/core'
 import { cn } from '@/lib/utils'
 import { formatByteRange, parseByteRange } from '../../lib/signal-bytes'
+import type { DisplayUnits } from '../../hooks/useDisplayUnits'
+import { UNIT_SYSTEM_OPTIONS } from '../../constants/units'
 import type { SignalUsage } from '../../hooks/useSignalUsage'
 
 const GRID = [
@@ -13,6 +16,7 @@ const DECIMALS = 1
 const NO_VALUE = '—'
 
 export interface CanSignalTableProps {
+  units: DisplayUnits
   signals: readonly SignalDef[]
   values: Record<string, number>
   usage: SignalUsage
@@ -24,7 +28,7 @@ const formatValue = (value: number | undefined): string => {
   return Number.isInteger(value) ? String(value) : value.toFixed(DECIMALS)
 }
 
-export const CanSignalTable = ({ signals, values, usage, onPatch }: CanSignalTableProps) => (
+export const CanSignalTable = ({ signals, values, usage, units, onPatch }: CanSignalTableProps) => (
   <div className="min-h-0 flex-1 overflow-y-auto">
     <div
       className={cn(
@@ -46,6 +50,7 @@ export const CanSignalTable = ({ signals, values, usage, onPatch }: CanSignalTab
         signal={signal}
         value={values[signal.name]}
         pages={usage.get(signal.name) ?? []}
+        units={units}
         onPatch={onPatch}
       />
     ))}
@@ -56,10 +61,11 @@ interface SignalRowProps {
   signal: SignalDef
   value: number | undefined
   pages: number[]
+  units: DisplayUnits
   onPatch: (name: string, patch: Partial<SignalDef>) => void
 }
 
-const SignalRow = ({ signal, value, pages, onPatch }: SignalRowProps) => {
+const SignalRow = ({ signal, value, pages, units, onPatch }: SignalRowProps) => {
   const unused = pages.length === 0
   return (
     <div
@@ -88,8 +94,10 @@ const SignalRow = ({ signal, value, pages, onPatch }: SignalRowProps) => {
           if (range) onPatch(signal.name, range)
         }}
       />
-      <span className="text-right tabular-nums">{formatValue(value)}</span>
-      <span className="text-[13px] text-ui-faint">{signal.unit}</span>
+      <span className="text-right tabular-nums">
+        {formatValue(value === undefined ? undefined : units.valueOf(value, signal.unit))}
+      </span>
+      <UnitCell signal={signal} units={units} />
       <span className="flex flex-wrap gap-1">
         {pages.map((page) => (
           <span key={page} className="border border-ui-line-strong px-[7px] text-[11.5px]">
@@ -99,6 +107,33 @@ const SignalRow = ({ signal, value, pages, onPatch }: SignalRowProps) => {
         {unused && <span className="text-[12px] text-ui-faint">not used</span>}
       </span>
     </div>
+  )
+}
+
+interface UnitCellProps {
+  signal: SignalDef
+  units: DisplayUnits
+}
+
+const UnitCell = ({ signal, units }: UnitCellProps) => {
+  if (!units.hasPair(signal.unit)) {
+    return <span className="text-[13px] text-ui-faint">{signal.unit}</span>
+  }
+  return (
+    <select
+      value={units.system}
+      aria-label={`Unit for ${signal.name}`}
+      onChange={(e) => {
+        units.setSystem(e.target.value as DisplayUnits['system'])
+      }}
+      className="w-full border border-ui-line bg-transparent px-1 py-1 font-mono text-[13px] text-ui-ink hover:border-ui-ink"
+    >
+      {UNIT_SYSTEM_OPTIONS.map((option) => (
+        <option key={option.value} value={option.value}>
+          {displayUnit(signal.unit, option.value)}
+        </option>
+      ))}
+    </select>
   )
 }
 

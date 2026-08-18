@@ -7,6 +7,7 @@ import { SelectedWidgetEditor } from '../components/editor/SelectedWidgetEditor'
 import { RouteLoading } from '../components/shell/RouteLoading'
 import { useDashboardStore } from '../stores/dashboard.store'
 import { useSignalStore } from '../stores/signal.store'
+import { useDisplayUnits } from '../hooks/useDisplayUnits'
 import { configVerdict } from '../lib/burn-verdict'
 import { displayLabelForSignal } from '../utils/signal-labels'
 import { retypeWidget, type PaletteWidgetType } from '../lib/new-widget'
@@ -20,6 +21,11 @@ const widgetLabel = (widget: Widget): string => {
   if (widget.signal.length > 0) return displayLabelForSignal(widget.signal).toUpperCase()
   return widget.type.toUpperCase()
 }
+
+const ENTRY_DECIMALS = 2
+
+const roundForEntry = (value: number): number =>
+  Math.round(value * 10 ** ENTRY_DECIMALS) / 10 ** ENTRY_DECIMALS
 
 const dangerOf = (widget: Widget): { at: number | null; below: boolean; editable: boolean } => {
   if (widget.config.type !== 'gauge') return { at: null, below: false, editable: false }
@@ -39,6 +45,7 @@ export const RightSidebar = ({ pageId }: RightSidebarProps) => {
   const selectedWidgetId = useDashboardStore((s) => s.selectedWidgetId)
   const clipboardCount = useDashboardStore((s) => s.clipboardWidgets.length)
   const signals = useSignalStore((s) => s.signals)
+  const units = useDisplayUnits()
   const [advancedOpen, setAdvancedOpen] = useState(false)
 
   const { selectWidget, updateWidget, reorderWidget, removeWidget, pasteWidgets } =
@@ -60,6 +67,7 @@ export const RightSidebar = ({ pageId }: RightSidebarProps) => {
   const index = selected === null ? -1 : widgets.indexOf(selected)
   const verdict = configVerdict(config, signals)
   const danger = selected === null ? null : dangerOf(selected)
+  const selectedUnit = signals.find((signal) => signal.name === selected?.signal)?.unit ?? ''
 
   return (
     <aside className={ASIDE}>
@@ -94,13 +102,18 @@ export const RightSidebar = ({ pageId }: RightSidebarProps) => {
           }}
           canMoveUp={index > 0}
           canMoveDown={index >= 0 && index < widgets.length - 1}
-          dangerAt={danger.at}
+          dangerAt={
+            danger.at === null ? null : roundForEntry(units.valueOf(danger.at, selectedUnit))
+          }
           dangerBelow={danger.below}
           dangerEditable={danger.editable}
           onDangerAt={(value) => {
             if (selected.config.type !== 'gauge' || value === null) return
             updateWidget(pageId, selected.id, {
-              config: { ...selected.config, dangerLevel: value },
+              config: {
+                ...selected.config,
+                dangerLevel: units.storedValueOf(value, selectedUnit),
+              },
             })
           }}
           onDangerBelow={(below) => {

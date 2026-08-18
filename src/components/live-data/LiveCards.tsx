@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils'
 import type { SignalDef } from '@canshift/core'
+import type { DisplayUnits } from '../../hooks/useDisplayUnits'
 
 const PERCENT = 100
 const DECIMALS = 1
@@ -7,6 +8,7 @@ const NO_VALUE = '—'
 
 export interface LiveCardsProps {
   signals: readonly SignalDef[]
+  units: DisplayUnits
   values: Record<string, number>
   selected: readonly string[]
   onToggle: (name: string) => void
@@ -23,7 +25,7 @@ const fractionOf = (signal: SignalDef, value: number | undefined): number => {
   return Math.max(0, Math.min(1, (value - signal.min) / range))
 }
 
-export const LiveCards = ({ signals, values, selected, onToggle }: LiveCardsProps) => (
+export const LiveCards = ({ signals, values, units, selected, onToggle }: LiveCardsProps) => (
   <div className="grid gap-px border border-ui-line bg-ui-line [grid-template-columns:repeat(auto-fill,minmax(228px,1fr))]">
     {signals.map((signal) => {
       const value = values[signal.name]
@@ -50,8 +52,11 @@ export const LiveCards = ({ signals, values, selected, onToggle }: LiveCardsProp
             </span>
           </div>
           <div className="font-mono text-[30px] leading-none tracking-[-0.02em] tabular-nums text-ui-ink">
-            {formatValue(value)}
-            <span className="text-[13px] tracking-normal text-ui-faint"> {signal.unit}</span>
+            {formatValue(value === undefined ? undefined : units.valueOf(value, signal.unit))}
+            <span className="text-[13px] tracking-normal text-ui-faint">
+              {' '}
+              {units.unitOf(signal.unit)}
+            </span>
           </div>
           <div className="mt-3 h-[3px] bg-ui-line">
             <div

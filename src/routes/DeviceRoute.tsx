@@ -20,6 +20,9 @@ import { useProjectStore } from '../stores/project/project.store'
 import { useProjectFileActions } from '../hooks/useProjectFileActions'
 import { useCatalogueIndex } from '../hooks/useCatalogueIndex'
 import { ecuLabelForKey } from '../utils/ecu-label'
+import { useDisplayUnits } from '../hooks/useDisplayUnits'
+import { UNIT_SYSTEM_OPTIONS } from '../constants/units'
+import type { UnitSystem } from '@canshift/core'
 import { PROJECT_FILE_ACCEPT } from '../lib/project-file'
 
 const BoardConfigRoute = lazy(() => import('./BoardConfigRoute'))
@@ -48,6 +51,7 @@ const DeviceRoute = () => {
   const updateScreen = useScreenSettingsStore((s) => s.update)
   const activeProjectId = useProjectStore((s) => s.activeProjectId)
   const catalogue = useCatalogueIndex()
+  const units = useDisplayUnits()
   const { fileInputRef, exportProjectFile, openImportPicker, handleImportChange } =
     useProjectFileActions()
   const [advancedOpen, setAdvancedOpen] = useState(false)
@@ -111,6 +115,15 @@ const DeviceRoute = () => {
               }))}
               onChange={(value) => {
                 setTargetProfile(value as ScreenProfileId)
+              }}
+            />
+            <SettingRow
+              label="UNITS"
+              note="Switches every signal that has an imperial equivalent."
+              value={units.system}
+              options={UNIT_SYSTEM_OPTIONS}
+              onChange={(value) => {
+                units.setSystem(value as UnitSystem)
               }}
             />
             <SettingRow
