@@ -5,10 +5,10 @@ const key = (name: string): string => `${NAMESPACE}${name}`
 export const STORAGE_KEYS = {
   autosave: key('autosave'),
   boardProfiles: key('board-profiles'),
+  cliOpen: key('cli-open'),
   feedbackDismissedHint: key('feedback-dismissed-hint'),
   flashHistory: key('flash-history'),
   inspectorCollapsed: key('inspector-collapsed'),
-  leftNavCollapsed: key('left-nav-collapsed'),
   logVerbose: key('log-verbose'),
   observability: key('observability'),
   pageTemplates: key('page-templates'),
@@ -23,7 +23,6 @@ export const PROJECT_KEY_PREFIX = key('project.')
 export const projectStorageKey = (id: string): string => `${PROJECT_KEY_PREFIX}${id}`
 
 const LEGACY_KEYS: Record<string, string> = {
-  'cs-left-nav-collapsed': STORAGE_KEYS.leftNavCollapsed,
   'cs-inspector-collapsed': STORAGE_KEYS.inspectorCollapsed,
   'canshift:feedback-dismissed-hint': STORAGE_KEYS.feedbackDismissedHint,
   'canshift:signal-store-v1': STORAGE_KEYS.signals,

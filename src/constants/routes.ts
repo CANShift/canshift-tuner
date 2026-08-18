@@ -9,57 +9,53 @@ export const ROUTE_META = {
     description:
       'Configure your CANShift dash, live. Edit pages, bind CAN signals, tune OBD-II polling and flash firmware — all in your browser.',
   },
-  '/dashboard': {
-    title: 'Pages & widgets — CANShift Tuner',
+  '/flash': {
+    title: 'Flash — CANShift Tuner',
+    description:
+      'Write a firmware version to the board over USB, or wipe it back to a blank state.',
+  },
+  '/contact': {
+    title: 'Contact — CANShift Tuner',
+    description: 'Report a bug, request an ECU profile, or ask a question about a build.',
+  },
+  '/dash': {
+    title: 'Dash — CANShift Tuner',
     description:
       'Arrange pages and widgets on the dash canvas — gauges, warnings, gear and shift lights — with a live device-accurate preview.',
   },
-  '/can': {
-    title: 'CAN bus — CANShift Tuner',
+  '/signals': {
+    title: 'Signals — CANShift Tuner',
     description:
-      'Scan the CAN bus live — frame rates, byte histograms and signal binding straight from the wire.',
-  },
-  '/ecu': {
-    title: 'ECU profile — CANShift Tuner',
-    description:
-      'Load an ECU broadcast profile from the catalogue or import its XML, and preview the decoded signals.',
-  },
-  '/obd2': {
-    title: 'OBD-II — CANShift Tuner',
-    description:
-      'Tune OBD-II PID polling and read diagnostic trouble codes from the connected device.',
-  },
-  '/themes': {
-    title: 'Themes — CANShift Tuner',
-    description: 'Pick a colour theme for the dash and preview its palette before burning it.',
+      'Bind CAN signals and OBD-II PIDs, scan the bus live, and load an ECU broadcast profile.',
   },
   '/live': {
-    title: 'Live data — CANShift Tuner',
-    description: 'Watch decoded signal values stream from the device in real time.',
-  },
-  '/logs': {
-    title: 'Logs — CANShift Tuner',
-    description: 'Browse device log output and recorded sessions.',
-  },
-  '/cli': {
-    title: 'CLI — CANShift Tuner',
-    description: 'Send raw firmware opcodes to the device over USB.',
-  },
-  '/board': {
-    title: 'Board config — CANShift Tuner',
+    title: 'Live — CANShift Tuner',
     description:
-      'Select a supported board or describe custom hardware — display, touch, pins and CAN transceiver.',
+      'Watch decoded signal values stream from the device in real time, and record them.',
   },
-  '/firmware': {
-    title: 'Firmware — CANShift Tuner',
-    description: 'Download CANShift firmware releases and flash them to the board over WebSerial.',
-  },
-  '/about': {
-    title: 'About — CANShift Tuner',
-    description: 'Version details, device diagnostics and feedback.',
+  '/device': {
+    title: 'Device — CANShift Tuner',
+    description: 'Board, settings, dash theme and the critical alert the config will write.',
   },
 } as const satisfies Record<string, RouteMeta>
 
 export type RoutePath = keyof typeof ROUTE_META
 
 export const ROUTE_PATHS = Object.keys(ROUTE_META) as readonly RoutePath[]
+
+export const LEGACY_REDIRECTS: Record<string, RoutePath> = {
+  '/dashboard': '/dash',
+  '/can': '/signals',
+  '/ecu': '/signals',
+  '/obd2': '/signals',
+  '/themes': '/device',
+  '/board': '/device',
+  '/firmware': '/flash',
+  '/about': '/contact',
+  '/logs': '/live',
+  '/cli': '/dash',
+}
+
+export const HOME_PATHS = new Set<RoutePath>(['/', '/flash', '/contact'])
+
+export const DEVICE_GATED_PATHS = new Set<RoutePath>(['/dash', '/signals', '/live', '/device'])

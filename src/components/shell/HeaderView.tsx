@@ -1,118 +1,169 @@
-import type { ReactNode } from 'react'
-import { AutosavePill } from './AutosavePill'
-import { BrandLockup } from '../brand/BrandLockup'
+import type { ComponentType, ReactNode } from 'react'
+import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
+import { BrandLockup } from '../brand/BrandLockup'
+import type { RoutePath } from '../../constants/routes'
 
 export type HeaderStatus =
   'connected' | 'connecting' | 'reconnecting' | 'disconnected' | 'simulation'
 
-export interface HeaderViewProps {
-  tunerVersion: string
-  status: HeaderStatus
-  projectName?: string | null
-  lastSavedAt?: number | null
-  portLabel?: string | null
-  activityPulse?: boolean
-  projectSwitcher?: ReactNode
-  firmwareSlot?: ReactNode
-  themeToggle?: ReactNode
-  burnButton?: ReactNode
-  onDisconnect?: () => void
+export interface HeaderTab {
+  to: RoutePath
+  label: string
+  gated: boolean
+}
+
+export const HEADER_TABS: readonly HeaderTab[] = [
+  { to: '/', label: 'HOME', gated: false },
+  { to: '/dash', label: 'DASH', gated: true },
+  { to: '/signals', label: 'SIGNALS', gated: true },
+  { to: '/live', label: 'LIVE', gated: true },
+  { to: '/device', label: 'DEVICE', gated: true },
+]
+
+export interface HeaderLinkProps {
+  to: string
+  className: string
+  children: ReactNode
+  'aria-current'?: 'page' | undefined
 }
 
 interface StatusVisual {
   label: string
-  tone: string
-  dot: string
+  tint: string
 }
-
-const ACCENT_VISUAL = { tone: 'border-brand-accent text-brand-accent', dot: 'bg-brand-accent' }
 
 const STATUS_VISUAL: Record<HeaderStatus, StatusVisual> = {
-  connected: { label: 'CONNECTED', tone: 'border-success text-success', dot: 'bg-success' },
-  connecting: { label: 'CONNECTING…', ...ACCENT_VISUAL },
-  reconnecting: { label: 'RECONNECTING…', ...ACCENT_VISUAL },
-  simulation: { label: 'SIMULATION', ...ACCENT_VISUAL },
-  disconnected: {
-    label: 'NO DEVICE',
-    tone: 'border-brand-neutral-500 text-brand-neutral-500',
-    dot: 'bg-brand-neutral-500',
-  },
+  connected: { label: 'CONNECTED', tint: 'text-ui-ok' },
+  connecting: { label: 'CONNECTING', tint: 'text-ui-accent' },
+  reconnecting: { label: 'RECONNECTING', tint: 'text-ui-accent' },
+  simulation: { label: 'SIMULATION', tint: 'text-ui-accent' },
+  disconnected: { label: 'NO DEVICE', tint: 'text-ui-header-dim' },
 }
 
-const DISCONNECTED_VISUAL = STATUS_VISUAL.disconnected
+export interface HeaderViewProps {
+  activePath: string
+  gatingActive: boolean
+  status: HeaderStatus
+  configNameField: ReactNode
+  onDisconnect?: (() => void) | undefined
+  themeToggle: ReactNode
+  saveButton: ReactNode
+  burnButton: ReactNode
+  LinkComponent: ComponentType<HeaderLinkProps>
+}
 
 export const HeaderView = ({
-  tunerVersion,
+  activePath,
+  gatingActive,
   status,
-  projectName = null,
-  lastSavedAt = null,
-  portLabel,
-  activityPulse = false,
-  projectSwitcher,
-  firmwareSlot,
-  themeToggle,
-  burnButton,
+  configNameField,
   onDisconnect,
+  themeToggle,
+  saveButton,
+  burnButton,
+  LinkComponent,
 }: HeaderViewProps) => {
-  const visual = STATUS_VISUAL[status] ?? DISCONNECTED_VISUAL
+  const visual = STATUS_VISUAL[status]
   return (
-    <header className="flex h-14 shrink-0 items-stretch border-b-2 border-brand-divider bg-brand-chrome-bg">
-      <div className="flex items-center gap-[11px] border-r-2 border-brand-divider pl-[18px] pr-5 text-brand-text">
-        <BrandLockup height={24} />
-        <span className="self-end pb-2.5 text-[9px] font-semibold tracking-[0.2em] text-brand-neutral-600">
+    <header className="flex h-[52px] shrink-0 items-stretch bg-ui-header-bg text-ui-header-ink">
+      <div className="flex items-center gap-2.5 px-5">
+        <BrandLockup height={19} />
+        <span className="hidden font-mono text-[11px] tracking-[0.16em] text-ui-faint min-[1000px]:inline">
           TUNER
         </span>
       </div>
 
-      <div className="flex min-w-0 flex-1 items-center gap-3.5 px-5">
-        {projectSwitcher ??
-          (projectName !== null && (
-            <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[15px] font-extrabold text-brand-text">
-              {projectName}
-            </span>
-          ))}
-        <AutosavePill lastSavedAt={lastSavedAt} />
-        <span className={cn(STATUS_PILL, visual.tone)}>
-          <span
-            aria-hidden="true"
-            className={cn(
-              'size-[7px] [transition:opacity_80ms_ease-out]',
-              visual.dot,
-              activityPulse ? 'opacity-45' : 'opacity-100'
-            )}
+      {configNameField}
+
+      <nav aria-label="Primary" className="ml-[18px] flex items-stretch">
+        {HEADER_TABS.map((tab) => (
+          <HeaderTabItem
+            key={tab.to}
+            tab={tab}
+            active={activePath === tab.to}
+            disabled={tab.gated && gatingActive}
+            LinkComponent={LinkComponent}
           />
-          <span role="status" aria-live="polite">
-            {visual.label}
-          </span>
-          {onDisconnect && (status === 'connected' || status === 'simulation') ? (
-            <button
-              type="button"
-              onClick={onDisconnect}
-              title="Disconnect from dash"
-              aria-label="Disconnect"
-              className="cursor-pointer border-none bg-transparent p-0 text-[10px] leading-none text-current"
-            >
-              ✕
-            </button>
-          ) : null}
+        ))}
+      </nav>
+
+      <div className="flex-1" />
+
+      <div
+        className={cn(
+          'hidden items-center gap-[9px] whitespace-nowrap px-[18px] font-mono text-[11.5px] tracking-[0.08em] min-[1060px]:flex',
+          visual.tint
+        )}
+      >
+        <span aria-hidden="true" className="block size-[7px] bg-current" />
+        <span role="status" aria-live="polite">
+          {visual.label}
         </span>
-        <span className={cn(META_SLOT)}>
-          {portLabel !== null && portLabel !== undefined && <span>{portLabel} · </span>}
-          {firmwareSlot}
-        </span>
-        <span className={cn(META_SLOT, 'ml-auto')}>tuner v{tunerVersion}</span>
       </div>
 
-      <div className="flex items-stretch border-l-2 border-brand-divider">
-        {themeToggle}
-        {burnButton}
-      </div>
+      {themeToggle}
+
+      {onDisconnect && (
+        <button
+          type="button"
+          onClick={onDisconnect}
+          title="Disconnect the dash"
+          className="cursor-pointer whitespace-nowrap border-0 border-l border-solid border-ui-header-line bg-transparent px-4 font-mono text-[11px] tracking-[0.14em] text-ui-faint hover:text-ui-engaged"
+        >
+          DISCONNECT
+        </button>
+      )}
+
+      {saveButton}
+      {burnButton}
     </header>
   )
 }
 
-const STATUS_PILL =
-  'flex shrink-0 items-center gap-2 whitespace-nowrap border px-2.5 py-1 text-[11px] font-extrabold tracking-[0.09em]'
+interface HeaderTabItemProps {
+  tab: HeaderTab
+  active: boolean
+  disabled: boolean
+  LinkComponent: ComponentType<HeaderLinkProps>
+}
 
-const META_SLOT = 'shrink-0 whitespace-nowrap font-mono text-[11px] text-brand-neutral-600'
+const HeaderTabItem = ({ tab, active, disabled, LinkComponent }: HeaderTabItemProps) => {
+  if (disabled) {
+    return (
+      <span
+        aria-disabled="true"
+        title="Connect a dash, or edit offline, to open this tab"
+        className={cn(headerTab({ state: 'disabled' }))}
+      >
+        {tab.label}
+      </span>
+    )
+  }
+  return (
+    <LinkComponent
+      to={tab.to}
+      className={cn(headerTab({ state: active ? 'active' : 'idle' }))}
+      {...(active ? { 'aria-current': 'page' } : {})}
+    >
+      {tab.label}
+    </LinkComponent>
+  )
+}
+
+const headerTab = cva(
+  [
+    'flex items-center whitespace-nowrap px-4 text-[13px] font-bold tracking-[0.06em]',
+    'no-underline outline-offset-[-2px]',
+  ].join(' '),
+  {
+    variants: {
+      state: {
+        idle: 'cursor-pointer text-ui-header-dim hover:bg-ui-panel hover:text-ui-ink',
+        active: 'cursor-pointer bg-ui-rule text-ui-bg',
+        disabled: 'cursor-not-allowed text-ui-header-line',
+      },
+    },
+    defaultVariants: { state: 'idle' },
+  }
+)

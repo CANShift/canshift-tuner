@@ -21,13 +21,13 @@ export const BurnButton = ({ disabled = false, busy = false, title, onClick }: B
       className={cn('h-auto gap-0 shell-burn-button', burnFace({ disabled: isDisabled }))}
     >
       {busy ? <Spinner size="sm" /> : null}
-      {busy ? 'BURNING…' : 'BURN TO DEVICE'}
+      {busy ? 'BURNING…' : 'BURN'}
     </Button>
   )
 }
 
 export const BurnSuccessPill = () => (
-  <span role="status" className={cn(OUTCOME_PILL, 'border-success bg-success/[0.12] text-success')}>
+  <span role="status" className={cn(OUTCOME_PILL, 'border-ui-ok text-ui-ok')}>
     Burned ✓
   </span>
 )
@@ -38,8 +38,8 @@ const OUTCOME_PILL =
 const burnFace = cva('h-full border-none px-6 text-[12px] font-extrabold tracking-[0.09em]', {
   variants: {
     disabled: {
-      true: 'cursor-not-allowed bg-brand-neutral-200 text-brand-neutral-500',
-      false: 'cursor-pointer bg-brand-accent text-white',
+      true: 'cursor-not-allowed bg-transparent text-ui-faint',
+      false: 'cursor-pointer bg-ui-accent text-white hover:bg-ui-accent-hover',
     },
   },
   defaultVariants: { disabled: false },

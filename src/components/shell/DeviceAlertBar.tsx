@@ -130,7 +130,7 @@ export const DeviceAlertBar = () => {
     now,
     onFirmwareRoute: location.pathname === '/firmware',
     goToFirmware: () => {
-      navigate('/firmware')
+      navigate('/flash')
     },
   })
 

@@ -122,36 +122,31 @@ samp {
 }
 
 .shell-nav-item:hover {
-  background: hsl(var(--brand-neutral-200));
-  color: hsl(var(--brand-text));
+  background: var(--ui-panel);
+  color: var(--ui-ink);
 }
 
 .shell-burn-button:not(:disabled):hover {
-  background: hsl(var(--brand-accent-600)) !important;
+  background: var(--ui-accent-hover) !important;
 }
 
 .editor-ghost-accent:not(:disabled):hover {
-  background: color-mix(in srgb, hsl(var(--brand-accent)) 14%, transparent) !important;
+  background: color-mix(in srgb, var(--ui-accent) 14%, transparent) !important;
 }
 
 .shell-link-button:not(:disabled):hover {
-  border-color: hsl(var(--brand-accent)) !important;
-}
-
-.shell-theme-toggle:hover {
-  background: hsl(var(--brand-neutral-100));
-  color: hsl(var(--brand-text));
+  border-color: var(--ui-accent) !important;
 }
 
 @keyframes canshift-rebind-flash {
   from {
     box-shadow:
-      0 0 0 3px hsl(var(--brand-accent)),
-      0 0 12px hsl(var(--brand-accent));
+      0 0 0 3px var(--ui-accent),
+      0 0 12px var(--ui-accent);
   }
   to {
     box-shadow:
-      0 0 0 2px hsl(var(--brand-accent)),
+      0 0 0 2px var(--ui-accent),
       0 0 0 transparent;
   }
 }

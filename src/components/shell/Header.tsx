@@ -1,16 +1,17 @@
-import { useEffect, useRef, useState } from 'react'
-import { HeaderView, type HeaderStatus } from './HeaderView'
+import { useEffect, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
+import { HeaderView, type HeaderLinkProps, type HeaderStatus } from './HeaderView'
+import { ConfigNameField } from './ConfigNameField'
+import { SaveButton } from './SaveButton'
 import { BurnButton as UiBurnButton, BurnSuccessPill } from './BurnButton'
-import { FirmwareSlot as UiFirmwareSlot } from './FirmwareSlot'
 import { useConnectionStore } from '../../stores/connection.store'
 import { useDashboardStore } from '../../stores/dashboard.store'
 import { useDeviceStore } from '../../stores/device.store'
 import { useThemeStore } from '../../stores/theme.store'
 import { useUiStore } from '../../stores/ui.store'
 import { ThemeToggleButton } from './ThemeToggleButton'
-import { ProjectSwitcher } from '../project/ProjectSwitcher'
+import { useProjectStore } from '../../stores/project/project.store'
 import { useBurnDashboard } from '../../hooks/useBurnDashboard'
-import { deviceEvents } from '../../transport'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,108 +23,57 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 
-const PULSE_HOLD_MS = 220
-const PULSE_THROTTLE_MS = 60
-
 const BURN_SUCCESS_FLASH_MS = 2_500
 const BURN_DENIED_SHAKE_MS = 400
 
-interface PortLike {
-  getInfo(): { usbVendorId?: number; usbProductId?: number }
-}
-
-const readPortLabel = (port: PortLike | null): string | null => {
-  if (!port) return null
-  try {
-    const info = port.getInfo()
-    const vendor = info.usbVendorId
-    const product = info.usbProductId
-    if (vendor === undefined && product === undefined) return null
-    const vendorHex = vendor !== undefined ? vendor.toString(16).padStart(4, '0') : '????'
-    const productHex = product !== undefined ? product.toString(16).padStart(4, '0') : '????'
-    return `${vendorHex}:${productHex}`
-  } catch {
-    return null
-  }
-}
-
-const useSerialActivityPulse = (active: boolean): boolean => {
-  const [pulsing, setPulsing] = useState(false)
-  const lastTickRef = useRef(0)
-  const offTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    const clearOffTimer = () => {
-      if (offTimerRef.current !== null) {
-        clearTimeout(offTimerRef.current)
-        offTimerRef.current = null
-      }
-    }
-
-    if (!active) {
-      setPulsing(false)
-      clearOffTimer()
-      return () => {}
-    }
-
-    const unsubscribe = deviceEvents.onActivity(() => {
-      const now = performance.now()
-      if (now - lastTickRef.current < PULSE_THROTTLE_MS) return
-      lastTickRef.current = now
-      setPulsing(true)
-      clearOffTimer()
-      offTimerRef.current = setTimeout(() => {
-        setPulsing(false)
-        offTimerRef.current = null
-      }, PULSE_HOLD_MS)
-    })
-
-    return () => {
-      unsubscribe()
-      clearOffTimer()
-      setPulsing(false)
-    }
-  }, [active])
-
-  return pulsing
-}
+const HeaderLink = ({ to, className, children, ...rest }: HeaderLinkProps) => (
+  <Link to={to} className={className} {...rest}>
+    {children}
+  </Link>
+)
 
 const Header = () => {
   const status = useConnectionStore((s) => s.status)
-  const port = useConnectionStore((s) => s.port)
   const disconnect = useConnectionStore((s) => s.disconnect)
   const simulationMode = useDeviceStore((s) => s.simulationMode)
   const exitSimulation = useDeviceStore((s) => s.exitSimulation)
-  const firmwareVersion = useDeviceStore((s) => s.firmwareVersion)
-  const firmwareCompat = useDeviceStore((s) => s.firmwareCompat)
-  const projectName = useDashboardStore((s) => s.config?.name ?? null)
-  const lastSavedAt = useDashboardStore((s) => s.lastSavedAt)
-  const pulsing = useSerialActivityPulse(status === 'connected' && !simulationMode)
-  const portLabel = !simulationMode && status === 'connected' ? readPortLabel(port) : null
+  const configName = useDashboardStore((s) => s.config?.name ?? null)
+  const activeProjectId = useProjectStore((s) => s.activeProjectId)
+  const renameProject = useProjectStore((s) => s.renameProject)
+  const saveActiveProject = useProjectStore((s) => s.saveActiveProject)
+  const location = useLocation()
 
+  const live = status === 'connected' || status === 'reconnecting'
   const resolvedStatus: HeaderStatus = simulationMode ? 'simulation' : status
 
   const handleDisconnect = () => {
     if (simulationMode) {
       exitSimulation()
-    } else {
-      disconnect()
+      return
     }
+    disconnect()
   }
 
   return (
     <HeaderView
-      tunerVersion={__TUNER_VERSION__}
+      activePath={location.pathname}
+      gatingActive={!live && !simulationMode}
       status={resolvedStatus}
-      projectName={projectName}
-      lastSavedAt={lastSavedAt}
-      portLabel={portLabel}
-      activityPulse={pulsing}
-      projectSwitcher={<ProjectSwitcher />}
-      firmwareSlot={<UiFirmwareSlot version={firmwareVersion} compat={firmwareCompat} />}
+      configNameField={
+        configName !== null && activeProjectId !== null ? (
+          <ConfigNameField
+            name={configName}
+            onCommit={(name) => {
+              renameProject(activeProjectId, name)
+            }}
+          />
+        ) : null
+      }
       themeToggle={<ThemeToggle />}
+      saveButton={<SaveButton disabled={configName === null} onSave={saveActiveProject} />}
       burnButton={<BurnButton />}
-      onDisconnect={handleDisconnect}
+      {...(live || simulationMode ? { onDisconnect: handleDisconnect } : {})}
+      LinkComponent={HeaderLink}
     />
   )
 }

@@ -73,7 +73,7 @@ const DiagnosticsToggle = () => {
   )
 }
 
-const AboutRoute = () => {
+const ContactRoute = () => {
   const tunerVersion = typeof __TUNER_VERSION__ !== 'undefined' ? __TUNER_VERSION__ : 'unknown'
   const firmwareVersion = useDeviceStore((s) => s.firmwareVersion)
   const connected = useDeviceStore((s) => s.connected)
@@ -151,4 +151,4 @@ const prettyStatus = (status: ConnectionStatus, simulationMode: boolean): string
   return STATUS_LABELS[status]
 }
 
-export default AboutRoute
+export default ContactRoute

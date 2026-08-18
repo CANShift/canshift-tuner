@@ -22,7 +22,7 @@ export const BurnFailureNotice = () => {
       secondaryAction={{
         label: 'Read the error codes',
         onClick: () => {
-          navigate('/logs')
+          navigate('/dash')
         },
       }}
     />
