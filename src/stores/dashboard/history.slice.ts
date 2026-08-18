@@ -46,33 +46,4 @@ export const createHistorySlice: SliceCreator<HistorySlice> = (set) => ({
       fixupSelection(s)
     })
   },
-
-  jumpTo: (target) => {
-    set((s) => {
-      if (!s.config) return
-      if (target.kind === 'past') {
-        if (target.index < 0 || target.index >= s.past.length) return
-        while (s.past.length > target.index) {
-          const entry = s.past[s.past.length - 1]
-          if (!entry) break
-          s.past.splice(s.past.length - 1, 1)
-          s.future.unshift({ config: current(s.config), label: entry.label })
-          s.config = entry.config
-        }
-        if (s.future.length > HISTORY_LIMIT) s.future.length = HISTORY_LIMIT
-      } else {
-        if (target.index < 0 || target.index >= s.future.length) return
-        for (let k = 0; k <= target.index; k++) {
-          const entry = s.future[0]
-          if (!entry) break
-          s.future.splice(0, 1)
-          s.past.push({ config: current(s.config), label: entry.label })
-          s.config = entry.config
-        }
-        while (s.past.length > HISTORY_LIMIT) s.past.shift()
-      }
-      s.isDirty = true
-      fixupSelection(s)
-    })
-  },
 })

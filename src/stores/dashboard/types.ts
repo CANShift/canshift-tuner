@@ -36,7 +36,6 @@ export interface HistorySlice {
   future: HistoryEntry[]
   undo: () => void
   redo: () => void
-  jumpTo: (target: { kind: 'past' | 'future'; index: number }) => void
 }
 
 export interface PagesSlice {
@@ -70,6 +69,7 @@ export interface WidgetsSlice {
   addWidget: (pageId: string, widget: Widget) => void
   duplicateWidgets: (pageId: string, widgetIds: string[]) => void
   removeWidget: (pageId: string, widgetId: string) => void
+  reorderWidget: (pageId: string, widgetId: string, direction: 1 | -1) => void
   updateWidget: (pageId: string, widgetId: string, patch: Partial<Widget>) => void
   moveWidget: (pageId: string, widgetId: string, layout: Partial<WidgetLayout>) => void
   commitWidgetMove: (pageId: string, widgetId: string, layout: Partial<WidgetLayout>) => void

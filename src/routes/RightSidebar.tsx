@@ -1,105 +1,165 @@
 import { lazy, Suspense, useState } from 'react'
-import type { ReactNode } from 'react'
-import { cva } from 'class-variance-authority'
+import type { Widget } from '@canshift/core'
+import { useShallow } from 'zustand/react/shallow'
 import { cn } from '@/lib/utils'
-import { CollapseRail, CollapseButton } from '../components/shell/CollapseRail'
-import { useUiStore } from '../stores/ui.store'
+import { WidgetList } from '../components/editor/WidgetList'
+import { SelectedWidgetEditor } from '../components/editor/SelectedWidgetEditor'
+import { RouteLoading } from '../components/shell/RouteLoading'
+import { useDashboardStore } from '../stores/dashboard.store'
+import { useSignalStore } from '../stores/signal.store'
+import { configVerdict } from '../lib/burn-verdict'
+import { displayLabelForSignal } from '../utils/signal-labels'
+import { retypeWidget, type PaletteWidgetType } from '../lib/new-widget'
 
 const PropertyPanel = lazy(() => import('../components/editor/PropertyPanel'))
-const SignalsPanel = lazy(() => import('../components/editor/SignalsPanel'))
-const WidgetPalette = lazy(() => import('../components/editor/WidgetPalette'))
-const WidgetListPanel = lazy(() => import('../components/editor/WidgetListPanel'))
-const HistoryPanel = lazy(() => import('../components/editor/HistoryPanel'))
 
-type Tab = 'properties' | 'widgets' | 'signals' | 'library' | 'history'
+const FITS = 'layout fits'
 
-const ASIDE = [
-  'flex w-80 shrink-0 flex-row overflow-hidden',
-  'min-h-0 border-l-2 border-solid border-brand-divider',
-].join(' ')
+const widgetLabel = (widget: Widget): string => {
+  if (widget.config.type === 'button') return widget.config.kicker ?? widget.config.label
+  if (widget.signal.length > 0) return displayLabelForSignal(widget.signal).toUpperCase()
+  return widget.type.toUpperCase()
+}
 
-const GUTTER = [
-  'flex shrink-0 flex-col items-center pt-2',
-  'border-r border-solid border-brand-divider bg-brand-neutral-100',
-].join(' ')
-
-const CONTENT_COL = 'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden'
-
-const TAB_LIST = 'flex shrink-0 border-b-2 border-solid border-brand-divider'
-
-const tab_ = cva(
-  'relative flex-1 cursor-pointer border-0 bg-transparent py-[11px] text-[9px] font-extrabold tracking-[0.06em]',
-  {
-    variants: { active: { true: 'text-brand-text', false: 'text-brand-neutral-600' } },
-    defaultVariants: { active: false },
+const dangerOf = (widget: Widget): { at: number | null; below: boolean; editable: boolean } => {
+  if (widget.config.type !== 'gauge') return { at: null, below: false, editable: false }
+  return {
+    at: widget.config.dangerLevel,
+    below: widget.config.dangerBelow === true,
+    editable: true,
   }
-)
-
-const TAB_BAR = 'absolute bottom-0 left-0 right-0 h-[3px] bg-brand-accent'
-
-const FALLBACK = 'flex flex-1 items-center justify-center text-[11px] text-brand-neutral-500'
-
-const TABS: { id: Tab; label: string }[] = [
-  { id: 'properties', label: 'PROPERTIES' },
-  { id: 'widgets', label: 'WIDGETS' },
-  { id: 'signals', label: 'SIGNALS' },
-  { id: 'library', label: 'LIBRARY' },
-  { id: 'history', label: 'HISTORY' },
-]
+}
 
 export interface RightSidebarProps {
   pageId: string | undefined
 }
 
-const PanelFallback = () => <div className={FALLBACK}>Loading…</div>
-
-const TAB_PANELS: Record<Tab, (pageId: string | undefined) => ReactNode | null> = {
-  properties: (pageId) => (pageId === undefined ? null : <PropertyPanel pageId={pageId} />),
-  widgets: (pageId) => (pageId === undefined ? null : <WidgetListPanel pageId={pageId} />),
-  signals: (pageId) => <SignalsPanel pageId={pageId} />,
-  library: (pageId) => (pageId === undefined ? null : <WidgetPalette pageId={pageId} />),
-  history: () => <HistoryPanel />,
-}
-
 export const RightSidebar = ({ pageId }: RightSidebarProps) => {
-  const [tab, setTab] = useState<Tab>('properties')
-  const collapsed = useUiStore((s) => s.inspectorCollapsed)
-  const toggleInspector = useUiStore((s) => s.toggleInspector)
+  const config = useDashboardStore((s) => s.config)
+  const selectedWidgetId = useDashboardStore((s) => s.selectedWidgetId)
+  const clipboardCount = useDashboardStore((s) => s.clipboardWidgets.length)
+  const signals = useSignalStore((s) => s.signals)
+  const [advancedOpen, setAdvancedOpen] = useState(false)
 
-  if (collapsed) {
-    return <CollapseRail side="right" label="Inspector" onExpand={toggleInspector} />
-  }
+  const { selectWidget, updateWidget, reorderWidget, removeWidget, pasteWidgets } =
+    useDashboardStore(
+      useShallow((s) => ({
+        selectWidget: s.selectWidget,
+        updateWidget: s.updateWidget,
+        reorderWidget: s.reorderWidget,
+        removeWidget: s.removeWidget,
+        pasteWidgets: s.pasteWidgets,
+      }))
+    )
 
-  const panel = TAB_PANELS[tab](pageId)
+  const page = config?.pages.find((candidate) => candidate.id === pageId)
+  if (!page || pageId === undefined) return <aside className={ASIDE} />
+
+  const widgets = page.widgets
+  const selected = widgets.find((widget) => widget.id === selectedWidgetId) ?? null
+  const index = selected === null ? -1 : widgets.indexOf(selected)
+  const verdict = configVerdict(config)
+  const danger = selected === null ? null : dangerOf(selected)
 
   return (
     <aside className={ASIDE}>
-      <div className={GUTTER}>
-        <CollapseButton side="right" label="Inspector" onCollapse={toggleInspector} />
+      <WidgetList
+        widgets={widgets}
+        signals={signals}
+        selectedId={selectedWidgetId}
+        onSelect={selectWidget}
+        onSignal={(widgetId, signal) => {
+          updateWidget(pageId, widgetId, { signal })
+        }}
+        onType={(widgetId, type) => {
+          const target = widgets.find((widget) => widget.id === widgetId)
+          if (!target) return
+          const patch = retypeWidget(target, type as PaletteWidgetType)
+          if (patch !== null) updateWidget(pageId, widgetId, patch)
+        }}
+        labelFor={widgetLabel}
+      />
+
+      {selected !== null && danger !== null && (
+        <SelectedWidgetEditor
+          widget={selected}
+          name={widgetLabel(selected)}
+          nameEditable={selected.config.type === 'button'}
+          onName={(name) => {
+            if (selected.config.type !== 'button') return
+            updateWidget(pageId, selected.id, { config: { ...selected.config, kicker: name } })
+          }}
+          onMove={(direction) => {
+            reorderWidget(pageId, selected.id, direction)
+          }}
+          canMoveUp={index > 0}
+          canMoveDown={index >= 0 && index < widgets.length - 1}
+          dangerAt={danger.at}
+          dangerBelow={danger.below}
+          dangerEditable={danger.editable}
+          onDangerAt={(value) => {
+            if (selected.config.type !== 'gauge' || value === null) return
+            updateWidget(pageId, selected.id, {
+              config: { ...selected.config, dangerLevel: value },
+            })
+          }}
+          onDangerBelow={(below) => {
+            if (selected.config.type !== 'gauge') return
+            updateWidget(pageId, selected.id, {
+              config: { ...selected.config, dangerBelow: below },
+            })
+          }}
+        />
+      )}
+
+      <div className="flex shrink-0 items-center gap-3.5 border-t border-ui-line px-4 py-[13px] font-mono text-[11.5px] text-ui-muted">
+        <span className={cn(verdict.kind === 'ok' ? 'text-ui-muted' : 'text-ui-warning')}>
+          {verdict.kind === 'ok' ? FITS : verdict.kind.replace(/-/g, ' ')}
+        </span>
+        <span className="text-ui-faint">wheel {config?.pages.length ?? 0} pages</span>
+        {clipboardCount > 0 && (
+          <button
+            type="button"
+            onClick={() => {
+              pasteWidgets(pageId)
+            }}
+            className="cursor-pointer whitespace-nowrap border border-ui-ink bg-transparent px-3 py-1.5 font-sans text-[12px] font-bold text-ui-ink hover:bg-ui-panel"
+          >
+            Paste {clipboardCount}
+          </button>
+        )}
+        <button
+          type="button"
+          disabled={selected === null}
+          onClick={() => {
+            if (selected !== null) removeWidget(pageId, selected.id)
+          }}
+          className="ml-auto cursor-pointer whitespace-nowrap border border-ui-accent bg-transparent px-3 py-1.5 font-sans text-[12px] font-bold text-ui-accent disabled:cursor-not-allowed disabled:border-ui-line disabled:text-ui-faint"
+        >
+          Remove
+        </button>
       </div>
-      <div className={CONTENT_COL}>
-        <div role="tablist" aria-label="Editor sidebar tabs" className={TAB_LIST}>
-          {TABS.map((t) => {
-            const isActive = tab === t.id
-            return (
-              <button
-                key={t.id}
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                onClick={() => {
-                  setTab(t.id)
-                }}
-                className={cn(!isActive && 'shell-nav-item', tab_({ active: isActive }))}
-              >
-                {t.label}
-                {isActive && <span aria-hidden="true" className={TAB_BAR} />}
-              </button>
-            )
-          })}
-        </div>
-        {panel !== null && <Suspense fallback={<PanelFallback />}>{panel}</Suspense>}
+
+      <div className="shrink-0 border-t border-ui-line">
+        <button
+          type="button"
+          onClick={() => {
+            setAdvancedOpen((open) => !open)
+          }}
+          className="w-full cursor-pointer border-0 bg-transparent px-4 py-2.5 text-left font-mono text-[11px] text-ui-muted hover:text-ui-ink"
+        >
+          {advancedOpen ? 'Hide the full properties' : 'Colours, size, per-type config…'}
+        </button>
+        {advancedOpen && (
+          <div className="max-h-[280px] overflow-y-auto border-t border-ui-line">
+            <Suspense fallback={<RouteLoading />}>
+              <PropertyPanel pageId={pageId} />
+            </Suspense>
+          </div>
+        )}
       </div>
     </aside>
   )
 }
+
+const ASIDE = 'flex w-[356px] shrink-0 flex-col overflow-hidden border-l-2 border-ui-rule bg-ui-bg'

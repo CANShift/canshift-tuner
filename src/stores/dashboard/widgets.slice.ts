@@ -117,6 +117,23 @@ export const createWidgetsSlice: SliceCreator<WidgetsSlice> = (set) => ({
     })
   },
 
+  reorderWidget: (pageId, widgetId, direction) => {
+    set((s) => {
+      if (!s.config) return
+      const page = s.config.pages.find((p) => p.id === pageId)
+      if (!page) return
+      const from = page.widgets.findIndex((w) => w.id === widgetId)
+      const to = from + direction
+      if (from === -1 || to < 0 || to >= page.widgets.length) return
+      const target = page.widgets[from]
+      if (!target) return
+      pushHistory(s, `Moved ${widgetRef(target)} ${direction < 0 ? 'up' : 'down'}`)
+      page.widgets.splice(from, 1)
+      page.widgets.splice(to, 0, target)
+      s.isDirty = true
+    })
+  },
+
   removeWidget: (pageId, widgetId) => {
     set((s) => {
       if (!s.config) return
