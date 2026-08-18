@@ -75,6 +75,7 @@ export const PageFrame = ({
     >
       <GridGuides areaWidth={areaWidth} areaHeight={areaHeight} effScale={scale} />
       <WidgetLayer
+        groundColor={bgColor}
         page={page}
         palette={palette}
         effScale={scale}

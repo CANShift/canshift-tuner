@@ -3,6 +3,7 @@ import { CruiseControlPreview } from '../CruiseControlPreview'
 import { WidgetBox } from '../WidgetBox'
 
 export interface WidgetLayerProps {
+  groundColor: string
   page: PageConfig
   palette: PagePalette
   effScale: number
@@ -34,6 +35,7 @@ const CustomBody = (props: WidgetLayerProps) => (
         key={widget.id}
         widget={widget}
         palette={props.palette}
+        groundColor={props.groundColor}
         scale={props.effScale}
         areaWidth={props.areaWidth}
         areaHeight={props.areaHeight}
