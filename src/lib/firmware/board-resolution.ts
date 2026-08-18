@@ -1,3 +1,4 @@
+import { normalizeChip } from './manifest'
 import type { BoardManifest, BoardManifestEntry } from './manifest'
 
 export type BoardSource = 'detected' | 'default' | 'none'
@@ -19,8 +20,6 @@ export const resolveBoardSelection = (
   if (detected) return { boards, selectedId: detected.id, source: 'detected' }
   return { boards, selectedId: boards[0]?.id ?? null, source: 'default' }
 }
-
-const normalizeChip = (chip: string): string => chip.toLowerCase().replace(/[^a-z0-9]/g, '')
 
 export const chipFamiliesMatch = (expected: string, detected: string): boolean =>
   normalizeChip(expected) === normalizeChip(detected)
