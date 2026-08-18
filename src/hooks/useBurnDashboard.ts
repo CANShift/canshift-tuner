@@ -4,20 +4,19 @@ import { useDashboardStore } from '../stores/dashboard.store'
 import { useDeviceStore, type BurnPhase, type BurnResult } from '../stores/device.store'
 import { useConnectionStore } from '../stores/connection.store'
 import { useLogStore, type LogLevel } from '../stores/log.store'
-import { useUiStore } from '../stores/ui.store'
-import { unboundWidgetCount } from '../utils/unbound-widgets'
 import { usbService } from '../transport'
 import { BURN_COMMAND } from '../transport/chunked-config'
 import { humanizeTransportError } from '../transport/humanize-transport-error'
 import { verifyBurnedConfig, type VerifyResult } from '../lib/verify-burned-config'
 import { describeBurnFailure, type BurnFailure } from '../lib/burn-failure'
-import { describeLayoutOverflow } from '../lib/layout-overflow'
+import { burnBlocks, burnVerdict, type BurnVerdict } from '../lib/burn-verdict'
 import { captureFlowEvent } from '../lib/posthog'
 import { errorMessage } from '../lib/error-message'
 
 const VERIFY_COMMAND = 'GET_CONFIG'
 
 interface UseBurnDashboard {
+  verdict: BurnVerdict
   canBurn: boolean
   isBurning: boolean
   burn: () => Promise<void>
@@ -92,20 +91,19 @@ export const useBurnDashboard = (): UseBurnDashboard => {
   const setLastBurnResult = useDeviceStore((s) => s.setLastBurnResult)
   const isBurning = burnPhase !== 'idle'
 
-  const layoutOverflow = useMemo(
-    () => (config === null ? null : describeLayoutOverflow(config)),
-    [config]
+  const verdict = useMemo(
+    () =>
+      burnVerdict({
+        hasDevice: connected && connectionStatus === 'connected',
+        simulation: simulationMode,
+        firmwareMismatch: firmwareCompat.kind === 'mismatch',
+        config,
+        isDirty,
+      }),
+    [connected, connectionStatus, simulationMode, firmwareCompat.kind, config, isDirty]
   )
 
-  const canBurn =
-    !isBurning &&
-    connected &&
-    !simulationMode &&
-    connectionStatus === 'connected' &&
-    isDirty &&
-    config !== null &&
-    layoutOverflow === null &&
-    firmwareCompat.kind !== 'mismatch'
+  const canBurn = !isBurning && !burnBlocks(verdict)
 
   const burn = useCallback(async () => {
     if (!canBurn || !config) return
@@ -129,13 +127,8 @@ export const useBurnDashboard = (): UseBurnDashboard => {
 
   const requestBurn = useCallback(() => {
     if (!canBurn) return
-    const unbound = unboundWidgetCount(useDashboardStore.getState().config)
-    if (unbound > 0) {
-      useUiStore.getState().requestUnboundBurnConfirm(unbound)
-      return
-    }
     void burn()
   }, [canBurn, burn])
 
-  return { canBurn, isBurning, burn, requestBurn }
+  return { verdict, canBurn, isBurning, burn, requestBurn }
 }

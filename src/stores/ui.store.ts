@@ -23,9 +23,6 @@ const writeCollapsed = (key: string, value: boolean): void => {
 interface UiState {
   burnDeniedAt: number | null
   signalBurnDenied: () => void
-  unboundBurnConfirm: number | null
-  requestUnboundBurnConfirm: (count: number) => void
-  clearUnboundBurnConfirm: () => void
   inspectorCollapsed: boolean
   toggleInspector: () => void
   cliOpen: boolean
@@ -36,13 +33,6 @@ export const useUiStore = create<UiState>((set) => ({
   burnDeniedAt: null,
   signalBurnDenied: () => {
     set({ burnDeniedAt: Date.now() })
-  },
-  unboundBurnConfirm: null,
-  requestUnboundBurnConfirm: (count) => {
-    set({ unboundBurnConfirm: count })
-  },
-  clearUnboundBurnConfirm: () => {
-    set({ unboundBurnConfirm: null })
   },
   inspectorCollapsed: readCollapsed(INSPECTOR_KEY),
   toggleInspector: () => {
