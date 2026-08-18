@@ -34,6 +34,6 @@ export const captureFlowEvent = (name: string, props: Record<string, unknown> = 
   posthog.capture(name, {
     ...scrubProps(props),
     app: 'canshift-tuner',
-    tunerVersion: __TUNER_VERSION__,
+    tunerBuild: __TUNER_BUILD__,
   })
 }

@@ -5,8 +5,12 @@ import { resolve } from 'node:path'
 import { Readable } from 'node:stream'
 import type { ReadableStream as NodeReadableStream } from 'node:stream/web'
 
-const pkg = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf8')) as {
-  version: string
+const BUILD_ID_LENGTH = 7
+const LOCAL_BUILD_ID = 'dev'
+
+const buildId = (): string => {
+  const sha = process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.GITHUB_SHA
+  return sha === undefined || sha.length === 0 ? LOCAL_BUILD_ID : sha.slice(0, BUILD_ID_LENGTH)
 }
 
 const FIRMWARE_PKG_PATH = resolve(__dirname, '../canshift-firmware/package.json')
@@ -72,7 +76,7 @@ const firmwareDownloadDevProxy = (): Plugin => ({
 export default defineConfig(({ command }) => ({
   root: resolve(__dirname, '.'),
   define: {
-    __TUNER_VERSION__: JSON.stringify(pkg.version),
+    __TUNER_BUILD__: JSON.stringify(buildId()),
     __EXPECTED_FIRMWARE_MAJOR__: JSON.stringify(firmwareMajor),
   },
   plugins: [react(), firmwareDownloadDevProxy()],
