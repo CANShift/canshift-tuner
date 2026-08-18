@@ -45,6 +45,7 @@ interface SignalState {
   signals: SignalDef[]
   selectedProfileKey: string
   setSignals: (signals: SignalDef[]) => void
+  updateSignal: (name: string, patch: Partial<SignalDef>) => void
   applyProfile: (key: string, signals: SignalDef[]) => void
 }
 
@@ -59,6 +60,16 @@ export const useSignalStore = create<SignalState>()((set) => ({
 
   setSignals: (signals) => {
     set({ signals })
+  },
+
+  updateSignal: (name, patch) => {
+    set((state) => {
+      const signals = state.signals.map((signal) =>
+        signal.name === name ? { ...signal, ...patch } : signal
+      )
+      writeStored({ selectedProfileKey: state.selectedProfileKey, signals })
+      return { signals }
+    })
   },
 
   applyProfile: (key, signals) => {
