@@ -21,6 +21,7 @@ import { useProjectFileActions } from '../hooks/useProjectFileActions'
 import { useCatalogueIndex } from '../hooks/useCatalogueIndex'
 import { ecuLabelForKey } from '../utils/ecu-label'
 import { useDisplayUnits } from '../hooks/useDisplayUnits'
+import { useResolvedBoardProfile } from '../hooks/useResolvedBoardProfile'
 import { UNIT_SYSTEM_OPTIONS } from '../constants/units'
 import type { UnitSystem } from '@canshift/core'
 import { PROJECT_FILE_ACCEPT } from '../lib/project-file'
@@ -28,6 +29,11 @@ import { PROJECT_FILE_ACCEPT } from '../lib/project-file'
 const BoardConfigRoute = lazy(() => import('./BoardConfigRoute'))
 
 const BRIGHTNESS_STEPS = [20, 40, 60, 80, 100]
+const displayFact = (screen: { width: number; height: number }, driver: string | null): string => {
+  const size = `${String(screen.width)} × ${String(screen.height)}`
+  return driver === null ? size : `${driver.toUpperCase()} · ${size}`
+}
+
 const TRANSPORT = 'USB CDC'
 const UNSET = '—'
 
@@ -52,6 +58,7 @@ const DeviceRoute = () => {
   const activeProjectId = useProjectStore((s) => s.activeProjectId)
   const catalogue = useCatalogueIndex()
   const units = useDisplayUnits()
+  const panelDriver = useResolvedBoardProfile()?.profile.lcd.driver ?? null
   const { fileInputRef, exportProjectFile, openImportPicker, handleImportChange } =
     useProjectFileActions()
   const [advancedOpen, setAdvancedOpen] = useState(false)
@@ -94,7 +101,7 @@ const DeviceRoute = () => {
         <BoardBand
           facts={[
             { label: 'MODEL', value: screen.name },
-            { label: 'DISPLAY', value: `${String(screen.width)} × ${String(screen.height)}` },
+            { label: 'DISPLAY', value: displayFact(screen, panelDriver) },
             { label: 'FIRMWARE', value: firmwareVersion ?? UNSET },
             { label: 'TRANSPORT', value: TRANSPORT },
             { label: 'ECU PROFILE', value: ecuLabelForKey(selectedProfileKey, catalogue) },
