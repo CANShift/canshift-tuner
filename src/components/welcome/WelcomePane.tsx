@@ -87,24 +87,38 @@ export const WelcomePane = ({
           <FirstRunChoice onStartFromDefaults={onStartFromDefaults} onStartBlank={onStartBlank} />
         )}
 
-        {entries.length > 0 && (
-          <>
-            <p className={`${KICKER} border-b border-ui-line pb-2.5`}>RECENT CONFIGS</p>
-            {entries.map((entry) => (
-              <RecentConfigRow
-                key={entry.id}
-                entry={entry}
-                onOpen={onOpen}
-                onExport={onExport}
-                onDelete={onDelete}
-                deletable={entries.length > 1}
-              />
-            ))}
-          </>
+        <p className={`${KICKER} border-b border-ui-line pb-2.5`}>RECENT CONFIGS</p>
+        {entries.length === 0 ? (
+          <EmptyBenchRow />
+        ) : (
+          entries.map((entry) => (
+            <RecentConfigRow
+              key={entry.id}
+              entry={entry}
+              onOpen={onOpen}
+              onExport={onExport}
+              onDelete={onDelete}
+              deletable={entries.length > 1}
+            />
+          ))
         )}
       </div>
     </div>
     {updateBand}
+  </div>
+)
+
+const EMPTY_BENCH_NAME = 'Nothing saved yet'
+const EMPTY_BENCH_META = 'press SAVE and it appears here'
+
+const EmptyBenchRow = () => (
+  <div className="flex max-w-[440px] items-baseline gap-[18px] border-b border-ui-line py-[15px] pl-0 pr-3">
+    <span className="min-w-0 flex-1 truncate text-[15px] font-bold text-ui-muted">
+      {EMPTY_BENCH_NAME}
+    </span>
+    <span className="min-w-0 truncate font-mono text-[11.5px] text-ui-faint">
+      {EMPTY_BENCH_META}
+    </span>
   </div>
 )
 
