@@ -58,7 +58,7 @@ export const RightSidebar = ({ pageId }: RightSidebarProps) => {
   const widgets = page.widgets
   const selected = widgets.find((widget) => widget.id === selectedWidgetId) ?? null
   const index = selected === null ? -1 : widgets.indexOf(selected)
-  const verdict = configVerdict(config)
+  const verdict = configVerdict(config, signals)
   const danger = selected === null ? null : dangerOf(selected)
 
   return (
