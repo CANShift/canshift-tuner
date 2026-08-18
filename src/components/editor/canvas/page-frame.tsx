@@ -19,6 +19,7 @@ export interface PageFrameInteraction {
   onSelect: (widgetId: string) => void
   onShiftSelect: (widgetId: string) => void
   onDragStart: (e: React.MouseEvent, widget: Widget) => void
+  onResizeStart: (e: React.PointerEvent, widget: Widget) => void
   onSignalDrop: (widget: Widget, signalName: string) => void
   settingsOpen: boolean
   overlay: ReactNode
@@ -89,6 +90,7 @@ export const PageFrame = ({
         onSelect={interaction?.onSelect ?? noop}
         onShiftSelect={interaction?.onShiftSelect ?? noop}
         onDragStart={interaction?.onDragStart ?? noop}
+        onResizeStart={interaction?.onResizeStart}
         onSignalDrop={interaction?.onSignalDrop ?? noop}
       />
       {interaction?.overlay}
