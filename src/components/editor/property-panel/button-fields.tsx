@@ -1,7 +1,7 @@
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
-import type { ButtonWidgetConfig } from '@canshift/core'
+import type { ButtonWidgetConfig, ControlState } from '@canshift/core'
 import { resolveGridRect, resolveScreenProfile } from '@canshift/core'
 
 import { Checkbox } from '@/components/ui/checkbox'
@@ -13,6 +13,7 @@ import { convertCycleToSingle, convertSingleToCycle, EMPTY_PAGES } from './butto
 import { SingleModeBody } from './button/single-mode-body'
 import { type ConfigFieldsProps } from './shared'
 import { PanelField, PanelInput } from '@/components/ui/form-field'
+import { controlFor, statesFor } from '../../../lib/control-paint'
 
 const previewToggle = cva('shrink-0 cursor-pointer border border-solid px-2 py-[3px] text-[10px]', {
   variants: {
@@ -24,12 +25,22 @@ const previewToggle = cva('shrink-0 cursor-pointer border border-solid px-2 py-[
   defaultVariants: { active: false },
 })
 
+const STATE_LABELS: Record<ControlState, string> = {
+  off: 'Off',
+  armed: 'Armed',
+  active: 'Active',
+  unavailable: 'Unavailable',
+}
+
+const kickerOf = (cfg: ButtonWidgetConfig, signal: string): string =>
+  cfg.kicker !== undefined && cfg.kicker !== '' ? cfg.kicker : signal
+
 export const ButtonFields = ({ widget, onChange }: ConfigFieldsProps) => {
   const pages = useDashboardStore((s) => s.config?.pages ?? EMPTY_PAGES)
   const targetProfile = useDashboardStore((s) => s.config?.targetProfile)
   const topBarHeight = useDashboardStore((s) => s.config?.topBar.height ?? 0)
   const pageIds = pages.map((p) => p.id)
-  const [previewActive, setPreviewActive] = useState(false)
+  const [previewStateIndex, setPreviewStateIndex] = useState(0)
   const [previewStateIdx, setPreviewStateIdx] = useState(0)
 
   if (widget.config.type !== 'button') return null
@@ -46,6 +57,9 @@ export const ButtonFields = ({ widget, onChange }: ConfigFieldsProps) => {
   const previewScale = Math.min(PREVIEW_MAX_SCALE, PREVIEW_BUDGET_W / w, PREVIEW_BUDGET_H / h)
   const previewW = Math.round(w * previewScale)
   const previewH = Math.round(h * previewScale)
+
+  const previewStates = statesFor(controlFor(kickerOf(cfg, widget.signal)))
+  const previewState = previewStates[previewStateIndex % previewStates.length] ?? 'off'
 
   const cycleStateCount = cfg.mode === 'cycle' ? cfg.states.length : 0
   const clampedPreviewIdx = cycleStateCount > 0 ? previewStateIdx % cycleStateCount : 0
@@ -68,27 +82,29 @@ export const ButtonFields = ({ widget, onChange }: ConfigFieldsProps) => {
             className="inline-block shrink-0 overflow-hidden border border-solid"
             // eslint-disable-next-line no-inline-style/no-inline-style
             style={{
-              borderColor: previewActive
-                ? widget.style.primaryColor
-                : 'hsl(var(--brand-neutral-300))',
+              borderColor:
+                previewState === 'off'
+                  ? 'hsl(var(--brand-neutral-300))'
+                  : widget.style.primaryColor,
             }}
           >
             <WidgetPreview
               widget={widget}
               displayW={previewW}
               displayH={previewH}
-              buttonActive={previewActive}
+              buttonState={previewState}
               cycleStateIndex={cfg.mode === 'cycle' ? clampedPreviewIdx : undefined}
             />
           </div>
           {cfg.mode === 'single' ? (
             <button
+              title="Step through the states the dash will render"
               onClick={() => {
-                setPreviewActive((v) => !v)
+                setPreviewStateIndex((i) => i + 1)
               }}
-              className={cn(previewToggle({ active: previewActive }))}
+              className={cn(previewToggle({ active: previewState !== 'off' }))}
             >
-              {previewActive ? 'Active' : 'Idle'}
+              {STATE_LABELS[previewState]}
             </button>
           ) : (
             <button

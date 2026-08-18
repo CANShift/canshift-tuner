@@ -1,5 +1,13 @@
 import { memo } from 'react'
-import { WIDGET_ACCENT_COLOR, WIDGET_DIM_COLORS } from '@canshift/core'
+import { CONTROL_STEP_MAX, GAUGE_TRACK_COLORS, type ControlState } from '@canshift/core'
+import { cn } from '@/lib/utils'
+import {
+  controlFor,
+  controlSurface,
+  controlText,
+  defaultControlColors,
+} from '../../../lib/control-paint'
+import { BLINK } from '../widget-preview.styles'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
 
 const FRAME = [
@@ -16,7 +24,7 @@ const LABEL = [
 ].join(' ')
 
 export interface ButtonRendererProps extends BaseRendererProps {
-  active: boolean
+  state: ControlState
   cycleStateIndex?: number | undefined
 }
 
@@ -67,13 +75,24 @@ const kickerFromConfig = (cfg: { mode: string }, signal: string): string => {
   return actionType !== undefined ? (KICKER_BY_ACTION_TYPE[actionType] ?? '') : ''
 }
 
-const KICKER_ENGAGED_COLOR = 'rgba(255,255,255,0.75)'
+const SEGMENT_ROW = 'mt-0.5 flex w-full gap-[2px]'
+const SEGMENT = 'h-[2px] flex-1'
+const DEMO_LEVEL = 3
+
+const SegmentRow = ({ level, lit, unlit }: { level: number; lit: string; unlit: string }) => (
+  <span className={SEGMENT_ROW}>
+    {Array.from({ length: CONTROL_STEP_MAX }, (_, i) => (
+      // eslint-disable-next-line no-inline-style/no-inline-style
+      <span key={i} className={SEGMENT} style={{ background: i < level ? lit : unlit }} />
+    ))}
+  </span>
+)
 
 export const ButtonPreview = memo(function ButtonPreview({
   widget,
   w,
   h,
-  active,
+  state,
   cycleStateIndex,
 }: ButtonRendererProps) {
   if (widget.config.type !== 'button') return null
@@ -92,37 +111,55 @@ export const ButtonPreview = memo(function ButtonPreview({
   const showLabel = cfg.showLabel !== false
   const { fontSize } = computeButtonPreviewMetrics(w, h, kicker !== '', displayText.length)
 
-  const engagedColor = displayColors?.active ?? WIDGET_ACCENT_COLOR
-  const idleBorder = displayColors?.normal ?? st.textColor
-
-  const bgColor = active ? engagedColor : 'transparent'
-  const borderColor = active ? engagedColor : idleBorder
-  const textColor = active ? '#FFFFFF' : st.textColor
-  const kickerColor = active ? KICKER_ENGAGED_COLOR : WIDGET_DIM_COLORS.night
+  const control = controlFor(kicker)
+  const colors = defaultControlColors(displayColors?.normal ?? st.textColor, displayColors?.active)
+  const surface = controlSurface(state, colors)
+  const text = control === null ? null : controlText(control, state, displayText)
+  const word = text?.word ?? displayText
+  const qualifier = text?.qualifier ?? ''
+  const stepper = control?.kind === 'stepper'
 
   return (
     <div
-      className={FRAME}
+      className={cn(FRAME, surface.pulses && BLINK)}
       // eslint-disable-next-line no-inline-style/no-inline-style
-      style={{ width: w, height: h, background: bgColor, borderColor }}
+      style={{
+        width: w,
+        height: h,
+        background: surface.background,
+        borderColor: surface.borderColor,
+      }}
     >
       {showLabel && kicker !== '' && (
         <span
           className={KICKER}
           // eslint-disable-next-line no-inline-style/no-inline-style
-          style={{ color: kickerColor }}
+          style={{ color: surface.kickerColor, opacity: surface.kickerOpacity }}
         >
           {kicker}
+          {qualifier !== '' && (
+            <>
+              <br />
+              {qualifier}
+            </>
+          )}
         </span>
       )}
       {showLabel && (
         <span
           className={LABEL}
           // eslint-disable-next-line no-inline-style/no-inline-style
-          style={{ color: textColor, fontSize }}
+          style={{ color: surface.wordColor, fontSize }}
         >
-          {displayText}
+          {word}
         </span>
+      )}
+      {stepper && state !== 'unavailable' && (
+        <SegmentRow
+          level={state === 'off' ? 0 : DEMO_LEVEL}
+          lit={surface.wordColor}
+          unlit={GAUGE_TRACK_COLORS.plain}
+        />
       )}
     </div>
   )

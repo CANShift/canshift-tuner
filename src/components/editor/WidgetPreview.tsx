@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { memo } from 'react'
 import type { ComponentType } from 'react'
-import type { Widget, WidgetConfig, PagePalette } from '@canshift/core'
+import type { ControlState, Widget, WidgetConfig, PagePalette } from '@canshift/core'
 import { MAXXECU_SIGNAL_UNITS } from '@canshift/core'
 import { useSignalStore } from '../../stores/signal.store'
 import { ButtonPreview } from './widget-previews/Button'
@@ -32,7 +32,7 @@ interface RenderContext {
   w: number
   h: number
   revLimiting: boolean
-  buttonActive: boolean
+  buttonState: ControlState
   cycleStateIndex: number | undefined
   noAnimate: boolean
   testValue: number | null
@@ -83,7 +83,7 @@ const RENDERERS: RendererDispatch = {
       widget={widget}
       w={ctx.w}
       h={ctx.h}
-      active={ctx.buttonActive}
+      state={ctx.buttonState}
       cycleStateIndex={ctx.cycleStateIndex}
     />
   ),
@@ -98,7 +98,7 @@ interface WidgetPreviewProps {
   displayH: number
   palette?: PagePalette
   revLimiting?: boolean
-  buttonActive?: boolean
+  buttonState?: ControlState
   cycleStateIndex?: number | undefined
   noAnimate?: boolean
   testValue?: number | null
@@ -123,7 +123,7 @@ const WidgetPreviewImpl = ({
   displayH: rawH,
   palette,
   revLimiting = false,
-  buttonActive = false,
+  buttonState = 'off',
   cycleStateIndex,
   noAnimate = false,
   testValue = null,
@@ -140,7 +140,7 @@ const WidgetPreviewImpl = ({
     w,
     h,
     revLimiting: noAnimate ? false : revLimiting,
-    buttonActive,
+    buttonState,
     cycleStateIndex,
     noAnimate,
     testValue,
