@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { HexColorSchema } from '@canshift/core'
 import type { DashboardConfig, ScreenProfileId } from '@canshift/core'
+import { HISTORY_LIMIT } from './helpers'
 import { useDashboardStore } from '../dashboard.store'
 
 const makeConfig = (): DashboardConfig =>
@@ -160,12 +161,12 @@ describe('labelled undo stack (#1847)', () => {
     expect(lastLabel()).toBe('Aligned 2 widgets left')
   })
 
-  it('caps the stack at 100 entries, dropping the oldest', () => {
-    for (let i = 0; i < 110; i++) {
+  it("caps the stack at the spec's 25 snapshots, dropping the oldest", () => {
+    for (let i = 0; i < 41; i++) {
       useDashboardStore.getState().setDefaultPage(i % 2 === 0 ? 'p1' : 'p2')
     }
     const past = useDashboardStore.getState().past
-    expect(past).toHaveLength(100)
+    expect(past).toHaveLength(HISTORY_LIMIT)
     expect(past[0]?.label).toBe('Set page 01 as default')
     expect(past[0]?.config.defaultPageId).toBe('p2')
   })

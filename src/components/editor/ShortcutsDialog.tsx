@@ -14,9 +14,8 @@ const SHORTCUTS: readonly (readonly [string, string])[] = [
   ['⌘A', 'Select all'],
   ['⌘C / ⌘X / ⌘V', 'Copy / cut / paste'],
   ['⌘Z / ⇧⌘Z', 'Undo / redo'],
-  ['⌘S', 'Burn to device'],
+  ['⌘S', 'Save in this browser'],
   ['Alt-drag', 'Disable snap (1px)'],
-  ['⌘-scroll', 'Zoom'],
   ['Esc', 'Deselect / close'],
   ['?', 'This help'],
 ]

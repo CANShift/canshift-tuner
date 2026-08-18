@@ -9,6 +9,7 @@ import { useRebindFlashStore } from '../../stores/rebind-flash.store'
 import ScreenSettingsPanel from './ScreenSettingsPanel'
 import DiagnosticsPanel from './DiagnosticsPanel'
 import { BurnVerdictBand } from './BurnVerdictBand'
+import { ImportNoticeBand } from './ImportNoticeBand'
 import { BurnFailureNotice } from './BurnFailureNotice'
 import { RevLimiterOverlay } from './RevLimiterOverlay'
 import { ShortcutsDialog } from './ShortcutsDialog'
@@ -210,6 +211,7 @@ const Canvas = ({
       <div className="flex min-h-0 flex-1">
         <div className="flex min-w-0 flex-1 flex-col">
           <BurnFailureNotice />
+          <ImportNoticeBand />
           <BurnVerdictBand />
           <div ref={stripRef} className={STRIP}>
             {pages.map((candidate, index) => (

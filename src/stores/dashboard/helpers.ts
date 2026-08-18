@@ -2,7 +2,7 @@ import { current } from 'immer'
 import type { DashboardConfig, Widget } from '@canshift/core'
 import type { IdentifiedPlacement } from '../../utils/layout'
 
-export const HISTORY_LIMIT = 100
+export const HISTORY_LIMIT = 25
 
 export const toPlacement = (w: Widget): IdentifiedPlacement => ({
   id: w.id,
