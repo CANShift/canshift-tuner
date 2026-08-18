@@ -36,6 +36,9 @@ export interface DashToolbarProps {
   onSelectPanel: (id: string) => void
   pageMeta: string
   profileMeta: string
+  previewModes: readonly { value: string; label: string; title: string }[]
+  previewMode: string
+  onPreviewMode: (mode: string) => void
   onAddWidget: () => void
   onImport: () => void
   onExport: () => void
@@ -65,6 +68,9 @@ export const DashToolbar = ({
   onSelectPanel,
   pageMeta,
   profileMeta,
+  previewModes,
+  previewMode,
+  onPreviewMode,
   onAddWidget,
   onImport,
   onExport,
@@ -151,6 +157,22 @@ export const DashToolbar = ({
 
     <div className="flex-1" />
 
+    <div className="hidden gap-px min-[1240px]:flex">
+      {previewModes.map((mode) => (
+        <button
+          key={mode.value}
+          type="button"
+          onClick={() => {
+            onPreviewMode(mode.value)
+          }}
+          title={mode.title}
+          className={cn(previewSegment({ active: mode.value === previewMode }))}
+        >
+          {mode.label}
+        </button>
+      ))}
+    </div>
+
     <span className="hidden min-[1500px]:contents">{extras}</span>
 
     <span className="hidden whitespace-nowrap font-mono text-[11.5px] text-ui-muted min-[1320px]:inline">
@@ -208,6 +230,19 @@ const square = cva('grid size-[38px] place-items-center border bg-transparent', 
   },
   defaultVariants: { tone: 'default', disabled: false },
 })
+
+const previewSegment = cva(
+  'cursor-pointer whitespace-nowrap border border-ui-ink px-2.5 py-[7px] font-mono text-[10.5px] tracking-[0.08em]',
+  {
+    variants: {
+      active: {
+        true: 'bg-ui-rule text-ui-bg',
+        false: 'bg-transparent text-ui-muted hover:bg-ui-panel',
+      },
+    },
+    defaultVariants: { active: false },
+  }
+)
 
 const GhostButton = ({ onClick, children }: { onClick: () => void; children: ReactNode }) => (
   <button

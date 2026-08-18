@@ -15,6 +15,11 @@ import { useProjectStore } from '../stores/project/project.store'
 import { PROJECT_FILE_ACCEPT } from '../lib/project-file'
 import { ecuLabelForKey } from '../utils/ecu-label'
 import { buildWidget, DEFAULT_NEW_WIDGET } from '../lib/new-widget'
+import {
+  PREVIEW_LABELS,
+  PREVIEW_MODES,
+  type PreviewMode,
+} from '../components/editor/preview/preview-modes'
 import { useCatalogueIndex } from '../hooks/useCatalogueIndex'
 import { useDashboardStore } from '../stores/dashboard.store'
 import { SaveTemplateDialog } from '../components/editor/SaveTemplateDialog'
@@ -42,6 +47,13 @@ const buildBlankPage = (): PageConfig => ({
   visible: true,
   widgets: [],
 })
+
+const PREVIEW_TITLES: Record<PreviewMode, string> = {
+  normal: 'The page as it renders',
+  cut: 'A protection cut, banded under the status row',
+  splash: 'A driver-requested function taking the screen',
+  alert: 'The critical alert takeover',
+}
 
 const CanvasFallback = () => {
   return (
@@ -104,6 +116,7 @@ const EditorRoute = () => {
   const templates = useTemplateStore((s) => s.templates)
   const [saveTemplatePageId, setSaveTemplatePageId] = useState<string | null>(null)
   const [manageOpen, setManageOpen] = useState(false)
+  const [previewMode, setPreviewMode] = useState<PreviewMode>('normal')
 
   const showUndoToast = useUndoToastStore((s) => s.showForLastAction)
 
@@ -198,6 +211,15 @@ const EditorRoute = () => {
         setTargetProfile(id as ScreenProfileId)
       }}
       pageMeta={`${String(screenProfile.width)} × ${String(screenProfile.height)} · ${String(widgetCount)} widgets`}
+      previewModes={PREVIEW_MODES.map((mode) => ({
+        value: mode,
+        label: PREVIEW_LABELS[mode],
+        title: PREVIEW_TITLES[mode],
+      }))}
+      previewMode={previewMode}
+      onPreviewMode={(mode) => {
+        setPreviewMode(mode as PreviewMode)
+      }}
       profileMeta={ecuLabelForKey(selectedProfileKey, catalogue)}
       onAddWidget={() => {
         addWidget(currentPage.id, buildWidget(DEFAULT_NEW_WIDGET))
@@ -218,6 +240,7 @@ const EditorRoute = () => {
               page={currentPage}
               topBar={topBar}
               toolbar={toolbar}
+              previewMode={previewMode}
               onPageContextMenu={handlePageContextMenu}
               inspector={<RightSidebar pageId={currentPage.id} />}
             />
