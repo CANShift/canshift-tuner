@@ -1,16 +1,22 @@
-import type { PageConfig, Widget } from '@canshift/core'
+import type { DashboardConfig, Project, ProjectMeta } from '@canshift/core'
 import { describe, expect, it } from 'vitest'
-import { benchPreviewOfPage, formatRelativeDate } from './bench-entry'
+import { benchEntryFrom, formatRelativeDate } from './bench-entry'
 
 const NOW = Date.parse('2026-08-12T12:00:00Z')
 const ago = (ms: number): string => new Date(NOW - ms).toISOString()
 const DAY = 86_400_000
 
-const widget = (type: string, signal: string): Widget =>
-  ({ id: `${type}-1`, type, signal, layout: {}, style: {}, config: { type } }) as unknown as Widget
+const projectWith = (pages: number, targetProfile?: string): Project =>
+  ({
+    dashboard: {
+      pages: Array.from({ length: pages }, (_, i) => ({ id: `page-${String(i)}` })),
+      ...(targetProfile === undefined ? {} : { targetProfile }),
+    } as unknown as DashboardConfig,
+    signals: [],
+  }) as unknown as Project
 
-const page = (backgroundColor: string, widgets: Widget[], id = 'street'): PageConfig =>
-  ({ id, backgroundColor, widgets }) as unknown as PageConfig
+const metaFor = (name: string): ProjectMeta =>
+  ({ id: 'p1', name, updatedAt: ago(0) }) as unknown as ProjectMeta
 
 describe('formatRelativeDate', () => {
   it('collapses anything under an hour to "just now"', () => {
@@ -38,28 +44,20 @@ describe('formatRelativeDate', () => {
   })
 })
 
-describe('benchPreviewOfPage', () => {
-  it('reads the theme from the page ground, not from a stored flag', () => {
-    expect(benchPreviewOfPage(page('#121212', [])).theme).toBe('night')
-    expect(benchPreviewOfPage(page('#DDDDDD', [])).theme).toBe('day')
+describe('benchEntryFrom', () => {
+  it('reads as ECU, panel, page count — the three facts the row shows', () => {
+    const entry = benchEntryFrom(projectWith(6, 'crowpanel-28'), metaFor('Track'), 'MaxxECU')
+    expect(entry.meta).toBe('MaxxECU \u00b7 CrowPanel 2.8" \u00b7 6 pages')
   })
 
-  it('takes the kicker from the first bound value widget', () => {
-    const preview = benchPreviewOfPage(
-      page('#121212', [widget('button', 'flag_mil'), widget('gauge', 'speed_kph')])
-    )
-    expect(preview.kicker).toBe('SPEED')
+  it('singularises a one-page config', () => {
+    const entry = benchEntryFrom(projectWith(1, 'crowpanel-28'), metaFor('Blank'), 'MaxxECU')
+    expect(entry.meta).toContain('1 page')
+    expect(entry.meta).not.toContain('1 pages')
   })
 
-  it('skips a value widget that is bound to nothing', () => {
-    const preview = benchPreviewOfPage(
-      page('#121212', [widget('gauge', ''), widget('gauge', 'rpm')])
-    )
-    expect(preview.kicker).toBe('RPM')
-  })
-
-  it('falls back to the page name when a page carries no value widget', () => {
-    const preview = benchPreviewOfPage(page('#121212', [widget('button', 'flag_mil')], 'controls'))
-    expect(preview.kicker).toBe('CONTROLS')
+  it('names the default panel rather than leaving a gap when none is stored', () => {
+    const entry = benchEntryFrom(projectWith(2), metaFor('Old'), 'MaxxECU')
+    expect(entry.meta).toContain('CrowPanel 2.8"')
   })
 })

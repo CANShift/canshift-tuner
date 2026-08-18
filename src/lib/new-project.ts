@@ -2,6 +2,7 @@ import type { DashboardConfig, PageConfig, ScreenProfileId } from '@canshift/cor
 import { DEFAULT_SIM_CONFIG } from '../config/default-sim-config'
 
 export const BLANK_PAGE_SET = 'blank'
+export const DEFAULT_PAGE_SET = 'defaults'
 
 export interface PageSetOption {
   id: string
@@ -31,6 +32,9 @@ export const buildNewProjectDashboard = (options: NewProjectOptions): DashboardC
   const base = structuredClone(DEFAULT_SIM_CONFIG)
   const template = base.pages[0]
   if (!template) throw new Error('default configuration has no pages')
+  if (options.pageSetId === DEFAULT_PAGE_SET) {
+    return { ...base, name: options.name, targetProfile: options.targetProfile }
+  }
   const chosen =
     options.pageSetId === BLANK_PAGE_SET
       ? emptyPage(template)
