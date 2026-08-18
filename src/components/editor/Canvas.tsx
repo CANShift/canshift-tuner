@@ -25,6 +25,8 @@ import { useSwipeGestures } from '../../hooks/useSwipeGestures'
 import { useCarouselScale } from '../../hooks/useCarouselScale'
 import { useCanvasDialogs } from '../../hooks/useCanvasDialogs'
 import { resolveBgColor, resolvePalette } from '../../hooks/useEffectivePalette'
+import { PreviewOverlay } from './preview/PreviewOverlay'
+import type { PreviewMode } from './preview/preview-modes'
 
 const THUMBNAIL_RATIO = 0.42
 const STRIP_CHROME_PX = 66
@@ -35,10 +37,18 @@ interface CanvasProps {
   topBar: TopBarConfig
   toolbar?: ReactNode
   inspector?: ReactNode
+  previewMode?: PreviewMode
   onPageContextMenu?: ((pageId: string, x: number, y: number) => void) | undefined
 }
 
-const Canvas = ({ page, topBar, toolbar, inspector, onPageContextMenu }: CanvasProps) => {
+const Canvas = ({
+  page,
+  topBar,
+  toolbar,
+  inspector,
+  previewMode = 'normal',
+  onPageContextMenu,
+}: CanvasProps) => {
   const targetProfileId = useDashboardStore((s) => s.config?.targetProfile)
   const screenProfile = useMemo(() => resolveScreenProfile(targetProfileId), [targetProfileId])
   const pages = useDashboardStore((s) => s.config?.pages ?? EMPTY_PAGES)
@@ -174,6 +184,22 @@ const Canvas = ({ page, topBar, toolbar, inspector, onPageContextMenu }: CanvasP
             scale={scale}
           />
         )}
+        <PreviewOverlay
+          mode={previewMode}
+          scale={scale}
+          bgColor={resolveBgColor(
+            isDayMode,
+            theme?.day.bgColor,
+            theme?.night.bgColor,
+            page.backgroundColor
+          )}
+          palette={resolvePalette(
+            isDayMode,
+            theme?.day.palette,
+            theme?.night.palette,
+            page.palette
+          )}
+        />
       </>
     ),
   }
