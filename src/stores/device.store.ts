@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { readItem, writeItem, STORAGE_KEYS } from '../lib/local-storage'
 import type { DashboardConfig } from '@canshift/core'
 import type { BurnFailure } from '../lib/burn-failure'
 
@@ -44,7 +45,6 @@ interface DeviceState {
   syncing: boolean
 
   simulationMode: boolean
-  simulationDismissed: boolean
 
   firmwareCompat: FirmwareCompat
 
@@ -80,18 +80,27 @@ interface DeviceState {
   setLastBurnResult: (result: BurnResult | null) => void
 }
 
+const SIMULATION_ON = '1'
+
+const readSimulationMode = (): boolean => readItem(STORAGE_KEYS.simulationMode) === SIMULATION_ON
+
+const writeSimulationMode = (on: boolean): void => {
+  writeItem(STORAGE_KEYS.simulationMode, on ? SIMULATION_ON : '0')
+}
+
+const simulationRestored = readSimulationMode()
+
 export const useDeviceStore = create<DeviceState>()((set) => ({
-  status: 'disconnected',
+  status: simulationRestored ? 'connected' : 'disconnected',
   portPath: null,
   transport: null,
   firmwareVersion: null,
   boardId: null,
   lastSyncAt: null,
   errorMessage: null,
-  connected: false,
+  connected: simulationRestored,
   syncing: false,
-  simulationMode: false,
-  simulationDismissed: false,
+  simulationMode: simulationRestored,
   firmwareCompat: { kind: 'unknown' },
   firmwareLiveness: { kind: 'unknown' },
   heapStats: [],
@@ -189,9 +198,9 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
   },
 
   enterSimulation: () => {
+    writeSimulationMode(true)
     set({
       simulationMode: true,
-      simulationDismissed: false,
       status: 'connected',
       connected: true,
       portPath: null,
@@ -200,9 +209,9 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
   },
 
   exitSimulation: () => {
+    writeSimulationMode(false)
     set({
       simulationMode: false,
-      simulationDismissed: true,
       status: 'disconnected',
       connected: false,
       portPath: null,

@@ -6,6 +6,7 @@ import { Footer } from './components/shell/Footer'
 import { RouteLoading } from './components/shell/RouteLoading'
 import FeedbackButton from './components/shell/FeedbackButton'
 import { DeviceAlertBar } from './components/shell/DeviceAlertBar'
+import { SimulationStrip } from './components/shell/SimulationStrip'
 import HomeRoute from './routes/HomeRoute'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { useConnectionStore } from './stores/connection.store'
@@ -96,6 +97,7 @@ const App = () => {
   return (
     <div className={SHELL}>
       <Header />
+      <SimulationStrip />
       <DeviceAlertBar />
       <DeviceConfigConflictNotice />
       <main className={MAIN}>

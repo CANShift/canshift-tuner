@@ -14,6 +14,7 @@ export const STORAGE_KEYS = {
   pageTemplates: key('page-templates'),
   projectIndex: key('projects'),
   selectedBoard: key('selected-board'),
+  simulationMode: key('simulation-mode'),
   signals: key('signals'),
   theme: key('theme'),
 } as const

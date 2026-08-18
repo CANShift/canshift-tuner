@@ -116,12 +116,15 @@ const useBurnDeniedShake = (): boolean => {
 
 const BurnButton = () => {
   const { canBurn, isBurning, burn, requestBurn } = useBurnDashboard()
+  const connected = useDeviceStore((s) => s.connected)
+  const simulationMode = useDeviceStore((s) => s.simulationMode)
   const lastBurnResult = useDeviceStore((s) => s.lastBurnResult)
   const unboundBurnConfirm = useUiStore((s) => s.unboundBurnConfirm)
   const clearUnboundBurnConfirm = useUiStore((s) => s.clearUnboundBurnConfirm)
   useBurnSuccessAutoClear()
   const shaking = useBurnDeniedShake()
 
+  const noDevice = simulationMode || !connected
   const title = isBurning
     ? 'Burning dashboard to the device…'
     : canBurn
@@ -143,7 +146,13 @@ const BurnButton = () => {
             : undefined
         }
       >
-        <UiBurnButton disabled={!canBurn} busy={isBurning} title={title} onClick={requestBurn} />
+        <UiBurnButton
+          disabled={!canBurn}
+          busy={isBurning}
+          title={title}
+          label={noDevice ? 'NO DEVICE' : 'BURN'}
+          onClick={requestBurn}
+        />
       </span>
       <AlertDialog
         open={unboundBurnConfirm !== null}
