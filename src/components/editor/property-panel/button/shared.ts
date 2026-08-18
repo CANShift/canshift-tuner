@@ -51,6 +51,11 @@ export const buildActionPresets = (pageIds: string[]): ActionPreset[] => [
     color: '#CC8800',
     build: () => ({ category: 'ecu', type: 'cruise_control', op: 'toggle' }),
   },
+  {
+    label: 'Timer',
+    color: '#5577CC',
+    build: () => ({ category: 'device', type: 'timer_control', op: 'toggle' }),
+  },
 ]
 
 type SharedConfigFields = Pick<ButtonWidgetConfig, 'label' | 'showLabel' | 'colors'>

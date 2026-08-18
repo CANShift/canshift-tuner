@@ -8,6 +8,7 @@ import { IconTrash } from '../../../icons/Icon'
 import { ButtonFields } from '../button-fields'
 import { GaugeFields } from '../gauge-fields'
 import { ShiftLightFields } from '../shift-light-fields'
+import { TimerFields } from '../timer-fields'
 import { ConfigFieldsProps } from '../shared'
 import { CompactSelect, PanelField, SectionLabel } from '@/components/ui/form-field'
 import { ButtonColorsRow } from './button-colors-row'
@@ -26,6 +27,7 @@ const CONFIG_FIELDS: Partial<
   gauge: GaugeFields,
   button: ButtonFields,
   shift_light: ShiftLightFields,
+  timer: TimerFields,
 }
 
 const SIGNAL_HIDDEN_TYPES = new Set<WidgetType>(['button', 'timer', 'image'])
