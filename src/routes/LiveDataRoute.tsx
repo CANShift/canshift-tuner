@@ -1,137 +1,127 @@
-import { useMemo, useState, type ReactNode } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { SignalDef } from '@canshift/core'
 import { cn } from '@/lib/utils'
 import { LiveDataEmpty } from '../components/live-data/LiveDataEmpty'
-import { SourceBadge, type SignalSource } from '../components/live-data/SourceBadge'
-import { LiveDataGrid } from '../components/live-data/LiveDataGrid'
-import { LiveDataSkeleton } from '../components/live-data/LiveDataSkeleton'
-import { RouteHeader } from '../components/shell/RouteHeader'
-import { RoutePage } from '../components/ui/route-shell'
+import { LiveCards } from '../components/live-data/LiveCards'
+import { LivePlot } from '../components/live-data/LivePlot'
 import { BusSilentNotice } from '../components/states/BusSilentNotice'
 import { useLiveSignals } from '../hooks/useLiveSignals'
+import { useLiveSampler, WINDOW_MAX_S, WINDOW_MIN_S, WINDOW_STEP_S } from '../hooks/useLiveSampler'
 import { useSignalStore } from '../stores/signal.store'
 import { useDeviceStore } from '../stores/device.store'
-import { Input } from '../components/ui/input'
+import { buildLiveCsv, liveCsvFilename } from '../lib/live-csv'
 import { downloadFile } from '../lib/download'
 
-type LiveDataView = 'empty' | 'listening' | 'values'
+const DEFAULT_WINDOW_S = 30
+const CSV_MIME = 'text/csv;charset=utf-8'
 
-const EXPORT_BUTTON = [
-  'border border-solid border-brand-neutral-400 bg-transparent px-3.5 py-1.5',
-  'text-[11px] font-extrabold tracking-[0.08em]',
-  'text-brand-text disabled:cursor-not-allowed disabled:text-brand-neutral-500',
-].join(' ')
-
-const escapeCsv = (value: string): string => {
-  if (/[",\n]/.test(value)) return `"${value.replace(/"/g, '""')}"`
-  return value
-}
-
-const buildCsv = (signals: readonly SignalDef[], values: Record<string, number>): string => {
-  const rows = [
-    ['name', 'value', 'unit', 'min', 'max'],
-    ...signals.map((s) => {
-      const v = values[s.name]
-      return [s.name, v !== undefined ? String(v) : '', s.unit, String(s.min), String(s.max)]
-    }),
-  ]
-  return rows.map((r) => r.map(escapeCsv).join(',')).join('\n')
-}
-
-const downloadCsv = (signals: readonly SignalDef[], values: Record<string, number>): void => {
-  const stamp = new Date().toISOString().replace(/[:.]/g, '-')
-  downloadFile(`canshift-live-${stamp}.csv`, 'text/csv;charset=utf-8', buildCsv(signals, values))
-}
-
-const resolveSource = (connected: boolean, simulationMode: boolean): SignalSource => {
-  if (simulationMode) return 'sim'
-  if (connected) return 'live'
-  return 'none'
-}
-
-const resolveView = (hasRows: boolean, awaitingFirstFrame: boolean): LiveDataView => {
-  if (!hasRows) return 'empty'
-  if (awaitingFirstFrame) return 'listening'
-  return 'values'
+const stateLabel = (connected: boolean, simulation: boolean, paused: boolean): string => {
+  if (paused) return 'paused'
+  if (simulation) return 'simulation · sample data'
+  if (connected) return 'listening · live from the bus'
+  return 'no device'
 }
 
 const LiveDataRoute = () => {
   const signals = useSignalStore((s) => s.signals)
   const connected = useDeviceStore((s) => s.connected)
   const simulationMode = useDeviceStore((s) => s.simulationMode)
-  const values = useLiveSignals()
+  const live = useLiveSignals()
   const navigate = useNavigate()
-  const [filter, setFilter] = useState('')
 
-  const source = resolveSource(connected, simulationMode)
+  const [paused, setPaused] = useState(false)
+  const [frozen, setFrozen] = useState<Record<string, number>>({})
+  const [windowSeconds, setWindowSeconds] = useState(DEFAULT_WINDOW_S)
+  const [selected, setSelected] = useState<string[]>([])
 
-  const filteredSignals = useMemo(() => {
-    const q = filter.trim().toLowerCase()
-    if (!q) return signals
-    return signals.filter(
-      (s) => s.name.toLowerCase().includes(q) || s.unit.toLowerCase().includes(q)
+  const values = paused ? frozen : live
+  const sampler = useLiveSampler(values, windowSeconds)
+
+  const goToSignals = () => {
+    void navigate('/signals')
+  }
+
+  const toggle = (name: string) => {
+    setSelected((current) =>
+      current.includes(name) ? current.filter((entry) => entry !== name) : [...current, name]
     )
-  }, [signals, filter])
+  }
 
-  const awaitingFirstFrame = (connected || simulationMode) && Object.keys(values).length === 0
-  const view = resolveView(filteredSignals.length > 0, awaitingFirstFrame)
+  const stepWindow = (direction: 1 | -1) => {
+    setWindowSeconds((current) =>
+      Math.min(WINDOW_MAX_S, Math.max(WINDOW_MIN_S, current - direction * WINDOW_STEP_S))
+    )
+  }
 
-  const views: Record<LiveDataView, ReactNode> = {
-    empty: (
-      <LiveDataEmpty
-        hasProfile={signals.length > 0}
-        onPickProfile={() => {
-          void navigate('/signals')
-        }}
-        onCaptureBus={() => {
-          void navigate('/signals')
-        }}
-      />
-    ),
-    listening: <LiveDataSkeleton signalNames={filteredSignals.map((s) => s.name)} />,
-    values: <LiveDataGrid signals={filteredSignals} values={values} />,
+  const stopAndSave = () => {
+    const samples = sampler.stopRecording()
+    if (samples.length === 0) return
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-')
+    downloadFile(liveCsvFilename(stamp), CSV_MIME, buildLiveCsv(signals, samples))
+  }
+
+  const meta = useMemo(
+    () => stateLabel(connected, simulationMode, paused),
+    [connected, simulationMode, paused]
+  )
+
+  if (signals.length === 0) {
+    return (
+      <div className="flex min-h-0 flex-1 flex-col bg-ui-bg">
+        <LiveDataEmpty hasProfile={false} onPickProfile={goToSignals} onCaptureBus={goToSignals} />
+      </div>
+    )
   }
 
   return (
-    <RoutePage>
-      <RouteHeader
-        title="Live data"
-        subtitle={
-          <>
-            {signals.length} signal{signals.length === 1 ? '' : 's'} ·{' '}
-            <SourceBadge source={source} />
-          </>
-        }
-        action={
-          <>
-            <Input
-              type="search"
-              value={filter}
-              onChange={(e) => {
-                setFilter(e.target.value)
-              }}
-              placeholder="Filter by name or unit"
-              className="h-8 w-[200px] text-xs"
-            />
-            <button
-              type="button"
-              className={cn('editor-ghost-accent', EXPORT_BUTTON)}
-              onClick={() => {
-                downloadCsv(signals, values)
-              }}
-              disabled={signals.length === 0}
-            >
-              EXPORT CSV
-            </button>
-          </>
-        }
-      />
+    <div className="flex min-h-0 flex-1 flex-col bg-ui-bg">
+      <div className="flex h-[54px] shrink-0 items-center gap-4 border-b-2 border-ui-rule px-6">
+        <span className="font-mono text-[11px] tracking-[0.18em] text-ui-muted">LIVE DATA</span>
+        <span className="whitespace-nowrap font-mono text-[11.5px] text-ui-muted">{meta}</span>
+        <div className="flex-1" />
+        {sampler.recording && (
+          <span className="whitespace-nowrap font-mono text-[11px] text-ui-faint">
+            {sampler.recordedCount} samples
+          </span>
+        )}
+        <button
+          type="button"
+          onClick={sampler.recording ? stopAndSave : sampler.startRecording}
+          className={cn(
+            'cursor-pointer whitespace-nowrap border px-4 py-[9px] text-[12.5px] font-bold',
+            sampler.recording
+              ? 'border-ui-accent bg-ui-accent text-white hover:bg-ui-accent-hover'
+              : 'border-ui-ink bg-transparent text-ui-ink hover:bg-ui-panel'
+          )}
+        >
+          {sampler.recording ? 'STOP & SAVE' : 'RECORD'}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setFrozen(live)
+            setPaused((on) => !on)
+          }}
+          className="cursor-pointer whitespace-nowrap border border-ui-ink bg-transparent px-4 py-[9px] text-[12.5px] font-bold text-ui-ink hover:bg-ui-panel"
+        >
+          {paused ? 'START' : 'PAUSE'}
+        </button>
+      </div>
 
       <BusSilentNotice />
 
-      {views[view]}
-    </RoutePage>
+      <div className="min-h-0 flex-1 overflow-y-auto p-6">
+        <LiveCards signals={signals} values={values} selected={selected} onToggle={toggle} />
+        <LivePlot
+          signals={signals}
+          selected={selected}
+          onToggle={toggle}
+          samples={sampler.history}
+          windowSeconds={windowSeconds}
+          onStepWindow={stepWindow}
+        />
+      </div>
+    </div>
   )
 }
 
