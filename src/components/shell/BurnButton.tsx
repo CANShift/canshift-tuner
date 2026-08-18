@@ -7,10 +7,17 @@ export interface BurnButtonProps {
   disabled?: boolean
   busy?: boolean
   title?: string
+  label?: string
   onClick?: () => void
 }
 
-export const BurnButton = ({ disabled = false, busy = false, title, onClick }: BurnButtonProps) => {
+export const BurnButton = ({
+  disabled = false,
+  busy = false,
+  title,
+  label = 'BURN',
+  onClick,
+}: BurnButtonProps) => {
   const isDisabled = disabled && !busy
   return (
     <Button
@@ -21,7 +28,7 @@ export const BurnButton = ({ disabled = false, busy = false, title, onClick }: B
       className={cn('h-auto gap-0 shell-burn-button', burnFace({ disabled: isDisabled }))}
     >
       {busy ? <Spinner size="sm" /> : null}
-      {busy ? 'BURNING…' : 'BURN'}
+      {busy ? 'BURNING…' : label}
     </Button>
   )
 }
