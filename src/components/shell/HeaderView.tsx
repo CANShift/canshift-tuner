@@ -67,7 +67,7 @@ export const HeaderView = ({
   const visual = STATUS_VISUAL[status]
   return (
     <header className="flex h-[52px] shrink-0 items-stretch bg-ui-header-bg text-ui-header-ink">
-      <div className="flex items-center gap-2.5 px-5">
+      <div className="flex items-center gap-2.5 px-3 min-[1100px]:px-5">
         <BrandLockup height={19} />
         <span className="hidden font-mono text-[11px] tracking-[0.16em] text-ui-faint min-[1000px]:inline">
           TUNER
@@ -76,7 +76,7 @@ export const HeaderView = ({
 
       {configNameField}
 
-      <nav aria-label="Primary" className="ml-[18px] flex items-stretch">
+      <nav aria-label="Primary" className="ml-2 flex items-stretch min-[1100px]:ml-[18px]">
         {HEADER_TABS.map((tab) => (
           <HeaderTabItem
             key={tab.to}
@@ -109,7 +109,7 @@ export const HeaderView = ({
           type="button"
           onClick={onDisconnect}
           title="Disconnect the dash"
-          className="cursor-pointer whitespace-nowrap border-0 border-l border-solid border-ui-header-line bg-transparent px-4 font-mono text-[11px] tracking-[0.14em] text-ui-faint hover:text-ui-engaged"
+          className="cursor-pointer whitespace-nowrap border-0 border-l border-solid border-ui-header-line bg-transparent px-2.5 font-mono text-[11px] tracking-[0.14em] text-ui-faint hover:text-ui-engaged min-[1100px]:px-4"
         >
           DISCONNECT
         </button>
@@ -153,7 +153,8 @@ const HeaderTabItem = ({ tab, active, disabled, LinkComponent }: HeaderTabItemPr
 
 const headerTab = cva(
   [
-    'flex items-center whitespace-nowrap px-4 text-[13px] font-bold tracking-[0.06em]',
+    'flex items-center whitespace-nowrap px-2.5 text-[13px] font-bold tracking-[0.06em]',
+    'min-[1100px]:px-4',
     'no-underline outline-offset-[-2px]',
   ].join(' '),
   {

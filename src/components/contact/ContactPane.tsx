@@ -60,7 +60,7 @@ export const ContactPane = ({
   error,
   diagnosticsToggle,
 }: ContactPaneProps) => (
-  <div className="max-w-[720px] px-11 pb-[60px] pt-12">
+  <div className="max-w-[720px] px-6 pb-[60px] pt-12 sm:px-11">
     <p className="border-b-2 border-ui-rule pb-3 font-mono text-[10.5px] tracking-[0.2em] text-ui-muted">
       SUPPORT
     </p>

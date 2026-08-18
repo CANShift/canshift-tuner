@@ -4,7 +4,11 @@ import { cn } from '@/lib/utils'
 import { formatByteRange, parseByteRange } from '../../lib/signal-bytes'
 import type { SignalUsage } from '../../hooks/useSignalUsage'
 
-const GRID = 'grid-cols-[minmax(180px,1fr)_132px_104px_128px_116px_minmax(150px,260px)] gap-10'
+const GRID = [
+  'grid-cols-[minmax(140px,1fr)_132px_104px_128px_116px_minmax(120px,260px)] gap-5',
+  'min-[1180px]:grid-cols-[minmax(180px,1fr)_132px_104px_128px_116px_minmax(150px,260px)]',
+  'min-[1180px]:gap-10',
+].join(' ')
 const DECIMALS = 1
 const NO_VALUE = '—'
 

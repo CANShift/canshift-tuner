@@ -4,6 +4,7 @@ import { useResolvedBoardProfile } from './useResolvedBoardProfile'
 import { downloadFirmwareAsset } from '../lib/firmware/download'
 import { flashFirmwareOta } from '../lib/firmware/ota'
 import { errorMessage } from '../lib/error-message'
+import { isWebSerialAvailable } from '../lib/web-serial'
 import { findFirmwareAsset } from '../lib/firmware/releases'
 import { useConnectionStore } from '../stores/connection.store'
 import {
@@ -15,9 +16,6 @@ import { useFlasherStore } from '../stores/flasher.store'
 import type { FlasherState } from '../stores/flasher.store'
 
 export type { FlasherState }
-
-const isWebSerialAvailable = (): boolean =>
-  typeof navigator !== 'undefined' && 'serial' in navigator
 
 const DISCONNECT_WAIT_MS = 1500
 const DISCONNECT_POLL_MS = 50
