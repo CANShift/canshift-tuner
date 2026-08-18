@@ -13,6 +13,7 @@ import { useFirmwareUpdate } from '../hooks/useFirmwareUpdate'
 import { buildNewProjectDashboard, BLANK_PAGE_SET, DEFAULT_PAGE_SET } from '../lib/new-project'
 import { PROJECT_FILE_ACCEPT } from '../lib/project-file'
 import { humanizeTransportError } from '../transport/humanize-transport-error'
+import { isWebSerialAvailable } from '../lib/web-serial'
 
 type ConnectionStatus = ReturnType<typeof useConnectionStore.getState>['status']
 
@@ -31,9 +32,6 @@ const CONNECT_LABEL: Record<ConnectionStatus, string> = {
 }
 
 const SIMULATION_KICKER = 'SIMULATION · NO BOARD'
-
-const isWebSerialAvailable = (): boolean =>
-  typeof navigator !== 'undefined' && 'serial' in navigator
 
 const WelcomeRoute = () => {
   const status = useConnectionStore((s) => s.status)

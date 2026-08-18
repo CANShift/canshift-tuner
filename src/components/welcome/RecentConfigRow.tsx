@@ -27,10 +27,14 @@ export const RecentConfigRow = ({
       onClick={() => {
         onOpen(entry.id)
       }}
-      className="flex flex-1 cursor-pointer items-baseline gap-[18px] border-0 bg-transparent p-0 text-left"
+      className="flex min-w-0 flex-1 cursor-pointer items-baseline gap-[18px] border-0 bg-transparent p-0 text-left"
     >
-      <span className="flex-1 truncate text-[15px] font-bold text-ui-ink">{entry.name}</span>
-      <span className="whitespace-nowrap font-mono text-[11.5px] text-ui-muted">{entry.meta}</span>
+      <span className="min-w-0 flex-1 truncate text-[15px] font-bold text-ui-ink">
+        {entry.name}
+      </span>
+      <span className="min-w-0 flex-[0_1_auto] truncate font-mono text-[11.5px] text-ui-muted">
+        {entry.meta}
+      </span>
       <span className="font-mono text-[11.5px] text-ui-accent">OPEN</span>
     </button>
     <button

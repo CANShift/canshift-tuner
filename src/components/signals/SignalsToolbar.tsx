@@ -40,7 +40,7 @@ export const SignalsToolbar = ({
   onFilter,
   actions,
 }: SignalsToolbarProps) => (
-  <div className="flex h-[54px] shrink-0 items-center gap-4 border-b-2 border-ui-rule px-6">
+  <div className="flex h-[54px] shrink-0 items-center gap-2.5 border-b-2 border-ui-rule px-6 min-[1180px]:gap-4">
     <div className="flex gap-px">
       {SOURCES.map((value) => (
         <button
@@ -62,7 +62,7 @@ export const SignalsToolbar = ({
         onProfile(e.target.value)
       }}
       aria-label="ECU profile"
-      className="max-w-[220px] border border-ui-ink bg-ui-bg py-2 pl-2.5 pr-[26px] font-mono text-[13px] font-bold text-ui-ink"
+      className="max-w-[150px] border border-ui-ink bg-ui-bg py-2 pl-2.5 pr-[26px] font-mono text-[13px] font-bold text-ui-ink min-[1180px]:max-w-[220px]"
     >
       {groups.map((group) => (
         <optgroup key={group.label} label={group.label}>
@@ -86,7 +86,7 @@ export const SignalsToolbar = ({
       }}
       placeholder="filter"
       aria-label="Filter signals"
-      className="ml-auto w-40 border border-ui-ink bg-ui-bg px-2.5 py-2 font-mono text-[13px] text-ui-ink outline-none"
+      className="ml-auto w-28 border border-ui-ink bg-ui-bg px-2.5 py-2 font-mono text-[13px] text-ui-ink outline-none min-[1180px]:w-40"
     />
 
     {actions}

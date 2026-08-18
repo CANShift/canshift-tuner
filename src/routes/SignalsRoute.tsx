@@ -159,7 +159,7 @@ const SignalsRoute = () => {
                 })
               }}
             >
-              Import XML
+              Import<span className="hidden min-[1180px]:inline"> XML</span>
             </SignalsFileAction>
             <SignalsAction
               onClick={() => {
@@ -170,7 +170,7 @@ const SignalsRoute = () => {
                 )
               }}
             >
-              Download XML
+              Download<span className="hidden min-[1180px]:inline"> XML</span>
             </SignalsAction>
           </>
         }

@@ -25,6 +25,10 @@ import { useUnsavedChangesGuard } from './hooks/useUnsavedChangesGuard'
 import { useDocumentMeta } from './hooks/useDocumentMeta'
 import { DeviceConfigConflictNotice } from './components/shell/DeviceConfigConflictNotice'
 import { CliPanel } from './components/cli/CliPanel'
+import { CapabilityScreen } from './components/shell/CapabilityScreen'
+import { capabilityReason } from './lib/capability'
+import { useBelowFloor } from './hooks/useBelowFloor'
+import { isWebSerialAvailable } from './lib/web-serial'
 import { useUiStore } from './stores/ui.store'
 import {
   DEVICE_GATED_PATHS,
@@ -76,6 +80,12 @@ const DeviceGate = ({ children }: { children: ReactNode }) => {
 }
 
 const App = () => {
+  const reason = capabilityReason(useBelowFloor(), isWebSerialAvailable())
+  if (reason !== null) return <CapabilityScreen reason={reason} />
+  return <TunerShell />
+}
+
+const TunerShell = () => {
   useAutoReconnect()
   useSimulationBootstrap()
   useVersionHandshake()

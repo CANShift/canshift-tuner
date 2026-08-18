@@ -3,7 +3,11 @@ import type { SignalDef } from '@canshift/core'
 import { cn } from '@/lib/utils'
 import type { SignalUsage } from '../../hooks/useSignalUsage'
 
-const GRID = 'grid grid-cols-[120px_minmax(180px,1fr)_140px_120px_minmax(150px,260px)] gap-10'
+const GRID = [
+  'grid grid-cols-[100px_minmax(140px,1fr)_120px_100px_minmax(120px,260px)] gap-5',
+  'min-[1180px]:grid-cols-[120px_minmax(180px,1fr)_140px_120px_minmax(150px,260px)]',
+  'min-[1180px]:gap-10',
+].join(' ')
 const DECIMALS = 1
 const NO_VALUE = '—'
 const NOT_IN_PROFILE = 'not in the profile'
