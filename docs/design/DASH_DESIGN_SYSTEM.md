@@ -151,13 +151,31 @@ Four states, and every control reads the same four ways so the driver never lear
   active control never pulses. A control that is intervening says so in its kicker
   (`TRACTION · CUTTING`), it does not move.
 - **Unavailable**: border `CS_LOCK_LINE`, text `CS_LOCK_INK`, and **the kicker states why** — never a bare
-  grey-out: `ANTI-LAG · EGT HIGH`, `LAUNCH · MOVING`, `TRACTION · NO WHEEL SPEED`,
-  `PIT LIMIT · GEAR 4`, `CRUISE · BRAKE CUT`. State word `LOCKED`, `N/A` or `CANCELLED`.
+  grey-out: `ANTI-LAG` / `EGT HIGH`, `LAUNCH` / `MOVING`, `TRACTION` / `NO WHEEL SPEED`,
+  `PIT LIMIT` / `GEAR 4`, `CRUISE` / `BRAKE CUT`. State word `LOCKED`, `N/A` or `CANCELLED`.
+
+**A button kicker stacks: name on the first line, qualifier on the second** — never joined with `·`.
+The separator is for the splash and the status row, which have a full screen width to spend; a button does
+not. A 4-column button is 79 px of usable width and the kicker face measures ~8 px per character, so 9
+characters is the whole budget — `PIT LIMIT` alone spends it. Any joined form therefore wraps mid-phrase
+(`ANTI-LAG · EGT` / `HIGH`), which is why the qualifier owns its own line and the button is sized for two.
+
+**Armed is declared per control, not carried by all four.** It exists only where the car really holds that
+state — launch armed at a target rpm, cruise set but not holding, traction set to a level but not cutting.
+Anti-lag and pit limit are **binary**: they go straight from off to active, because there is no physical
+in-between for them and a pulse there would only be reporting bus latency, which is not the driver's
+problem. A control with no armed state that is tapped and never confirmed on the bus returns to off after
+15 s — silently, with no error word, because the dash cannot tell a lost frame from a slow ECU.
+
+| Control                      | Armed                         |
+| ---------------------------- | ----------------------------- |
+| Launch, cruise, traction     | yes — a real state of the car |
+| Anti-lag, pit limit, ECU map | no — binary, off ⇄ active     |
 
 **Two kinds of button**, legible from the state word alone:
 
 - **Toggle** — anti-lag, launch, pit limit, cruise. One tap engages, the next disengages; the state word
-  is a word (`ON`/`OFF`, `ARMED`, `READY`).
+  is a word (`ON`/`OFF`, `ARMED`).
 - **Stepper** — traction control and the ECU map. **Each tap raises the level by one** (1, 2, 3 … 6), and
   the tap past the top wraps back to `OFF`, so the whole range is reachable with one finger and no second
   button. A 600 ms long press returns to level 1. The segment row under the state word is the only
@@ -170,6 +188,16 @@ Extra rules:
   320 px; the word plus the state carries it, and the word is what the driver would say out loud.
 - A level control (traction 1–6) shows a row of segment cells under the state word: 2 px device high,
   lit in Ink (white at 30 % over an engaged fill), unlit in `CS_TRACK`.
+
+**A value class sets a floor on its box.** A widget renders a top rule, a kicker line and the value line,
+so the box must hold all three or the value spills past the bottom edge and collides with the row below.
+Measured minimums, device pixels: **hero 48 → 93**, **heroTrack 44 → 71**, **primary 32 → 60**,
+**mid 22 → 40**, **secondary 17 → 40**. Check the floor before changing a `rowSpan` or a `big`.
+
+Track is the one page that cannot hold three tiers at spec sizes: the shift strip (13 px) and the alert
+line band (16 px) leave it 195 px, and `row + rowSpan <= 12` costs it another track because the strip
+takes raw row 0. Its SPEED and OIL PRESS therefore render at **mid**, not primary — a deliberate
+deviation, and the one to revisit first if the alert band ever stops being reserved on every page.
 
 ## 7. Shift light
 
@@ -184,7 +212,7 @@ Only on a page that declares it (Track). One row across the full content width:
 A protection cut (boost, fuel, ignition, knock retard, rev limit, overheat, limp) shows a persistent
 full-width band directly under the shift light for as long as the cut lasts: a 2 px rule in the severity
 colour, the cut name in Archivo 800 (0.16em, uppercase), the measured value against its limit in mono, and
-the elapsed time right-aligned. 13 px device tall.
+the elapsed time right-aligned. One line, flush left, 26 px device tall.
 
 Amber CS_WARN when the cut holds a target (overboost, rev limit, traction, pit limit), detail dim; danger
 CS_DANGER when it protects the engine (oil pressure, overheat, limp), detail in Ink. The causing value
@@ -248,7 +276,8 @@ fit 320 × 240 is **rejected at config load**, and the Tuner flags it before wri
 - [ ] Status row has exactly three fields, bus rate on the left.
 - [ ] Shift light: 7 ink + 2 danger + 3 track, 12 cells.
 - [ ] Warning readings amber `#FF8800`; danger `#FF4444`; engaged buttons filled `#FF4747`; never swapped.
-- [ ] All four button states present, and every unavailable control states its reason in the kicker.
+- [ ] Every unavailable control states its reason in the kicker, and armed appears only on the controls
+      that declare it (§6).
 - [ ] Only armed pulses. No active control, no warning and no cut band moves.
 - [ ] Cut band: right severity colour, name from the profile, 1.5 s minimum, stacks to three.
 - [ ] No animation outside §9; page change is a cut.

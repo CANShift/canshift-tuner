@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { GAUGE_ARC, GAUGE_TRACK_COLORS, STALE_PLACEHOLDER, deviceValueFontPx } from '@canshift/core'
 import { cn } from '@/lib/utils'
-import { thresholdPct } from '../widget-preview.styles'
+import { WIDGET_DIM_COLOR, thresholdPct } from '../widget-preview.styles'
 import { effectiveValue, gaugeArcD } from './gauge-math'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
 import { MONO_FONT, UI_FONT, UI_LABEL_TRACKING, UI_LABEL_WEIGHT } from '../../../lib/typography'
@@ -101,7 +101,7 @@ export const GaugeArcPreview = memo(function GaugeArcPreview({
         y={SIGNAL_LABEL_FONT_SIZE + 4}
         textAnchor="start"
         dominantBaseline="auto"
-        fill="#888888"
+        fill={WIDGET_DIM_COLOR}
         fontSize={SIGNAL_LABEL_FONT_SIZE}
         fontFamily={UI_FONT}
         fontWeight={UI_LABEL_WEIGHT}

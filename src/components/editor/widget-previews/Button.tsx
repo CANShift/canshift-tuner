@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { WIDGET_ACCENT_COLOR, WIDGET_MUTED_COLOR } from '@canshift/core'
+import { WIDGET_ACCENT_COLOR, WIDGET_DIM_COLORS } from '@canshift/core'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
 
 const FRAME = [
@@ -98,7 +98,7 @@ export const ButtonPreview = memo(function ButtonPreview({
   const bgColor = active ? engagedColor : 'transparent'
   const borderColor = active ? engagedColor : idleBorder
   const textColor = active ? '#FFFFFF' : st.textColor
-  const kickerColor = active ? KICKER_ENGAGED_COLOR : WIDGET_MUTED_COLOR
+  const kickerColor = active ? KICKER_ENGAGED_COLOR : WIDGET_DIM_COLORS.night
 
   return (
     <div

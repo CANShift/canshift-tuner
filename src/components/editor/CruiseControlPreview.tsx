@@ -13,7 +13,7 @@ const STROKE_W = 2
 const CENTER = 'absolute box-border flex flex-col items-center justify-center'
 
 const CENTER_LABEL = [
-  'text-center font-sans font-extrabold leading-none tracking-[0.18em] text-[#888888]',
+  'text-center font-sans font-extrabold leading-none tracking-[0.18em] text-[#BABAB8]',
 ].join(' ')
 
 const CENTER_VALUE = [
