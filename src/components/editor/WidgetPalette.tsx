@@ -1,57 +1,9 @@
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
-import type { WidgetType, SensorIconName } from '@canshift/core'
 import { useDashboardStore } from '../../stores/dashboard.store'
 import { SensorIcon } from '../icons/SensorIcons'
-import { SIZE_TOKENS } from '../../utils/size-tokens'
-import { createId } from '../../utils/id'
-import { DEFAULT_WIDGET_STYLE, WIDGET_TYPE_DRAG_MIME } from '../../utils/default-widget'
-
-type PaletteWidgetType = Extract<WidgetType, 'gauge' | 'button' | 'gear' | 'shift_light'>
-
-interface PaletteItem {
-  type: PaletteWidgetType
-  label: string
-  icon: SensorIconName
-  defaultSignal: string
-  defaultColSpan: number
-  defaultRowSpan: number
-}
-
-const PALETTE_ITEMS: PaletteItem[] = [
-  {
-    type: 'gauge',
-    label: 'Gauge',
-    icon: 'rpm',
-    defaultSignal: 'rpm',
-    defaultColSpan: SIZE_TOKENS.XL.colSpan,
-    defaultRowSpan: SIZE_TOKENS.XL.rowSpan,
-  },
-  {
-    type: 'button',
-    label: 'Button',
-    icon: 'cog',
-    defaultSignal: '',
-    defaultColSpan: SIZE_TOKENS.L.colSpan,
-    defaultRowSpan: SIZE_TOKENS.L.rowSpan,
-  },
-  {
-    type: 'gear',
-    label: 'Gear',
-    icon: 'gear',
-    defaultSignal: 'gear',
-    defaultColSpan: SIZE_TOKENS.L.colSpan,
-    defaultRowSpan: SIZE_TOKENS.L.rowSpan,
-  },
-  {
-    type: 'shift_light',
-    label: 'Shift light',
-    icon: 'rpm',
-    defaultSignal: 'rpm',
-    defaultColSpan: 12,
-    defaultRowSpan: 1,
-  },
-]
+import { WIDGET_TYPE_DRAG_MIME } from '../../utils/default-widget'
+import { buildWidget, PALETTE_ITEMS, type PaletteItem } from '../../lib/new-widget'
 
 interface WidgetPaletteProps {
   pageId: string
@@ -64,52 +16,7 @@ const WidgetPalette = ({ pageId }: WidgetPaletteProps) => {
 
   const handleAdd = (item: PaletteItem) => {
     if (templateLocked) return
-    const id = createId(item.type)
-
-    const baseConfig = (() => {
-      switch (item.type) {
-        case 'gauge':
-          return {
-            type: 'gauge' as const,
-            displayStyle: 'arc' as const,
-            minValue: 0,
-            maxValue: 8000,
-            dangerLevel: 7000,
-            decimalPlaces: 0,
-            iconName: item.icon,
-          }
-        case 'button':
-          return {
-            type: 'button' as const,
-            mode: 'single' as const,
-            label: 'Button',
-            showLabel: true,
-            actions: [],
-          }
-        case 'gear':
-          return { type: 'gear' as const, decimalPlaces: 0 as const }
-        case 'shift_light':
-          return { type: 'shift_light' as const, startValue: 3000, redSegments: 5 }
-      }
-    })()
-
-    addWidget(pageId, {
-      id,
-      type: item.type,
-      signal: item.defaultSignal,
-      layout: {
-        col: 0,
-        colSpan: item.defaultColSpan,
-        row: 0,
-        rowSpan: item.defaultRowSpan,
-        zOrder: 0,
-      },
-      style: {
-        ...DEFAULT_WIDGET_STYLE,
-        fontSize: 16,
-      },
-      config: baseConfig,
-    })
+    addWidget(pageId, buildWidget(item))
   }
 
   return (

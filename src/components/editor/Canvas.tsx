@@ -1,15 +1,13 @@
-import { useRef, useCallback, useMemo, useState } from 'react'
+import { useRef, useMemo } from 'react'
 import type { ReactNode } from 'react'
 import type { PageConfig, TopBarConfig } from '@canshift/core'
 import { resolveGridRect, resolveScreenProfile } from '@canshift/core'
 import { useDashboardStore } from '../../stores/dashboard.store'
-import { unboundWidgetCount } from '../../utils/unbound-widgets'
 import { overflowingWidgetIds, overlappingWidgetIds } from '../../utils/widget-diagnostics'
 import { useRebindFlashStore } from '../../stores/rebind-flash.store'
 import ScreenSettingsPanel from './ScreenSettingsPanel'
 import DiagnosticsPanel from './DiagnosticsPanel'
 import { DashTopBar } from './DashTopBar'
-import { CanvasToolbar } from './CanvasToolbar'
 import { LayoutOverflowNotice } from './LayoutOverflowNotice'
 import { BurnFailureNotice } from './BurnFailureNotice'
 import { RevLimiterOverlay } from './RevLimiterOverlay'
@@ -31,7 +29,6 @@ import { useCanvasDialogs } from '../../hooks/useCanvasDialogs'
 import { Eyebrow } from '../ui/meta-text'
 
 const SCALE = 1.5
-const ZOOM_STEPS = [0.5, 0.75, 1, 1.5, 2] as const
 
 const EMPTY_PAGES: readonly PageConfig[] = []
 
@@ -39,14 +36,25 @@ interface CanvasProps {
   page: PageConfig
   topBar: TopBarConfig
   pageIndex?: number | undefined
+  zoom: number
+  onZoomStep: (direction: 1 | -1) => void
+  toolbar?: ReactNode
   pageStrip?: ReactNode
   inspector?: ReactNode
 }
 
-const Canvas = ({ page, topBar, pageIndex, pageStrip, inspector }: CanvasProps) => {
+const Canvas = ({
+  page,
+  topBar,
+  pageIndex,
+  zoom,
+  onZoomStep,
+  toolbar,
+  pageStrip,
+  inspector,
+}: CanvasProps) => {
   const targetProfileId = useDashboardStore((s) => s.config?.targetProfile)
   const screenProfile = useMemo(() => resolveScreenProfile(targetProfileId), [targetProfileId])
-  const [zoom, setZoom] = useState(1)
   const effScale = SCALE * zoom
   const canvasW = screenProfile.width * effScale
   const canvasH = screenProfile.height * effScale
@@ -62,13 +70,6 @@ const Canvas = ({ page, topBar, pageIndex, pageStrip, inspector }: CanvasProps) 
   const pasteWidgets = useDashboardStore((s) => s.pasteWidgets)
   const nudgeWidgets = useDashboardStore((s) => s.nudgeWidgets)
   const selectPage = useDashboardStore((s) => s.selectPage)
-  const undo = useDashboardStore((s) => s.undo)
-  const redo = useDashboardStore((s) => s.redo)
-  const canUndo = useDashboardStore((s) => s.past.length > 0)
-  const undoLabel = useDashboardStore((s) => s.past[s.past.length - 1]?.label)
-  const redoLabel = useDashboardStore((s) => s.future[0]?.label)
-  const canRedo = useDashboardStore((s) => s.future.length > 0)
-
   const pages = useDashboardStore((s) => s.config?.pages ?? EMPTY_PAGES)
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -107,15 +108,6 @@ const Canvas = ({ page, topBar, pageIndex, pageStrip, inspector }: CanvasProps) 
 
   const { revLimiting, flashPhase, startRevLimiter } = useRevLimiterFlash()
 
-  const stepZoom = useCallback((dir: 1 | -1) => {
-    setZoom((z) => {
-      const idx = ZOOM_STEPS.indexOf(z as (typeof ZOOM_STEPS)[number])
-      const base = idx === -1 ? ZOOM_STEPS.indexOf(1) : idx
-      const next = ZOOM_STEPS[Math.max(0, Math.min(ZOOM_STEPS.length - 1, base + dir))]
-      return next ?? z
-    })
-  }, [])
-
   const overlappingIds = useMemo(() => overlappingWidgetIds(page.widgets), [page.widgets])
   const overflowingIds = useMemo(() => overflowingWidgetIds(page.widgets), [page.widgets])
 
@@ -152,7 +144,6 @@ const Canvas = ({ page, topBar, pageIndex, pageStrip, inspector }: CanvasProps) 
     startRubberBand,
   })
 
-  const unboundCount = useDashboardStore((s) => unboundWidgetCount(s.config))
   const flashWidgetId = useRebindFlashStore((s) => s.flashId)
   const templateLocked = (page.template ?? 'custom') !== 'custom'
 
@@ -179,40 +170,7 @@ const Canvas = ({ page, topBar, pageIndex, pageStrip, inspector }: CanvasProps) 
   const handleZoomWheel = (e: React.WheelEvent) => {
     if (!e.metaKey && !e.ctrlKey) return
     e.preventDefault()
-    stepZoom(e.deltaY < 0 ? 1 : -1)
-  }
-
-  const toolbarProps = {
-    pageId: page.id,
-    selectedWidgetIds,
-    screenWidth: screenProfile.width,
-    screenHeight: screenProfile.height,
-    overflowingCount: overflowingIds.size,
-    overflowingNames: page.widgets
-      .filter((w) => overflowingIds.has(w.id))
-      .map((w) => (w.signal ? `${w.type}.${w.signal}` : w.type)),
-    unboundCount,
-    canUndo,
-    undoLabel,
-    redoLabel,
-    canRedo,
-    onUndo: undo,
-    onRedo: redo,
-    zoom,
-    onZoomIn: () => {
-      stepZoom(1)
-    },
-    onZoomOut: () => {
-      stepZoom(-1)
-    },
-    onZoomReset: () => {
-      setZoom(1)
-    },
-    onOpenShortcuts: () => {
-      setShortcutsOpen(true)
-    },
-    revLimiting,
-    onStartRevLimiter: startRevLimiter,
+    onZoomStep(e.deltaY < 0 ? 1 : -1)
   }
 
   const widgetLayerProps = {
@@ -236,7 +194,7 @@ const Canvas = ({ page, topBar, pageIndex, pageStrip, inspector }: CanvasProps) 
 
   return (
     <div className={ROOT}>
-      <CanvasToolbar {...toolbarProps} />
+      {toolbar}
       {pageStrip}
       <div className={BODY_ROW}>
         <div className={EDITOR_COL}>
@@ -244,7 +202,18 @@ const Canvas = ({ page, topBar, pageIndex, pageStrip, inspector }: CanvasProps) 
           <LayoutOverflowNotice />
           <div onMouseDown={deselectOnBackground} className={CANVAS_ZONE}>
             <div className={FRAME_COLUMN}>
-              <CanvasTitle pageIndex={pageIndex} screenProfile={screenProfile} zoom={zoom} />
+              <div className="flex items-baseline justify-between gap-4">
+                <CanvasTitle pageIndex={pageIndex} screenProfile={screenProfile} zoom={zoom} />
+                <button
+                  type="button"
+                  onClick={startRevLimiter}
+                  disabled={revLimiting}
+                  title="Preview the rev limiter for five seconds"
+                  className="cursor-pointer border border-ui-accent bg-transparent px-3 py-1.5 font-mono text-[11px] tracking-[0.08em] text-ui-accent disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  REV LIMIT
+                </button>
+              </div>
               <div className={DEVICE_FRAME}>
                 <div
                   className={SCREEN}
