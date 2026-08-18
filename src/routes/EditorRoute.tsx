@@ -21,6 +21,7 @@ import {
   type PreviewMode,
 } from '../components/editor/preview/preview-modes'
 import { useCatalogueIndex } from '../hooks/useCatalogueIndex'
+import { useDisplayTier } from '../hooks/useDisplayTier'
 import { useDashboardStore } from '../stores/dashboard.store'
 import { SaveTemplateDialog } from '../components/editor/SaveTemplateDialog'
 import { ManageTemplatesDialog } from '../components/editor/ManageTemplatesDialog'
@@ -63,6 +64,9 @@ const CanvasFallback = () => {
   )
 }
 
+const PAGE_FULL_NOTE = (cap: number): string =>
+  `This page already holds ${String(cap)} widgets — the most this panel can render. Remove one, or put it on another page.`
+
 const EditorRoute = () => {
   const pages = useDashboardStore((s) => s.config?.pages)
   const topBar = useDashboardStore((s) => s.config?.topBar)
@@ -101,6 +105,7 @@ const EditorRoute = () => {
   const undoLabel = useDashboardStore((s) => s.past[s.past.length - 1]?.label)
   const selectedProfileKey = useSignalStore((s) => s.selectedProfileKey)
   const catalogue = useCatalogueIndex()
+  const tier = useDisplayTier()
   const activeProjectId = useProjectStore((s) => s.activeProjectId)
   const configName = useDashboardStore((s) => s.config?.name ?? 'config')
   const { fileInputRef, exportProjectFile, openImportPicker, handleImportChange } =
@@ -166,6 +171,7 @@ const EditorRoute = () => {
   const atCap = pages.length >= FIRMWARE_CAPS.MAX_PAGES
 
   const currentPageIndex = currentPage ? pages.findIndex((p) => p.id === currentPage.id) : -1
+  const pageFull = (currentPage?.widgets.length ?? 0) >= tier.maxWidgetsPerPage
 
   const screenProfile = resolveScreenProfile(targetProfile)
   const widgetCount = pages.reduce((total, p) => total + p.widgets.length, 0)
@@ -221,6 +227,8 @@ const EditorRoute = () => {
         setPreviewMode(mode as PreviewMode)
       }}
       profileMeta={ecuLabelForKey(selectedProfileKey, catalogue)}
+      pageFull={pageFull}
+      fullNote={PAGE_FULL_NOTE(tier.maxWidgetsPerPage)}
       onAddWidget={() => {
         addWidget(currentPage.id, buildWidget(DEFAULT_NEW_WIDGET))
       }}
