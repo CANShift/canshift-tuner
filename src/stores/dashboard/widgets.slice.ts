@@ -3,6 +3,7 @@ import { clampGridPlacement, isSpanOverflowing, placementsOverlap } from '@cansh
 import { autoPlace, resolveCollisions } from '../../utils/layout'
 import { pushHistory, toPlacement, widgetRef } from './helpers'
 import type { SliceCreator, WidgetsSlice } from './types'
+import { gridTracksForConfig } from '../../lib/grid-tracks'
 
 export const createWidgetsSlice: SliceCreator<WidgetsSlice> = (set) => ({
   addWidget: (pageId, widget) => {
@@ -32,7 +33,7 @@ export const createWidgetsSlice: SliceCreator<WidgetsSlice> = (set) => ({
         ]
         for (const cand of adjacent) {
           const placement = { col: cand.col, colSpan, row: cand.row, rowSpan }
-          if (isSpanOverflowing(placement)) continue
+          if (isSpanOverflowing(placement, gridTracksForConfig(s.config))) continue
           if (!others.some((o) => placementsOverlap(placement, o))) {
             pos = { col: cand.col, row: cand.row }
             break
@@ -86,7 +87,7 @@ export const createWidgetsSlice: SliceCreator<WidgetsSlice> = (set) => ({
         let pos: { col: number; row: number } | null = null
         for (const cand of candidates) {
           const placement = { col: cand.col, colSpan, row: cand.row, rowSpan }
-          if (isSpanOverflowing(placement)) continue
+          if (isSpanOverflowing(placement, gridTracksForConfig(s.config))) continue
           if (!others.some((o) => placementsOverlap(placement, o))) {
             pos = { col: cand.col, row: cand.row }
             break
@@ -165,7 +166,10 @@ export const createWidgetsSlice: SliceCreator<WidgetsSlice> = (set) => ({
             : `Edited ${widgetRef(existing)}`
       pushHistory(s, label)
       const merged = { ...existing, ...patch }
-      merged.layout = { ...clampGridPlacement(merged.layout), zOrder: merged.layout.zOrder }
+      merged.layout = {
+        ...clampGridPlacement(merged.layout, gridTracksForConfig(s.config)),
+        zOrder: merged.layout.zOrder,
+      }
       page.widgets[widgetIdx] = merged
       s.isDirty = true
     })

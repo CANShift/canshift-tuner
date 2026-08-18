@@ -1,6 +1,7 @@
 import { useCallback, useRef, type MouseEvent as ReactMouseEvent, type RefObject } from 'react'
 import type { Widget } from '@canshift/core'
 import { LAYOUT_GRID, clampGridPlacement } from '@canshift/core'
+import { useDisplayTier } from './useDisplayTier'
 import { useDashboardStore } from '../stores/dashboard.store'
 
 interface DraggingWidget {
@@ -55,6 +56,7 @@ export const useDragState = ({
   zoomRef,
   scale,
 }: UseDragStateOptions): ((e: ReactMouseEvent, widget: Widget) => void) => {
+  const tier = useDisplayTier()
   const moveWidget = useDashboardStore((s) => s.moveWidget)
   const moveWidgets = useDashboardStore((s) => s.moveWidgets)
   const resolveWidgetCollisions = useDashboardStore((s) => s.resolveWidgetCollisions)
@@ -100,8 +102,8 @@ export const useDragState = ({
         began: false,
       }
 
-      const colPitch = trackPitch(canvasW, LAYOUT_GRID.COLUMNS)
-      const rowPitch = trackPitch(widgetAreaH, LAYOUT_GRID.ROWS)
+      const colPitch = trackPitch(canvasW, tier.columns)
+      const rowPitch = trackPitch(widgetAreaH, tier.rows)
 
       const handleMouseMove = (ev: MouseEvent) => {
         const drag = dragRef.current
@@ -119,7 +121,7 @@ export const useDragState = ({
               drag.widgets,
               (w) => w.startCol,
               (w) => w.colSpan,
-              LAYOUT_GRID.COLUMNS
+              tier.columns
             )
           : rawDeltaCols
         const deltaRows = drag.isMulti
@@ -128,17 +130,20 @@ export const useDragState = ({
               drag.widgets,
               (w) => w.startRow,
               (w) => w.rowSpan,
-              LAYOUT_GRID.ROWS
+              tier.rows
             )
           : rawDeltaRows
 
         const place = (dw: DraggingWidget): { id: string; col: number; row: number } => {
-          const clamped = clampGridPlacement({
-            col: dw.startCol + deltaCols,
-            colSpan: dw.colSpan,
-            row: dw.startRow + deltaRows,
-            rowSpan: dw.rowSpan,
-          })
+          const clamped = clampGridPlacement(
+            {
+              col: dw.startCol + deltaCols,
+              colSpan: dw.colSpan,
+              row: dw.startRow + deltaRows,
+              rowSpan: dw.rowSpan,
+            },
+            tier
+          )
           return { id: dw.id, col: clamped.col, row: clamped.row }
         }
 
@@ -178,6 +183,15 @@ export const useDragState = ({
       window.addEventListener('mousemove', handleMouseMove)
       window.addEventListener('mouseup', handleMouseUp)
     },
-    [dragInputsRef, zoomRef, scale, moveWidget, moveWidgets, resolveWidgetCollisions, beginDrag]
+    [
+      dragInputsRef,
+      zoomRef,
+      scale,
+      moveWidget,
+      moveWidgets,
+      resolveWidgetCollisions,
+      beginDrag,
+      tier,
+    ]
   )
 }

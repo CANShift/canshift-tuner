@@ -1,6 +1,7 @@
 import { clampGridPlacement } from '@canshift/core'
 import { pushHistory } from './helpers'
 import type { LayoutOpsSlice, SliceCreator } from './types'
+import { gridTracksForConfig } from '../../lib/grid-tracks'
 
 export const createLayoutOpsSlice: SliceCreator<LayoutOpsSlice> = (set) => ({
   alignWidgets: (pageId, widgetIds, direction) => {
@@ -40,7 +41,7 @@ export const createLayoutOpsSlice: SliceCreator<LayoutOpsSlice> = (set) => ({
             placement.row = Math.round((minRow + maxRow) / 2 - w.layout.rowSpan / 2)
             break
         }
-        const clamped = clampGridPlacement(placement)
+        const clamped = clampGridPlacement(placement, gridTracksForConfig(s.config))
         w.layout.col = clamped.col
         w.layout.row = clamped.row
       }
@@ -68,7 +69,10 @@ export const createLayoutOpsSlice: SliceCreator<LayoutOpsSlice> = (set) => ({
         const gap = (totalSpan - totalWidgetCols) / (sorted.length - 1)
         let curCol = first.layout.col
         for (const w of sorted) {
-          w.layout.col = clampGridPlacement({ ...w.layout, col: Math.round(curCol) }).col
+          w.layout.col = clampGridPlacement(
+            { ...w.layout, col: Math.round(curCol) },
+            gridTracksForConfig(s.config)
+          ).col
           curCol += w.layout.colSpan + gap
         }
       } else {
@@ -81,7 +85,10 @@ export const createLayoutOpsSlice: SliceCreator<LayoutOpsSlice> = (set) => ({
         const gap = (totalSpan - totalWidgetRows) / (sorted.length - 1)
         let curRow = first.layout.row
         for (const w of sorted) {
-          w.layout.row = clampGridPlacement({ ...w.layout, row: Math.round(curRow) }).row
+          w.layout.row = clampGridPlacement(
+            { ...w.layout, row: Math.round(curRow) },
+            gridTracksForConfig(s.config)
+          ).row
           curRow += w.layout.rowSpan + gap
         }
       }

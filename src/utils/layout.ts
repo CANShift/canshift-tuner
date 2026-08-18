@@ -1,5 +1,6 @@
 import type { GridPlacement } from '@canshift/core'
-import { LAYOUT_GRID, clampGridPlacement, placementsOverlap } from '@canshift/core'
+import { BASE_GRID_TRACKS, clampGridPlacement, placementsOverlap } from '@canshift/core'
+import type { GridTracks } from '@canshift/core'
 
 export interface IdentifiedPlacement extends GridPlacement {
   id: string
@@ -17,12 +18,13 @@ export interface TrackPosition {
 
 export const autoPlace = (
   size: SpanSize,
-  others: readonly GridPlacement[]
+  others: readonly GridPlacement[],
+  tracks: GridTracks = BASE_GRID_TRACKS
 ): TrackPosition | null => {
-  const colSpan = Math.min(size.colSpan, LAYOUT_GRID.COLUMNS)
-  const rowSpan = Math.min(size.rowSpan, LAYOUT_GRID.ROWS)
-  for (let row = 0; row + rowSpan <= LAYOUT_GRID.ROWS; row++) {
-    for (let col = 0; col + colSpan <= LAYOUT_GRID.COLUMNS; col++) {
+  const colSpan = Math.min(size.colSpan, tracks.columns)
+  const rowSpan = Math.min(size.rowSpan, tracks.rows)
+  for (let row = 0; row + rowSpan <= tracks.rows; row++) {
+    for (let col = 0; col + colSpan <= tracks.columns; col++) {
       const candidate: GridPlacement = { col, colSpan, row, rowSpan }
       if (!others.some((o) => placementsOverlap(candidate, o))) return { col, row }
     }

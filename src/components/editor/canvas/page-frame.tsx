@@ -1,5 +1,5 @@
 import type { HTMLAttributes, ReactNode, Ref } from 'react'
-import type { PageConfig, PagePalette, TopBarConfig, Widget } from '@canshift/core'
+import type { GridTracks, PageConfig, PagePalette, TopBarConfig, Widget } from '@canshift/core'
 import { DashTopBar } from '../DashTopBar'
 import { GridGuides } from './grid-guides'
 import { WidgetLayer } from './widget-layer'
@@ -31,6 +31,7 @@ export interface PageFrameProps {
   scale: number
   palette: PagePalette
   bgColor: string
+  tracks: GridTracks
   isDayMode: boolean
   areaWidth: number
   areaHeight: number
@@ -46,6 +47,7 @@ export const PageFrame = ({
   scale,
   palette,
   bgColor,
+  tracks,
   isDayMode,
   areaWidth,
   areaHeight,
@@ -74,7 +76,7 @@ export const PageFrame = ({
       {...(interaction?.surfaceProps ?? {})}
       className="relative flex-1 cursor-default overflow-hidden"
     >
-      <GridGuides areaWidth={areaWidth} areaHeight={areaHeight} effScale={scale} />
+      <GridGuides areaWidth={areaWidth} areaHeight={areaHeight} effScale={scale} tracks={tracks} />
       <WidgetLayer
         groundColor={bgColor}
         page={page}

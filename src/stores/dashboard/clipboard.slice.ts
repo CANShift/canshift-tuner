@@ -4,6 +4,7 @@ import { clampGridPlacement, placementsOverlap } from '@canshift/core'
 import { autoPlace } from '../../utils/layout'
 import { pushHistory, toPlacement, widgetRef } from './helpers'
 import type { ClipboardSlice, SliceCreator } from './types'
+import { gridTracksForConfig } from '../../lib/grid-tracks'
 
 export const createClipboardSlice: SliceCreator<ClipboardSlice> = (set) => ({
   clipboardWidgets: [],
@@ -40,7 +41,10 @@ export const createClipboardSlice: SliceCreator<ClipboardSlice> = (set) => ({
         ]
         let pos: { col: number; row: number } | null = null
         for (const cand of candidates) {
-          const placement = clampGridPlacement({ col: cand.col, colSpan, row: cand.row, rowSpan })
+          const placement = clampGridPlacement(
+            { col: cand.col, colSpan, row: cand.row, rowSpan },
+            gridTracksForConfig(s.config)
+          )
           if (!others.some((o) => placementsOverlap(placement, o))) {
             pos = { col: placement.col, row: placement.row }
             break
@@ -106,11 +110,10 @@ export const createClipboardSlice: SliceCreator<ClipboardSlice> = (set) => ({
           : `Nudged ${String(targets.length)} widgets`
       )
       for (const w of targets) {
-        const clamped = clampGridPlacement({
-          ...w.layout,
-          col: w.layout.col + dCol,
-          row: w.layout.row + dRow,
-        })
+        const clamped = clampGridPlacement(
+          { ...w.layout, col: w.layout.col + dCol, row: w.layout.row + dRow },
+          gridTracksForConfig(s.config)
+        )
         w.layout.col = clamped.col
         w.layout.row = clamped.row
       }
