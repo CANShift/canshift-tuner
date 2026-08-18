@@ -1,154 +1,134 @@
-import type { ReactNode } from 'react'
-import { SCREEN_PROFILES } from '@canshift/core'
-import { cva } from 'class-variance-authority'
-import { cn } from '@/lib/utils'
-import { useDeviceStore } from '../stores/device.store'
-import { useObservabilityStore } from '../stores/observability.store'
-import { useConnectionStore } from '../stores/connection.store'
-import { BrandLockup } from '../components/brand/BrandLockup'
-import { Checkbox } from '../components/ui/checkbox'
-import { HeapStatsPanel } from '../components/about/HeapStatsPanel'
-import { RouteBody } from '../components/ui/route-shell'
+import { useState } from 'react'
+import { ContactPane } from '../components/contact/ContactPane'
+import { DiagnosticsToggle } from '../components/contact/DiagnosticsToggle'
+import { useContactContext } from '../hooks/useContactContext'
+import { useProjectStore } from '../stores/project/project.store'
+import { submitFeedback, type FeedbackAttachment, type FeedbackKind } from '../lib/feedback'
+import { buildContactReport, CONTACT_REPORT_FILENAME } from '../lib/contact-report'
+import { downloadFile } from '../lib/download'
+import { projectFileName } from '../lib/project-file'
+import { readFileAsBase64 } from '../lib/file-base64'
 
-const REPO_URL = 'https://github.com/CANShift/canshift-tuner'
-const DOCS_URL = 'https://github.com/CANShift/canshift-tuner/tree/main/docs'
-const ISSUES_URL = 'https://github.com/CANShift/canshift-tuner/issues'
+const MESSAGE_MIN = 10
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const CONFIG_MIME = 'application/json'
+const REPORT_MIME = 'text/plain;charset=utf-8'
 
-type ConnectionStatus = ReturnType<typeof useConnectionStore.getState>['status']
-
-const STATUS_LABELS: Record<ConnectionStatus, string> = {
-  connected: 'Connected',
-  connecting: 'Connecting…',
-  reconnecting: 'Reconnecting…',
-  disconnected: 'Disconnected',
-}
-
-const MAIN_COLUMN = 'flex min-w-0 flex-1 flex-col gap-7 overflow-y-auto p-11 text-brand-text'
-
-const TABLE = 'max-w-[620px] border-t-2 border-solid border-brand-divider'
-
-const factRow = cva('flex justify-between gap-4 py-[13px] text-[14px]', {
-  variants: {
-    last: { true: '', false: 'border-b border-solid border-brand-neutral-300' },
-  },
-  defaultVariants: { last: false },
-})
-
-const LINK_BUTTON = [
-  'border border-solid border-brand-neutral-400 px-[22px] py-3',
-  'text-[12px] font-extrabold tracking-[0.08em] text-brand-text no-underline',
-].join(' ')
-
-const SIDE_PANEL = [
-  'w-[360px] shrink-0 overflow-y-auto',
-  'border-l-2 border-solid border-brand-divider bg-brand-neutral-100',
-].join(' ')
-
-const SIDE_HEADER = [
-  'border-b-2 border-solid border-brand-divider px-5 py-3.5',
-  'text-[10px] font-extrabold tracking-[0.2em] text-brand-neutral-600',
-].join(' ')
-
-const DIAGNOSTICS_ROW = [
-  'flex max-w-[520px] cursor-pointer items-start gap-2.5',
-  'text-[12px] leading-[1.5] text-brand-neutral-600',
-].join(' ')
-
-const DiagnosticsToggle = () => {
-  const enabled = useObservabilityStore((s) => s.enabled)
-  const setEnabled = useObservabilityStore((s) => s.setEnabled)
-  return (
-    <label className={DIAGNOSTICS_ROW}>
-      <Checkbox
-        checked={enabled}
-        onCheckedChange={(checked) => {
-          setEnabled(checked === true)
-        }}
-      />
-      <span>
-        Share anonymous diagnostics — feature usage, never dashboards or CAN data. Applies
-        immediately.
-      </span>
-    </label>
-  )
-}
+const INVALID_EMAIL = 'That email address does not look right — we answer to it, so it has to work.'
+const SHORT_MESSAGE = 'Tell us a little more — what you expected, and what happened instead.'
 
 const ContactRoute = () => {
-  const tunerVersion = typeof __TUNER_VERSION__ !== 'undefined' ? __TUNER_VERSION__ : 'unknown'
-  const firmwareVersion = useDeviceStore((s) => s.firmwareVersion)
-  const connected = useDeviceStore((s) => s.connected)
-  const simulationMode = useDeviceStore((s) => s.simulationMode)
-  const portPath = useDeviceStore((s) => s.portPath)
-  const status = useConnectionStore((s) => s.status)
-  const heapStats = useDeviceStore((s) => s.heapStats)
+  const { context, lines } = useContactContext()
+  const activeProjectId = useProjectStore((s) => s.activeProjectId)
+  const activeProjectName = useProjectStore(
+    (s) => s.projects.find((p) => p.id === s.activeProjectId)?.name ?? 'config'
+  )
+  const exportProject = useProjectStore((s) => s.exportProject)
 
-  const linkLabel = simulationMode
-    ? 'Simulation'
-    : connected
-      ? `USB · ${portPath ?? 'unknown port'}`
-      : '—'
-  const panels = SCREEN_PROFILES.map((p) => p.name).join(' · ')
+  const [kind, setKind] = useState<FeedbackKind>('bug')
+  const [email, setEmail] = useState('')
+  const [message, setMessage] = useState('')
+  const [contextAttached, setContextAttached] = useState(true)
+  const [attachments, setAttachments] = useState<FeedbackAttachment[]>([])
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const configJson = (): string | null =>
+    activeProjectId === null ? null : exportProject(activeProjectId)
+
+  const carriesContext = kind === 'bug' && contextAttached
+
+  const addAttachments = async (files: FileList) => {
+    const encoded = await Promise.all([...files].map(readFileAsBase64))
+    setAttachments((prev) => [
+      ...prev.filter((file) => !encoded.some((next) => next.name === file.name)),
+      ...encoded,
+    ])
+  }
+
+  const attachConfig = () => {
+    const json = configJson()
+    if (json === null) {
+      setError('There is no config open to attach.')
+      return
+    }
+    const name = projectFileName(activeProjectName)
+    setAttachments((prev) => [
+      ...prev.filter((file) => file.name !== name),
+      { name, mimetype: CONFIG_MIME, content: btoa(unescape(encodeURIComponent(json))) },
+    ])
+  }
+
+  const send = async () => {
+    if (!EMAIL_PATTERN.test(email.trim())) {
+      setError(INVALID_EMAIL)
+      return
+    }
+    if (message.trim().length < MESSAGE_MIN) {
+      setError(SHORT_MESSAGE)
+      return
+    }
+    setError(null)
+    setSending(true)
+    const result = await submitFeedback({
+      kind,
+      email,
+      message,
+      context: carriesContext ? context : null,
+      attachments,
+    })
+    setSending(false)
+    if (result.ok) {
+      setSent(true)
+      return
+    }
+    setError(result.error)
+  }
 
   return (
-    <RouteBody className="overflow-hidden">
-      <div className={MAIN_COLUMN}>
-        <BrandLockup height={72} withBaseline />
-
-        <div className={TABLE}>
-          <FactRow label="Tuner" value={`${tunerVersion} — web`} />
-          <FactRow label="Firmware on device" value={firmwareVersion ?? '—'} />
-          <FactRow label="Status" value={prettyStatus(status, simulationMode)} />
-          <FactRow label="Link" value={linkLabel} />
-          <FactRow label="Supported panels" value={panels} />
-          <FactRow label="Licence" value="MIT · github.com/CANShift" last />
-        </div>
-
-        <div className="flex gap-3">
-          <LinkButton href={DOCS_URL} label="DOCUMENTATION" />
-          <LinkButton href={REPO_URL} label="GITHUB" />
-          <LinkButton href={ISSUES_URL} label="REPORT A BUG" />
-        </div>
-
-        <DiagnosticsToggle />
-      </div>
-
-      <aside className={SIDE_PANEL}>
-        <div className={SIDE_HEADER}>DEVICE HEAP — LIVE</div>
-        <div className="px-5 py-4">
-          <HeapStatsPanel history={heapStats} />
-        </div>
-      </aside>
-    </RouteBody>
+    <ContactPane
+      kind={kind}
+      onKindChange={setKind}
+      email={email}
+      onEmailChange={setEmail}
+      message={message}
+      onMessageChange={setMessage}
+      contextLines={lines}
+      contextAttached={contextAttached}
+      onToggleContext={() => {
+        setContextAttached((on) => !on)
+      }}
+      attachments={attachments}
+      onAttachFiles={(files) => {
+        void addAttachments(files)
+      }}
+      onAttachConfig={attachConfig}
+      onRemoveAttachment={(name) => {
+        setAttachments((prev) => prev.filter((file) => file.name !== name))
+      }}
+      onDownloadReport={() => {
+        downloadFile(
+          CONTACT_REPORT_FILENAME,
+          REPORT_MIME,
+          buildContactReport({
+            kind,
+            email,
+            message,
+            context: carriesContext ? context : null,
+            configJson: configJson(),
+          })
+        )
+      }}
+      onSend={() => {
+        void send()
+      }}
+      sending={sending}
+      sent={sent}
+      error={error}
+      diagnosticsToggle={<DiagnosticsToggle />}
+    />
   )
-}
-
-interface FactRowProps {
-  label: string
-  value: ReactNode
-  last?: boolean
-}
-
-const FactRow = ({ label, value, last = false }: FactRowProps) => (
-  <div className={cn(factRow({ last }))}>
-    <span className="text-brand-neutral-600">{label}</span>
-    <span className="font-mono text-[13px]">{value}</span>
-  </div>
-)
-
-interface LinkButtonProps {
-  href: string
-  label: string
-}
-
-const LinkButton = ({ href, label }: LinkButtonProps) => (
-  <a href={href} target="_blank" rel="noreferrer" className={cn('shell-link-button', LINK_BUTTON)}>
-    {label}
-  </a>
-)
-
-const prettyStatus = (status: ConnectionStatus, simulationMode: boolean): string => {
-  if (simulationMode) return 'Simulation mode'
-  return STATUS_LABELS[status]
 }
 
 export default ContactRoute

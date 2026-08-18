@@ -4,7 +4,6 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import Header from './components/shell/Header'
 import { Footer } from './components/shell/Footer'
 import { RouteLoading } from './components/shell/RouteLoading'
-import FeedbackButton from './components/shell/FeedbackButton'
 import { DeviceAlertBar } from './components/shell/DeviceAlertBar'
 import { SimulationStrip } from './components/shell/SimulationStrip'
 import HomeRoute from './routes/HomeRoute'
@@ -121,7 +120,6 @@ const App = () => {
       </main>
       <DashCli />
       <Footer />
-      <FeedbackButton />
     </div>
   )
 }

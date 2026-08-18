@@ -115,11 +115,11 @@ describe('legacy keys migrate once, without data loss', () => {
   })
 
   it('is idempotent — a second run changes nothing', () => {
-    localStorage.setItem('tuner.feedback.dismissed-hint', '1')
+    localStorage.setItem('canshift.log.verbose', '1')
     migrateLegacyKeys()
-    const after = readItem(STORAGE_KEYS.feedbackDismissedHint)
+    const after = readItem(STORAGE_KEYS.logVerbose)
     migrateLegacyKeys()
-    expect(readItem(STORAGE_KEYS.feedbackDismissedHint)).toBe(after)
+    expect(readItem(STORAGE_KEYS.logVerbose)).toBe(after)
     expect(after).toBe('1')
   })
 

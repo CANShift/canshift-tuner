@@ -6,7 +6,6 @@ export const STORAGE_KEYS = {
   autosave: key('autosave'),
   boardProfiles: key('board-profiles'),
   cliOpen: key('cli-open'),
-  feedbackDismissedHint: key('feedback-dismissed-hint'),
   flashHistory: key('flash-history'),
   inspectorCollapsed: key('inspector-collapsed'),
   logVerbose: key('log-verbose'),
@@ -25,10 +24,8 @@ export const projectStorageKey = (id: string): string => `${PROJECT_KEY_PREFIX}$
 
 const LEGACY_KEYS: Record<string, string> = {
   'cs-inspector-collapsed': STORAGE_KEYS.inspectorCollapsed,
-  'canshift:feedback-dismissed-hint': STORAGE_KEYS.feedbackDismissedHint,
   'canshift:signal-store-v1': STORAGE_KEYS.signals,
   'canshift.log.verbose': STORAGE_KEYS.logVerbose,
-  'tuner.feedback.dismissed-hint': STORAGE_KEYS.feedbackDismissedHint,
 }
 
 export const readItem = (name: string): string | null => {
