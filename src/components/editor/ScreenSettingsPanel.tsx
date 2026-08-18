@@ -6,6 +6,7 @@ import { useScreenSettingsStore } from '../../stores/screen-settings.store'
 import { useLogStore } from '../../stores/log.store'
 import { useDeviceState } from '../../hooks/useDeviceState'
 import { usePreviewTheme } from '../../hooks/useDashboardConfig'
+import { useActiveDayMode } from '../../hooks/useActiveDayMode'
 import { usbService } from '../../transport'
 import { transportErrorText } from '../../transport/humanize-transport-error'
 import {
@@ -89,7 +90,7 @@ const ScreenSettingsPanel = ({ scale }: ScreenSettingsPanelProps) => {
 
   const canDeviceAction = connected && !simulationMode
 
-  const activeDayMode = isDayMode ?? isPreviewDayMode
+  const activeDayMode = useActiveDayMode()
 
   const handleSelectMode = async (target: 'night' | 'day') => {
     const day = target === 'day'

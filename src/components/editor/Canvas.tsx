@@ -3,7 +3,6 @@ import type { ReactNode } from 'react'
 import type { PageConfig, TopBarConfig } from '@canshift/core'
 import { resolveGridRect, resolveScreenProfile } from '@canshift/core'
 import { useDashboardStore } from '../../stores/dashboard.store'
-import { useDeviceStore } from '../../stores/device.store'
 import { overflowingWidgetIds, overlappingWidgetIds } from '../../utils/widget-diagnostics'
 import { useRebindFlashStore } from '../../stores/rebind-flash.store'
 import ScreenSettingsPanel from './ScreenSettingsPanel'
@@ -27,6 +26,7 @@ import { useSwipeGestures } from '../../hooks/useSwipeGestures'
 import { useCarouselScale } from '../../hooks/useCarouselScale'
 import { useCanvasDialogs } from '../../hooks/useCanvasDialogs'
 import { resolveBgColor, resolvePalette } from '../../hooks/useEffectivePalette'
+import { useActiveDayMode } from '../../hooks/useActiveDayMode'
 import { PreviewOverlay } from './preview/PreviewOverlay'
 import type { PreviewMode } from './preview/preview-modes'
 
@@ -55,7 +55,7 @@ const Canvas = ({
   const screenProfile = useMemo(() => resolveScreenProfile(targetProfileId), [targetProfileId])
   const pages = useDashboardStore((s) => s.config?.pages ?? EMPTY_PAGES)
   const theme = useDashboardStore((s) => s.config?.theme)
-  const isDayMode = useDeviceStore((s) => s.isDayMode) ?? false
+  const isDayMode = useActiveDayMode()
 
   const selectedWidgetId = useDashboardStore((s) => s.selectedWidgetId)
   const selectedWidgetIds = useDashboardStore((s) => s.selectedWidgetIds)

@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import type { PageConfig, PagePalette } from '@canshift/core'
 import { DEFAULT_PAGE_PALETTE } from '@canshift/core'
 import { useDashboardStore } from '../stores/dashboard.store'
-import { useDeviceStore } from '../stores/device.store'
+import { useActiveDayMode } from './useActiveDayMode'
 import { DAY_PALETTE_DEFAULT, DAY_BG_DEFAULT } from '../constants/theme'
 
 export interface EffectivePalette {
@@ -30,7 +30,7 @@ export const resolveBgColor = (
 
 export const useEffectivePalette = (page: PageConfig): EffectivePalette => {
   const theme = useDashboardStore((s) => s.config?.theme)
-  const isDayMode = useDeviceStore((s) => s.isDayMode) ?? false
+  const isDayMode = useActiveDayMode()
 
   const palette = useMemo(
     () => resolvePalette(isDayMode, theme?.day.palette, theme?.night.palette, page.palette),
