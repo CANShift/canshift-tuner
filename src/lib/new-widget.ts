@@ -80,6 +80,19 @@ const configFor = (item: PaletteItem): Widget['config'] => {
   }
 }
 
+export const paletteItemFor = (type: PaletteWidgetType): PaletteItem | undefined =>
+  PALETTE_ITEMS.find((item) => item.type === type)
+
+export const retypeWidget = (widget: Widget, type: PaletteWidgetType): Partial<Widget> | null => {
+  const item = paletteItemFor(type)
+  if (item === undefined || widget.type === type) return null
+  return {
+    type,
+    config: configFor(item),
+    signal: item.defaultSignal.length > 0 ? widget.signal || item.defaultSignal : '',
+  }
+}
+
 export const buildWidget = (item: PaletteItem): Widget => ({
   id: createId(item.type),
   type: item.type,
