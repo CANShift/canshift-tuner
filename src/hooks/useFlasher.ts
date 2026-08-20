@@ -2,7 +2,7 @@ import { flashFirmware } from '../lib/firmware/flash'
 import { boardProfileNvsImage } from '../lib/firmware/board-provision'
 import { useResolvedBoardProfile } from './useResolvedBoardProfile'
 import { downloadFirmwareAsset } from '../lib/firmware/download'
-import { flashFirmwareOta } from '../lib/firmware/ota'
+import { flashFirmwareOta, OtaError } from '../lib/firmware/ota'
 import { errorMessage } from '../lib/error-message'
 import { isWebSerialAvailable } from '../lib/web-serial'
 import { findFirmwareAsset } from '../lib/firmware/releases'
@@ -13,7 +13,7 @@ import {
 } from '../stores/firmware-selection.store'
 import { useLogStore } from '../stores/log.store'
 import { useFlasherStore } from '../stores/flasher.store'
-import type { FlasherState } from '../stores/flasher.store'
+import type { FlasherState, FlashTransport } from '../stores/flasher.store'
 
 export type { FlasherState }
 
@@ -61,16 +61,21 @@ export const useFlasher = (): UseFlasher => {
   const flash = (expectedChip?: string) => {
     if (selection.kind === 'none') return
     if (!isWebSerialAvailable()) {
-      setState({ kind: 'error', message: 'WebSerial unavailable in this browser.' })
+      setState({
+        kind: 'error',
+        message: 'WebSerial unavailable in this browser.',
+        transport: 'unknown',
+      })
       return
     }
     const name = selection.kind === 'release' ? selection.release.tag : selection.firmware.name
     log('info', `Flash requested — ${name}`)
 
-    void runFlash(selection, log, setState, expectedChip, resolvedBoard?.blob).catch(
+    const transport = pickTransport()
+    void runFlash(transport, selection, log, setState, expectedChip, resolvedBoard?.blob).catch(
       (err: unknown) => {
         const message = errorMessage(err)
-        setState({ kind: 'error', message })
+        setState({ kind: 'error', message, transport })
         log('error', `Flash failed: ${message}`)
       }
     )
@@ -91,11 +96,9 @@ const resolveOtaBytes = async (
 
   const asset = findFirmwareAsset(selection.release)
   if (!asset) {
-    log(
-      'warn',
-      'No app-only firmware.bin asset on this release — falling back to merged bytes (may not boot via OTA)'
+    throw new OtaError(
+      `${selection.release.tag} ships no app-only firmware.bin, so it cannot be written over OTA — disconnect the tuner and flash its merged image with the BOOT-button flasher instead.`
     )
-    return selection.firmware.bytes
   }
   log('info', `Fetching ${asset.name} for OTA (app partition only)`)
   const firmware = await downloadFirmwareAsset(asset, () => undefined)
@@ -158,14 +161,18 @@ const runEsptoolFlash = async (
   )
 }
 
+const pickTransport = (): FlashTransport =>
+  useConnectionStore.getState().status === 'connected' ? 'ota' : 'esptool'
+
 const runFlash = async (
+  transport: FlashTransport,
   selection: Exclude<FirmwareSelection, { kind: 'none' }>,
   log: ReturnType<typeof useLogStore.getState>['push'],
   setState: (next: FlasherState) => void,
   expectedChip?: string,
   boardProfileBlob?: string
 ): Promise<void> => {
-  if (useConnectionStore.getState().status === 'connected') {
+  if (transport === 'ota') {
     await runOtaFlash(selection, log, setState)
     return
   }

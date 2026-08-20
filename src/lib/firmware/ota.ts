@@ -1,5 +1,8 @@
 import { getSerialClient } from '../../transport/webserial-client'
+import type { AckResult } from '../../transport/ack-queue'
 import { CMD_OTA_BEGIN, CMD_OTA_END, CMD_OTA_WRITE } from '../../transport/opcodes'
+import { verifyAppImage } from './image'
+import { otaErrorText } from './ota-errors'
 
 const CHUNK_SIZE = 512
 const ACK_TIMEOUT_MS = 8_000
@@ -37,7 +40,23 @@ const toBase64 = (chunk: Uint8Array): string => {
   return btoa(binary)
 }
 
+const ackField = (ack: AckResult, key: string): string | undefined => {
+  const value = ack.data?.[key]
+  return value === undefined ? undefined : String(value)
+}
+
+const rejection = (stage: string, ack: AckResult, onLog: OtaLog): OtaError => {
+  const detail = ackField(ack, 'detail')
+  const written = ackField(ack, 'written')
+  const suffix = written === undefined ? '' : ` written=${written}`
+  onLog(
+    `${stage} rejected: ${ack.error ?? 'unknown'}${detail === undefined ? '' : ` ${detail}`}${suffix}`
+  )
+  return new OtaError(otaErrorText(ack.error, detail), ack)
+}
+
 export const flashFirmwareOta = async ({ bytes, onProgress, onLog }: OtaOptions): Promise<void> => {
+  verifyAppImage(bytes)
   const client = getSerialClient()
 
   const sha = await sha256Hex(bytes)
@@ -48,7 +67,7 @@ export const flashFirmwareOta = async ({ bytes, onProgress, onLog }: OtaOptions)
     { timeoutMs: ACK_TIMEOUT_MS }
   )
   if (!beginAck.ok) {
-    throw new OtaError(`OTA_BEGIN rejected: ${beginAck.error ?? 'unknown'}`, beginAck)
+    throw rejection('OTA_BEGIN', beginAck, onLog)
   }
 
   let offset = 0
@@ -62,16 +81,7 @@ export const flashFirmwareOta = async ({ bytes, onProgress, onLog }: OtaOptions)
       { timeoutMs: ACK_TIMEOUT_MS, scaleWithPayload: true }
     )
     if (!ack.ok) {
-      const written =
-        ack.data && typeof ack.data === 'object' && 'written' in ack.data
-          ? (ack.data as { written?: unknown }).written
-          : undefined
-      const writtenSuffix =
-        written !== undefined ? ` (firmware reports written=${String(written)})` : ''
-      throw new OtaError(
-        `OTA_WRITE rejected at offset ${String(offset)}: ${ack.error ?? 'unknown'}${writtenSuffix}`,
-        ack
-      )
+      throw rejection(`OTA_WRITE at offset ${String(offset)}`, ack, onLog)
     }
     offset = end
     onProgress(offset, bytes.byteLength)
@@ -84,13 +94,6 @@ export const flashFirmwareOta = async ({ bytes, onProgress, onLog }: OtaOptions)
     { timeoutMs: COMMIT_TIMEOUT_MS }
   )
   if (!commitAck.ok) {
-    const detail =
-      commitAck.data && typeof commitAck.data === 'object' && 'detail' in commitAck.data
-        ? ` (esp_err=${String((commitAck.data as { detail?: unknown }).detail)})`
-        : ''
-    throw new OtaError(
-      `OTA_END commit rejected: ${commitAck.error ?? 'unknown'}${detail}`,
-      commitAck
-    )
+    throw rejection('OTA_END commit', commitAck, onLog)
   }
 }

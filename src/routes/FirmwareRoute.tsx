@@ -16,6 +16,7 @@ import { useProjectFileActions } from '../hooks/useProjectFileActions'
 import { useProjectStore } from '../stores/project/project.store'
 import { useConnectionStore } from '../stores/connection.store'
 import { parseChangelog } from '../lib/firmware/changelog'
+import type { ErrorTransport } from '../stores/flasher.store'
 
 type PaneState = FlashMode | 'running' | 'done'
 
@@ -32,8 +33,12 @@ const KEEPS_CONFIG = 'Keeps the config already on the board.'
 const ERASE_UNAVAILABLE =
   'The erase itself is not wired up yet — it writes to the board in a way that has to be verified on real hardware before it ships.'
 
-const FLASH_FAILED_TAIL =
-  'The board keeps whatever it had before the write started; hold BOOT and try again.'
+const RECOVERY_BY_TRANSPORT: Record<ErrorTransport, string> = {
+  ota: 'The board is still running the firmware it had — an OTA write only takes effect once the whole image checks out, and no BOOT button is involved. Try again.',
+  esptool:
+    'A write that stops partway can leave the board half-flashed — hold BOOT, tap RESET, and flash again to recover it.',
+  unknown: 'The board keeps whatever it had before the write started.',
+}
 
 const NOTICE = 'mb-8 border-l-[3px] border-l-ui-danger py-1 pl-3.5 text-[13px] text-ui-ink'
 
@@ -72,7 +77,8 @@ const FirmwareRoute = () => {
   const notice = (): string | null => {
     if (run.downloadError !== null) return `Could not fetch the build — ${run.downloadError}.`
     if (flasherState.kind !== 'error') return null
-    return `The flash stopped — ${flasherState.message}. ${FLASH_FAILED_TAIL}`
+    const detail = flasherState.message.replace(/\.$/, '')
+    return `The flash stopped — ${detail}. ${RECOVERY_BY_TRANSPORT[flasherState.transport]}`
   }
 
   const activeProject = projects.find((project) => project.id === activeProjectId) ?? null
