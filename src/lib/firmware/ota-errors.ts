@@ -17,6 +17,8 @@ const OTA_ERROR_MESSAGES: Record<string, string> = {
   empty_chunk: 'The dash received an empty chunk — check the cable and try again.',
   offset_mismatch: 'A chunk of the update arrived out of order — check the cable and try again.',
   overrun: 'The tuner sent more data than it declared — reload the tuner and try again.',
+  not_app_image:
+    'The dash refused this file as not an app image — pick the app-only firmware.bin, not a merged or bootloader .bin.',
   ota_write_failed: 'The dash could not write the update to flash — restart it and try again.',
   write_failed: 'The dash could not store a chunk of the update — check the cable and try again.',
   incomplete: 'The update was finished before all of it arrived — start the flash again.',

@@ -24,6 +24,7 @@ describe('otaErrorText', () => {
       'empty_chunk',
       'offset_mismatch',
       'overrun',
+      'not_app_image',
       'ota_write_failed',
       'write_failed',
       'incomplete',
