@@ -189,34 +189,6 @@ export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) 
               }}
             />
           </PanelField>
-          <PanelRow>
-            <PanelField
-              label="Alert at"
-              onReset={resetAction(cfg.alertThreshold !== undefined, () => {
-                const { alertThreshold: _drop, ...rest } = cfg
-                void _drop
-                onChange({ config: rest })
-              })}
-            >
-              <PanelInput
-                type="number"
-                placeholder="off"
-                value={cfg.alertThreshold ?? ''}
-                onChange={(e) => {
-                  const raw = e.target.value
-                  if (raw === '') {
-                    const { alertThreshold: _drop, ...rest } = cfg
-                    void _drop
-                    onChange({ config: rest })
-                    return
-                  }
-                  const v = Number(raw)
-                  if (!Number.isFinite(v)) return
-                  onChange({ config: { ...cfg, alertThreshold: v } })
-                }}
-              />
-            </PanelField>
-          </PanelRow>
         </>
       )}
       {style === 'numeric' && (
