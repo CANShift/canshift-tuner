@@ -40,7 +40,7 @@
     "clsx": "^2.1.1",
     "esptool-js": "^0.6.1",
     "immer": "^11.1.16",
-    "posthog-js": "^1.414.0",
+    "posthog-js": "^1.418.10",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.0.0",
