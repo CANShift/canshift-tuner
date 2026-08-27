@@ -7,7 +7,7 @@ import {
 } from '@canshift/core'
 import { cn } from '@/lib/utils'
 import { WIDGET_DIM_COLOR, thresholdPct } from '../widget-preview.styles'
-import { effectiveValue, gaugeArcD } from './gauge-math'
+import { gaugeArcD, shownValue } from './gauge-math'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
 import { MONO_FONT, UI_FONT, UI_LABEL_TRACKING, UI_LABEL_WEIGHT } from '../../../lib/typography'
 
@@ -16,6 +16,7 @@ export interface GaugeArcRendererProps extends BaseRendererProps {
   revLimiting: boolean
   danger: boolean
   testValue?: number | null
+  toDisplay: (value: number) => number
   unbound?: boolean
 }
 
@@ -30,6 +31,7 @@ export const GaugeArcPreview = memo(function GaugeArcPreview({
   revLimiting,
   danger,
   testValue,
+  toDisplay,
   unbound = false,
   scale,
 }: GaugeArcRendererProps) {
@@ -38,7 +40,7 @@ export const GaugeArcPreview = memo(function GaugeArcPreview({
   const st = widget.style
 
   const dangerPct = thresholdPct(cfg.dangerLevel, cfg.minValue, cfg.maxValue)
-  const bound = effectiveValue(testValue, cfg.minValue, cfg.maxValue)
+  const bound = shownValue(testValue, cfg.minValue, cfg.maxValue, toDisplay)
   const valuePct = unbound ? 0 : bound.pct
 
   const valueStr = unbound ? STALE_PLACEHOLDER : bound.raw.toFixed(cfg.decimalPlaces)
