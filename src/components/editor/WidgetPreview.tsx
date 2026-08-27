@@ -1,7 +1,7 @@
 import * as React from 'react'
-import { memo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import type { ComponentType } from 'react'
-import type { ControlState, Widget, WidgetConfig, PagePalette } from '@canshift/core'
+import type { ControlState, SignalDef, Widget, WidgetConfig, PagePalette } from '@canshift/core'
 import { MAXXECU_SIGNAL_UNITS } from '@canshift/core'
 import { useSignalStore } from '../../stores/signal.store'
 import { ButtonPreview } from './widget-previews/Button'
@@ -15,6 +15,7 @@ import { WarningPreview } from './widget-previews/Warning'
 import { isDangerState } from './widget-previews/gauge-math'
 import { isUnboundWidget } from '../../utils/unbound-widgets'
 import { useDisplayUnits } from '../../hooks/useDisplayUnits'
+import { convertibleUnitFor, displayUnitFor } from '../../lib/unit-display'
 
 const FALLBACK_UNIT_TABLE: Readonly<Record<string, string>> = MAXXECU_SIGNAL_UNITS
 
@@ -39,6 +40,7 @@ interface RenderContext {
   testValue: number | null
   danger: boolean
   signalUnit: string
+  toDisplay: (value: number) => number
   unbound: boolean
   scale: number
 }
@@ -73,6 +75,7 @@ const RENDERERS: RendererDispatch = {
         danger={ctx.danger}
         testValue={ctx.testValue}
         signalUnit={ctx.signalUnit}
+        toDisplay={ctx.toDisplay}
         unbound={ctx.unbound}
         scale={ctx.scale}
       />
@@ -110,17 +113,35 @@ interface WidgetPreviewProps {
   testValue?: number | null
 }
 
-const useResolvedSignalUnit = (widget: Widget): string => {
-  const signals = useSignalStore((s) => s.signals)
-  const units = useDisplayUnits()
+interface ResolvedUnit {
+  symbol: string
+  toDisplay: (value: number) => number
+}
+
+const configSuffixOf = (widget: Widget): string => {
   const cfg = widget.config
-  const configSuffix =
-    cfg.type === 'gauge' || cfg.type === 'timer' ? ((cfg as { suffix?: string }).suffix ?? '') : ''
-  if (configSuffix !== '') return configSuffix
+  if (cfg.type !== 'gauge' && cfg.type !== 'timer') return ''
+  return (cfg as { suffix?: string }).suffix ?? ''
+}
+
+const declaredUnitOf = (widget: Widget, signals: readonly SignalDef[]): string => {
   if (!widget.signal) return ''
   const def = signals.find((s) => s.name === widget.signal)
-  const stored = def?.unit ?? FALLBACK_UNIT_TABLE[widget.signal] ?? ''
-  return units.unitOf(stored)
+  return def?.unit ?? FALLBACK_UNIT_TABLE[widget.signal] ?? ''
+}
+
+const useResolvedSignalUnit = (widget: Widget): ResolvedUnit => {
+  const signals = useSignalStore((s) => s.signals)
+  const units = useDisplayUnits()
+  const suffix = configSuffixOf(widget)
+  const declared = declaredUnitOf(widget, signals)
+  const convertible = convertibleUnitFor(suffix, declared)
+  const symbol = displayUnitFor(suffix, declared, units.system)
+  const toDisplay = useCallback(
+    (value: number) => units.valueOf(value, convertible),
+    [units, convertible]
+  )
+  return useMemo(() => ({ symbol, toDisplay }), [symbol, toDisplay])
 }
 
 const WidgetPreviewImpl = ({
@@ -140,7 +161,7 @@ const WidgetPreviewImpl = ({
 
   const resolved = palette ? applyPalette(widget, palette) : widget
   const danger = noAnimate ? false : isDangerState(resolved, testValue)
-  const signalUnit = useResolvedSignalUnit(resolved)
+  const { symbol: signalUnit, toDisplay } = useResolvedSignalUnit(resolved)
   const unbound = isUnboundWidget(resolved)
 
   const ctx: RenderContext = {
@@ -153,6 +174,7 @@ const WidgetPreviewImpl = ({
     testValue,
     danger,
     signalUnit,
+    toDisplay,
     unbound,
     scale,
   }

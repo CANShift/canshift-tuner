@@ -15,7 +15,7 @@ import {
   ruleTier,
   widgetTopRule,
 } from '../widget-preview.styles'
-import { effectiveValue } from './gauge-math'
+import { shownValue } from './gauge-math'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
 
 const FRAME = 'relative box-border flex flex-col items-center justify-center gap-0 overflow-hidden'
@@ -37,6 +37,7 @@ export interface GaugeNumericRendererProps extends BaseRendererProps {
   danger: boolean
   testValue?: number | null
   signalUnit: string
+  toDisplay: (value: number) => number
   unbound?: boolean
   scale: number
 }
@@ -48,6 +49,7 @@ export const GaugeNumericPreview = memo(function GaugeNumericPreview({
   danger,
   testValue,
   signalUnit,
+  toDisplay,
   unbound = false,
   scale,
 }: GaugeNumericRendererProps) {
@@ -55,7 +57,7 @@ export const GaugeNumericPreview = memo(function GaugeNumericPreview({
   const cfg = widget.config
   const st = widget.style
 
-  const bound = effectiveValue(testValue, cfg.minValue, cfg.maxValue)
+  const bound = shownValue(testValue, cfg.minValue, cfg.maxValue, toDisplay)
   const valuePct = unbound ? 0 : bound.pct
   const valueOnly = unbound ? STALE_PLACEHOLDER : bound.raw.toFixed(cfg.decimalPlaces)
   const showBar = cfg.showBar === true && cfg.maxValue > cfg.minValue

@@ -17,6 +17,16 @@ export const effectiveValue = (
   return { pct, raw: testValue }
 }
 
+export const shownValue = (
+  testValue: number | null | undefined,
+  min: number,
+  max: number,
+  toDisplay: (value: number) => number
+): { pct: number; raw: number } => {
+  const shown = testValue == null || !Number.isFinite(testValue) ? testValue : toDisplay(testValue)
+  return effectiveValue(shown, toDisplay(min), toDisplay(max))
+}
+
 export const isDangerState = (widget: Widget, testValue: number | null | undefined): boolean => {
   const cfg = widget.config
   if (cfg.type === 'gauge') {
