@@ -8,10 +8,7 @@ const posthogMock = vi.hoisted(() => ({
   has_opted_out_capturing: vi.fn(() => false),
 }))
 
-const injectMock = vi.hoisted(() => vi.fn())
-
 vi.mock('posthog-js', () => ({ default: posthogMock }))
-vi.mock('@vercel/analytics', () => ({ inject: injectMock }))
 
 const memoryStorage = (): Storage => {
   const map = new Map<string, string>()
@@ -52,23 +49,20 @@ describe('telemetry consent gate', () => {
     const { initTelemetry } = await loadTelemetry()
     initTelemetry()
     expect(posthogMock.init).not.toHaveBeenCalled()
-    expect(injectMock).not.toHaveBeenCalled()
   })
 
-  it('starts both beacons when consent is already stored', async () => {
+  it('starts the beacon when consent is already stored', async () => {
     localStorage.setItem('canshift.tuner.observability', 'on')
     const { initTelemetry } = await loadTelemetry()
     initTelemetry()
     expect(posthogMock.init).toHaveBeenCalledTimes(1)
-    expect(injectMock).toHaveBeenCalledTimes(1)
   })
 
-  it('starts both beacons when the user opts in later', async () => {
+  it('starts the beacon when the user opts in later', async () => {
     const { initTelemetry, useObservabilityStore } = await loadTelemetry()
     initTelemetry()
     useObservabilityStore.getState().setEnabled(true)
     expect(posthogMock.init).toHaveBeenCalledTimes(1)
-    expect(injectMock).toHaveBeenCalledTimes(1)
   })
 
   it('opts capturing out again when the user opts back out', async () => {
@@ -80,14 +74,10 @@ describe('telemetry consent gate', () => {
     expect(posthogMock.init).toHaveBeenCalledTimes(1)
   })
 
-  it('drops web-analytics events while consent is off', async () => {
-    const { initTelemetry, useObservabilityStore } = await loadTelemetry()
+  it('captures pageviews through the consent-gated beacon', async () => {
+    localStorage.setItem('canshift.tuner.observability', 'on')
+    const { initTelemetry } = await loadTelemetry()
     initTelemetry()
-    useObservabilityStore.getState().setEnabled(true)
-    const beforeSend = injectMock.mock.calls[0]?.[0]?.beforeSend as (e: unknown) => unknown
-    const event = { type: 'pageview', url: 'https://canshift.app/' }
-    expect(beforeSend(event)).toBe(event)
-    useObservabilityStore.getState().setEnabled(false)
-    expect(beforeSend(event)).toBeNull()
+    expect(posthogMock.init.mock.calls[0]?.[1]?.capture_pageview).toBe('history_change')
   })
 })

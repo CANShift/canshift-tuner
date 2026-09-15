@@ -25,6 +25,6 @@
       "@hooks/*": ["src/hooks/*"]
     }
   },
-  "include": ["src/**/*", "api/**/*"],
+  "include": ["src/**/*", "worker/**/*"],
   "exclude": ["node_modules", "dist"]
 }
