@@ -1,21 +1,10 @@
-import { inject } from '@vercel/analytics'
 import { isObservabilityEnabled, useObservabilityStore } from '../stores/observability.store'
 import { setPostHogCapturing, startPostHog } from './posthog'
 
 let subscribed = false
-let webAnalyticsStarted = false
-
-const startWebAnalytics = (): void => {
-  if (webAnalyticsStarted) return
-  inject({ beforeSend: (event) => (isObservabilityEnabled() ? event : null) })
-  webAnalyticsStarted = true
-}
 
 const applyConsent = (enabled: boolean): void => {
-  if (enabled) {
-    startPostHog()
-    startWebAnalytics()
-  }
+  if (enabled) startPostHog()
   setPostHogCapturing(enabled)
 }
 

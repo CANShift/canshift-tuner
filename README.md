@@ -1,6 +1,6 @@
 # canshift-tuner
 
-Betaflight-style web configurator for CANShift dashes. Hosted on Vercel, talks
+Betaflight-style web configurator for CANShift dashes. Hosted on Cloudflare Workers, talks
 to the firmware via **WebSerial** over the CH340 UART that already serves as
 the upload / serial port.
 
@@ -11,7 +11,7 @@ every tab.
 
 `canshift-tuner` is the configurator surface for CANShift dashes.
 
-- Hosted on Vercel — tuner updates ship without touching the device.
+- Hosted on Cloudflare Workers — tuner updates ship without touching the device.
 - WebSerial transport — works on any Chromium browser, talks to the
   Arduino `Serial` (UART) the firmware speaks. No on-device WiFi stack, no
   SPA-on-SPIFFS coupling between configurator and firmware partitions.
@@ -54,5 +54,5 @@ a friendly fallback message.
 ## Browser requirements
 
 - WebSerial: Chromium 89+ (`navigator.serial`).
-- Served over HTTPS in production (Vercel default). `localhost` works under
+- Served over HTTPS in production (Cloudflare default). `localhost` works under
   plain HTTP for dev.

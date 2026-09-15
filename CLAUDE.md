@@ -34,4 +34,4 @@ Non-negotiable. Reviewed on every PR, ahead of feature count.
 
 - Branch `type/short-description`; Conventional Commits, subject only.
 - PR via `gh pr create`; required checks `lint`, `typecheck`, `test`, `build`; **rebase and merge only**.
-- Deploys: Vercel Git integration — preview per PR, production on main. Env changes need a redeploy.
+- Deploys: Cloudflare Workers via `.github/workflows/deploy.yml` — `wrangler versions upload` preview per PR, `wrangler deploy` on main. Static assets and the `/api/*` Worker ship together from `wrangler.jsonc`.

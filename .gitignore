@@ -1,6 +1,7 @@
 node_modules/
 dist/
-.vercel/
+.wrangler/
 .vite/
 src/styles/tokens.generated.css
 public/sitemap.xml
+.dev.vars

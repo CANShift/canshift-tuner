@@ -9,7 +9,7 @@ const BUILD_ID_LENGTH = 7
 const LOCAL_BUILD_ID = 'dev'
 
 const buildId = (): string => {
-  const sha = process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.GITHUB_SHA
+  const sha = process.env.GITHUB_SHA
   return sha === undefined || sha.length === 0 ? LOCAL_BUILD_ID : sha.slice(0, BUILD_ID_LENGTH)
 }
 

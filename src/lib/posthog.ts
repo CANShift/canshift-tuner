@@ -11,7 +11,7 @@ export const startPostHog = (): void => {
   const host = import.meta.env.VITE_POSTHOG_HOST ?? 'https://eu.i.posthog.com'
   posthog.init(key, {
     api_host: host,
-    capture_pageview: false,
+    capture_pageview: 'history_change',
     autocapture: false,
     disable_session_recording: true,
     persistence: 'localStorage',

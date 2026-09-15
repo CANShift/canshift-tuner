@@ -1,7 +1,3 @@
-export const config = {
-  runtime: 'edge',
-}
-
 const OWNER = 'CANShift'
 const REPO = 'canshift-firmware'
 
@@ -18,7 +14,9 @@ const MAX_ASSET_BYTES = 16 * 1024 * 1024
 const hits = new Map<string, { count: number; resetAt: number }>()
 
 const clientIp = (req: Request): string =>
-  (req.headers.get('x-forwarded-for') ?? '').split(',')[0]?.trim() || 'unknown'
+  req.headers.get('CF-Connecting-IP')?.trim() ||
+  (req.headers.get('x-forwarded-for') ?? '').split(',')[0]?.trim() ||
+  'unknown'
 
 const pruneExpired = (now: number): void => {
   for (const [key, value] of hits) {
