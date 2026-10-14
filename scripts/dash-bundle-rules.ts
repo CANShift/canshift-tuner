@@ -3,12 +3,6 @@ import { join } from 'node:path'
 
 export const SPIFFS_NAME_LIMIT = 24
 export const GZIP_SUFFIX = '.gz'
-export const WEB_ONLY_FILES = new Set([
-  '_headers',
-  'robots.txt',
-  'sitemap.xml',
-  'og-image-1200x630.png',
-])
 
 const INLINE_CODE: readonly { pattern: RegExp; problem: string }[] = [
   { pattern: /<script(?![^>]*\ssrc=)[^>]*>/i, problem: 'an inline <script>' },

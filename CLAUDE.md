@@ -36,4 +36,4 @@ Non-negotiable. Reviewed on every PR, ahead of feature count.
 
 - Branch `type/short-description`; Conventional Commits, subject only.
 - PR via `gh pr create`; required checks `lint`, `typecheck`, `test`, `build`; **rebase and merge only**.
-- Deploys: Cloudflare Workers static assets via `.github/workflows/deploy.yml` — `wrangler versions upload` preview per PR, `wrangler deploy` on main, configured in `wrangler.jsonc`.
+- No web deploy: the tuner is only served by the dash. A `vX.Y.Z` tag publishes the dash bundle as a GitHub Release, which the firmware pins.

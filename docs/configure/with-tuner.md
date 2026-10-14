@@ -10,10 +10,10 @@ Over the dash's Wi-Fi (workshop mode), from any browser:
 2. Join the Wi-Fi network the dash shows, with its password (or scan its QR code).
 3. Open the address on the dash's screen. The Tuner connects on its own.
 
-Over USB, from a desktop Chromium browser:
+Over USB, from a desktop Chromium browser (recovery and development):
 
 1. Plug the dash in over USB-C.
-2. Open [canshift.app](https://canshift.app).
+2. Run the tuner locally: `npm install && npm run dev` in this repo, then open the printed `localhost` address.
 3. Click **Connect** and pick the serial port.
 
 The header switches from a red _Disconnected_ dot to a green _Connected_ one, with the device's `vendor:product` next to it. The firmware version slot fills in once the handshake completes (~50 ms).
