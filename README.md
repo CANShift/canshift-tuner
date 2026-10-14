@@ -38,8 +38,17 @@ npm run typecheck
 npm run test         # vitest
 npm run lint
 npm run format:check # enforced in CI
-npm run build
+npm run build        # also checks the bundle fits the dash (see below)
+npm run bundle:dash  # build + gzip into dist-tuner/, ready for the firmware's data/tuner/
 ```
+
+The dash serves this bundle from SPIFFS under `/tuner/`, where a full path is at most 31
+characters, behind a `default-src 'self'` CSP. So the build emits flat, hashed names
+(`[hash:10].js` at the bundle root, no `assets/` folder) and `npm run build` fails when any
+file name with `.gz` passes 24 characters, when `dist/` holds a folder, or when `index.html`
+carries an inline script, style block or style attribute. Fonts and the ECU catalogue are part
+of the bundle; zod runs jitless (`src/lib/strict-csp.ts`, chunked with zod so it applies before
+the schemas build) so it never probes `new Function`.
 
 To develop against a dash (or a mock) over WebSocket, point the dev server at it with
 `?dash=<host[:port]>` in the URL or `VITE_DASH_HOST=<host[:port]>` in the environment.

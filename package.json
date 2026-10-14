@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "CANShift Tuner \u2014 Betaflight-style web configurator. Talks to the firmware via WebSerial over the CH340 UART; hosted on Cloudflare Workers.",
+  "description": "CANShift Tuner — Betaflight-style web configurator. Talks to the firmware via WebSerial over the CH340 UART; hosted on Cloudflare Workers.",
   "scripts": {
     "predev": "npm run tokens:gen",
     "dev": "vite",
     "prebuild": "npm run tokens:gen && npm run sitemap:gen",
-    "build": "vite build",
+    "build": "vite build && tsx scripts/check-bundle.ts",
+    "bundle:dash": "npm run build && tsx scripts/pack-dash-bundle.ts",
     "preview": "vite preview",
     "mock-dash": "tsx scripts/mock-dash.ts",
     "typecheck": "tsc --noEmit",
@@ -45,6 +46,7 @@
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.0.0",
     "tailwind-merge": "^2.6.1",
+    "zod": "4.4.3",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
