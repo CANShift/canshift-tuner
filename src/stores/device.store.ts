@@ -1,5 +1,5 @@
 import type { LinkKind } from '../transport/device-link'
-import { create } from 'zustand'
+import { create, type StoreApi } from 'zustand'
 import { readItem, writeItem, STORAGE_KEYS } from '../lib/local-storage'
 import type { DashboardConfig } from '@canshift/core'
 import type { BurnFailure } from '../lib/burn-failure'
@@ -33,27 +33,26 @@ export interface HeapStatsEntry {
 
 export const HEAP_STATS_RING_CAP = 360
 
-interface DeviceState {
+interface DeviceData {
   status: ConnectionStatus
   transport: Transport | null
   firmwareVersion: string | null
   boardId: string | null
   lastSyncAt: Date | null
   errorMessage: string | null
-
   connected: boolean
   syncing: boolean
-
   simulationMode: boolean
-
   firmwareCompat: FirmwareCompat
-
   firmwareLiveness: FirmwareLiveness
-
   heapStats: HeapStatsEntry[]
-
   isDayMode: boolean | null
+  lastPushedConfig: DashboardConfig | null
+  burnPhase: BurnPhase
+  lastBurnResult: BurnResult | null
+}
 
+interface DeviceState extends DeviceData {
   setConnected: (transport: Transport) => void
   setDisconnected: (error?: string | null) => void
   setSyncing: (syncing: boolean) => void
@@ -69,16 +68,12 @@ interface DeviceState {
   setIsDayMode: (isDay: boolean | null) => void
   enterSimulation: () => void
   exitSimulation: () => void
-
-  lastPushedConfig: DashboardConfig | null
   setLastPushedConfig: (config: DashboardConfig) => void
-
-  burnPhase: BurnPhase
   setBurnPhase: (phase: BurnPhase) => void
-
-  lastBurnResult: BurnResult | null
   setLastBurnResult: (result: BurnResult | null) => void
 }
+
+type SetDevice = StoreApi<DeviceState>['setState']
 
 const SIMULATION_ON = '1'
 
@@ -88,27 +83,35 @@ const writeSimulationMode = (on: boolean): void => {
   writeItem(STORAGE_KEYS.simulationMode, on ? SIMULATION_ON : '0')
 }
 
-const simulationRestored = readSimulationMode()
+const idleStatus = (connected: boolean): ConnectionStatus =>
+  connected ? 'connected' : 'disconnected'
 
-export const useDeviceStore = create<DeviceState>()((set) => ({
-  status: simulationRestored ? 'connected' : 'disconnected',
+const SESSION_RESET = {
   transport: null,
+  connected: false,
+  syncing: false,
+  isDayMode: null,
   firmwareVersion: null,
   boardId: null,
-  lastSyncAt: null,
-  errorMessage: null,
-  connected: simulationRestored,
-  syncing: false,
-  simulationMode: simulationRestored,
   firmwareCompat: { kind: 'unknown' },
   firmwareLiveness: { kind: 'unknown' },
   heapStats: [],
-  isDayMode: null,
   lastPushedConfig: null,
   burnPhase: 'idle',
   lastBurnResult: null,
+} satisfies Partial<DeviceData>
 
-  setConnected: (transport) => {
+const initialData = (simulation: boolean): DeviceData => ({
+  ...SESSION_RESET,
+  status: simulation ? 'connected' : 'disconnected',
+  connected: simulation,
+  simulationMode: simulation,
+  lastSyncAt: null,
+  errorMessage: null,
+})
+
+const linkActions = (set: SetDevice) => ({
+  setConnected: (transport: Transport) => {
     set({
       status: 'connected',
       transport,
@@ -118,111 +121,58 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
       errorMessage: null,
     })
   },
-
-  setDisconnected: (error) => {
-    set({
-      status: error ? 'error' : 'disconnected',
-      transport: null,
-      connected: false,
-      syncing: false,
-      isDayMode: null,
-      firmwareVersion: null,
-      boardId: null,
-      firmwareCompat: { kind: 'unknown' },
-      firmwareLiveness: { kind: 'unknown' },
-      heapStats: [],
-      lastPushedConfig: null,
-      burnPhase: 'idle',
-      lastBurnResult: null,
-      errorMessage: error ?? null,
-    })
+  setDisconnected: (error?: string | null) => {
+    set({ ...SESSION_RESET, status: error ? 'error' : 'disconnected', errorMessage: error ?? null })
   },
-
-  setSyncing: (syncing) => {
-    set((s) => ({
-      status: syncing ? 'burning' : s.connected ? 'connected' : 'disconnected',
-      syncing,
-    }))
+  setSyncing: (syncing: boolean) => {
+    set((s) => ({ status: syncing ? 'burning' : idleStatus(s.connected), syncing }))
   },
-
-  setSyncComplete: (at) => {
+  setSyncComplete: (at: Date) => {
     set({ status: 'connected', lastSyncAt: at, syncing: false })
   },
-
-  setError: (message) => {
+  setError: (message: string) => {
     set({ status: 'error', errorMessage: message, syncing: false })
   },
-
   clearError: () => {
-    set((s) => ({
-      status: s.connected ? 'connected' : 'disconnected',
-      errorMessage: null,
-    }))
+    set((s) => ({ status: idleStatus(s.connected), errorMessage: null }))
   },
+})
 
-  setFirmwareVersion: (version) => {
-    set({ firmwareVersion: version })
-  },
+const appendHeapStats = (stats: HeapStatsEntry[], entry: Omit<HeapStatsEntry, 'receivedAt'>) =>
+  stats.concat({ ...entry, receivedAt: Date.now() }).slice(-HEAP_STATS_RING_CAP)
 
-  setBoardId: (boardId) => {
-    set({ boardId })
-  },
+const firmwareActions = (set: SetDevice) => ({
+  setFirmwareVersion: (firmwareVersion: string | null) => set({ firmwareVersion }),
+  setBoardId: (boardId: string | null) => set({ boardId }),
+  setFirmwareCompat: (firmwareCompat: FirmwareCompat) => set({ firmwareCompat }),
+  setFirmwareLiveness: (firmwareLiveness: FirmwareLiveness) => set({ firmwareLiveness }),
+  pushHeapStats: (entry: Omit<HeapStatsEntry, 'receivedAt'>) =>
+    set((s) => ({ heapStats: appendHeapStats(s.heapStats, entry) })),
+  clearHeapStats: () => set({ heapStats: [] }),
+  setIsDayMode: (isDayMode: boolean | null) => set({ isDayMode }),
+})
 
-  setFirmwareCompat: (compat) => {
-    set({ firmwareCompat: compat })
-  },
-
-  setFirmwareLiveness: (liveness) => {
-    set({ firmwareLiveness: liveness })
-  },
-
-  pushHeapStats: (entry) => {
-    set((s) => {
-      const next = s.heapStats.concat({ ...entry, receivedAt: Date.now() })
-      if (next.length > HEAP_STATS_RING_CAP) {
-        next.splice(0, next.length - HEAP_STATS_RING_CAP)
-      }
-      return { heapStats: next }
-    })
-  },
-
-  clearHeapStats: () => {
-    set({ heapStats: [] })
-  },
-
-  setIsDayMode: (isDay) => {
-    set({ isDayMode: isDay })
-  },
-
+const simulationActions = (set: SetDevice) => ({
   enterSimulation: () => {
     writeSimulationMode(true)
-    set({
-      simulationMode: true,
-      status: 'connected',
-      connected: true,
-      transport: null,
-    })
+    set({ simulationMode: true, status: 'connected', connected: true, transport: null })
   },
-
   exitSimulation: () => {
     writeSimulationMode(false)
-    set({
-      simulationMode: false,
-      status: 'disconnected',
-      connected: false,
-      transport: null,
-    })
+    set({ simulationMode: false, status: 'disconnected', connected: false, transport: null })
   },
+})
 
-  setLastPushedConfig: (config) => {
-    set({ lastPushedConfig: config })
-  },
+const burnActions = (set: SetDevice) => ({
+  setLastPushedConfig: (lastPushedConfig: DashboardConfig) => set({ lastPushedConfig }),
+  setBurnPhase: (burnPhase: BurnPhase) => set({ burnPhase }),
+  setLastBurnResult: (lastBurnResult: BurnResult | null) => set({ lastBurnResult }),
+})
 
-  setBurnPhase: (phase) => {
-    set({ burnPhase: phase })
-  },
-
-  setLastBurnResult: (result) => {
-    set({ lastBurnResult: result })
-  },
+export const useDeviceStore = create<DeviceState>()((set) => ({
+  ...initialData(readSimulationMode()),
+  ...linkActions(set),
+  ...firmwareActions(set),
+  ...simulationActions(set),
+  ...burnActions(set),
 }))

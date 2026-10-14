@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { useDeviceStore } from './device.store'
+import { HEAP_STATS_RING_CAP, useDeviceStore } from './device.store'
 import type { BurnFailure } from '../lib/burn-failure'
 
 const FAILURE: BurnFailure = {
@@ -79,5 +79,45 @@ describe('device.store lastBurnResult (#1743)', () => {
     s.setLastBurnResult({ kind: 'success' })
     s.setDisconnected()
     expect(useDeviceStore.getState().lastBurnResult).toBeNull()
+  })
+})
+
+describe('device store heap samples', () => {
+  it('keeps only the newest heap samples', () => {
+    const store = useDeviceStore.getState()
+    store.clearHeapStats()
+    const sample = {
+      tsMs: 0,
+      freeInternal: 1,
+      largestInternal: 1,
+      freePsram: null,
+      largestPsram: null,
+    }
+    for (let i = 0; i < HEAP_STATS_RING_CAP + 5; i++) store.pushHeapStats({ ...sample, tsMs: i })
+    const stats = useDeviceStore.getState().heapStats
+    expect(stats).toHaveLength(HEAP_STATS_RING_CAP)
+    expect(stats[0]?.tsMs).toBe(5)
+  })
+})
+
+describe('device store status', () => {
+  it('reports burning while syncing, then falls back to the link state', () => {
+    const store = useDeviceStore.getState()
+    store.setConnected('usb')
+    store.setSyncing(true)
+    expect(useDeviceStore.getState().status).toBe('burning')
+    store.setSyncing(false)
+    expect(useDeviceStore.getState().status).toBe('connected')
+    store.setDisconnected()
+    store.setSyncing(false)
+    expect(useDeviceStore.getState().status).toBe('disconnected')
+  })
+
+  it('clears an error back to the link state', () => {
+    const store = useDeviceStore.getState()
+    store.setConnected('wifi')
+    store.setError('boom')
+    store.clearError()
+    expect(useDeviceStore.getState()).toMatchObject({ status: 'connected', errorMessage: null })
   })
 })
