@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { useDeviceStore } from '../../stores/device.store'
 import { RebootButton } from './RebootButton'
@@ -31,8 +30,6 @@ interface AlertInputs {
   simulationMode: boolean
   heapLowDismissed: boolean
   now: number
-  onFirmwareRoute: boolean
-  goToFirmware: () => void
 }
 
 const unresponsiveAlert = ({ liveness, now }: AlertInputs): Alert | null => {
@@ -48,7 +45,7 @@ const unresponsiveAlert = ({ liveness, now }: AlertInputs): Alert | null => {
   }
 }
 
-const mismatchAlert = ({ compat, onFirmwareRoute, goToFirmware }: AlertInputs): Alert | null => {
+const mismatchAlert = ({ compat }: AlertInputs): Alert | null => {
   if (compat.kind !== 'mismatch') return null
   return {
     id: 'mismatch',
@@ -61,11 +58,7 @@ const mismatchAlert = ({ compat, onFirmwareRoute, goToFirmware }: AlertInputs): 
         matching build.
       </>
     ),
-    action: onFirmwareRoute ? null : (
-      <Button type="button" variant="outline" size="sm" onClick={goToFirmware}>
-        Open Firmware
-      </Button>
-    ),
+    action: null,
     dismissable: false,
   }
 }
@@ -107,8 +100,6 @@ export const DeviceAlertBar = () => {
   const [heapLowDismissed, setHeapLowDismissed] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const [now, setNow] = useState(() => Date.now())
-  const navigate = useNavigate()
-  const location = useLocation()
 
   useEffect(() => {
     if (liveness.kind !== 'unresponsive') return
@@ -128,10 +119,6 @@ export const DeviceAlertBar = () => {
     simulationMode,
     heapLowDismissed,
     now,
-    onFirmwareRoute: location.pathname === '/firmware',
-    goToFirmware: () => {
-      navigate('/flash')
-    },
   })
 
   if (alerts.length === 0) return null
