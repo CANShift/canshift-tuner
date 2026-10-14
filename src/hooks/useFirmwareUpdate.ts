@@ -2,7 +2,11 @@ import { useState } from 'react'
 import { APP_IMAGE_REJECTIONS, checkAppImage, type AppImageInfo } from '../lib/firmware-image'
 import { installFirmware } from '../lib/firmware-update'
 import { errorMessage } from '../lib/error-message'
+import { releaseLinkAfterInstall } from '../lib/firmware-restart'
+import { useConnectionStore } from '../stores/connection.store'
 import { useLogStore } from '../stores/log.store'
+import { getDeviceLink } from '../transport/link'
+import type { LinkKind } from '../transport/device-link'
 
 export interface PickedImage {
   name: string
@@ -15,7 +19,7 @@ export type FirmwareUpdateState =
   | { kind: 'invalid'; name: string; message: string }
   | { kind: 'ready'; image: PickedImage }
   | { kind: 'installing'; image: PickedImage; sent: number }
-  | { kind: 'installed'; image: PickedImage }
+  | { kind: 'installed'; image: PickedImage; link: LinkKind }
   | { kind: 'failed'; image: PickedImage; message: string }
 
 export interface FirmwareUpdate {
@@ -55,8 +59,10 @@ const runInstall = async (
   const result = await installFirmware(image.bytes, (sent) => {
     setState({ kind: 'installing', image, sent })
   })
-  if (result.kind === 'installed') return { kind: 'installed', image }
-  return { kind: 'failed', image, message: result.message }
+  if (result.kind === 'failed') return { kind: 'failed', image, message: result.message }
+  const link = getDeviceLink().kind
+  releaseLinkAfterInstall(link, useConnectionStore.getState().disconnectWithNotice)
+  return { kind: 'installed', image, link }
 }
 
 export const useFirmwareUpdate = (): FirmwareUpdate => {
