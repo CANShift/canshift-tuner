@@ -8,93 +8,128 @@ import { Eyebrow } from '../ui/meta-text'
 import { DtcClearConfirmDialog } from './DtcClearConfirmDialog'
 import { transportErrorText } from '../../transport/humanize-transport-error'
 
-interface DtcBodyProps {
+type DtcView = 'unready' | 'reading' | 'unread' | 'empty' | 'codes'
+
+const DTC_MESSAGES: Record<Exclude<DtcView, 'codes'>, string> = {
+  unready: 'Connect a dash (or use simulation) to read codes.',
+  reading: 'Reading trouble codes…',
+  unread: 'Read to fetch stored codes over OBD-II Mode 03.',
+  empty: 'No stored trouble codes.',
+}
+
+interface DtcViewInputs {
   ready: boolean
   reading: boolean
   hasRead: boolean
   codes: string[]
 }
 
-const DtcBody = ({ ready, reading, hasRead, codes }: DtcBodyProps) => {
-  if (!ready) return <div className={EMPTY}>Connect a dash (or use simulation) to read codes.</div>
-  if (reading) return <div className={EMPTY}>Reading trouble codes…</div>
-  if (!hasRead) return <div className={EMPTY}>Read to fetch stored codes over OBD-II Mode 03.</div>
-  if (codes.length === 0) return <div className={EMPTY}>No stored trouble codes.</div>
-  return (
-    <ul className="m-0 list-none p-0">
-      {codes.map((code) => (
-        <li
-          key={code}
-          className="flex items-baseline justify-between gap-3 border-b border-brand-neutral-300 px-5 py-2.5"
-        >
-          <span className="font-mono text-[14px] font-bold tabular-nums text-brand-accent">
-            {code}
-          </span>
-          <span className="text-[10px] uppercase tracking-[0.08em] text-brand-neutral-600">
-            {dtcSystem(code)}
-          </span>
-        </li>
-      ))}
-    </ul>
-  )
+export const dtcView = ({ ready, reading, hasRead, codes }: DtcViewInputs): DtcView => {
+  if (!ready) return 'unready'
+  if (reading) return 'reading'
+  if (!hasRead) return 'unread'
+  return codes.length === 0 ? 'empty' : 'codes'
 }
 
-export const DtcPanel = () => {
-  const codes = useDtcStore((s) => s.codes)
-  const hasRead = useDtcStore((s) => s.hasRead)
-  const status = useDtcStore((s) => s.status)
-  const error = useDtcStore((s) => s.error)
-  const read = useDtcStore((s) => s.read)
-  const clear = useDtcStore((s) => s.clear)
+const CodeList = ({ codes }: { codes: string[] }) => (
+  <ul className="m-0 list-none p-0">
+    {codes.map((code) => (
+      <li
+        key={code}
+        className="flex items-baseline justify-between gap-3 border-b border-brand-neutral-300 px-5 py-2.5"
+      >
+        <span className="font-mono text-[14px] font-bold tabular-nums text-brand-accent">
+          {code}
+        </span>
+        <span className="text-[10px] uppercase tracking-[0.08em] text-brand-neutral-600">
+          {dtcSystem(code)}
+        </span>
+      </li>
+    ))}
+  </ul>
+)
+
+const DtcBody = (inputs: DtcViewInputs) => {
+  const view = dtcView(inputs)
+  if (view === 'codes') return <CodeList codes={inputs.codes} />
+  return <div className={EMPTY}>{DTC_MESSAGES[view]}</div>
+}
+
+const useDtcPanel = () => {
+  const dtc = useDtcStore()
   const connected = useDeviceStore((s) => s.connected)
   const simulationMode = useDeviceStore((s) => s.simulationMode)
-  const [confirmOpen, setConfirmOpen] = useState(false)
-
   const ready = connected || simulationMode
-  const busy = status !== 'idle'
-  const canRead = ready && !busy
-  const canClear = ready && !busy && codes.length > 0
+  const busy = dtc.status !== 'idle'
+  return {
+    ...dtc,
+    ready,
+    canRead: ready && !busy,
+    canClear: ready && !busy && dtc.codes.length > 0,
+  }
+}
 
+type DtcPanelState = ReturnType<typeof useDtcPanel>
+
+const DtcActions = ({
+  dtc,
+  onClearRequest,
+}: {
+  dtc: DtcPanelState
+  onClearRequest: () => void
+}) => (
+  <div className="flex gap-2.5 border-t border-brand-neutral-300 px-5 py-3.5">
+    <button
+      type="button"
+      onClick={() => {
+        void dtc.read()
+      }}
+      disabled={!dtc.canRead}
+      className={cn(dtcButton({ tone: 'read', enabled: dtc.canRead }))}
+    >
+      {dtc.status === 'reading' ? 'READING…' : 'READ DTCs'}
+    </button>
+    <button
+      type="button"
+      onClick={onClearRequest}
+      disabled={!dtc.canClear}
+      className={cn(dtcButton({ tone: 'clear', enabled: dtc.canClear }))}
+    >
+      {dtc.status === 'clearing' ? 'CLEARING…' : 'CLEAR CODES'}
+    </button>
+  </div>
+)
+
+const DtcError = ({ error }: { error: string | null }) =>
+  error ? (
+    <div className="px-5 py-3 text-[12px] text-brand-accent">
+      Failed — {transportErrorText(error)}
+    </div>
+  ) : null
+
+export const DtcPanel = () => {
+  const dtc = useDtcPanel()
+  const [confirmOpen, setConfirmOpen] = useState(false)
   return (
     <aside className="flex w-[360px] shrink-0 flex-col border-l-2 border-brand-divider bg-brand-neutral-100">
       <Eyebrow className="block border-b-2 border-brand-divider px-5 py-3.5">TROUBLE CODES</Eyebrow>
       <div className="flex flex-1 flex-col overflow-y-auto">
-        <DtcBody ready={ready} reading={status === 'reading'} hasRead={hasRead} codes={codes} />
-        {error && (
-          <div className="px-5 py-3 text-[12px] text-brand-accent">
-            Failed — {transportErrorText(error)}
-          </div>
-        )}
+        <DtcBody
+          ready={dtc.ready}
+          reading={dtc.status === 'reading'}
+          hasRead={dtc.hasRead}
+          codes={dtc.codes}
+        />
+        <DtcError error={dtc.error} />
       </div>
-      <div className="flex gap-2.5 border-t border-brand-neutral-300 px-5 py-3.5">
-        <button
-          type="button"
-          onClick={() => {
-            void read()
-          }}
-          disabled={!canRead}
-          className={cn(dtcButton({ tone: 'read', enabled: canRead }))}
-        >
-          {status === 'reading' ? 'READING…' : 'READ DTCs'}
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setConfirmOpen(true)
-          }}
-          disabled={!canClear}
-          className={cn(dtcButton({ tone: 'clear', enabled: canClear }))}
-        >
-          {status === 'clearing' ? 'CLEARING…' : 'CLEAR CODES'}
-        </button>
-      </div>
+      <DtcActions dtc={dtc} onClearRequest={() => setConfirmOpen(true)} />
       <DtcClearConfirmDialog
         open={confirmOpen}
         onOpenChange={setConfirmOpen}
-        codeCount={codes.length}
+        codeCount={dtc.codes.length}
         onConfirm={() => {
           setConfirmOpen(false)
-          void clear()
+          void dtc.clear()
         }}
       />
     </aside>

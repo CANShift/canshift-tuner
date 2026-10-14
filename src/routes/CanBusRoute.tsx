@@ -11,23 +11,9 @@ import { buildDraftSignal, sortFrames } from '../utils/can-frames'
 import { RoutePage } from '../components/ui/route-shell'
 import { BusSilentNotice } from '../components/states/BusSilentNotice'
 
-const CanBusRoute = () => {
-  const connected = useDeviceStore((s) => s.connected)
-  const simulationMode = useDeviceStore((s) => s.simulationMode)
+const useMappedTo = (): ReadonlyMap<number, string> => {
   const signals = useSignalStore((s) => s.signals)
-  const setSignals = useSignalStore((s) => s.setSignals)
-  const log = useLogStore((s) => s.push)
-  const scanner = useCanScanner()
-  const [sortKey, setSortKey] = useState<SortKey>('id')
-
-  const learn = scanner.snapshot.learn
-
-  const sortedFrames = useMemo(
-    () => sortFrames(Array.from(scanner.snapshot.frames.values()), sortKey, learn?.scores ?? null),
-    [scanner.snapshot.frames, sortKey, learn]
-  )
-
-  const mappedTo = useMemo(() => {
+  return useMemo(() => {
     const map = new Map<number, string>()
     for (const s of signals) {
       const id = parseHexFrameId(s.canFrameId)
@@ -35,8 +21,13 @@ const CanBusRoute = () => {
     }
     return map
   }, [signals])
+}
 
-  const promote = useCallback(
+const usePromote = () => {
+  const signals = useSignalStore((s) => s.signals)
+  const setSignals = useSignalStore((s) => s.setSignals)
+  const log = useLogStore((s) => s.push)
+  return useCallback(
     (id: number) => {
       const existing = signals.find((s) => parseHexFrameId(s.canFrameId) === id)
       if (existing) {
@@ -49,34 +40,56 @@ const CanBusRoute = () => {
     },
     [signals, setSignals, log]
   )
+}
 
-  const canControl = connected && !simulationMode
+type Scanner = ReturnType<typeof useCanScanner>
 
+interface ToolbarProps {
+  scanner: Scanner
+  sortKey: SortKey
+  onSortChange: (key: SortKey) => void
+}
+
+const ScanToolbar = ({ scanner, sortKey, onSortChange }: ToolbarProps) => {
+  const connected = useDeviceStore((s) => s.connected)
+  const simulationMode = useDeviceStore((s) => s.simulationMode)
+  const { snapshot } = scanner
+  return (
+    <CanScanToolbar
+      status={scanner.status}
+      canControl={connected && !simulationMode}
+      totalFrames={snapshot.totalFrames}
+      totalRate={snapshot.totalRate}
+      startedAt={snapshot.startedAt}
+      error={scanner.error}
+      sortKey={sortKey}
+      learn={snapshot.learn}
+      onSortChange={onSortChange}
+      onStart={() => void scanner.start()}
+      onStop={() => void scanner.stop()}
+      onReset={scanner.reset}
+      onLearnStart={() => {
+        scanner.startLearn()
+        onSortChange('activity')
+      }}
+      onLearnStop={scanner.stopLearn}
+    />
+  )
+}
+
+const CanBusRoute = () => {
+  const scanner = useCanScanner()
+  const [sortKey, setSortKey] = useState<SortKey>('id')
+  const learn = scanner.snapshot.learn
+  const mappedTo = useMappedTo()
+  const promote = usePromote()
+  const sortedFrames = useMemo(
+    () => sortFrames(Array.from(scanner.snapshot.frames.values()), sortKey, learn?.scores ?? null),
+    [scanner.snapshot.frames, sortKey, learn]
+  )
   return (
     <RoutePage>
-      <CanScanToolbar
-        status={scanner.status}
-        canControl={canControl}
-        totalFrames={scanner.snapshot.totalFrames}
-        totalRate={scanner.snapshot.totalRate}
-        startedAt={scanner.snapshot.startedAt}
-        error={scanner.error}
-        sortKey={sortKey}
-        learn={learn}
-        onSortChange={setSortKey}
-        onStart={() => {
-          void scanner.start()
-        }}
-        onStop={() => {
-          void scanner.stop()
-        }}
-        onReset={scanner.reset}
-        onLearnStart={() => {
-          scanner.startLearn()
-          setSortKey('activity')
-        }}
-        onLearnStop={scanner.stopLearn}
-      />
+      <ScanToolbar scanner={scanner} sortKey={sortKey} onSortChange={setSortKey} />
       <BusSilentNotice />
       <CanFrameTable
         frames={sortedFrames}
