@@ -92,7 +92,7 @@ describe('suggest', () => {
   })
 })
 
-describe('commands', () => {
+describe('page commands', () => {
   it('/help lists every command, so the list cannot drift from the registry', () => {
     expect(run('/help', context())).toHaveLength(COMMAND_NAMES.length)
   })
@@ -115,7 +115,9 @@ describe('commands', () => {
     expect(ctx.actions.selectPage).toHaveBeenCalledWith('page-2')
     expect(run('/page 9', ctx)[0]?.tone).toBe('error')
   })
+})
 
+describe('widget commands', () => {
   it('/bind takes a widget by index or by the signal it already carries', () => {
     const ctx = context()
     run('/bind 1 gear', ctx)
@@ -136,7 +138,9 @@ describe('commands', () => {
     expect(run('/span 1 13', ctx)[0]?.tone).toBe('error')
     expect(ctx.actions.updateWidget).not.toHaveBeenCalled()
   })
+})
 
+describe('config and device commands', () => {
   it('/theme names the presets when the one asked for does not exist', () => {
     const ctx = context()
     const lines = run('/theme nope', ctx)
