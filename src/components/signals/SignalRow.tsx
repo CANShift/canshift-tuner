@@ -23,7 +23,7 @@ export interface SignalRowProps {
 export const SIGNAL_GRID = cn(
   'grid grid-cols-[minmax(0,1fr)_auto_auto] gap-x-4',
   "[grid-template-areas:'label_value_more'_'meta_meta_meta'_'detail_detail_detail']",
-  'md:grid-cols-[minmax(0,1fr)_96px_150px_112px_24px]',
+  'md:grid-cols-[minmax(0,1fr)_72px_110px_90px_24px] md:gap-x-3',
   "md:[grid-template-areas:'label_bytes_value_pages_more'_'detail_detail_detail_detail_detail']"
 )
 
@@ -82,7 +82,9 @@ const SignalName = ({ name, plotted, onTogglePlot }: SignalNameProps) => (
       onCheckedChange={() => onTogglePlot(name)}
     />
     <span className="shrink-0 text-[13.5px] font-bold">{displayLabelForSignal(name)}</span>
-    <span className="hidden truncate font-mono text-[11px] text-ui-muted md:inline">{name}</span>
+    <span className="hidden min-w-0 font-mono text-[11px] text-ui-muted [overflow-wrap:anywhere] md:inline">
+      {name}
+    </span>
   </span>
 )
 

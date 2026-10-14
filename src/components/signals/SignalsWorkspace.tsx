@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { CanSignalTable } from './CanSignalTable'
-import { LivePlot } from '../live-data/LivePlot'
+import { SignalStrips } from '../live-data/SignalStrips'
 import { BusSilentNotice } from '../states/BusSilentNotice'
 import { NoEcuProfileState } from '../states/NoEcuProfileState'
 import { useSignalStore } from '../../stores/signal.store'
@@ -15,7 +15,7 @@ import { PROFILE_SELECT_ID } from './SignalsToolbar'
 const DEFAULT_PLOTTED = 3
 
 const PANES =
-  'min-h-0 flex-1 overflow-y-auto min-[1100px]:grid min-[1100px]:grid-cols-[minmax(0,720px)_minmax(0,1fr)] min-[1100px]:grid-rows-[minmax(0,1fr)] min-[1100px]:overflow-hidden'
+  'min-h-0 flex-1 overflow-y-auto min-[1100px]:grid min-[1100px]:grid-cols-[minmax(620px,min(45%,880px))_minmax(0,1fr)] min-[1100px]:grid-rows-[minmax(0,1fr)] min-[1100px]:overflow-hidden'
 
 export interface SignalsWorkspaceProps {
   session: LiveSession
@@ -43,12 +43,8 @@ interface PlotPaneProps {
 }
 
 const PlotPane = ({ plotted, session }: PlotPaneProps) => (
-  <aside className="border-b border-ui-line p-3 md:p-4 min-[1100px]:sticky min-[1100px]:top-0 min-[1100px]:self-start min-[1100px]:border-b-0 min-[1100px]:border-l">
-    <LivePlot
-      selected={plotted}
-      samples={session.history}
-      className="h-[120px] min-[1100px]:h-[40vh]"
-    />
+  <aside className="border-b border-ui-line min-[1100px]:h-full min-[1100px]:min-h-0 min-[1100px]:border-b-0 min-[1100px]:border-l">
+    <SignalStrips selected={plotted} samples={session.history} />
   </aside>
 )
 
@@ -88,7 +84,7 @@ const SignalsPanes = (props: Omit<SignalsWorkspaceProps, 'onCaptureBus'>) => {
   const { selected, toggle } = useSignalSelection(useDefaultPlotted())
   return (
     <div className={PANES}>
-      <div className="min-[1100px]:order-2 min-[1100px]:min-h-0">
+      <div className="min-[1100px]:order-2 min-[1100px]:h-full min-[1100px]:min-h-0">
         <PlotPane plotted={selected} session={props.session} />
       </div>
       <div className="min-[1100px]:order-1 min-[1100px]:flex min-[1100px]:min-h-0 min-[1100px]:flex-col">
