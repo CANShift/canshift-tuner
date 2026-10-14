@@ -10,7 +10,7 @@ export const useHeapStatsSubscription = (): void => {
   const clearHeapStats = useDeviceStore((s) => s.clearHeapStats)
 
   useEffect(() => {
-    if (!connected || simulationMode || transport !== 'usb') return
+    if (!connected || simulationMode || transport === null) return
     clearHeapStats()
     const unsubscribe = deviceEvents.onHeapStats((entry) => {
       pushHeapStats(entry)

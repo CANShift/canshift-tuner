@@ -47,8 +47,8 @@ describe('connection.store lastError filtering (#1743)', () => {
   })
 
   it('surfaces real open failures', async () => {
-    installNavigatorSerial(async () => makeFailingPort('unused'))
-    await useConnectionStore.getState().connect(makeFailingPort('Failed to open serial port.'))
+    installNavigatorSerial(async () => makeFailingPort('Failed to open serial port.'))
+    await useConnectionStore.getState().connect()
     expect(useConnectionStore.getState().lastError).toMatch(/^Port busy/)
     expect(useDeviceStore.getState().status).toBe('error')
   })

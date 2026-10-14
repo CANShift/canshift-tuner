@@ -18,7 +18,7 @@ export const useFirmwareLogBridge = (): void => {
   const simulationMode = useDeviceStore((s) => s.simulationMode)
 
   useEffect(() => {
-    if (!connected || simulationMode || transport !== 'usb') return
+    if (!connected || simulationMode || transport === null) return
     const push = useLogStore.getState().push
     const unsubscribe = deviceEvents.onLogLine(({ level, tag, message }) => {
       const mapped = FIRMWARE_LEVEL_MAP[level] ?? 'info'

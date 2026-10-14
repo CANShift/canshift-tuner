@@ -1,6 +1,6 @@
 import { decodeDtcList } from '@canshift/core'
 import { CMD_OBD_CLEAR_DTC, CMD_OBD_READ_DTC } from './opcodes'
-import { getSerialClient } from './webserial-client'
+import { getDeviceLink } from './link'
 
 const DTC_READ_TIMEOUT_MS = 5_000
 const DTC_CLEAR_TIMEOUT_MS = 3_000
@@ -30,7 +30,7 @@ export const parseDtcBytes = (value: unknown): number[] | null => {
 
 export const dtcIpc = {
   read: async (): Promise<DtcReadResult> => {
-    const result = await getSerialClient().send(
+    const result = await getDeviceLink().send(
       CMD_OBD_READ_DTC,
       {},
       { timeoutMs: DTC_READ_TIMEOUT_MS }
@@ -42,7 +42,7 @@ export const dtcIpc = {
   },
 
   clear: async (): Promise<DtcClearResult> => {
-    const result = await getSerialClient().send(
+    const result = await getDeviceLink().send(
       CMD_OBD_CLEAR_DTC,
       {},
       { timeoutMs: DTC_CLEAR_TIMEOUT_MS }

@@ -20,7 +20,7 @@ import {
   type BoardProfileWriteResult,
   type BoardProvision,
 } from '../lib/board-provision'
-import { getSerialClient } from './webserial-client'
+import { getDeviceLink } from './link'
 import { burnConfigChunked } from './chunked-config'
 
 const OK: UsbResult = { success: true }
@@ -41,7 +41,7 @@ export const usbService = {
   getConfig: async (): Promise<
     { kind: 'ok'; config: unknown } | { kind: 'error'; error: string }
   > => {
-    const result = await getSerialClient().send(CMD_GET_CONFIG, {}, { timeoutMs: 5_000 })
+    const result = await getDeviceLink().send(CMD_GET_CONFIG, {}, { timeoutMs: 5_000 })
     if (!result.ok) {
       return { kind: 'error', error: result.error ?? 'unknown_error' }
     }
@@ -53,12 +53,12 @@ export const usbService = {
   },
 
   pushScreenSettings: async (settings: ScreenSettings): Promise<UsbResult> => {
-    const result = await getSerialClient().send(CMD_SCREEN_SETTINGS, { ...settings })
+    const result = await getDeviceLink().send(CMD_SCREEN_SETTINGS, { ...settings })
     return toUsbResult(result)
   },
 
   setBoardProfile: async (provision: BoardProvision): Promise<BoardProfileWriteResult> => {
-    const result = await getSerialClient().send(
+    const result = await getDeviceLink().send(
       CMD_SET_BOARD_PROFILE,
       { payload: boardProvisionPayload(provision) },
       { scaleWithPayload: true, timeoutMs: 5_000 }
@@ -67,7 +67,7 @@ export const usbService = {
   },
 
   ping: async (timeoutMs = 1_500): Promise<PingResult> => {
-    const result = await getSerialClient().send(CMD_PING, {}, { timeoutMs })
+    const result = await getDeviceLink().send(CMD_PING, {}, { timeoutMs })
     if (!result.ok) {
       return { kind: 'error', error: result.error ?? 'unknown_error' }
     }
@@ -76,7 +76,7 @@ export const usbService = {
   },
 
   queryVersion: async (): Promise<FirmwareIdentityResult> => {
-    const result = await getSerialClient().send(CMD_QUERY_VERSION, {}, { timeoutMs: 2_000 })
+    const result = await getDeviceLink().send(CMD_QUERY_VERSION, {}, { timeoutMs: 2_000 })
     if (!result.ok) {
       return { kind: 'error', error: result.error ?? 'unknown_error' }
     }
@@ -96,22 +96,22 @@ export const usbService = {
   },
 
   reboot: async (): Promise<UsbResult> => {
-    const result = await getSerialClient().send(CMD_REBOOT, {}, { timeoutMs: 1_000 })
+    const result = await getDeviceLink().send(CMD_REBOOT, {}, { timeoutMs: 1_000 })
     if (result.ok) return OK
     if (result.error === 'ack_timeout' || result.error === 'connection_closed') return OK
     return toUsbResult(result)
   },
 
   toggleDayNight: async (): Promise<UsbResult> => {
-    return toUsbResult(await getSerialClient().send(CMD_TOGGLE_DAY_NIGHT))
+    return toUsbResult(await getDeviceLink().send(CMD_TOGGLE_DAY_NIGHT))
   },
 
   setDayNight: async (day: boolean): Promise<UsbResult> => {
-    return toUsbResult(await getSerialClient().send(CMD_SET_DAY_NIGHT, { day }))
+    return toUsbResult(await getDeviceLink().send(CMD_SET_DAY_NIGHT, { day }))
   },
 
   calibrateTouch: async (): Promise<UsbResult> => {
-    return toUsbResult(await getSerialClient().send(CMD_CALIBRATE_TOUCH))
+    return toUsbResult(await getDeviceLink().send(CMD_CALIBRATE_TOUCH))
   },
 
   sendRaw: async (
@@ -119,7 +119,7 @@ export const usbService = {
     fields: Record<string, unknown> = {},
     timeoutMs = 3_000
   ): Promise<RawAck> => {
-    const result = await getSerialClient().send(cmd, fields, { timeoutMs })
+    const result = await getDeviceLink().send(cmd, fields, { timeoutMs })
     if (result.ok) {
       return { kind: 'ok', data: result.data ?? {} }
     }

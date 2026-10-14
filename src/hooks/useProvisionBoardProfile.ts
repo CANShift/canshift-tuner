@@ -63,7 +63,7 @@ export const useProvisionBoardProfile = (): UseProvisionBoardProfile => {
   const provision = () => {
     if (!resolved || !linked) return
     setState({ kind: 'writing' })
-    log('info', `Provisioning board profile “${resolved.profile.boardName}” over USB`)
+    log('info', `Provisioning board profile “${resolved.profile.boardName}”`)
     void usbService
       .setBoardProfile(provisionFor(resolved))
       .then((result: BoardProfileWriteResult) => {

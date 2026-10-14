@@ -62,7 +62,7 @@ export const useDeviceConfigBootstrap = (): void => {
   const log = useLogStore((s) => s.push)
 
   useEffect(() => {
-    if (!connected || transport !== 'usb') return
+    if (!connected || transport === null) return
     let cancelled = false
     const deps: BootstrapDeps = { loadFromDeviceOrDemo, markDirty, log }
     void deviceIpc

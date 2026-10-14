@@ -11,7 +11,7 @@ const FAILURE: BurnFailure = {
 
 const connectAndPopulate = (): void => {
   const s = useDeviceStore.getState()
-  s.setConnected('webserial')
+  s.setConnected('usb')
   s.setFirmwareVersion('1.2.3')
   s.setFirmwareCompat({ kind: 'mismatch', expected: 2, got: 1, version: '1.2.3' })
   s.setFirmwareLiveness({ kind: 'alive', lastPongAt: 1, uptimeMs: 100 })
@@ -37,7 +37,6 @@ describe('device.store setDisconnected (#1704)', () => {
     const s = useDeviceStore.getState()
     expect(s.status).toBe('disconnected')
     expect(s.connected).toBe(false)
-    expect(s.portPath).toBeNull()
     expect(s.transport).toBeNull()
     expect(s.firmwareVersion).toBeNull()
     expect(s.firmwareCompat).toEqual({ kind: 'unknown' })

@@ -7,11 +7,11 @@ import {
 } from '@canshift/core'
 
 import { CMD_GET_DEVICE_CONFIG, CMD_PUT_DEVICE_CONFIG } from './opcodes'
-import { getSerialClient } from './webserial-client'
+import { getDeviceLink } from './link'
 
 export const deviceConfigIpc = {
   read: async (): Promise<{ success: boolean; config: DeviceConfig | null; error?: string }> => {
-    const result = await getSerialClient().send(CMD_GET_DEVICE_CONFIG)
+    const result = await getDeviceLink().send(CMD_GET_DEVICE_CONFIG)
     if (!result.ok) {
       if (result.error === 'config_not_found') return { success: true, config: null }
       return { success: false, config: null, error: result.error ?? 'unknown_error' }
@@ -31,7 +31,7 @@ export const deviceConfigIpc = {
       return { success: false, error: 'invalid_device_config' }
     }
     const wire = deviceConfigToWire(parsed.data)
-    const result = await getSerialClient().send(CMD_PUT_DEVICE_CONFIG, { device_config: wire })
+    const result = await getDeviceLink().send(CMD_PUT_DEVICE_CONFIG, { device_config: wire })
     if (result.ok) return { success: true }
     return { success: false, error: result.error ?? 'unknown_error' }
   },

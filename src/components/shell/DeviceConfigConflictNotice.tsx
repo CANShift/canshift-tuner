@@ -14,7 +14,7 @@ export const DeviceConfigConflictNotice = () => {
     <InlineState
       className="shrink-0"
       severity="warning"
-      kicker="USB CDC · CONFIG DIFFERS"
+      kicker="CONFIG DIFFERS"
       title="The device config is not the one you are editing"
       body="The connected device sent a dashboard config, but you have unsaved edits. Loading from the device will discard your edits. Keeping your edits leaves the device untouched until you burn."
       primaryAction={{

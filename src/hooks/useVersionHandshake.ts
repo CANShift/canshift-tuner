@@ -16,7 +16,7 @@ export const useVersionHandshake = (): void => {
   const log = useLogStore((s) => s.push)
 
   useEffect(() => {
-    if (!connected || simulationMode || transport !== 'usb') return
+    if (!connected || simulationMode || transport === null) return
     let cancelled = false
     void usbService
       .queryVersion()

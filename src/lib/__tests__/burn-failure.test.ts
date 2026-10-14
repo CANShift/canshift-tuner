@@ -77,7 +77,7 @@ describe('describeBurnFailure', () => {
       command: 'PUT_CONFIG',
       code: 'read_error',
     })
-    expect(failure.body).toContain('Lost the data stream while reading — check the cable')
+    expect(failure.body).toContain('Lost the data stream while reading — check the link')
     expect(failure.body).not.toContain('read_error')
   })
 

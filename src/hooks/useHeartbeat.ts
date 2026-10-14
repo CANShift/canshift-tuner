@@ -15,7 +15,7 @@ export const useHeartbeat = (): void => {
   const log = useLogStore((s) => s.push)
 
   useEffect(() => {
-    if (!connected || simulationMode || transport !== 'usb') {
+    if (!connected || simulationMode || transport === null) {
       setFirmwareLiveness({ kind: 'unknown' })
       return
     }
