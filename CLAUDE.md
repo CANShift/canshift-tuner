@@ -23,7 +23,7 @@ Browser configurator for CANShift dashes (org: github.com/CANShift). Vite + Reac
 
 Non-negotiable. Reviewed on every PR, ahead of feature count.
 
-- Guard clauses first. Nesting depth 2 max — a third level means extract a named function.
+- Guard clauses first. Nesting depth 2 max — a third level means extract a named function. ESLint enforces depth 2, complexity 10, 30 lines per function and 300 per file on all of `src`, tests included.
 - One `try` per function. Never a `try` inside a `try`, a `catch` or a `finally`. No empty catch, no catch that only logs, no wrapper that rethrows unchanged. Every other `catch` must return a value, set state or recover — if it can only log, it is advisory and goes through the shared `bestEffort` helper, which is the single place a log-only catch is allowed to live (teardown, optional device capabilities, listener isolation).
 - Errors are typed — an error class or a discriminated Result union. Transport codes are humanised at the UI boundary; a raw wire code (`ack_timeout`, `read_failed`) must never render to the user.
 - Stacked `cond && <X/>`, chained `else if` and `kind === 'a' ? … : kind === 'b' ? …` are a union that lost its type. Use a `Record<Kind, …>` lookup table — `WidgetPreview.tsx` and `widget-editor-panel.tsx` are the reference implementations.

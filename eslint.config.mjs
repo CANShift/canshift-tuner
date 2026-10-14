@@ -100,6 +100,15 @@ export default tseslint.config(
     },
   },
   {
+    files: ['src/**/*.{ts,tsx}'],
+    rules: {
+      'max-lines-per-function': ['error', { max: 30, skipBlankLines: true, skipComments: true }],
+      'max-depth': ['error', 2],
+      complexity: ['error', 10],
+      'max-lines': ['error', { max: 300, skipBlankLines: true }],
+    },
+  },
+  {
     files: ['src/**/*.tsx'],
     plugins: { 'no-inline-style': noInlineStylePlugin },
     rules: {
