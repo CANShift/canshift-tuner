@@ -7,6 +7,7 @@ Browser configurator for CANShift dashes (org: github.com/CANShift). Vite + Reac
 - `npm run dev` — vite on :5173, simulation mode without a device
 - `npm run typecheck` / `test` (vitest) / `lint` / `format:check` / `build`
 - `npm run bundle:dash` — gzipped bundle in `dist-tuner/` for the firmware's `data/tuner/`; `build` fails on names over 24 chars (with `.gz`), folders in `dist/`, or inline code in `index.html`
+- Release: bump `package.json` version, merge, push tag `vX.Y.Z` — `release.yml` drafts the GitHub Release with `canshift-tuner-dash-vX.Y.Z.tar.gz` (flat `.gz` files, a firmware contract) + `.sha256`; write the notes, then publish
 
 ## Rules
 
