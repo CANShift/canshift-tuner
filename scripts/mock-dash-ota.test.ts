@@ -28,6 +28,7 @@ const beginCommand = (sig?: Buffer) => ({
   cmd: CMD_OTA_BEGIN,
   total: IMAGE.length,
   sha256: createHash('sha256').update(IMAGE).digest('hex'),
+  version: NEW_VERSION,
   ...(sig === undefined ? {} : { sig: sig.toString('base64') }),
 })
 

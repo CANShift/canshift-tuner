@@ -9,7 +9,9 @@ vi.mock('../transport/ota-ipc', () => ({
 const OK = { ok: true }
 const IMAGE = new Uint8Array(OTA_CHUNK_BYTES * 2 + 100).fill(7)
 const SIGNATURE = new Uint8Array(64).fill(0xff)
-const install = () => installFirmware(IMAGE, SIGNATURE, () => undefined)
+const VERSION = '0.21.0'
+const FIRMWARE = { bytes: IMAGE, signature: SIGNATURE, version: VERSION }
+const install = () => installFirmware(FIRMWARE, () => undefined)
 
 beforeEach(() => {
   vi.mocked(otaIpc.begin).mockReset().mockResolvedValue(OK)
@@ -19,14 +21,15 @@ beforeEach(() => {
 })
 
 describe('installFirmware', () => {
-  it('declares the size, SHA-256 and signature, streams ordered chunks, then commits', async () => {
+  it('declares the size, SHA-256, signature and version, streams ordered chunks, then commits', async () => {
     const progress: number[] = []
-    const result = await installFirmware(IMAGE, SIGNATURE, (sent) => progress.push(sent))
+    const result = await installFirmware(FIRMWARE, (sent) => progress.push(sent))
     expect(result).toEqual({ kind: 'installed' })
-    const [total, sha, sig] = vi.mocked(otaIpc.begin).mock.calls[0] ?? []
+    const [total, sha, sig, version] = vi.mocked(otaIpc.begin).mock.calls[0] ?? []
     expect(total).toBe(IMAGE.byteLength)
     expect(sha).toMatch(/^[0-9a-f]{64}$/)
     expect(sig).toBe(btoa(String.fromCharCode(...SIGNATURE)))
+    expect(version).toBe(VERSION)
     expect(vi.mocked(otaIpc.write).mock.calls.map(([offset]) => offset)).toEqual([0, 512, 1024])
     expect(progress).toEqual([512, 1024, IMAGE.byteLength])
     expect(otaIpc.commit).toHaveBeenCalledTimes(1)
