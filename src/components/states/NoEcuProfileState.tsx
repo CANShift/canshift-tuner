@@ -1,5 +1,5 @@
 import { InlineState } from '@/components/states/InlineState'
-import { SHIPPED_PROFILE_COUNT } from '@/constants/ecu-catalogue'
+import { CATALOGUE_INDEX } from '@/lib/ecu-catalogue'
 
 export interface NoEcuProfileStateProps {
   onPickProfile: () => void
@@ -7,7 +7,7 @@ export interface NoEcuProfileStateProps {
   className?: string | undefined
 }
 
-const BODY = `Widgets need a profile before they can read anything. Pick one of the ${String(SHIPPED_PROFILE_COUNT)} shipped profiles, or derive one from a bus capture.`
+const BODY = `Widgets need a profile before they can read anything. Pick one of the ${String(CATALOGUE_INDEX.entries.length)} shipped profiles, or derive one from a bus capture.`
 
 export const NoEcuProfileState = ({
   onPickProfile,

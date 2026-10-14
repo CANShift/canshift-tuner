@@ -18,7 +18,7 @@ import { useSignalStore } from '../stores/signal.store'
 import { useScreenSettingsStore } from '../stores/screen-settings.store'
 import { useProjectStore } from '../stores/project/project.store'
 import { useProjectFileActions } from '../hooks/useProjectFileActions'
-import { useCatalogueIndex } from '../hooks/useCatalogueIndex'
+import { CATALOGUE_INDEX } from '../lib/ecu-catalogue'
 import { ecuLabelForKey } from '../utils/ecu-label'
 import { useDisplayUnits } from '../hooks/useDisplayUnits'
 import { provisionMessage, useProvisionBoardProfile } from '../hooks/useProvisionBoardProfile'
@@ -64,7 +64,6 @@ const DeviceRoute = () => {
   const brightness = useScreenSettingsStore((s) => s.brightness)
   const updateScreen = useScreenSettingsStore((s) => s.update)
   const activeProjectId = useProjectStore((s) => s.activeProjectId)
-  const catalogue = useCatalogueIndex()
   const units = useDisplayUnits()
   const panelDriver = useResolvedBoardProfile()?.profile.lcd.driver ?? null
   const provision = useProvisionBoardProfile()
@@ -113,7 +112,7 @@ const DeviceRoute = () => {
             { label: 'DISPLAY', value: displayFact(screen, panelDriver) },
             { label: 'FIRMWARE', value: firmwareVersion ?? UNSET },
             { label: 'TRANSPORT', value: TRANSPORT },
-            { label: 'ECU PROFILE', value: ecuLabelForKey(selectedProfileKey, catalogue) },
+            { label: 'ECU PROFILE', value: ecuLabelForKey(selectedProfileKey, CATALOGUE_INDEX) },
             { label: 'CONFIG', value: `${plural(pages, 'page')} · ${plural(widgets, 'widget')}` },
           ]}
         />

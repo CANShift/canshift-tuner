@@ -1,1 +1,0 @@
-export const SHIPPED_PROFILE_COUNT = 37

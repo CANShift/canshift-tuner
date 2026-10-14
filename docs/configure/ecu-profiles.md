@@ -4,7 +4,7 @@ A profile is the signal set the dash decodes: the CAN frame IDs, bit layouts, sc
 
 ## Two ways in
 
-- **The catalogue.** The Tuner ships a browsable list of vendor definitions, loaded from `/ecu-catalogue/index.json` (`components/ecu/EcuCatalogueList.tsx`). Search by vendor or label, sort the list, and click an entry to preview it.
+- **The catalogue.** The Tuner bundles a list of vendor definitions in the app itself (`src/assets/ecu-catalogue/`), so it works with no internet connection. Pick an entry from the profile list, grouped by vendor, to preview it.
 - **Your own XML.** Drop a CAN definition file onto the import zone (`components/ecu/XmlImportZone.tsx`). Both paths run the file through `parseCanXml` from `@canshift/core`, so a catalogue entry and a hand-rolled file are validated the same way.
 
 ## Preview before you apply

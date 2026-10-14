@@ -18,7 +18,7 @@ import { formatFrameIdHex, parseHexFrameId } from '../utils/frame-id'
 import { useSignalStore } from '../stores/signal.store'
 import { useLiveSignals } from '../hooks/useLiveSignals'
 import { useSignalUsage } from '../hooks/useSignalUsage'
-import { useCatalogueIndex } from '../hooks/useCatalogueIndex'
+import { CATALOGUE_INDEX } from '../lib/ecu-catalogue'
 import { useProfileChange } from '../hooks/useProfileChange'
 import { useDisplayUnits } from '../hooks/useDisplayUnits'
 import { ecuLabelForKey } from '../utils/ecu-label'
@@ -45,8 +45,7 @@ const SignalsRoute = () => {
   const updateSignal = useSignalStore((s) => s.updateSignal)
   const values = useLiveSignals()
   const usage = useSignalUsage()
-  const catalogue = useCatalogueIndex()
-  const profile = useProfileChange(catalogue)
+  const profile = useProfileChange()
   const units = useDisplayUnits()
   const scanner = useCanScanner()
   const connected = useDeviceStore((s) => s.connected)
@@ -56,10 +55,10 @@ const SignalsRoute = () => {
   const [filter, setFilter] = useState('')
   const [pollIntervalMs, setPollIntervalMs] = useState(OBD2_DEFAULT_INTERVAL_MS)
 
-  const profileLabel = ecuLabelForKey(selectedProfileKey, catalogue)
+  const profileLabel = ecuLabelForKey(selectedProfileKey, CATALOGUE_INDEX)
   const groups = useMemo(
-    () => profileGroups(catalogue.entries, selectedProfileKey, profileLabel),
-    [catalogue, selectedProfileKey, profileLabel]
+    () => profileGroups(CATALOGUE_INDEX.entries, selectedProfileKey, profileLabel),
+    [selectedProfileKey, profileLabel]
   )
 
   const shown = useMemo(() => {
