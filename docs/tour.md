@@ -1,8 +1,8 @@
 # Tuner tour
 
-The Tuner is a browser app that talks to the dash over Web Serial. It has three tabs (`src/constants/routes.ts`); this page is the map, with links to the guides that go deeper.
+The Tuner is a browser app that talks to the dash over its Wi-Fi (a WebSocket) or over USB (Web Serial). It has three tabs (`src/constants/routes.ts`); this page is the map, with links to the guides that go deeper.
 
-Until a dash is connected, the Tuner shows a connect panel: **Connect** opens the browser's serial port picker, **Edit offline** opens a config in the simulator with burning disabled.
+Until a dash is connected, the Tuner shows a connect panel. Served by the dash, it connects on its own; on a desktop over USB, **Connect** opens the browser's serial port picker. **Edit offline** opens a config in the simulator with burning disabled.
 
 ## The tabs
 
@@ -16,7 +16,7 @@ Until a dash is connected, the Tuner shows a connect panel: **Connect** opens th
 Old links (`/signals`, `/live`, `/dashboard`, `/themes` and the rest) redirect to the tab that now holds them.
 
 > [!NOTE]
-> The Tuner speaks **Web Serial** over USB — it needs a Chromium-based browser and a wired connection. Bluetooth is the mobile app's job; see [Pairing over BLE](https://github.com/CANShift/canshift-mobile/blob/main/docs/pairing.md).
+> Served by the dash, the Tuner works in any browser on the dash's Wi-Fi. Over USB it needs a desktop Chromium-based browser. Bluetooth is the mobile app's job; see [Pairing over BLE](https://github.com/CANShift/canshift-mobile/blob/main/docs/pairing.md).
 
 ## No car? Use the simulator
 

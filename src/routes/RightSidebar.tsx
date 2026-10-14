@@ -178,4 +178,5 @@ export const RightSidebar = ({ pageId }: RightSidebarProps) => {
   )
 }
 
-const ASIDE = 'flex w-[356px] shrink-0 flex-col overflow-hidden border-l-2 border-ui-rule bg-ui-bg'
+const ASIDE =
+  'flex w-full shrink-0 flex-col border-t-2 border-ui-rule bg-ui-bg md:w-[356px] md:overflow-hidden md:border-l-2 md:border-t-0'

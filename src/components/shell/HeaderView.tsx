@@ -64,18 +64,23 @@ export const HeaderView = ({
 }: HeaderViewProps) => {
   const visual = STATUS_VISUAL[status]
   return (
-    <header className="flex h-[52px] shrink-0 items-stretch bg-ui-header-bg text-ui-header-ink">
-      <div className="flex items-center gap-2.5 px-3 min-[1100px]:px-5">
+    <header className="flex shrink-0 flex-wrap items-stretch bg-ui-header-bg text-ui-header-ink md:h-[52px] md:flex-nowrap">
+      <div className="flex h-[52px] items-center gap-2.5 px-3 min-[1100px]:px-5">
         <TunerMark height={19} />
-        <Wordmark />
+        <span className="hidden sm:contents">
+          <Wordmark />
+        </span>
         <span className="hidden font-mono text-[11px] tracking-[0.16em] text-ui-faint min-[1000px]:inline">
           TUNER
         </span>
       </div>
 
-      {configNameField}
+      <span className="hidden sm:contents">{configNameField}</span>
 
-      <nav aria-label="Primary" className="ml-2 flex items-stretch min-[1100px]:ml-[18px]">
+      <nav
+        aria-label="Primary"
+        className="order-last flex h-11 w-full items-stretch border-t border-ui-header-line md:order-none md:ml-2 md:h-auto md:w-auto md:border-t-0 min-[1100px]:ml-[18px]"
+      >
         {HEADER_TABS.map((tab) => (
           <HeaderTabItem
             key={tab.to}
@@ -152,7 +157,7 @@ const HeaderTabItem = ({ tab, active, disabled, LinkComponent }: HeaderTabItemPr
 
 const headerTab = cva(
   [
-    'flex items-center whitespace-nowrap px-2.5 text-[13px] font-bold tracking-[0.06em]',
+    'flex flex-1 items-center justify-center whitespace-nowrap px-2.5 text-[13px] font-bold tracking-[0.06em] md:flex-none',
     'min-[1100px]:px-4',
     'no-underline outline-offset-[-2px]',
   ].join(' '),

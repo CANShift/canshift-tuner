@@ -79,7 +79,7 @@ const LiveDataRoute = ({ onShowSignals }: LiveDataRouteProps) => {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-ui-bg">
-      <div className="flex h-[54px] shrink-0 items-center gap-4 border-b-2 border-ui-rule px-6">
+      <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-b-2 border-ui-rule px-3 py-2 md:h-[54px] md:flex-nowrap md:px-6 md:py-0">
         <span className="font-mono text-[11px] tracking-[0.18em] text-ui-muted">LIVE DATA</span>
         <span className="whitespace-nowrap font-mono text-[11.5px] text-ui-muted">{meta}</span>
         <div className="flex-1" />
@@ -114,7 +114,7 @@ const LiveDataRoute = ({ onShowSignals }: LiveDataRouteProps) => {
 
       <BusSilentNotice />
 
-      <div className="min-h-0 flex-1 overflow-y-auto p-6">
+      <div className="min-h-0 flex-1 overflow-y-auto p-3 md:p-6">
         <LiveCards
           signals={signals}
           values={values}

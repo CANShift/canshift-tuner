@@ -1,13 +1,19 @@
 # Configure with the Tuner
 
-The Tuner is a single-page web app that talks to the dash over Web Serial. You move widgets, bind signals, pick an ECU profile — then click **Burn** and the dash reloads the new config in place. No re-flash, no reboot.
-
-The Tuner lives at [canshift.app](https://canshift.app) — open the URL, plug the dash in, you're in.
+The Tuner is a single-page web app that talks to the dash over its Wi-Fi or over USB. You move widgets, bind signals, pick an ECU profile — then click **Burn** and the dash reloads the new config in place. No re-flash, no reboot.
 
 ## Connecting
 
+Over the dash's Wi-Fi (workshop mode), from any browser:
+
+1. On the dash, open **Settings → Workshop mode**.
+2. Join the Wi-Fi network the dash shows, with its password (or scan its QR code).
+3. Open the address on the dash's screen. The Tuner connects on its own.
+
+Over USB, from a desktop Chromium browser:
+
 1. Plug the dash in over USB-C.
-2. Open [canshift.app](https://canshift.app) in a Chromium-based browser.
+2. Open [canshift.app](https://canshift.app).
 3. Click **Connect** and pick the serial port.
 
 The header switches from a red _Disconnected_ dot to a green _Connected_ one, with the device's `vendor:product` next to it. The firmware version slot fills in once the handshake completes (~50 ms).

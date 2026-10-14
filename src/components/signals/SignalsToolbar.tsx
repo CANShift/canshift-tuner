@@ -40,7 +40,7 @@ export const SignalsToolbar = ({
   onFilter,
   actions,
 }: SignalsToolbarProps) => (
-  <div className="flex h-[54px] shrink-0 items-center gap-2.5 border-b-2 border-ui-rule px-6 min-[1180px]:gap-4">
+  <div className="flex shrink-0 flex-wrap items-center gap-2.5 border-b-2 border-ui-rule px-3 py-2 md:h-[54px] md:flex-nowrap md:px-6 md:py-0 min-[1180px]:gap-4">
     <div className="flex gap-px">
       {SOURCES.map((value) => (
         <button

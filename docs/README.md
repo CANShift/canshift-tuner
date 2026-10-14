@@ -1,12 +1,12 @@
 # Tuner documentation
 
 The tuner is the browser configurator: it edits the dashboard and reads live
-CAN data over Web Serial. Put firmware on a sealed board with
+CAN data. The dash serves it in workshop mode and the tuner talks back over a
+WebSocket on the dash's Wi-Fi, from any browser, phones included. A desktop
+Chromium browser (Chrome, Edge, Brave, Opera) can also connect over USB with
+Web Serial. Put firmware on a sealed board with
 [Manual flash](install/manual-flash.md), then start with the
 [Tuner tour](tour.md).
-
-You need a Chromium browser (Chrome, Edge, Brave, Opera) — Web Serial does not
-exist in Firefox or Safari.
 
 Docs for the other repos: [firmware](https://github.com/CANShift/canshift-firmware/tree/main/docs) ·
 [core](https://github.com/CANShift/canshift-core/tree/main/docs) ·
@@ -23,7 +23,7 @@ Docs for the other repos: [firmware](https://github.com/CANShift/canshift-firmwa
 
 | Doc                                                 | What it covers                                                         |
 | --------------------------------------------------- | ---------------------------------------------------------------------- |
-| [Configure with the Tuner](configure/with-tuner.md) | Live editing over Web Serial — pages, signals, ECU profiles, themes    |
+| [Configure with the Tuner](configure/with-tuner.md) | Live editing over Wi-Fi or USB — pages, signals, ECU profiles, themes  |
 | [ECU profiles](configure/ecu-profiles.md)           | Load a signal set for your car, from the catalogue or your own CAN XML |
 | [Widgets & pages](configure/widgets.md)             | Building the dashboard within the firmware's limits                    |
 | [Live data](configure/live-data.md)                 | Watching decoded signals in real time — car, simulator, or neither     |

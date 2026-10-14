@@ -1,8 +1,8 @@
 # canshift-tuner
 
-Betaflight-style web configurator for CANShift dashes. Hosted on Cloudflare Workers, talks
-to the firmware via **WebSerial** over the CH340 UART that already serves as
-the upload / serial port.
+Web configurator for CANShift dashes. Served by the dash itself in workshop mode and
+talking to it over a **WebSocket** on the dash's Wi-Fi; on a desktop Chromium browser it can
+also talk **WebSerial** over USB. A copy is hosted on Cloudflare Workers at canshift.app.
 
 📖 **[Documentation](docs/README.md)** — configuring, and a tour of every tab.
 
@@ -10,10 +10,10 @@ the upload / serial port.
 
 `canshift-tuner` is the configurator surface for CANShift dashes.
 
-- Hosted on Cloudflare Workers — tuner updates ship without touching the device.
-- WebSerial transport — works on any Chromium browser, talks to the
-  Arduino `Serial` (UART) the firmware speaks. No on-device WiFi stack, no
-  SPA-on-SPIFFS coupling between configurator and firmware partitions.
+- Offline by construction — the bundle carries its fonts and ECU catalogue, so it runs from the
+  dash's access point with no internet.
+- One protocol, two links — the same newline-delimited JSON commands go over a WebSocket
+  (`ws://<dash>/ws`) or WebSerial; `src/lib/transport-choice.ts` picks the link.
 - Three tabs — Dash (canvas and widgets), Vehicle (ECU profile, signals, live values), Device (board, units, backup).
 
 ## Editor highlights
@@ -41,11 +41,12 @@ npm run format:check # enforced in CI
 npm run build
 ```
 
-WebSerial requires Chrome / Edge / Brave / Opera. Firefox + Safari users get
-a friendly fallback message.
+To develop against a dash (or a mock) over WebSocket, point the dev server at it with
+`?dash=<host[:port]>` in the URL or `VITE_DASH_HOST=<host[:port]>` in the environment.
+Without either, `localhost` uses WebSerial.
 
 ## Browser requirements
 
-- WebSerial: Chromium 89+ (`navigator.serial`).
-- Served over HTTPS in production (Cloudflare default). `localhost` works under
-  plain HTTP for dev.
+- Served by the dash: any current browser, phones included.
+- On localhost or canshift.app: WebSerial, so Chrome / Edge / Brave / Opera 89+ on a desktop.
+  Elsewhere the connect panel explains how to reach the dash and still offers Edit offline.

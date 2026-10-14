@@ -2,7 +2,7 @@ import type { SignalDef } from '@canshift/core'
 import type { CanFrameStats } from '../../stores/can-scan/accumulator'
 import { formatFrameIdHex } from '../../utils/frame-id'
 
-const GRID = 'grid grid-cols-[128px_96px_minmax(0,1fr)_170px_190px] gap-8'
+const GRID = 'grid min-w-[780px] grid-cols-[128px_96px_minmax(0,1fr)_170px_190px] gap-8'
 const RATE_DECIMALS = 0
 const UNBOUND = 'not bound'
 
@@ -29,7 +29,7 @@ export const BusScanPanel = ({
   onAssign,
   onClear,
 }: BusScanPanelProps) => (
-  <div className="max-h-[232px] shrink-0 overflow-y-auto border-b-2 border-ui-rule bg-ui-panel">
+  <div className="max-h-[232px] shrink-0 overflow-auto border-b-2 border-ui-rule bg-ui-panel">
     <div className="flex items-center gap-3.5 px-6 py-[11px] font-mono text-[10.5px] tracking-[0.16em] text-ui-muted">
       <span>BUS SCAN</span>
       <span>
