@@ -63,9 +63,6 @@ export default defineConfig(({ command }) => ({
           if (id.includes('node_modules/zod') || id.includes('src/lib/strict-csp')) {
             return 'vendor-zod'
           }
-          if (id.includes('@canshift/core')) {
-            return 'vendor-core'
-          }
           return undefined
         },
       },
