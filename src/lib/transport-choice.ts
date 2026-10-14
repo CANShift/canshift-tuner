@@ -14,11 +14,9 @@ export interface TransportEnv {
 export const DASH_HOST_PARAM = 'dash'
 export const DASH_SOCKET_PATH = '/ws'
 
-const HOSTED_NAMES = new Set(['localhost', '127.0.0.1', '::1', '[::1]', 'canshift.app'])
-const HOSTED_SUFFIXES = ['.canshift.app', '.workers.dev']
+const LOCAL_DEV_NAMES = new Set(['localhost', '127.0.0.1', '::1', '[::1]'])
 
-export const isHostedOrigin = (hostname: string): boolean =>
-  HOSTED_NAMES.has(hostname) || HOSTED_SUFFIXES.some((suffix) => hostname.endsWith(suffix))
+export const isLocalDevOrigin = (hostname: string): boolean => LOCAL_DEV_NAMES.has(hostname)
 
 export const dashSocketUrl = (host: string, pageProtocol: string): string =>
   `${pageProtocol === 'https:' ? 'wss' : 'ws'}://${host}${DASH_SOCKET_PATH}`
@@ -32,7 +30,7 @@ const overrideHost = (env: TransportEnv): string | null => {
 const servedByDashHost = (env: TransportEnv): string | null => {
   const override = overrideHost(env)
   if (override !== null) return override
-  return isHostedOrigin(env.hostname) ? null : env.host
+  return isLocalDevOrigin(env.hostname) ? null : env.host
 }
 
 export const chooseTransport = (env: TransportEnv): TransportChoice => {

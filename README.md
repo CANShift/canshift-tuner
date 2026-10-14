@@ -2,7 +2,7 @@
 
 Web configurator for CANShift dashes. Served by the dash itself in workshop mode and
 talking to it over a **WebSocket** on the dash's Wi-Fi; on a desktop Chromium browser it can
-also talk **WebSerial** over USB. A copy is hosted on Cloudflare Workers at canshift.app.
+also talk **WebSerial** over USB. There is no hosted copy: the dash is the only place it is served.
 
 📖 **[Documentation](docs/README.md)** — configuring, and a tour of every tab.
 
@@ -88,5 +88,5 @@ firmware side before changing either.
 5. Publish, then pin the tag and the SHA-256 from the `.sha256` file in the firmware.
 
 - Served by the dash: any current browser, phones included.
-- On localhost or canshift.app: WebSerial, so Chrome / Edge / Brave / Opera 89+ on a desktop.
+- On localhost (`npm run dev`): WebSerial, so Chrome / Edge / Brave / Opera 89+ on a desktop.
   Elsewhere the connect panel explains how to reach the dash and still offers Edit offline.

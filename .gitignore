@@ -1,6 +1,5 @@
 node_modules/
 dist/
-.wrangler/
 .vite/
 src/styles/tokens.generated.css
 public/sitemap.xml

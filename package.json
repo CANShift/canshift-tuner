@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "CANShift Tuner — Betaflight-style web configurator. Talks to the firmware via WebSerial over the CH340 UART; hosted on Cloudflare Workers.",
+  "description": "CANShift Tuner — web configurator served by the dash in workshop mode; talks WebSocket on the dash's Wi-Fi, or WebSerial over USB from a desktop browser.",
   "scripts": {
     "predev": "npm run tokens:gen",
     "dev": "vite",
-    "prebuild": "npm run tokens:gen && npm run sitemap:gen",
+    "prebuild": "npm run tokens:gen",
     "build": "vite build && tsx scripts/check-bundle.ts",
     "bundle:dash": "npm run build && tsx scripts/pack-dash-bundle.ts",
     "preview": "vite preview",
@@ -21,11 +21,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "tokens:gen": "tsx scripts/generate-tokens.css.ts",
-    "sitemap:gen": "tsx scripts/generate-sitemap.ts",
     "prepare": "husky",
-    "lint:pre-commit": "lint-staged",
-    "deploy": "wrangler deploy",
-    "deploy:preview": "wrangler versions upload"
+    "lint:pre-commit": "lint-staged"
   },
   "overrides": {
     "esbuild": "^0.28.1"
@@ -73,7 +70,6 @@
     "typescript-eslint": "^8.70.0",
     "vite": "^7.3.2",
     "vitest": "^4.1.11",
-    "wrangler": "^4.131.2",
     "ws": "8.22.0"
   },
   "lint-staged": {

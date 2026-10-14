@@ -2,7 +2,7 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { constants, gzipSync } from 'node:zlib'
-import { GZIP_SUFFIX, WEB_ONLY_FILES, bundleEntries } from './dash-bundle-rules'
+import { GZIP_SUFFIX, bundleEntries } from './dash-bundle-rules'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const DIST = join(ROOT, 'dist')
@@ -17,7 +17,7 @@ const gzipInto = (name: string): number => {
 
 rmSync(OUT, { recursive: true, force: true })
 mkdirSync(OUT)
-const files = bundleEntries(DIST).filter((name) => !WEB_ONLY_FILES.has(name))
+const files = bundleEntries(DIST)
 const totalBytes = files.reduce((sum, name) => sum + gzipInto(name), 0)
 
 console.log(
