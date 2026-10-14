@@ -176,30 +176,38 @@ export class SerialClient implements DeviceLink {
 
   private async openPort(port: SerialPort): Promise<void> {
     this.setStatus(this.reconnect.isBackedOff() ? 'reconnecting' : 'connecting')
+    await this.openWithSignals(port)
+    const own = await this.claimStreams(port)
+    this.adopt(own)
+    this.readLoop = bestEffort('[serial] readLoop', () => this.runReadLoop(own))
+  }
+
+  private async openWithSignals(port: SerialPort): Promise<void> {
     try {
       await port.open({ baudRate: this.baudRate })
       await this.applyNonResettingSignals(port)
     } catch (err) {
-      const raw = errorMessage(err, 'open_failed')
-      const msg = humanizeTransportError(raw)
-      this.lastError = msg
-      this.setStatus('disconnected', msg)
+      const msg = humanizeTransportError(errorMessage(err, 'open_failed'))
+      this.failOpen(msg)
       throw new Error(msg, { cause: err })
     }
+  }
 
-    if (!port.readable || !port.writable) {
-      const msg = 'streams_unavailable'
-      this.lastError = msg
-      this.setStatus('disconnected', msg)
-      await this.safeClose(port)
-      throw new Error(msg)
+  private async claimStreams(port: SerialPort): Promise<PortHandles> {
+    if (port.readable && port.writable) {
+      return { port, reader: port.readable.getReader(), writer: port.writable.getWriter() }
     }
+    this.failOpen('streams_unavailable')
+    await this.safeClose(port)
+    throw new Error('streams_unavailable')
+  }
 
-    const own: PortHandles = {
-      port,
-      reader: port.readable.getReader(),
-      writer: port.writable.getWriter(),
-    }
+  private failOpen(message: string): void {
+    this.lastError = message
+    this.setStatus('disconnected', message)
+  }
+
+  private adopt(own: PortHandles): void {
     this.active = own
     this.deviceHeard = false
     this.framer.reset()
@@ -207,8 +215,6 @@ export class SerialClient implements DeviceLink {
     this.reconnect.noteOpened()
     this.lastError = undefined
     this.setStatus('connected')
-
-    this.readLoop = bestEffort('[serial] readLoop', () => this.runReadLoop(own))
   }
 
   private dispatchChunk(value: Uint8Array | undefined): void {
@@ -217,13 +223,17 @@ export class SerialClient implements DeviceLink {
     for (const line of this.framer.push(value)) this.onFrame(line)
   }
 
+  private async pump(own: PortHandles): Promise<void> {
+    for (;;) {
+      const { value, done } = await own.reader.read()
+      if (done) return
+      this.dispatchChunk(value)
+    }
+  }
+
   private async runReadLoop(own: PortHandles): Promise<void> {
     try {
-      while (true) {
-        const { value, done } = await own.reader.read()
-        if (done) break
-        this.dispatchChunk(value)
-      }
+      await this.pump(own)
     } catch (err) {
       this.lastError = errorMessage(err, 'read_error')
     } finally {
