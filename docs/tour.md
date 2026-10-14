@@ -10,7 +10,7 @@ Until a dash is connected, the Tuner shows a connect panel. Served by the dash, 
 - **Vehicle** (`/vehicle`) — two sections:
   - **Signals** — pick an ECU profile, edit CAN signals (grouped by CAN frame, with their live value and the pages that use them; **Hide unused** trims the list) or OBD-II polling, scan the bus, and analyse unknown frames. Ticked signals draw on the live plot beside the table; pause, record and the time window sit at the end of the toolbar. Profile XML imports and downloads from the **XML** menu. See [ECU profiles](configure/ecu-profiles.md) and [Live data](configure/live-data.md).
   - **CAN bus** — the bus speed the dash listens at (125, 250, 500 or 1000 kbit/s), read from the dash and written back to it. Writing it reboots the dash.
-- **Device** (`/device`) — settings (panel model, units, brightness) on one side, the board profile and its definition, and config backup and restore on the other.
+- **Device** (`/device`) — settings (panel model, units, brightness) and the firmware update on one side, the board profile and its definition, and config backup and restore on the other.
 
 Old links (`/signals`, `/live`, `/dashboard`, `/themes` and the rest) redirect to the tab that now holds them.
 

@@ -62,8 +62,9 @@ npm run dev         # then open http://localhost:5173/?dash=localhost:8787
 ```
 
 The mock answers the version handshake, ping, config read and chunked burn, the device
-config (CAN bus speed, which reboots it like the real dash), day/night and the other
-commands, and streams telemetry, heap and CAN-rate frames. It keeps its state in memory
+config (CAN bus speed, which reboots it like the real dash), firmware updates (it checks the
+image, the offsets and the SHA-256, then reboots reporting the new version), day/night and the
+other commands, and streams telemetry, heap and CAN-rate frames. It keeps its state in memory
 until you stop it.
 
 ## Releasing the dash bundle

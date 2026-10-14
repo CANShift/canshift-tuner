@@ -1,4 +1,5 @@
 import { WebSocketServer, type WebSocket } from 'ws'
+import { CMD_OTA_WRITE, CMD_PING } from '../src/transport/opcodes'
 import { COMMAND_HANDLERS, unknownCommand } from './mock-dash-commands'
 import { canStatFrame, heapFrame, teleFrame } from './mock-dash-telemetry'
 import { freshState, reboot, type MockDashState } from './mock-dash-state'
@@ -10,6 +11,7 @@ const TELE_INTERVAL_MS = 100
 const STATS_INTERVAL_MS = 2_000
 const REBOOT_DELAY_MS = 300
 const MS_PER_S = 1_000
+const QUIET_COMMANDS = new Set([CMD_OTA_WRITE, CMD_PING])
 
 const port = Number(process.env.MOCK_DASH_PORT ?? DEFAULT_PORT)
 const state = freshState()
@@ -43,7 +45,9 @@ const answer = (socket: WebSocket, raw: string): void => {
   const command = parseCommand(raw)
   if (command === null) return
   const outcome = run(command)
-  console.log(`[mock-dash] cmd 0x${command.cmd.toString(16)} → ${String(outcome.reply.status)}`)
+  if (!QUIET_COMMANDS.has(command.cmd)) {
+    console.log(`[mock-dash] cmd 0x${command.cmd.toString(16)} → ${String(outcome.reply.status)}`)
+  }
   send(socket, outcome.reply)
   if (outcome.reboot) rebootSoon(socket)
 }
