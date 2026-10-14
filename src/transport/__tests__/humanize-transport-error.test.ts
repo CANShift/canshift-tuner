@@ -25,6 +25,7 @@ const KNOWN_CODES = [
   'clear_failed',
   'fetch_failed',
   'invalid_board_profile',
+  'invalid_device_config',
 ]
 
 describe('humanizeTransportError', () => {
