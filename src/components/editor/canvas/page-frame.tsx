@@ -2,7 +2,7 @@ import type { HTMLAttributes, ReactNode, Ref } from 'react'
 import type { GridTracks, PageConfig, PagePalette, TopBarConfig, Widget } from '@canshift/core'
 import { DashTopBar } from '../DashTopBar'
 import { GridGuides } from './grid-guides'
-import { WidgetLayer } from './widget-layer'
+import { WidgetLayer, type WidgetLayerProps } from './widget-layer'
 
 const NO_IDS: ReadonlySet<string> = new Set()
 const NO_SELECTION: string[] = []
@@ -41,63 +41,109 @@ export interface PageFrameProps {
   onOpenSettings?: (() => void) | undefined
 }
 
-export const PageFrame = ({
-  page,
-  topBar,
-  scale,
-  palette,
-  bgColor,
-  tracks,
-  isDayMode,
-  areaWidth,
-  areaHeight,
-  screenHeight,
-  revLimiting,
-  interaction,
-  onOpenSettings,
-}: PageFrameProps) => (
+type FrameInteraction = Omit<PageFrameInteraction, 'onResizeStart'> & {
+  onResizeStart: PageFrameInteraction['onResizeStart'] | undefined
+}
+
+const IDLE: FrameInteraction = {
+  surfaceRef: null,
+  surfaceProps: {},
+  selectedWidgetId: null,
+  selectedWidgetIds: NO_SELECTION,
+  overlappingIds: NO_IDS,
+  overflowingIds: NO_IDS,
+  flashWidgetId: null,
+  onSelect: noop,
+  onShiftSelect: noop,
+  onDragStart: noop,
+  onResizeStart: undefined,
+  onSignalDrop: noop,
+  settingsOpen: false,
+  overlay: null,
+}
+
+type LayerInteraction = Pick<
+  WidgetLayerProps,
+  | 'selectedWidgetId'
+  | 'selectedWidgetIds'
+  | 'overlappingIds'
+  | 'overflowingIds'
+  | 'flashWidgetId'
+  | 'onSelect'
+  | 'onShiftSelect'
+  | 'onDragStart'
+  | 'onResizeStart'
+  | 'onSignalDrop'
+>
+
+const layerInteraction = (interaction: FrameInteraction): LayerInteraction => ({
+  selectedWidgetId: interaction.selectedWidgetId,
+  selectedWidgetIds: interaction.selectedWidgetIds,
+  overlappingIds: interaction.overlappingIds,
+  overflowingIds: interaction.overflowingIds,
+  flashWidgetId: interaction.flashWidgetId,
+  onSelect: interaction.onSelect,
+  onShiftSelect: interaction.onShiftSelect,
+  onDragStart: interaction.onDragStart,
+  onResizeStart: interaction.onResizeStart,
+  onSignalDrop: interaction.onSignalDrop,
+})
+
+type SurfaceProps = Pick<
+  PageFrameProps,
+  'page' | 'scale' | 'palette' | 'bgColor' | 'tracks' | 'areaWidth' | 'areaHeight' | 'revLimiting'
+> & { interaction: FrameInteraction }
+
+const FrameSurface = ({ interaction, ...frame }: SurfaceProps) => (
   <div
-    className="flex flex-col overflow-hidden"
-    // eslint-disable-next-line no-inline-style/no-inline-style
-    style={{ width: areaWidth * scale, height: screenHeight * scale, background: bgColor }}
+    ref={interaction.surfaceRef}
+    {...interaction.surfaceProps}
+    className="relative flex-1 cursor-default overflow-hidden"
   >
-    {page.showTopBar !== false && (
-      <DashTopBar
-        topBar={topBar}
-        statusRow={page.statusRow}
-        scale={scale}
-        settingsOpen={interaction?.settingsOpen ?? false}
-        isDayMode={isDayMode}
-        onOpenSettings={onOpenSettings ?? noop}
-      />
-    )}
-    <div
-      ref={interaction?.surfaceRef}
-      {...(interaction?.surfaceProps ?? {})}
-      className="relative flex-1 cursor-default overflow-hidden"
-    >
-      <GridGuides areaWidth={areaWidth} areaHeight={areaHeight} effScale={scale} tracks={tracks} />
-      <WidgetLayer
-        groundColor={bgColor}
-        page={page}
-        palette={palette}
-        effScale={scale}
-        canvasW={areaWidth * scale}
-        areaWidth={areaWidth}
-        areaHeight={areaHeight}
-        selectedWidgetId={interaction?.selectedWidgetId ?? null}
-        selectedWidgetIds={interaction?.selectedWidgetIds ?? NO_SELECTION}
-        overlappingIds={interaction?.overlappingIds ?? NO_IDS}
-        overflowingIds={interaction?.overflowingIds ?? NO_IDS}
-        revLimiting={revLimiting}
-        flashWidgetId={interaction?.flashWidgetId ?? null}
-        onSelect={interaction?.onSelect ?? noop}
-        onShiftSelect={interaction?.onShiftSelect ?? noop}
-        onDragStart={interaction?.onDragStart ?? noop}
-        onResizeStart={interaction?.onResizeStart}
-        onSignalDrop={interaction?.onSignalDrop ?? noop}
-      />
-      {interaction?.overlay}
-    </div>
+    <GridGuides
+      areaWidth={frame.areaWidth}
+      areaHeight={frame.areaHeight}
+      effScale={frame.scale}
+      tracks={frame.tracks}
+    />
+    <WidgetLayer
+      groundColor={frame.bgColor}
+      page={frame.page}
+      palette={frame.palette}
+      effScale={frame.scale}
+      canvasW={frame.areaWidth * frame.scale}
+      areaWidth={frame.areaWidth}
+      areaHeight={frame.areaHeight}
+      revLimiting={frame.revLimiting}
+      {...layerInteraction(interaction)}
+    />
+    {interaction.overlay}
   </div>
 )
+
+export const PageFrame = ({ interaction, onOpenSettings, ...frame }: PageFrameProps) => {
+  const active = interaction ?? IDLE
+  return (
+    <div
+      className="flex flex-col overflow-hidden"
+      // eslint-disable-next-line no-inline-style/no-inline-style
+      style={{
+        width: frame.areaWidth * frame.scale,
+        height: frame.screenHeight * frame.scale,
+        background: frame.bgColor,
+      }}
+    >
+      {frame.page.showTopBar !== false && (
+        <DashTopBar
+          topBar={frame.topBar}
+          statusRow={frame.page.statusRow}
+          scale={frame.scale}
+          settingsOpen={active.settingsOpen}
+          isDayMode={frame.isDayMode}
+          onOpenSettings={onOpenSettings ?? noop}
+        />
+      )}
+      <FrameSurface interaction={active} {...frame} />
+    </div>
+  )
+}

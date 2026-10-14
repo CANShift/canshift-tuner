@@ -13,26 +13,33 @@ const VERTICAL_GUIDE = 'absolute bottom-0 top-0 w-px bg-[#FFFFFF0A]'
 
 const HORIZONTAL_GUIDE = 'absolute left-0 right-0 h-px bg-[#FFFFFF0A]'
 
+interface GuideLines {
+  verticals: number[]
+  horizontals: number[]
+}
+
+const guideLines = (width: number, height: number, tracks: GridTracks): GuideLines => {
+  const area = { width, height }
+  const cell = (col: number, row: number) =>
+    resolveGridRect({ col, colSpan: 1, row, rowSpan: 1 }, area, tracks)
+  const columns = Array.from({ length: tracks.columns }, (_, c) => cell(c, 0))
+  const rows = Array.from({ length: tracks.rows }, (_, r) => cell(0, r))
+  return {
+    verticals: columns.flatMap((rect) => [rect.x, rect.x + rect.w]),
+    horizontals: rows.flatMap((rect) => [rect.y, rect.y + rect.h]),
+  }
+}
+
 export const GridGuides = ({
   areaWidth,
   areaHeight,
   effScale,
   tracks = BASE_GRID_TRACKS,
 }: GridGuidesProps) => {
-  const guides = useMemo(() => {
-    const area = { width: areaWidth, height: areaHeight }
-    const verticals: number[] = []
-    for (let c = 0; c < tracks.columns; c++) {
-      const r = resolveGridRect({ col: c, colSpan: 1, row: 0, rowSpan: 1 }, area, tracks)
-      verticals.push(r.x, r.x + r.w)
-    }
-    const horizontals: number[] = []
-    for (let r = 0; r < tracks.rows; r++) {
-      const rect = resolveGridRect({ col: 0, colSpan: 1, row: r, rowSpan: 1 }, area, tracks)
-      horizontals.push(rect.y, rect.y + rect.h)
-    }
-    return { verticals, horizontals }
-  }, [areaWidth, areaHeight, tracks])
+  const guides = useMemo(
+    () => guideLines(areaWidth, areaHeight, tracks),
+    [areaWidth, areaHeight, tracks]
+  )
 
   return (
     <div className="pointer-events-none absolute inset-0">

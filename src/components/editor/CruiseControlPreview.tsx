@@ -1,13 +1,15 @@
 import type { PagePalette } from '@canshift/core'
 import { UI_FONT, UI_LABEL_TRACKING, UI_LABEL_WEIGHT } from '../../lib/typography'
+import {
+  buttonPathD,
+  centerBox,
+  labelCenter,
+  labelFontSize,
+  quadrants,
+  type Box,
+  type Corner,
+} from './cruise/cruise-geometry'
 
-const OUTER_PAD = 6
-const CENTER_W = 100
-const CENTER_H = 76
-const NOTCH_MARGIN = 6
-const CORNER_R = 8
-const INNER_R = 5
-const LABEL_PAD = 10
 const STROKE_W = 2
 
 const CENTER = 'absolute box-border flex flex-col items-center justify-center'
@@ -22,8 +24,6 @@ const CENTER_VALUE = [
 
 const DEMO_SET_SPEED = 0
 const SPEED_UNIT = 'km/h'
-
-type Corner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
 
 interface CruiseButton {
   label: string
@@ -46,112 +46,104 @@ interface CruiseControlPreviewProps {
   palette: PagePalette
 }
 
-interface Box {
-  x: number
-  y: number
+interface CruiseButtonShapeProps {
+  button: CruiseButton
+  box: Box
+  scale: number
+  palette: PagePalette
+}
+
+interface ButtonLabelProps {
+  button: CruiseButton
   w: number
   h: number
+  color: string
 }
 
-const computeLayout = (fwCanvasW: number, fwContentH: number) => {
-  const centerX = Math.round((fwCanvasW - CENTER_W) / 2)
-  const centerY = Math.round((fwContentH - CENTER_H) / 2)
-  const center: Box = { x: centerX, y: centerY, w: CENTER_W, h: CENTER_H }
-
-  const halfW = Math.round(fwCanvasW / 2)
-  const halfH = Math.round(fwContentH / 2)
-
-  return {
-    center,
-    'top-left': {
-      x: OUTER_PAD,
-      y: OUTER_PAD,
-      w: halfW - OUTER_PAD - 2,
-      h: halfH - OUTER_PAD - 2,
-    } as Box,
-    'top-right': {
-      x: halfW + 2,
-      y: OUTER_PAD,
-      w: fwCanvasW - halfW - OUTER_PAD - 2,
-      h: halfH - OUTER_PAD - 2,
-    } as Box,
-    'bottom-left': {
-      x: OUTER_PAD,
-      y: halfH + 2,
-      w: halfW - OUTER_PAD - 2,
-      h: fwContentH - halfH - OUTER_PAD - 2,
-    } as Box,
-    'bottom-right': {
-      x: halfW + 2,
-      y: halfH + 2,
-      w: fwCanvasW - halfW - OUTER_PAD - 2,
-      h: fwContentH - halfH - OUTER_PAD - 2,
-    } as Box,
-  }
+const ButtonLabel = ({ button, w, h, color }: ButtonLabelProps) => {
+  const center = labelCenter(w, h, button.corner)
+  return (
+    <text
+      x={center.x}
+      y={center.y}
+      fill={color}
+      fontFamily={UI_FONT}
+      fontWeight={UI_LABEL_WEIGHT}
+      letterSpacing={UI_LABEL_TRACKING}
+      fontSize={labelFontSize(button.label, w, h)}
+      textAnchor="middle"
+      dominantBaseline="central"
+    >
+      {button.label}
+    </text>
+  )
 }
 
-interface PathPoint {
-  x: number
-  y: number
+const CruiseButtonShape = ({ button, box, scale, palette }: CruiseButtonShapeProps) => {
+  const { w, h } = box
+  const title = `${button.label} — ${button.hint}`
+  return (
+    <svg
+      width={w * scale}
+      height={h * scale}
+      viewBox={`0 0 ${String(w)} ${String(h)}`}
+      className="absolute overflow-visible opacity-[0.92]"
+      // eslint-disable-next-line no-inline-style/no-inline-style
+      style={{ left: box.x * scale, top: box.y * scale }}
+      aria-label={title}
+    >
+      <title>{title}</title>
+      <path
+        d={buttonPathD(w, h, button.corner)}
+        fill={palette.surface}
+        stroke={palette.primary}
+        strokeWidth={STROKE_W}
+        strokeLinejoin="round"
+      />
+      <ButtonLabel button={button} w={w} h={h} color={palette.text} />
+    </svg>
+  )
 }
 
-const NOTCH_TRANSFORMS: Record<Corner, (p: PathPoint, w: number, h: number) => PathPoint> = {
-  'top-left': (p) => p,
-  'top-right': (p, w) => ({ x: w - p.x, y: p.y }),
-  'bottom-left': (p, _w, h) => ({ x: p.x, y: h - p.y }),
-  'bottom-right': (p, w, h) => ({ x: w - p.x, y: h - p.y }),
-}
+const CenterLabel = ({ fontSize, text }: { fontSize: number; text: string }) => (
+  // eslint-disable-next-line no-inline-style/no-inline-style
+  <span className={CENTER_LABEL} style={{ fontSize }}>
+    {text}
+  </span>
+)
 
-const buttonPathD = (
-  w: number,
-  h: number,
-  notchW: number,
-  notchH: number,
-  corner: Corner
-): string => {
-  const r = CORNER_R
-  const ir = INNER_R
-  const map = NOTCH_TRANSFORMS[corner]
-  const pt = (x: number, y: number): string => {
-    const p = map({ x, y }, w, h)
-    return `${num(p.x)} ${num(p.y)}`
-  }
-  return [
-    `M ${pt(r, 0)}`,
-    `L ${pt(w - r, 0)}`,
-    `Q ${pt(w, 0)} ${pt(w, r)}`,
-    `L ${pt(w, h - notchH - ir)}`,
-    `Q ${pt(w, h - notchH)} ${pt(w - ir, h - notchH)}`,
-    `L ${pt(w - notchW + ir, h - notchH)}`,
-    `Q ${pt(w - notchW, h - notchH)} ${pt(w - notchW, h - notchH + ir)}`,
-    `L ${pt(w - notchW, h - ir)}`,
-    `Q ${pt(w - notchW, h)} ${pt(w - notchW - ir, h)}`,
-    `L ${pt(r, h)}`,
-    `Q ${pt(0, h)} ${pt(0, h - r)}`,
-    `L ${pt(0, r)}`,
-    `Q ${pt(0, 0)} ${pt(r, 0)}`,
-    'Z',
-  ].join(' ')
-}
-
-const num = (v: number): string => {
-  return Number.isInteger(v) ? String(v) : v.toFixed(2)
-}
-
-const labelCenter = (w: number, h: number, notchW: number, notchH: number, corner: Corner) => {
-  const offsetX = Math.round(notchW / 4)
-  const offsetY = Math.round(notchH / 4)
-  switch (corner) {
-    case 'top-left':
-      return { x: w / 2 - offsetX, y: h / 2 - offsetY }
-    case 'top-right':
-      return { x: w / 2 + offsetX, y: h / 2 - offsetY }
-    case 'bottom-left':
-      return { x: w / 2 - offsetX, y: h / 2 + offsetY }
-    case 'bottom-right':
-      return { x: w / 2 + offsetX, y: h / 2 + offsetY }
-  }
-}
+const CruiseCenter = ({
+  box,
+  scale,
+  palette,
+}: {
+  box: Box
+  scale: number
+  palette: PagePalette
+}) => (
+  <div
+    className={CENTER}
+    // eslint-disable-next-line no-inline-style/no-inline-style
+    style={{
+      left: box.x * scale,
+      top: box.y * scale,
+      width: box.w * scale,
+      height: box.h * scale,
+      gap: 2 * scale,
+      color: palette.text,
+    }}
+  >
+    <CenterLabel fontSize={10 * scale} text="SET" />
+    <span
+      className={CENTER_VALUE}
+      // eslint-disable-next-line no-inline-style/no-inline-style
+      style={{ color: palette.text, fontSize: Math.round(40 * scale) }}
+    >
+      {DEMO_SET_SPEED}
+    </span>
+    <CenterLabel fontSize={Math.max(8, Math.round(10 * scale))} text={SPEED_UNIT} />
+  </div>
+)
 
 export const CruiseControlPreview = ({
   scale,
@@ -161,94 +153,19 @@ export const CruiseControlPreview = ({
 }: CruiseControlPreviewProps) => {
   const fwCanvasW = canvasW / scale
   const fwContentH = contentH / scale
-  const layout = computeLayout(fwCanvasW, fwContentH)
-
-  const notchW = Math.round(CENTER_W / 2 + NOTCH_MARGIN)
-  const notchH = Math.round(CENTER_H / 2 + NOTCH_MARGIN)
-
+  const boxes: Record<Corner, Box> = quadrants(fwCanvasW, fwContentH)
   return (
     <div className="pointer-events-none absolute inset-0" data-testid="cruise-control-preview">
-      {BUTTONS.map((btn) => {
-        const box = layout[btn.corner]
-        const w = box.w
-        const h = box.h
-        const path = buttonPathD(w, h, notchW, notchH, btn.corner)
-        const labelXY = labelCenter(w, h, notchW, notchH, btn.corner)
-        const isSymbol = btn.label === '+' || btn.label === '−'
-        const armBudget = Math.min(w - notchW - LABEL_PAD * 2, h - notchH - LABEL_PAD * 2)
-        const labelFontSize = isSymbol
-          ? Math.max(28, Math.min(56, armBudget))
-          : Math.max(14, Math.min(28, armBudget * 0.7))
-        return (
-          <svg
-            key={btn.op}
-            width={w * scale}
-            height={h * scale}
-            viewBox={`0 0 ${String(w)} ${String(h)}`}
-            className="absolute overflow-visible opacity-[0.92]"
-            // eslint-disable-next-line no-inline-style/no-inline-style
-            style={{ left: box.x * scale, top: box.y * scale }}
-            aria-label={`${btn.label} — ${btn.hint}`}
-          >
-            <title>{`${btn.label} — ${btn.hint}`}</title>
-            <path
-              d={path}
-              fill={palette.surface}
-              stroke={palette.primary}
-              strokeWidth={STROKE_W}
-              strokeLinejoin="round"
-            />
-            <text
-              x={labelXY.x}
-              y={labelXY.y}
-              fill={palette.text}
-              fontFamily={UI_FONT}
-              fontWeight={UI_LABEL_WEIGHT}
-              letterSpacing={UI_LABEL_TRACKING}
-              fontSize={labelFontSize}
-              textAnchor="middle"
-              dominantBaseline="central"
-            >
-              {btn.label}
-            </text>
-          </svg>
-        )
-      })}
-
-      <div
-        className={CENTER}
-        // eslint-disable-next-line no-inline-style/no-inline-style
-        style={{
-          left: layout.center.x * scale,
-          top: layout.center.y * scale,
-          width: layout.center.w * scale,
-          height: layout.center.h * scale,
-          gap: 2 * scale,
-          color: palette.text,
-        }}
-      >
-        <span
-          className={CENTER_LABEL}
-          // eslint-disable-next-line no-inline-style/no-inline-style
-          style={{ fontSize: 10 * scale }}
-        >
-          SET
-        </span>
-        <span
-          className={CENTER_VALUE}
-          // eslint-disable-next-line no-inline-style/no-inline-style
-          style={{ color: palette.text, fontSize: Math.round(40 * scale) }}
-        >
-          {DEMO_SET_SPEED}
-        </span>
-        <span
-          className={CENTER_LABEL}
-          // eslint-disable-next-line no-inline-style/no-inline-style
-          style={{ fontSize: Math.max(8, Math.round(10 * scale)) }}
-        >
-          {SPEED_UNIT}
-        </span>
-      </div>
+      {BUTTONS.map((button) => (
+        <CruiseButtonShape
+          key={button.op}
+          button={button}
+          box={boxes[button.corner]}
+          scale={scale}
+          palette={palette}
+        />
+      ))}
+      <CruiseCenter box={centerBox(fwCanvasW, fwContentH)} scale={scale} palette={palette} />
     </div>
   )
 }
