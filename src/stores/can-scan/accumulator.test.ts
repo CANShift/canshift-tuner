@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createScanAccumulator, RATE_WINDOW_MS } from './accumulator'
 
-describe('scan accumulator', () => {
+describe('scan accumulator stats', () => {
   it('accumulates per-id stats across frames', () => {
     const acc = createScanAccumulator()
     acc.ingest({ id: 0x123, len: 2, data: [0x0a, 0x0b] }, 0)
@@ -20,7 +20,9 @@ describe('scan accumulator', () => {
     expect(first?.byteValueCounts[0]?.get(0x0a)).toBe(1)
     expect(first?.byteValueCounts[0]?.get(0x0c)).toBe(1)
   })
+})
 
+describe('scan accumulator rate window', () => {
   it('drops frames outside the rate window from rate but not from count', () => {
     const acc = createScanAccumulator()
     acc.ingest({ id: 0x100, len: 1, data: [1] }, 0)
@@ -44,7 +46,9 @@ describe('scan accumulator', () => {
     expect(snap.totalFrames).toBe(0)
     expect(snap.frames.size).toBe(0)
   })
+})
 
+describe('scan accumulator learn ranking', () => {
   it('ranks a churning id first in the learn window', () => {
     const acc = createScanAccumulator()
     acc.ingest({ id: 0x100, len: 1, data: [1] }, 0)
@@ -63,7 +67,9 @@ describe('scan accumulator', () => {
     expect(learn?.scores.get(0x100)).toBe(5)
     expect(learn?.scores.get(0x200)).toBeUndefined()
   })
+})
 
+describe('scan accumulator learn window', () => {
   it('ignores changes outside the learn window and counts first-seen-in-window ids from their second frame', () => {
     const acc = createScanAccumulator()
     acc.ingest({ id: 0x1, len: 1, data: [1] }, 0)
@@ -89,7 +95,9 @@ describe('scan accumulator', () => {
 
     expect(acc.snapshot(10).learn).toBeNull()
   })
+})
 
+describe('scan accumulator stats identity', () => {
   it('keeps a stable stats object identity for an unchanged frame so memoized rows bail out', () => {
     const acc = createScanAccumulator()
     acc.ingest({ id: 0x100, len: 1, data: [1] }, 0)
@@ -102,7 +110,9 @@ describe('scan accumulator', () => {
     expect(snap2.frames.get(0x200)).toBe(snap1.frames.get(0x200))
     expect(snap2.frames.get(0x100)).not.toBe(snap1.frames.get(0x100))
   })
+})
 
+describe('scan accumulator decay', () => {
   it('emits a fresh stats object while a stopped frame rate decays, then settles to a stable identity', () => {
     const acc = createScanAccumulator()
     acc.ingest({ id: 0x100, len: 1, data: [1] }, 0)
@@ -129,7 +139,9 @@ describe('scan accumulator', () => {
     expect(after.frames.get(0x100)).not.toBe(before.frames.get(0x100))
     expect(after.frames.get(0x100)?.count).toBe(1)
   })
+})
 
+describe('scan accumulator payloads', () => {
   it('truncates payloads beyond 8 bytes', () => {
     const acc = createScanAccumulator()
     acc.ingest({ id: 0x2, len: 10, data: Array.from({ length: 10 }, (_, i) => i) }, 0)

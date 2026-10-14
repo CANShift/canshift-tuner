@@ -7,9 +7,9 @@ const resetStores = () => {
   useUndoToastStore.setState({ toast: null })
 }
 
-describe('undo-toast store', () => {
-  beforeEach(resetStores)
+beforeEach(resetStores)
 
+describe('undo-toast store show', () => {
   it('shows a toast labelled after the last history entry', () => {
     useDashboardStore.setState({
       past: [{ config: { pages: [] } as never, label: 'Deleted page 02' }],
@@ -25,7 +25,9 @@ describe('undo-toast store', () => {
 
     expect(useUndoToastStore.getState().toast).toBeNull()
   })
+})
 
+describe('undo-toast store replace', () => {
   it('replaces the visible toast with a fresh id on a new action', () => {
     useDashboardStore.setState({
       past: [{ config: { pages: [] } as never, label: 'Deleted rpm' }],
@@ -42,7 +44,9 @@ describe('undo-toast store', () => {
     expect(second?.label).toBe('Deleted speed')
     expect(second?.id).not.toBe(firstId)
   })
+})
 
+describe('undo-toast store undo', () => {
   it('undoFromToast undoes the dashboard action and clears the toast', () => {
     useDashboardStore.setState({
       config: { pages: [] } as never,
@@ -56,7 +60,9 @@ describe('undo-toast store', () => {
     expect(useDashboardStore.getState().past).toHaveLength(0)
     expect(useDashboardStore.getState().future).toHaveLength(1)
   })
+})
 
+describe('undo-toast store dismiss', () => {
   it('dismiss only clears the matching toast id', () => {
     useDashboardStore.setState({
       past: [{ config: { pages: [] } as never, label: 'Deleted rpm' }],

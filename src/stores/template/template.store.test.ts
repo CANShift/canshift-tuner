@@ -30,12 +30,12 @@ const samplePage = (): PageConfig => {
   return structuredClone(page)
 }
 
-describe('template store', () => {
-  beforeEach(() => {
-    globalThis.localStorage = memoryStorage()
-    useTemplateStore.setState({ templates: [] })
-  })
+beforeEach(() => {
+  globalThis.localStorage = memoryStorage()
+  useTemplateStore.setState({ templates: [] })
+})
 
+describe('template store save and rename', () => {
   it('saves a page as a template and persists it project-independently', () => {
     const id = useTemplateStore.getState().saveTemplate('Street layout', samplePage())
 
@@ -61,7 +61,9 @@ describe('template store', () => {
 
     expect(useTemplateStore.getState().templates[0]?.name).toBe('Keep')
   })
+})
 
+describe('template store deletion', () => {
   it('deletes a template and persists the removal', () => {
     const id = useTemplateStore.getState().saveTemplate('Gone', samplePage())
     useTemplateStore.getState().deleteTemplate(id)
