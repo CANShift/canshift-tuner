@@ -89,6 +89,26 @@ const withoutStep = (action: CruiseControlAction, nextOp: CruiseControlOp): Crui
   return { ...rest, op: nextOp }
 }
 
+const StepField = ({
+  action,
+  onUpdate,
+}: Omit<FieldEditorProps<CruiseControlAction>, 'pageIds'>) => (
+  <div className="flex-[0_0_80px]">
+    <FieldLabel>STEP (KM/H)</FieldLabel>
+    <PanelInput
+      type="number"
+      min={1}
+      max={20}
+      className="text-[11px]"
+      value={action.stepKmh ?? 1}
+      onChange={(e) => {
+        const v = Number(e.target.value)
+        if (Number.isFinite(v)) onUpdate({ ...action, stepKmh: v })
+      }}
+    />
+  </div>
+)
+
 const CruiseControlFields = ({ action, onUpdate }: FieldEditorProps<CruiseControlAction>) => (
   <div className="flex items-end gap-1.5">
     <div className="flex-1">
@@ -103,22 +123,7 @@ const CruiseControlFields = ({ action, onUpdate }: FieldEditorProps<CruiseContro
         }}
       />
     </div>
-    {CRUISE_STEP_OPS.has(action.op) && (
-      <div className="flex-[0_0_80px]">
-        <FieldLabel>STEP (KM/H)</FieldLabel>
-        <PanelInput
-          type="number"
-          min={1}
-          max={20}
-          className="text-[11px]"
-          value={action.stepKmh ?? 1}
-          onChange={(e) => {
-            const v = Number(e.target.value)
-            if (Number.isFinite(v)) onUpdate({ ...action, stepKmh: v })
-          }}
-        />
-      </div>
-    )}
+    {CRUISE_STEP_OPS.has(action.op) && <StepField action={action} onUpdate={onUpdate} />}
   </div>
 )
 

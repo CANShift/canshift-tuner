@@ -1,4 +1,4 @@
-import type { HexColor, Widget } from '@canshift/core'
+import type { ButtonWidgetConfig, HexColor, Widget } from '@canshift/core'
 
 import { PanelField, PanelRow } from '@/components/ui/form-field'
 
@@ -16,6 +16,45 @@ interface ButtonColorsRowProps {
   onChange: (patch: Partial<Widget>) => void
 }
 
+type ColorRole = 'normal' | 'active'
+
+const COLOR_ROLES: readonly { role: ColorRole; label: string }[] = [
+  { role: 'normal', label: 'Normal' },
+  { role: 'active', label: 'Active' },
+]
+
+interface ColorInputProps {
+  label: string
+  value: string
+  onPick: (raw: string) => void
+}
+
+const ColorInput = ({ label, value, onPick }: ColorInputProps) => (
+  <PanelField label={label}>
+    <input
+      type="color"
+      value={value}
+      className={COLOR_INPUT}
+      onChange={(e) => {
+        onPick(e.target.value)
+      }}
+    />
+  </PanelField>
+)
+
+const colorsWith = (cfg: ButtonWidgetConfig, role: ColorRole, color: HexColor) => ({
+  normal: cfg.colors?.normal ?? color,
+  active: cfg.colors?.active ?? color,
+  [role]: color,
+})
+
+const ColorError = ({ message }: { message: string | null }) =>
+  message === null ? null : (
+    <div role="alert" className="my-1 text-[10px] text-status-danger">
+      {message}
+    </div>
+  )
+
 export const ButtonColorsRow = ({
   widget,
   colorError,
@@ -24,51 +63,24 @@ export const ButtonColorsRow = ({
 }: ButtonColorsRowProps) => {
   if (widget.type !== 'button' || widget.config.type !== 'button') return null
   const cfg = widget.config
-  const normal = cfg.colors?.normal ?? widget.style.primaryColor
-  const active = cfg.colors?.active ?? widget.style.primaryColor
-
+  const pick = (role: ColorRole) => (raw: string) => {
+    const parsed = safeParseHex(raw)
+    if (parsed !== null) onChange({ config: { ...cfg, colors: colorsWith(cfg, role, parsed) } })
+  }
   return (
     <>
       <div className={SECTION_LABEL}>Button colors</div>
       <PanelRow>
-        <PanelField label="Normal">
-          <input
-            type="color"
-            value={normal}
-            className={COLOR_INPUT}
-            onChange={(e) => {
-              const parsed = safeParseHex(e.target.value)
-              if (parsed === null) return
-              const next = {
-                normal: parsed,
-                active: cfg.colors?.active ?? parsed,
-              }
-              onChange({ config: { ...cfg, colors: next } })
-            }}
+        {COLOR_ROLES.map(({ role, label }) => (
+          <ColorInput
+            key={role}
+            label={label}
+            value={cfg.colors?.[role] ?? widget.style.primaryColor}
+            onPick={pick(role)}
           />
-        </PanelField>
-        <PanelField label="Active">
-          <input
-            type="color"
-            value={active}
-            className={COLOR_INPUT}
-            onChange={(e) => {
-              const parsed = safeParseHex(e.target.value)
-              if (parsed === null) return
-              const next = {
-                normal: cfg.colors?.normal ?? parsed,
-                active: parsed,
-              }
-              onChange({ config: { ...cfg, colors: next } })
-            }}
-          />
-        </PanelField>
+        ))}
       </PanelRow>
-      {colorError !== null && (
-        <div role="alert" className="my-1 text-[10px] text-status-danger">
-          {colorError}
-        </div>
-      )}
+      <ColorError message={colorError} />
     </>
   )
 }

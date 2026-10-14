@@ -2,10 +2,12 @@ import { SHIFT_LIGHT_SEGMENT_COUNT } from '@canshift/core'
 import { ConfigFieldsProps } from './shared'
 import { PanelField, PanelInput, PanelRow } from '@/components/ui/form-field'
 
+const clampRedSegments = (raw: number): number =>
+  Math.min(SHIFT_LIGHT_SEGMENT_COUNT, Math.max(0, Math.round(raw)))
+
 export const ShiftLightFields = ({ widget, onChange }: ConfigFieldsProps) => {
   if (widget.config.type !== 'shift_light') return null
   const cfg = widget.config
-
   return (
     <PanelRow>
       <PanelField label="First segment at">
@@ -14,8 +16,7 @@ export const ShiftLightFields = ({ widget, onChange }: ConfigFieldsProps) => {
           value={cfg.startValue}
           min={0}
           onChange={(e) => {
-            const startValue = Math.max(0, Number(e.target.value))
-            onChange({ config: { ...cfg, startValue } })
+            onChange({ config: { ...cfg, startValue: Math.max(0, Number(e.target.value)) } })
           }}
         />
       </PanelField>
@@ -26,9 +27,7 @@ export const ShiftLightFields = ({ widget, onChange }: ConfigFieldsProps) => {
           min={0}
           max={SHIFT_LIGHT_SEGMENT_COUNT}
           onChange={(e) => {
-            const raw = Math.round(Number(e.target.value))
-            const redSegments = Math.min(SHIFT_LIGHT_SEGMENT_COUNT, Math.max(0, raw))
-            onChange({ config: { ...cfg, redSegments } })
+            onChange({ config: { ...cfg, redSegments: clampRedSegments(Number(e.target.value)) } })
           }}
         />
       </PanelField>
