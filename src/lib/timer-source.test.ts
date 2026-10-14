@@ -4,7 +4,6 @@ import {
   isTouchInteractive,
   timerDemoValue,
   timerKicker,
-  timerPlaceholder,
   TIMER_SOURCE_LABELS,
 } from './timer-source'
 
@@ -20,15 +19,6 @@ describe('timerKicker', () => {
 
   it('treats a config with no source as the elapsed timer', () => {
     expect(timerKicker(undefined)).toBe('TIMER')
-  })
-})
-
-describe('timerPlaceholder', () => {
-  it('gives every source the placeholder the device shows when it has no value', () => {
-    expect(timerPlaceholder('elapsed')).toBe('00:00')
-    expect(timerPlaceholder('lap')).toBe('--:--')
-    expect(timerPlaceholder('lapCount')).toBe('0')
-    expect(timerPlaceholder('delta')).toBe('--')
   })
 })
 
@@ -59,7 +49,6 @@ describe('the source tables', () => {
     for (const source of TIMER_SOURCES) {
       expect(TIMER_SOURCE_LABELS[source]).toBeTruthy()
       expect(timerKicker(source)).toBeTruthy()
-      expect(timerPlaceholder(source)).toBeTruthy()
     }
   })
 })

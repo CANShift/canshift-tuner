@@ -7,17 +7,11 @@ import {
   resolveScreenProfile,
   serializeCanshiftFile,
 } from '@canshift/core'
-import type { DashboardConfig, Project, ProjectMeta, SignalDef } from '@canshift/core'
+import type { DashboardConfig, Project, ProjectMeta } from '@canshift/core'
 import { createId } from '../../utils/id'
 import { useDashboardStore } from '../dashboard.store'
 import { useSignalStore, DEFAULT_PROFILE_KEY } from '../signal.store'
-import {
-  readProject,
-  readProjectIndex,
-  removeProject,
-  writeProject,
-  writeProjectIndex,
-} from './storage'
+import { readProject, readProjectIndex, writeProject, writeProjectIndex } from './storage'
 
 export const DEFAULT_PROJECT_NAME = 'My dashboard'
 
@@ -25,29 +19,14 @@ export type ImportResult =
   | { ok: true; id: string; name: string; panelSwitchedTo: string | null }
   | { ok: false; error: string }
 
-export interface ProjectEcuProfile {
-  key: string
-  signals: SignalDef[]
-}
-
 interface ProjectState {
   projects: ProjectMeta[]
   activeProjectId: string | null
-  createProject: (
-    name: string,
-    dashboard: DashboardConfig,
-    ecuProfile?: ProjectEcuProfile
-  ) => string
-  switchProject: (id: string) => boolean
   renameProject: (id: string, name: string) => void
-  deleteProject: (id: string) => boolean
-  duplicateProject: (id: string) => string | null
   importProject: (raw: string) => ImportResult
   exportProject: (id: string) => string | null
   saveActiveProject: () => void
 }
-
-const duplicateName = (name: string): string => `${name} copy`.slice(0, PROJECT_NAME_MAX)
 
 const nowIso = (): string => new Date().toISOString()
 
@@ -98,46 +77,6 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
     persistIndex(nextProjects, activeProjectId)
   },
 
-  createProject: (name, dashboard, ecuProfile) => {
-    get().saveActiveProject()
-    const id = createId('proj')
-    const createdAt = nowIso()
-    const signalState = useSignalStore.getState()
-    const project: Project = {
-      projectVersion: PROJECT_FILE_VERSION,
-      id,
-      name: name.trim().slice(0, PROJECT_NAME_MAX) || DEFAULT_PROJECT_NAME,
-      createdAt,
-      updatedAt: createdAt,
-      dashboard,
-      ecuProfileKey: ecuProfile?.key ?? (signalState.selectedProfileKey || DEFAULT_PROFILE_KEY),
-      signals: ecuProfile?.signals ?? signalState.signals,
-    }
-    if (!writeProject(project)) return get().activeProjectId ?? ''
-    const nextProjects = upsertMeta(get().projects, {
-      id,
-      name: project.name,
-      createdAt,
-      updatedAt: createdAt,
-    })
-    set({ projects: nextProjects, activeProjectId: id })
-    persistIndex(nextProjects, id)
-    loadProjectIntoStores(project)
-    return id
-  },
-
-  switchProject: (id) => {
-    const { activeProjectId } = get()
-    if (id === activeProjectId) return true
-    const target = readProject(id)
-    if (!target) return false
-    get().saveActiveProject()
-    set({ activeProjectId: id })
-    persistIndex(get().projects, id)
-    loadProjectIntoStores(target)
-    return true
-  },
-
   renameProject: (id, name) => {
     const trimmed = name.trim().slice(0, PROJECT_NAME_MAX)
     if (trimmed.length === 0) return
@@ -146,46 +85,6 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
     const nextProjects = get().projects.map((p) => (p.id === id ? { ...p, name: trimmed } : p))
     set({ projects: nextProjects })
     persistIndex(nextProjects, get().activeProjectId)
-  },
-
-  deleteProject: (id) => {
-    const { projects, activeProjectId } = get()
-    if (projects.length <= 1) return false
-    if (id === activeProjectId) {
-      const fallback = projects.find((p) => p.id !== id)
-      if (!fallback || !get().switchProject(fallback.id)) return false
-    }
-    removeProject(id)
-    const nextProjects = get().projects.filter((p) => p.id !== id)
-    set({ projects: nextProjects })
-    persistIndex(nextProjects, get().activeProjectId)
-    return true
-  },
-
-  duplicateProject: (id) => {
-    get().saveActiveProject()
-    const source = readProject(id)
-    if (!source) return null
-    const newId = createId('proj')
-    const createdAt = nowIso()
-    const copy: Project = {
-      ...source,
-      id: newId,
-      name: duplicateName(source.name),
-      createdAt,
-      updatedAt: createdAt,
-    }
-    if (!writeProject(copy)) return null
-    const nextProjects = upsertMeta(get().projects, {
-      id: newId,
-      name: copy.name,
-      createdAt,
-      updatedAt: createdAt,
-    })
-    set({ projects: nextProjects, activeProjectId: newId })
-    persistIndex(nextProjects, newId)
-    loadProjectIntoStores(copy)
-    return newId
   },
 
   importProject: (raw) => {

@@ -1,8 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { ECU_PROFILES } from '@canshift/core'
 import { DEFAULT_SIM_CONFIG } from '../../config/default-sim-config'
 import { useDashboardStore } from '../dashboard.store'
-import { useSignalStore } from '../signal.store'
 import { bootstrapProjects, useProjectStore } from './project.store'
 import { readProject, readProjectIndex } from './storage'
 
@@ -45,98 +43,6 @@ describe('project store', () => {
     const stored = readProject(activeProjectId ?? '')
     expect(stored?.dashboard.defaultPageId).toBe(DEFAULT_SIM_CONFIG.defaultPageId)
     expect(readProjectIndex()?.activeId).toBe(activeProjectId)
-  })
-
-  it('switching projects swaps the full editor state and both persist', () => {
-    bootstrapProjects()
-    const firstId = useProjectStore.getState().activeProjectId ?? ''
-
-    useDashboardStore.getState().updatePage(DEFAULT_SIM_CONFIG.defaultPageId, { visible: false })
-
-    const second = freshConfig()
-    second.name = 'Second car'
-    const secondId = useProjectStore.getState().createProject('Second car', second)
-
-    expect(useProjectStore.getState().activeProjectId).toBe(secondId)
-    expect(useDashboardStore.getState().config?.name).toBe('Second car')
-
-    const firstStored = readProject(firstId)
-    expect(
-      firstStored?.dashboard.pages.find((p) => p.id === DEFAULT_SIM_CONFIG.defaultPageId)?.visible
-    ).toBe(false)
-
-    expect(useProjectStore.getState().switchProject(firstId)).toBe(true)
-    expect(useDashboardStore.getState().config?.name).toBe(DEFAULT_SIM_CONFIG.name)
-    expect(useProjectStore.getState().projects).toHaveLength(2)
-  })
-
-  it('switching saves the outgoing project signals too', () => {
-    bootstrapProjects()
-    const firstId = useProjectStore.getState().activeProjectId ?? ''
-    const firstSignalCount = useSignalStore.getState().signals.length
-
-    useProjectStore.getState().createProject('Other', freshConfig())
-
-    expect(readProject(firstId)?.signals).toHaveLength(firstSignalCount)
-  })
-
-  it('refuses to delete the last project', () => {
-    bootstrapProjects()
-    const id = useProjectStore.getState().activeProjectId ?? ''
-    expect(useProjectStore.getState().deleteProject(id)).toBe(false)
-    expect(useProjectStore.getState().projects).toHaveLength(1)
-  })
-
-  it('deleting the active project switches to the survivor first', () => {
-    bootstrapProjects()
-    const firstId = useProjectStore.getState().activeProjectId ?? ''
-    const secondId = useProjectStore.getState().createProject('Second', freshConfig())
-
-    expect(useProjectStore.getState().deleteProject(secondId)).toBe(true)
-    expect(useProjectStore.getState().activeProjectId).toBe(firstId)
-    expect(readProject(secondId)).toBeNull()
-    expect(useProjectStore.getState().projects).toHaveLength(1)
-  })
-
-  it('duplicates the active project into a copy and switches to it', () => {
-    bootstrapProjects()
-    const firstId = useProjectStore.getState().activeProjectId ?? ''
-    const originalName =
-      useProjectStore.getState().projects.find((p) => p.id === firstId)?.name ?? ''
-
-    const copyId = useProjectStore.getState().duplicateProject(firstId)
-    expect(copyId).not.toBeNull()
-    expect(copyId).not.toBe(firstId)
-    expect(useProjectStore.getState().activeProjectId).toBe(copyId)
-    expect(useProjectStore.getState().projects).toHaveLength(2)
-
-    const copy = readProject(copyId ?? '')
-    expect(copy?.name).toBe(`${originalName} copy`)
-    expect(copy?.dashboard.defaultPageId).toBe(DEFAULT_SIM_CONFIG.defaultPageId)
-  })
-
-  it('createProject applies a provided ECU profile to the new project without touching the outgoing one', () => {
-    bootstrapProjects()
-    const firstId = useProjectStore.getState().activeProjectId ?? ''
-    const firstSignalCount = useSignalStore.getState().signals.length
-
-    const maxx = ECU_PROFILES.find((p) => p.id === 'maxxecu-street')
-    expect(maxx).toBeDefined()
-    if (!maxx) return
-
-    const dashboard = { ...structuredClone(DEFAULT_SIM_CONFIG), name: 'Track car' }
-    const newId = useProjectStore.getState().createProject('Track car', dashboard, {
-      key: 'builtin:maxxecu-street',
-      signals: maxx.signals,
-    })
-
-    const created = readProject(newId)
-    expect(created?.name).toBe('Track car')
-    expect(created?.ecuProfileKey).toBe('builtin:maxxecu-street')
-    expect(created?.signals).toHaveLength(maxx.signals.length)
-    expect(created?.dashboard.pages).toHaveLength(DEFAULT_SIM_CONFIG.pages.length)
-
-    expect(readProject(firstId)?.signals).toHaveLength(firstSignalCount)
   })
 
   it('exports and re-imports a project as a new copy without data loss', () => {

@@ -27,8 +27,6 @@ export const CATALOGUE_INDEX: CatalogueIndex = {
   labels: new Map(ENTRIES.map((entry) => [entry.id, entry.label])),
 }
 
-export const hasCatalogueXml = (id: string): boolean => `${XML_ROOT}${id}` in XML_SOURCES
-
 export const loadCatalogueXml = async (id: string): Promise<string | null> => {
   const load = XML_SOURCES[`${XML_ROOT}${id}`]
   return load === undefined ? null : load()

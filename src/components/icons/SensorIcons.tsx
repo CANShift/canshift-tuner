@@ -88,8 +88,6 @@ const ICON_MAP: Record<SensorIconName, (props: IconProps) => React.JSX.Element> 
   cog: (props) => <PhosphorIcon {...props} d={SENSOR_ICON_PATHS.cog} />,
 }
 
-export const SENSOR_ICON_NAMES = Object.keys(ICON_MAP) as SensorIconName[]
-
 interface SensorIconProps extends IconProps {
   name: SensorIconName
 }
@@ -97,30 +95,4 @@ interface SensorIconProps extends IconProps {
 export const SensorIcon = ({ name, size = 20, color = 'currentColor' }: SensorIconProps) => {
   const Component = ICON_MAP[name]
   return <Component size={size} color={color} />
-}
-
-export const SENSOR_ICON_LABELS: Record<SensorIconName, string> = {
-  rpm: 'RPM',
-  speed: 'Speed',
-  coolant: 'Coolant Temp',
-  oil_pressure: 'Oil Pressure',
-  oil_temp: 'Oil Temp',
-  battery: 'Battery',
-  fuel: 'Fuel',
-  afr: 'AFR / Lambda',
-  boost: 'Boost / MAP',
-  throttle: 'Throttle (TPS)',
-  iat: 'Intake Air Temp',
-  gear: 'Gear',
-  timer: 'Timer',
-  warning: 'Warning',
-  flame: 'Flame',
-  turbo: 'Turbo',
-  engine: 'Engine',
-  brake: 'Brake',
-  launch: 'Launch Control',
-  traction: 'Traction Control',
-  map_icon: 'Map / Tune',
-  exhaust: 'Exhaust / EGT',
-  cog: 'Cog / Mechanical Gear',
 }

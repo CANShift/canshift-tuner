@@ -3,7 +3,6 @@ import {
   migrateLegacyKeys,
   projectStorageKey,
   readItem,
-  readJson,
   removeItem,
   STORAGE_KEYS,
   writeItem,
@@ -74,16 +73,6 @@ describe('storage access never throws', () => {
     }).not.toThrow()
     expect(warn).toHaveBeenCalled()
     warn.mockRestore()
-  })
-
-  it('readJson rejects malformed JSON and values failing the guard', () => {
-    const isNumber = (v: unknown): v is number => typeof v === 'number'
-    writeItem('k', '{oops')
-    expect(readJson('k', isNumber)).toBeNull()
-    writeItem('k', '"a string"')
-    expect(readJson('k', isNumber)).toBeNull()
-    writeItem('k', '42')
-    expect(readJson('k', isNumber)).toBe(42)
   })
 })
 

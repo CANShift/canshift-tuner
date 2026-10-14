@@ -1,9 +1,8 @@
-import type { ButtonAction, ColorRampStop } from '@canshift/core'
+import type { ButtonAction } from '@canshift/core'
 
 import { newId } from './id'
 
 const actionKeys = new WeakMap<ButtonAction, string>()
-const rampStopKeys = new WeakMap<ColorRampStop, string>()
 
 const memoizedKey = <T extends object>(cache: WeakMap<T, string>, item: T): string => {
   const existing = cache.get(item)
@@ -15,6 +14,3 @@ const memoizedKey = <T extends object>(cache: WeakMap<T, string>, item: T): stri
 
 export const actionKey = (action: ButtonAction): string =>
   action.id ?? memoizedKey(actionKeys, action)
-
-export const rampStopKey = (stop: ColorRampStop): string =>
-  stop.id ?? memoizedKey(rampStopKeys, stop)

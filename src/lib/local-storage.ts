@@ -50,21 +50,6 @@ export const removeItem = (name: string): void => {
   }
 }
 
-export const readJson = <T>(name: string, guard: (value: unknown) => value is T): T | null => {
-  const raw = readItem(name)
-  if (raw === null) return null
-  let parsed: unknown
-  try {
-    parsed = JSON.parse(raw)
-  } catch {
-    return null
-  }
-  return guard(parsed) ? parsed : null
-}
-
-export const writeJson = (name: string, value: unknown): boolean =>
-  writeItem(name, JSON.stringify(value))
-
 export const migrateLegacyKeys = (): void => {
   for (const [from, to] of Object.entries(LEGACY_KEYS)) {
     const legacy = readItem(from)
