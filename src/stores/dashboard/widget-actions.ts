@@ -1,9 +1,16 @@
 import type { Draft } from 'immer'
-import type { PageConfig, Widget, WidgetLayout } from '@canshift/core'
+import type { GridTracks, PageConfig, Widget, WidgetLayout } from '@canshift/core'
+import type { IdentifiedPlacement } from '../../utils/layout'
 import { clampGridPlacement } from '@canshift/core'
 import { gridTracksForConfig } from '../../lib/grid-tracks'
 import { pushHistory, toPlacement, widgetRef } from './helpers'
-import { firstFreeSpot, sizeOf, spotsAround, spotsBelowOrRight } from './widget-placement'
+import {
+  firstFreeSpot,
+  sizeOf,
+  spotsAround,
+  spotsBelowOrRight,
+  type GridSpot,
+} from './widget-placement'
 import type { DashboardState } from './types'
 
 export type DashboardDraft = Draft<DashboardState>
@@ -16,7 +23,7 @@ const selectOnly = (s: DashboardDraft, ids: string[]): void => {
   s.selectedWidgetIds = ids
 }
 
-const countLabel = (verb: string, widgets: readonly Widget[]): string => {
+export const countLabel = (verb: string, widgets: readonly Widget[]): string => {
   const [first] = widgets
   if (widgets.length === 1 && first) return `${verb} ${widgetRef(first)}`
   return `${verb} ${String(widgets.length)} widgets`
@@ -52,21 +59,40 @@ const cloneAt = (source: Widget, spot: { col: number; row: number }): Widget => 
   config: { ...source.config },
 })
 
-const placeCopies = (
+export type CopySpotFinder = (
+  source: Widget,
+  others: IdentifiedPlacement[],
+  tracks: GridTracks
+) => GridSpot | null
+
+const besideSource: CopySpotFinder = (source, others, tracks) =>
+  firstFreeSpot(spotsBelowOrRight(source.layout), sizeOf(source), others, tracks)
+
+export const placeCopies = (
   s: DashboardDraft,
   page: Draft<PageConfig>,
-  sources: readonly Widget[]
+  sources: readonly Widget[],
+  spotFor: CopySpotFinder
 ): string[] => {
   const others = page.widgets.map(toPlacement)
   const tracks = gridTracksForConfig(s.config)
   return sources.flatMap((source) => {
-    const spot = firstFreeSpot(spotsBelowOrRight(source.layout), sizeOf(source), others, tracks)
+    const spot = spotFor(source, others, tracks)
     if (!spot) return []
     const clone = cloneAt(source, spot)
     page.widgets.push(clone)
     others.push(toPlacement(clone))
     return [clone.id]
   })
+}
+
+export const finishCopies = (s: DashboardDraft, newIds: string[]): void => {
+  if (newIds.length === 0) {
+    s.past.pop()
+    return
+  }
+  selectOnly(s, newIds)
+  s.isDirty = true
 }
 
 export const duplicateWidgetsIn = (
@@ -79,13 +105,7 @@ export const duplicateWidgetsIn = (
   const ordered = widgetIds.flatMap((id) => page.widgets.filter((w) => w.id === id))
   if (ordered.length === 0) return
   pushHistory(s, countLabel('Duplicated', ordered))
-  const newIds = placeCopies(s, page, ordered)
-  if (newIds.length === 0) {
-    s.past.pop()
-    return
-  }
-  selectOnly(s, newIds)
-  s.isDirty = true
+  finishCopies(s, placeCopies(s, page, ordered, besideSource))
 }
 
 export const reorderWidgetIn = (
