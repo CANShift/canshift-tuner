@@ -30,13 +30,13 @@ const writeState = async (config: DeviceConfig): Promise<CanSpeedState> => {
   return { kind: 'error', config, message: transportErrorText(result.error) }
 }
 
-export const useCanSpeed = (): UseCanSpeed => {
+const useLinked = (): boolean => {
   const connected = useDeviceStore((s) => s.connected)
   const simulationMode = useDeviceStore((s) => s.simulationMode)
-  const log = useLogStore((s) => s.push)
-  const linked = connected && !simulationMode
-  const [state, setState] = useState<CanSpeedState>({ kind: 'offline' })
+  return connected && !simulationMode
+}
 
+const useStoredSpeed = (linked: boolean, setState: (state: CanSpeedState) => void): void => {
   useEffect(() => {
     if (!linked) {
       setState({ kind: 'offline' })
@@ -50,7 +50,14 @@ export const useCanSpeed = (): UseCanSpeed => {
     return () => {
       cancelled = true
     }
-  }, [linked])
+  }, [linked, setState])
+}
+
+export const useCanSpeed = (): UseCanSpeed => {
+  const linked = useLinked()
+  const log = useLogStore((s) => s.push)
+  const [state, setState] = useState<CanSpeedState>({ kind: 'offline' })
+  useStoredSpeed(linked, setState)
 
   const writeSpeed = useCallback(
     (speed: CanSpeedKbps) => {
