@@ -92,16 +92,26 @@ const describe = ({
   body: `${EDGE_LABELS[violation.edge]} edge at ${String(violation.at)} px, ${String(violation.over)} px over. Burn stays disabled until it fits — the dash never scales a layout to make it work.`,
 })
 
+const pageOffender = (
+  config: DashboardConfig,
+  screen: ScreenProfile,
+  page: DashboardConfig['pages'][number],
+  pageIndex: number
+): LayoutOverflow | null => {
+  const topOffset = page.showTopBar === false ? 0 : config.topBar.height
+  for (const widget of page.widgets.filter((w) => isSpanOverflowing(w.layout))) {
+    const violation = worstViolation(widgetBounds(widget.layout, screen, topOffset), screen)
+    if (violation !== undefined)
+      return describe({ violation, screen, pageId: page.id, pageIndex, widget })
+  }
+  return null
+}
+
 export const describeLayoutOverflow = (config: DashboardConfig): LayoutOverflow | null => {
   const screen = resolveScreenProfile(config.targetProfile)
   for (const [pageIndex, page] of config.pages.entries()) {
-    const topOffset = page.showTopBar === false ? 0 : config.topBar.height
-    for (const widget of page.widgets) {
-      if (!isSpanOverflowing(widget.layout)) continue
-      const violation = worstViolation(widgetBounds(widget.layout, screen, topOffset), screen)
-      if (violation === undefined) continue
-      return describe({ violation, screen, pageId: page.id, pageIndex, widget })
-    }
+    const offender = pageOffender(config, screen, page, pageIndex)
+    if (offender !== null) return offender
   }
   return null
 }

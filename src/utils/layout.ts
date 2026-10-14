@@ -1,6 +1,7 @@
 import type { GridPlacement } from '@canshift/core'
 import { BASE_GRID_TRACKS, clampGridPlacement, placementsOverlap } from '@canshift/core'
 import type { GridTracks } from '@canshift/core'
+import { uniquePairs } from './unique-pairs'
 
 export interface IdentifiedPlacement extends GridPlacement {
   id: string
@@ -16,6 +17,14 @@ export interface TrackPosition {
   row: number
 }
 
+const startPositions = (span: number, tracks: number): number[] =>
+  Array.from({ length: Math.max(0, tracks - span + 1) }, (_, i) => i)
+
+const rowMajorPositions = (colSpan: number, rowSpan: number, tracks: GridTracks): TrackPosition[] =>
+  startPositions(rowSpan, tracks.rows).flatMap((row) =>
+    startPositions(colSpan, tracks.columns).map((col) => ({ col, row }))
+  )
+
 export const autoPlace = (
   size: SpanSize,
   others: readonly GridPlacement[],
@@ -23,13 +32,10 @@ export const autoPlace = (
 ): TrackPosition | null => {
   const colSpan = Math.min(size.colSpan, tracks.columns)
   const rowSpan = Math.min(size.rowSpan, tracks.rows)
-  for (let row = 0; row + rowSpan <= tracks.rows; row++) {
-    for (let col = 0; col + colSpan <= tracks.columns; col++) {
-      const candidate: GridPlacement = { col, colSpan, row, rowSpan }
-      if (!others.some((o) => placementsOverlap(candidate, o))) return { col, row }
-    }
-  }
-  return null
+  const free = rowMajorPositions(colSpan, rowSpan, tracks).find(
+    ({ col, row }) => !others.some((o) => placementsOverlap({ col, colSpan, row, rowSpan }, o))
+  )
+  return free ?? null
 }
 
 const pushAway = (anchor: GridPlacement, victim: GridPlacement): GridPlacement => {
@@ -67,16 +73,17 @@ const pickVictim = (
 
 const collidingPairs = (
   placements: IdentifiedPlacement[]
-): [IdentifiedPlacement, IdentifiedPlacement][] => {
-  const pairs: [IdentifiedPlacement, IdentifiedPlacement][] = []
-  for (let i = 0; i < placements.length; i++) {
-    for (let j = i + 1; j < placements.length; j++) {
-      const a = placements[i]
-      const b = placements[j]
-      if (a && b && placementsOverlap(a, b)) pairs.push([a, b])
-    }
+): [IdentifiedPlacement, IdentifiedPlacement][] =>
+  uniquePairs(placements).filter(([a, b]) => placementsOverlap(a, b))
+
+const resolvePass = (pos: Map<string, IdentifiedPlacement>, movedId: string): boolean => {
+  const pairs = collidingPairs(Array.from(pos.values()))
+  for (const [a, b] of pairs) {
+    const [anchor, victim] = pickVictim(a, b, movedId)
+    const shifted = pushAway(anchor, victim)
+    pos.set(victim.id, { ...victim, col: shifted.col, row: shifted.row })
   }
-  return pairs
+  return pairs.length > 0
 }
 
 const MAX_PASSES = 8
@@ -90,13 +97,7 @@ export const resolveCollisions = (
   for (const o of others) pos.set(o.id, { ...o })
 
   for (let pass = 0; pass < MAX_PASSES; pass++) {
-    const pairs = collidingPairs(Array.from(pos.values()))
-    if (pairs.length === 0) break
-    for (const [a, b] of pairs) {
-      const [anchor, victim] = pickVictim(a, b, moved.id)
-      const shifted = pushAway(anchor, victim)
-      pos.set(victim.id, { ...victim, col: shifted.col, row: shifted.row })
-    }
+    if (!resolvePass(pos, moved.id)) break
   }
 
   const result = new Map<string, TrackPosition>()
