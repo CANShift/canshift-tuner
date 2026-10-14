@@ -12,7 +12,7 @@ import {
   lostBindingCount,
   parseProfileFile,
 } from '../lib/profile-change'
-import type { CatalogueIndex } from './useCatalogueIndex'
+import { CATALOGUE_INDEX, loadCatalogueXml } from '../lib/ecu-catalogue'
 
 export type ProfileChange =
   | { kind: 'idle' }
@@ -37,7 +37,7 @@ export interface UseProfileChange {
 
 const IDLE: ProfileChange = { kind: 'idle' }
 
-export const useProfileChange = (catalogue: CatalogueIndex): UseProfileChange => {
+export const useProfileChange = (): UseProfileChange => {
   const signals = useSignalStore((s) => s.signals)
   const applyProfile = useSignalStore((s) => s.applyProfile)
   const config = useDashboardStore((s) => s.config)
@@ -61,15 +61,18 @@ export const useProfileChange = (catalogue: CatalogueIndex): UseProfileChange =>
 
   const stageCatalogue = useCallback(
     async (key: string, id: string) => {
-      const entry = catalogue.entries.find((candidate) => candidate.id === id)
+      const entry = CATALOGUE_INDEX.entries.find((candidate) => candidate.id === id)
       if (!entry) {
         setChange({ kind: 'error', message: `The catalogue has no entry called "${id}"` })
         return
       }
       try {
-        const res = await fetch(entry.path)
-        if (!res.ok) throw new Error(`HTTP ${String(res.status)}`)
-        const parsed = parseCanXml(await res.text())
+        const xml = await loadCatalogueXml(entry.id)
+        if (xml === null) {
+          setChange({ kind: 'error', message: `"${entry.label}" is missing from this build` })
+          return
+        }
+        const parsed = parseCanXml(xml)
         if (parsed.signals.length === 0) {
           setChange({
             kind: 'error',
@@ -80,11 +83,11 @@ export const useProfileChange = (catalogue: CatalogueIndex): UseProfileChange =>
         stage(key, `${entry.vendor} · ${entry.label}`, parsed.signals, parsed.warnings)
       } catch (err) {
         const message = errorMessage(err)
-        log('error', `Catalogue entry "${entry.label}" fetch failed: ${message}`)
+        log('error', `Catalogue entry "${entry.label}" failed to load: ${message}`)
         setChange({ kind: 'error', message: `Could not load "${entry.label}" — ${message}` })
       }
     },
-    [catalogue, stage, log]
+    [stage, log]
   )
 
   const selectKey = useCallback(

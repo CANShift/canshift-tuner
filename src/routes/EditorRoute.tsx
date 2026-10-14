@@ -20,7 +20,7 @@ import {
   PREVIEW_MODES,
   type PreviewMode,
 } from '../components/editor/preview/preview-modes'
-import { useCatalogueIndex } from '../hooks/useCatalogueIndex'
+import { CATALOGUE_INDEX } from '../lib/ecu-catalogue'
 import { useDisplayTier } from '../hooks/useDisplayTier'
 import { useDashboardStore } from '../stores/dashboard.store'
 import { SaveTemplateDialog } from '../components/editor/SaveTemplateDialog'
@@ -104,7 +104,6 @@ const EditorRoute = () => {
   const canUndo = useDashboardStore((s) => s.past.length > 0)
   const undoLabel = useDashboardStore((s) => s.past[s.past.length - 1]?.label)
   const selectedProfileKey = useSignalStore((s) => s.selectedProfileKey)
-  const catalogue = useCatalogueIndex()
   const tier = useDisplayTier()
   const activeProjectId = useProjectStore((s) => s.activeProjectId)
   const configName = useDashboardStore((s) => s.config?.name ?? 'config')
@@ -226,7 +225,7 @@ const EditorRoute = () => {
       onPreviewMode={(mode) => {
         setPreviewMode(mode as PreviewMode)
       }}
-      profileMeta={ecuLabelForKey(selectedProfileKey, catalogue)}
+      profileMeta={ecuLabelForKey(selectedProfileKey, CATALOGUE_INDEX)}
       pageFull={pageFull}
       fullNote={PAGE_FULL_NOTE(tier.maxWidgetsPerPage)}
       onAddWidget={() => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { ecuLabelForKey } from './ecu-label'
-import type { CatalogueIndex } from '../hooks/useCatalogueIndex'
+import type { CatalogueIndex } from '../lib/ecu-catalogue'
 
 const index = (labels: [string, string][]): CatalogueIndex => ({
   entries: [],

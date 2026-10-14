@@ -1,5 +1,5 @@
 import { ECU_PROFILES } from '@canshift/core'
-import type { CatalogueIndex } from '../hooks/useCatalogueIndex'
+import type { CatalogueIndex } from '../lib/ecu-catalogue'
 import { prettyProfileKey } from './profile-key'
 import { profileLabelFromFileName } from '../lib/profile-xml'
 
