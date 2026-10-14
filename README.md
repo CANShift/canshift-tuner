@@ -66,7 +66,21 @@ config (CAN bus speed, which reboots it like the real dash), day/night and the o
 commands, and streams telemetry, heap and CAN-rate frames. It keeps its state in memory
 until you stop it.
 
-## Browser requirements
+## Releasing the dash bundle
+
+The firmware pins a tuner release by tag and SHA-256 and copies its files into `data/tuner/`.
+The archive is a contract: `canshift-tuner-dash-vX.Y.Z.tar.gz` holds only flat `.gz` files at its
+root (no folders), and `canshift-tuner-dash-vX.Y.Z.tar.gz.sha256` sits beside it. Tell the
+firmware side before changing either.
+
+1. Bump `version` in `package.json` in a PR and merge it. That version is the release.
+2. Tag the merge commit and push the tag:
+   `git tag "v$(node -p "require('./package.json').version")" && git push origin --tags`
+3. The `release` workflow checks the tag matches `package.json`, runs `npm run bundle:dash`,
+   packs the archive, and drafts a GitHub Release with both files attached.
+4. Rewrite the draft's notes before publishing: what changed for someone using the tuner on
+   the dash, and anything the firmware pin must know. GitHub Releases is the public changelog.
+5. Publish, then pin the tag and the SHA-256 from the `.sha256` file in the firmware.
 
 - Served by the dash: any current browser, phones included.
 - On localhost or canshift.app: WebSerial, so Chrome / Edge / Brave / Opera 89+ on a desktop.
