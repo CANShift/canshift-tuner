@@ -12,7 +12,6 @@ export const STORAGE_KEYS = {
   selectedBoard: key('selected-board'),
   simulationMode: key('simulation-mode'),
   signals: key('signals'),
-  theme: key('theme'),
 } as const
 
 export const PROJECT_KEY_PREFIX = key('project.')

@@ -94,7 +94,6 @@ const COLOR_ALIASES: Record<string, string> = {
 }
 
 const config: Config = {
-  darkMode: 'class',
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
