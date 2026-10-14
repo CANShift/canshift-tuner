@@ -12,7 +12,7 @@ export const ROUTE_META = {
   '/vehicle': {
     title: 'Vehicle — CANShift Tuner',
     description:
-      'Pick an ECU profile, bind CAN signals and OBD-II PIDs, scan the bus and watch live values.',
+      'Pick an ECU profile, bind CAN signals and OBD-II PIDs, scan the bus, watch live values and set the bus speed.',
   },
   '/device': {
     title: 'Device — CANShift Tuner',

@@ -20,6 +20,7 @@ export const TRANSPORT_ERROR_MESSAGES: Record<string, string> = {
   read_failed: 'Could not read the trouble codes from the dash — check the cable and retry.',
   clear_failed: 'The dash refused to clear the trouble codes — check the cable and retry.',
   fetch_failed: 'Could not fetch that from the dash — check the cable and retry.',
+  invalid_device_config: 'The dash rejected that device setting — pick another value and retry.',
   invalid_board_profile:
     'The firmware rejected this board profile — re-check the board definition and re-provision.',
 }
