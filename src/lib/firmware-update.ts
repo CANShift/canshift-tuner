@@ -8,6 +8,12 @@ export type UpdateResult = { kind: 'installed' } | { kind: 'failed'; message: st
 
 export type UpdateProgress = (sent: number, total: number) => void
 
+export interface FirmwarePackage {
+  bytes: Uint8Array
+  signature: Uint8Array
+  version: string
+}
+
 const sha256Hex = async (bytes: Uint8Array): Promise<string> => {
   const digest = await crypto.subtle.digest('SHA-256', bytes.slice().buffer)
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('')
@@ -40,14 +46,16 @@ const sendChunks = async (
   return null
 }
 
+const beginUpdate = async ({ bytes, signature, version }: FirmwarePackage): Promise<AckResult> =>
+  otaIpc.begin(bytes.byteLength, await sha256Hex(bytes), toBase64(signature), version)
+
 export const installFirmware = async (
-  bytes: Uint8Array,
-  signature: Uint8Array,
+  firmware: FirmwarePackage,
   onProgress: UpdateProgress
 ): Promise<UpdateResult> => {
-  const begin = await otaIpc.begin(bytes.byteLength, await sha256Hex(bytes), toBase64(signature))
+  const begin = await beginUpdate(firmware)
   if (!begin.ok) return failure(begin)
-  const rejected = await sendChunks(bytes, onProgress)
+  const rejected = await sendChunks(firmware.bytes, onProgress)
   if (rejected !== null) {
     await otaIpc.abort()
     return failure(rejected)

@@ -75,7 +75,8 @@ const runInstall = async (
   setState: (state: FirmwareUpdateState) => void
 ): Promise<FirmwareUpdateState> => {
   setState({ kind: 'installing', image, sent: 0 })
-  const result = await installFirmware(image.bytes, image.signature, (sent) => {
+  const firmware = { bytes: image.bytes, signature: image.signature, version: image.info.version }
+  const result = await installFirmware(firmware, (sent) => {
     setState({ kind: 'installing', image, sent })
   })
   if (result.kind === 'failed') return { kind: 'failed', image, message: result.message }
