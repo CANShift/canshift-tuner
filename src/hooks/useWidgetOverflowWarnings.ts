@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { detectOverflow } from '../lib/detect-overflow'
+import { overflowMessage, overflowSignature } from '../lib/overflow-warning'
 import { useDashboardStore } from '../stores/dashboard.store'
 import { useLogStore } from '../stores/log.store'
 
@@ -15,26 +16,10 @@ export const useWidgetOverflowWarnings = (): void => {
       return
     }
     const overflowing = detectOverflow(config)
-    const signature = `${targetProfile ?? 'default'}:${overflowing
-      .map((o) => o.widgetId)
-      .sort()
-      .join(',')}`
+    const signature = overflowSignature(targetProfile, overflowing)
     if (signature === lastSignatureRef.current) return
     lastSignatureRef.current = signature
     if (overflowing.length === 0) return
-
-    const sample = overflowing
-      .slice(0, 3)
-      .map(
-        (o) =>
-          `${o.widgetId} (col ${String(o.layout.col)}+${String(o.layout.colSpan)}, row ${String(o.layout.row)}+${String(o.layout.rowSpan)})`
-      )
-      .join(', ')
-    const more = overflowing.length > 3 ? ` + ${String(overflowing.length - 3)} more` : ''
-    log(
-      'warn',
-      `${String(overflowing.length)} widget${overflowing.length === 1 ? '' : 's'} span past the 12-column grid — ${sample}${more}`,
-      'overflow'
-    )
+    log('warn', overflowMessage(overflowing), 'overflow')
   }, [config, targetProfile, log])
 }
