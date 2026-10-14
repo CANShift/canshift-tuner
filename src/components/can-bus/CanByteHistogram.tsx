@@ -1,6 +1,7 @@
 import { cva } from 'class-variance-authority'
 import type { CanFrameStats } from '../../hooks/useCanScanner'
 import { cn } from '@/lib/utils'
+import { hexByte } from './can-format'
 
 const MAX_BARS_PER_BYTE = 16
 
@@ -51,61 +52,85 @@ const barFill = cva('h-full', {
   defaultVariants: { constant: false },
 })
 
-const ByteColumn = ({ byteIndex, counts }: ByteColumnProps) => {
-  if (counts.size === 0) {
-    return (
-      <div className={COLUMN}>
-        <div className={COLUMN_HEADER}>byte {byteIndex}</div>
-        <div className="text-[11px] text-ui-muted">—</div>
-      </div>
-    )
-  }
+interface ByteDistribution {
+  bars: [number, number][]
+  max: number
+  total: number
+  distinct: number
+  constant: boolean
+}
 
-  const sorted = Array.from(counts.entries())
+const byteDistribution = (counts: ReadonlyMap<number, number>): ByteDistribution => {
+  const bars = Array.from(counts.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, MAX_BARS_PER_BYTE)
-  const max = sorted[0]?.[1] ?? 1
-  const total = Array.from(counts.values()).reduce((a, b) => a + b, 0)
-  const distinct = counts.size
-  const constant = distinct === 1
+  return {
+    bars,
+    max: bars[0]?.[1] ?? 1,
+    total: Array.from(counts.values()).reduce((a, b) => a + b, 0),
+    distinct: counts.size,
+    constant: counts.size === 1,
+  }
+}
 
-  return (
-    <div className={COLUMN}>
-      <div className={COLUMN_HEADER}>
-        <span>byte {byteIndex}</span>
-        <span className={cn(distinctTag({ constant }))}>
-          {constant ? 'const' : `${String(distinct)} vals`}
-        </span>
-      </div>
-      <div className="flex flex-col gap-0.5">
-        {sorted.map(([value, count]) => (
-          <div key={value} className="flex items-center gap-1.5 text-[10px]">
-            <span className="min-w-8 font-mono text-ui-muted">{formatByte(value)}</span>
-            <div className="h-1.5 flex-1 overflow-hidden bg-ui-bg">
-              <div
-                className={cn(barFill({ constant }))}
-                // eslint-disable-next-line no-inline-style/no-inline-style
-                style={{ width: `${String((count / max) * 100)}%` }}
-              />
-            </div>
-            <span className="min-w-[30px] text-right font-mono tabular-nums text-ui-muted">
-              {formatPct(count, total)}
-            </span>
-          </div>
-        ))}
-        {counts.size > MAX_BARS_PER_BYTE && (
-          <div className="text-[10px] italic text-ui-muted">
-            + {String(counts.size - MAX_BARS_PER_BYTE)} more
-          </div>
-        )}
-      </div>
+const EmptyByteColumn = ({ byteIndex }: { byteIndex: number }) => (
+  <div className={COLUMN}>
+    <div className={COLUMN_HEADER}>byte {byteIndex}</div>
+    <div className="text-[11px] text-ui-muted">—</div>
+  </div>
+)
+
+interface ByteBarProps {
+  value: number
+  count: number
+  dist: ByteDistribution
+}
+
+const ByteBar = ({ value, count, dist }: ByteBarProps) => (
+  <div className="flex items-center gap-1.5 text-[10px]">
+    <span className="min-w-8 font-mono text-ui-muted">{formatByte(value)}</span>
+    <div className="h-1.5 flex-1 overflow-hidden bg-ui-bg">
+      <div
+        className={cn(barFill({ constant: dist.constant }))}
+        // eslint-disable-next-line no-inline-style/no-inline-style
+        style={{ width: `${String((count / dist.max) * 100)}%` }}
+      />
     </div>
-  )
-}
+    <span className="min-w-[30px] text-right font-mono tabular-nums text-ui-muted">
+      {formatPct(count, dist.total)}
+    </span>
+  </div>
+)
 
-const formatByte = (value: number): string => {
-  return `0x${value.toString(16).toUpperCase().padStart(2, '0')}`
-}
+const FilledByteColumn = ({ byteIndex, dist }: { byteIndex: number; dist: ByteDistribution }) => (
+  <div className={COLUMN}>
+    <div className={COLUMN_HEADER}>
+      <span>byte {byteIndex}</span>
+      <span className={cn(distinctTag({ constant: dist.constant }))}>
+        {dist.constant ? 'const' : `${String(dist.distinct)} vals`}
+      </span>
+    </div>
+    <div className="flex flex-col gap-0.5">
+      {dist.bars.map(([value, count]) => (
+        <ByteBar key={value} value={value} count={count} dist={dist} />
+      ))}
+      {dist.distinct > MAX_BARS_PER_BYTE && (
+        <div className="text-[10px] italic text-ui-muted">
+          + {String(dist.distinct - MAX_BARS_PER_BYTE)} more
+        </div>
+      )}
+    </div>
+  </div>
+)
+
+const ByteColumn = ({ byteIndex, counts }: ByteColumnProps) =>
+  counts.size === 0 ? (
+    <EmptyByteColumn byteIndex={byteIndex} />
+  ) : (
+    <FilledByteColumn byteIndex={byteIndex} dist={byteDistribution(counts)} />
+  )
+
+const formatByte = (value: number): string => `0x${hexByte(value)}`
 
 const formatPct = (count: number, total: number): string => {
   if (total === 0) return '0 %'

@@ -21,10 +21,29 @@ const BUTTON =
 const warningLabel = (count: number): string =>
   `${String(count)} parser warning${count === 1 ? '' : 's'}`
 
-export const ProfileStrip = ({ change, onApply, onDismiss }: ProfileStripProps) => {
-  if (change.kind === 'idle') return null
-  const warnings = change.kind === 'pending' ? change.warnings : []
+const StripActions = ({ change, onApply, onDismiss }: ProfileStripProps) => (
+  <>
+    {change.kind === 'pending' && (
+      <button type="button" onClick={onApply} className={cn(BUTTON, 'text-ui-accent')}>
+        Apply
+      </button>
+    )}
+    <button type="button" onClick={onDismiss} className={cn(BUTTON, 'text-ui-muted')}>
+      {change.kind === 'pending' ? 'Cancel' : 'Dismiss'}
+    </button>
+  </>
+)
 
+const Warnings = ({ warnings }: { warnings: readonly string[] }) =>
+  warnings.length > 0 ? (
+    <span className="shrink-0 text-ui-warning" title={warnings.join('\n')}>
+      {warningLabel(warnings.length)}
+    </span>
+  ) : null
+
+export const ProfileStrip = (props: ProfileStripProps) => {
+  const { change } = props
+  if (change.kind === 'idle') return null
   return (
     <div
       role="status"
@@ -38,22 +57,8 @@ export const ProfileStrip = ({ change, onApply, onDismiss }: ProfileStripProps) 
       <span className="min-w-0 flex-1 truncate" title={change.message}>
         {change.message}
       </span>
-
-      {warnings.length > 0 && (
-        <span className="shrink-0 text-ui-warning" title={warnings.join('\n')}>
-          {warningLabel(warnings.length)}
-        </span>
-      )}
-
-      {change.kind === 'pending' && (
-        <button type="button" onClick={onApply} className={cn(BUTTON, 'text-ui-accent')}>
-          Apply
-        </button>
-      )}
-
-      <button type="button" onClick={onDismiss} className={cn(BUTTON, 'text-ui-muted')}>
-        {change.kind === 'pending' ? 'Cancel' : 'Dismiss'}
-      </button>
+      <Warnings warnings={change.kind === 'pending' ? change.warnings : []} />
+      <StripActions {...props} />
     </div>
   )
 }
