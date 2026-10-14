@@ -1,6 +1,5 @@
-import type { Widget } from '@canshift/core'
-import { GAUGE_ARC, gaugeArcPath } from '@canshift/core'
-import { thresholdPct } from '../widget-preview.styles'
+import type { GaugeWidgetConfig, Widget } from '@canshift/core'
+import { GAUGE_ARC, gaugeArcPath, isValueInDanger } from '@canshift/core'
 
 export const DEMO_PCT = 0.65
 
@@ -27,15 +26,16 @@ export const shownValue = (
   return effectiveValue(shown, toDisplay(min), toDisplay(max))
 }
 
-export const isDangerState = (widget: Widget, testValue: number | null | undefined): boolean => {
-  const cfg = widget.config
-  if (cfg.type === 'gauge') {
-    const { pct } = effectiveValue(testValue, cfg.minValue, cfg.maxValue)
-    const dangerPct = thresholdPct(cfg.dangerLevel, cfg.minValue, cfg.maxValue)
-    return pct >= dangerPct
-  }
-  return false
+export const isGaugeInDanger = (
+  cfg: GaugeWidgetConfig,
+  testValue: number | null | undefined
+): boolean => {
+  const { raw } = effectiveValue(testValue, cfg.minValue, cfg.maxValue)
+  return isValueInDanger(raw, cfg.dangerLevel, cfg.dangerBelow)
 }
+
+export const isDangerState = (widget: Widget, testValue: number | null | undefined): boolean =>
+  widget.config.type === 'gauge' && isGaugeInDanger(widget.config, testValue)
 
 export const gaugeArcD = (
   cx: number,
