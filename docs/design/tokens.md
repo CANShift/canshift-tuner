@@ -1,7 +1,15 @@
 # Tuner tokens
 
-The app's colour vocabulary. `PROMPT_TUNER_APP.md` §1 is the authority; this page is the map from the
-name the spec uses to the name the code uses.
+The app's colour vocabulary, and the authority for it: this page maps each token name to the name the
+code uses.
+
+## Design language
+
+Black, white, red. Everything flush left, radius 0, no shadow, no gradient. Rules organise the page:
+2 px for major separations (header, section heads, table heads), 1 px between rows. **Archivo** for
+anything that speaks (labels, buttons, titles), **JetBrains Mono** for anything that measures (values,
+IDs, bytes, versions), tabular numerals on every readout. Everything outside the dash canvas is plain
+forms; the canvas follows [the dash design system](DASH_DESIGN_SYSTEM.md).
 
 Defined in [`src/styles/ui-tokens.css`](../../src/styles/ui-tokens.css), exposed to Tailwind as the `ui`
 colour family in `tailwind.config.ts`. Never hard-code these values in a component.
@@ -10,7 +18,7 @@ colour family in `tailwind.config.ts`. Never hard-code these values in a compone
 
 Dark is the default on `:root`; light overrides on `:root[data-theme='light']`.
 
-| Spec           | CSS variable       | Tailwind         | Light                 | Dark                     | Use                                |
+| Mockup         | CSS variable       | Tailwind         | Light                 | Dark                     | Use                                |
 | -------------- | ------------------ | ---------------- | --------------------- | ------------------------ | ---------------------------------- |
 | `--t-bg`       | `--ui-bg`          | `ui-bg`          | `#f3f2f2`             | `#17161a`                | page ground                        |
 | `--t-panel`    | `--ui-panel`       | `ui-panel`       | `#eae9e9`             | `#201f24`                | hover, inset panels, canvas ground |
