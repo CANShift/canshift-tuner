@@ -2,22 +2,17 @@ import { useState } from 'react'
 import { usbService } from '../transport'
 import { useDeviceStore } from '../stores/device.store'
 import { useLogStore } from '../stores/log.store'
+import { boardProfileBlob, type BoardProvision } from '../lib/board-provision'
 import {
-  boardProfileBlob,
-  type BoardProfileWriteResult,
-  type BoardProvision,
-} from '../lib/board-provision'
+  failedOutcome,
+  provisionOutcome,
+  type ProvisionOutcome,
+  type ProvisionState,
+} from '../lib/provision-outcome'
 import { useResolvedBoardProfile, type ResolvedBoardProfile } from './useResolvedBoardProfile'
 import { errorMessage } from '../lib/error-message'
-import { transportErrorText } from '../transport/humanize-transport-error'
 
-export type ProvisionState =
-  | { kind: 'idle' }
-  | { kind: 'writing' }
-  | { kind: 'ok'; restart: boolean }
-  | { kind: 'invalid' }
-  | { kind: 'unknown-board' }
-  | { kind: 'error'; message: string }
+export type { ProvisionState }
 
 const STATE_MESSAGES: Record<ProvisionState['kind'], (state: ProvisionState) => string | null> = {
   idle: () => null,
@@ -50,6 +45,15 @@ const provisionFor = (resolved: ResolvedBoardProfile): BoardProvision =>
     ? { kind: 'catalog', boardId: resolved.profile.boardId }
     : { kind: 'custom', blob: boardProfileBlob(resolved.profile) }
 
+const writeProfile = async (resolved: ResolvedBoardProfile): Promise<ProvisionOutcome> => {
+  try {
+    const result = await usbService.setBoardProfile(provisionFor(resolved))
+    return provisionOutcome(result, resolved.profile.boardId)
+  } catch (err) {
+    return failedOutcome(errorMessage(err))
+  }
+}
+
 export const useProvisionBoardProfile = (): UseProvisionBoardProfile => {
   const resolved = useResolvedBoardProfile()
   const connected = useDeviceStore((s) => s.connected)
@@ -64,37 +68,10 @@ export const useProvisionBoardProfile = (): UseProvisionBoardProfile => {
     if (!resolved || !linked) return
     setState({ kind: 'writing' })
     log('info', `Provisioning board profile “${resolved.profile.boardName}”`)
-    void usbService
-      .setBoardProfile(provisionFor(resolved))
-      .then((result: BoardProfileWriteResult) => {
-        if (result.kind === 'ok') {
-          setState({ kind: 'ok', restart: result.restart })
-          log(
-            'success',
-            result.restart
-              ? 'Board profile saved — the dash is rebooting to apply it'
-              : 'Board profile saved'
-          )
-          return
-        }
-        if (result.kind === 'invalid') {
-          setState({ kind: 'invalid' })
-          log('error', 'Firmware rejected the board profile (invalid_board_profile)')
-          return
-        }
-        if (result.kind === 'unknown-board') {
-          setState({ kind: 'unknown-board' })
-          log('error', `This build has no board called “${resolved.profile.boardId}”`)
-          return
-        }
-        setState({ kind: 'error', message: transportErrorText(result.error) })
-        log('error', `Board profile write failed: ${transportErrorText(result.error)}`)
-      })
-      .catch((err: unknown) => {
-        const message = errorMessage(err)
-        setState({ kind: 'error', message })
-        log('error', `Board profile write failed: ${message}`)
-      })
+    void writeProfile(resolved).then((outcome) => {
+      setState(outcome.state)
+      log(outcome.level, outcome.log)
+    })
   }
 
   const reset = () => {

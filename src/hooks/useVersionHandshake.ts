@@ -2,68 +2,52 @@ import { useEffect } from 'react'
 import { useDeviceStore } from '../stores/device.store'
 import { useLogStore } from '../stores/log.store'
 import { usbService } from '../transport'
+import type { FirmwareIdentityResult } from '../transport/types'
 import { transportErrorText } from '../transport/humanize-transport-error'
 import { errorMessage } from '../lib/error-message'
+import { handshakeVerdict } from '../lib/firmware-handshake'
+import { useLiveTransport } from './useLiveTransport'
+
+const handshakeFailed = (reason: string) => {
+  useLogStore.getState().push('warn', `Version handshake failed: ${reason}`)
+  useDeviceStore.getState().setFirmwareCompat({ kind: 'unknown' })
+}
+
+const applyIdentity = (result: FirmwareIdentityResult) => {
+  if (result.kind === 'error') {
+    handshakeFailed(transportErrorText(result.error))
+    return
+  }
+  const device = useDeviceStore.getState()
+  const { version, isDay, boardId } = result.identity
+  device.setFirmwareVersion(version)
+  device.setBoardId(boardId ?? null)
+  device.setIsDayMode(isDay)
+  const verdict = handshakeVerdict(result.identity, __EXPECTED_FIRMWARE_MAJOR__)
+  useLogStore.getState().push(verdict.level, verdict.message)
+  device.setFirmwareCompat(verdict.compat)
+}
+
+const runHandshake = (): (() => void) => {
+  let cancelled = false
+  usbService
+    .queryVersion()
+    .then((result) => {
+      if (!cancelled) applyIdentity(result)
+    })
+    .catch((err: unknown) => {
+      if (!cancelled) handshakeFailed(errorMessage(err))
+    })
+  return () => {
+    cancelled = true
+  }
+}
 
 export const useVersionHandshake = (): void => {
-  const connected = useDeviceStore((s) => s.connected)
-  const transport = useDeviceStore((s) => s.transport)
-  const simulationMode = useDeviceStore((s) => s.simulationMode)
-  const setFirmwareVersion = useDeviceStore((s) => s.setFirmwareVersion)
-  const setBoardId = useDeviceStore((s) => s.setBoardId)
-  const setFirmwareCompat = useDeviceStore((s) => s.setFirmwareCompat)
-  const setIsDayMode = useDeviceStore((s) => s.setIsDayMode)
-  const log = useLogStore((s) => s.push)
+  const transport = useLiveTransport()
 
   useEffect(() => {
-    if (!connected || simulationMode || transport === null) return
-    let cancelled = false
-    void usbService
-      .queryVersion()
-      .then((result) => {
-        if (cancelled) return
-        if (result.kind === 'error') {
-          log('warn', `Version handshake failed: ${transportErrorText(result.error)}`)
-          setFirmwareCompat({ kind: 'unknown' })
-          return
-        }
-        const { version, protocol, isDay, boardId } = result.identity
-        setFirmwareVersion(version)
-        setBoardId(boardId ?? null)
-        setIsDayMode(isDay)
-        const reportedMajor = Number(version.split('.')[0] ?? 0)
-        if (reportedMajor !== __EXPECTED_FIRMWARE_MAJOR__) {
-          log(
-            'error',
-            `Firmware major mismatch — tuner expects ${String(__EXPECTED_FIRMWARE_MAJOR__)}.x, device reports ${version}. Burn disabled.`
-          )
-          setFirmwareCompat({
-            kind: 'mismatch',
-            expected: __EXPECTED_FIRMWARE_MAJOR__,
-            got: reportedMajor,
-            version,
-          })
-          return
-        }
-        setFirmwareCompat({ kind: 'compatible', protocol })
-        log('success', `Connected to firmware v${version} (proto ${String(protocol)})`)
-      })
-      .catch((err: unknown) => {
-        if (cancelled) return
-        log('warn', `Version handshake failed: ${errorMessage(err)}`)
-        setFirmwareCompat({ kind: 'unknown' })
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [
-    connected,
-    simulationMode,
-    transport,
-    setFirmwareVersion,
-    setBoardId,
-    setFirmwareCompat,
-    setIsDayMode,
-    log,
-  ])
+    if (transport === null) return
+    return runHandshake()
+  }, [transport])
 }

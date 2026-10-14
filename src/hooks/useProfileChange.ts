@@ -1,10 +1,9 @@
 import { useCallback, useState } from 'react'
-import { ECU_PROFILES, parseCanXml } from '@canshift/core'
+import { ECU_PROFILES } from '@canshift/core'
 import type { SignalDef } from '@canshift/core'
 import { useDashboardStore } from '../stores/dashboard.store'
 import { useSignalStore } from '../stores/signal.store'
 import { useLogStore } from '../stores/log.store'
-import { errorMessage } from '../lib/error-message'
 import { profileLabelFromFileName } from '../lib/profile-xml'
 import {
   appliedSummary,
@@ -12,7 +11,7 @@ import {
   lostBindingCount,
   parseProfileFile,
 } from '../lib/profile-change'
-import { CATALOGUE_INDEX, loadCatalogueXml } from '../lib/ecu-catalogue'
+import { loadCatalogueProfile } from '../lib/catalogue-profile'
 
 export type ProfileChange =
   | { kind: 'idle' }
@@ -37,79 +36,58 @@ export interface UseProfileChange {
 
 const IDLE: ProfileChange = { kind: 'idle' }
 
-export const useProfileChange = (): UseProfileChange => {
+type Stage = (key: string, label: string, next: SignalDef[], warnings: readonly string[]) => void
+
+const CATALOGUE_SCHEME = 'catalogue'
+
+const useStage = (setChange: (change: ProfileChange) => void): Stage => {
   const signals = useSignalStore((s) => s.signals)
-  const applyProfile = useSignalStore((s) => s.applyProfile)
   const config = useDashboardStore((s) => s.config)
-  const log = useLogStore((s) => s.push)
-  const [change, setChange] = useState<ProfileChange>(IDLE)
-
-  const stage = useCallback(
-    (key: string, label: string, next: SignalDef[], warnings: readonly string[]) => {
-      const lost = lostBindingCount(config, next)
-      setChange({
-        kind: 'pending',
-        key,
-        label,
-        signals: next,
-        message: changeSummary(label, signals, next, lost),
-        warnings,
-      })
+  return useCallback(
+    (key, label, next, warnings) => {
+      const message = changeSummary(label, signals, next, lostBindingCount(config, next))
+      setChange({ kind: 'pending', key, label, signals: next, message, warnings })
     },
-    [config, signals]
+    [config, signals, setChange]
   )
+}
 
-  const stageCatalogue = useCallback(
-    async (key: string, id: string) => {
-      const entry = CATALOGUE_INDEX.entries.find((candidate) => candidate.id === id)
-      if (!entry) {
-        setChange({ kind: 'error', message: `The catalogue has no entry called "${id}"` })
-        return
-      }
-      try {
-        const xml = await loadCatalogueXml(entry.id)
-        if (xml === null) {
-          setChange({ kind: 'error', message: `"${entry.label}" is missing from this build` })
-          return
-        }
-        const parsed = parseCanXml(xml)
-        if (parsed.signals.length === 0) {
-          setChange({
-            kind: 'error',
-            message: `"${entry.label}" — ${parsed.warnings[0] ?? 'no signals found'}`,
-          })
-          return
-        }
-        stage(key, `${entry.vendor} · ${entry.label}`, parsed.signals, parsed.warnings)
-      } catch (err) {
-        const message = errorMessage(err)
-        log('error', `Catalogue entry "${entry.label}" failed to load: ${message}`)
-        setChange({ kind: 'error', message: `Could not load "${entry.label}" — ${message}` })
-      }
-    },
-    [stage, log]
-  )
+const stageCatalogue = async (
+  key: string,
+  id: string,
+  stage: Stage,
+  fail: (message: string) => void
+) => {
+  const profile = await loadCatalogueProfile(id)
+  if (profile.kind === 'ok') {
+    stage(key, profile.label, profile.signals, profile.warnings)
+    return
+  }
+  if (profile.failure !== undefined) useLogStore.getState().push('error', profile.failure)
+  fail(profile.message)
+}
 
-  const selectKey = useCallback(
+const useSelectKey = (stage: Stage, fail: (message: string) => void) =>
+  useCallback(
     (key: string) => {
       const [scheme, ...rest] = key.split(':')
       const id = rest.join(':')
-      if (scheme === 'catalogue') {
-        void stageCatalogue(key, id)
+      if (scheme === CATALOGUE_SCHEME) {
+        void stageCatalogue(key, id, stage, fail)
         return
       }
       const profile = ECU_PROFILES.find((entry) => entry.id === id)
-      if (!profile) return
-      stage(key, profile.name, [...profile.signals], [])
+      if (profile) stage(key, profile.name, [...profile.signals], [])
     },
-    [stage, stageCatalogue]
+    [stage, fail]
   )
 
-  const importXml = useCallback(
+const useImportXml = (stage: Stage, fail: (message: string) => void) =>
+  useCallback(
     (fileName: string, xml: string) => {
       const parsed = parseProfileFile(fileName, xml)
       if (parsed.kind === 'error') {
-        setChange({ kind: 'error', message: parsed.message })
+        fail(parsed.message)
         return
       }
       stage(
@@ -119,19 +97,34 @@ export const useProfileChange = (): UseProfileChange => {
         parsed.warnings
       )
     },
-    [stage]
+    [stage, fail]
   )
 
-  const apply = useCallback(() => {
+const useApply = (change: ProfileChange, setChange: (change: ProfileChange) => void) => {
+  const applyProfile = useSignalStore((s) => s.applyProfile)
+  const log = useLogStore((s) => s.push)
+  return useCallback(() => {
     if (change.kind !== 'pending') return
     applyProfile(change.key, change.signals)
     log('success', `Applied "${change.label}" — ${String(change.signals.length)} signals`)
     setChange({ kind: 'applied', message: appliedSummary(change.label, change.signals.length) })
-  }, [change, applyProfile, log])
+  }, [change, applyProfile, log, setChange])
+}
 
+export const useProfileChange = (): UseProfileChange => {
+  const [change, setChange] = useState<ProfileChange>(IDLE)
+  const fail = useCallback((message: string) => {
+    setChange({ kind: 'error', message })
+  }, [])
+  const stage = useStage(setChange)
   const dismiss = useCallback(() => {
     setChange(IDLE)
   }, [])
-
-  return { change, selectKey, importXml, apply, dismiss }
+  return {
+    change,
+    selectKey: useSelectKey(stage, fail),
+    importXml: useImportXml(stage, fail),
+    apply: useApply(change, setChange),
+    dismiss,
+  }
 }
