@@ -18,8 +18,8 @@ export const usePausableValues = (live: Record<string, number>) => {
   return { values: paused ? frozen : live, paused, togglePause }
 }
 
-export const useSignalSelection = () => {
-  const [selected, setSelected] = useState<string[]>([])
+export const useSignalSelection = (initial: readonly string[] = []) => {
+  const [selected, setSelected] = useState<string[]>(() => [...initial])
   const toggle = (name: string) => {
     setSelected((current) =>
       current.includes(name) ? current.filter((entry) => entry !== name) : [...current, name]

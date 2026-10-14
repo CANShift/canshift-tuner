@@ -10,7 +10,6 @@ const RETIRED_PATHS = [
   '/obd2',
   '/themes',
   '/signals',
-  '/live',
   '/logs',
   '/cli',
   '/board',
@@ -38,9 +37,8 @@ describe('the route map', () => {
     }
   })
 
-  it('sends signals and live values to the vehicle tab', () => {
+  it('sends signals to the vehicle tab', () => {
     expect(LEGACY_REDIRECTS['/signals']).toBe('/vehicle')
-    expect(LEGACY_REDIRECTS['/live']).toBe('/vehicle')
   })
 
   it('keeps the header tabs and the route map in agreement', () => {

@@ -31,7 +31,6 @@ export const LEGACY_REDIRECTS: Record<string, RoutePath> = {
   '/dashboard': '/dash',
   '/cli': '/dash',
   '/signals': '/vehicle',
-  '/live': '/vehicle',
   '/logs': '/vehicle',
   '/can': '/vehicle',
   '/ecu': '/vehicle',

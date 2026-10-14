@@ -3,6 +3,8 @@ import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 import { Checkbox } from '@/components/ui/checkbox'
 
+export const PROFILE_SELECT_ID = 'ecu-profile-select'
+
 export type SignalSource = 'can' | 'obd2'
 
 export interface ProfileOption {
@@ -58,6 +60,7 @@ const ProfileSelect = ({ groups, profileKey, onProfile }: ProfileSelectProps) =>
       onProfile(e.target.value)
     }}
     aria-label="ECU profile"
+    id={PROFILE_SELECT_ID}
     className="max-w-[220px] border border-ui-ink bg-ui-bg py-[7px] pl-2.5 pr-[26px] text-[13px] font-bold text-ui-ink"
   >
     {groups.map((group) => (

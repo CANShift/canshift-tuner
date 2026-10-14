@@ -5,22 +5,19 @@ import { TogglePill } from '../components/ui/toggle-pill'
 import { CanBusPanel } from '../components/vehicle/CanBusPanel'
 
 const SignalsRoute = lazy(() => import('./SignalsRoute'))
-const LiveDataRoute = lazy(() => import('./LiveDataRoute'))
 
-type VehicleSection = 'signals' | 'live' | 'bus'
+type VehicleSection = 'signals' | 'bus'
 
 const SECTION_LABELS: Record<VehicleSection, string> = {
-  signals: 'Profile & signals',
-  live: 'Live values',
+  signals: 'Signals',
   bus: 'CAN bus',
 }
 
 const SECTIONS = Object.keys(SECTION_LABELS) as VehicleSection[]
 
-const SECTION_BODIES: Record<VehicleSection, (showSignals: () => void) => ReactNode> = {
-  signals: () => <SignalsRoute />,
-  live: (showSignals) => <LiveDataRoute onShowSignals={showSignals} />,
-  bus: () => <CanBusPanel />,
+const SECTION_BODIES: Record<VehicleSection, ReactNode> = {
+  signals: <SignalsRoute />,
+  bus: <CanBusPanel />,
 }
 
 interface VehicleNavProps {
@@ -50,14 +47,11 @@ const VehicleNav = ({ section, onSection }: VehicleNavProps) => (
 
 const VehicleRoute = () => {
   const [section, setSection] = useState<VehicleSection>('signals')
-  const showSignals = () => {
-    setSection('signals')
-  }
 
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-ui-bg">
       <VehicleNav section={section} onSection={setSection} />
-      <Suspense fallback={<RouteLoading />}>{SECTION_BODIES[section](showSignals)}</Suspense>
+      <Suspense fallback={<RouteLoading />}>{SECTION_BODIES[section]}</Suspense>
     </div>
   )
 }

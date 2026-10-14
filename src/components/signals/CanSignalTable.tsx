@@ -12,6 +12,8 @@ export interface CanSignalTableProps {
   units: DisplayUnits
   onPatch: SignalPatch
   onRenameFrame: (from: string, to: string) => void
+  plotted: readonly string[]
+  onTogglePlot: (name: string) => void
 }
 
 const plural = (count: number): string => `${String(count)} signal${count === 1 ? '' : 's'}`
@@ -37,31 +39,31 @@ const FrameHeader = ({ frame, onRenameFrame }: FrameHeaderProps) => (
 
 type FrameGroupProps = Omit<CanSignalTableProps, 'frames'> & { frame: SignalFrame }
 
-const FrameGroup = ({ frame, values, usage, units, onPatch, onRenameFrame }: FrameGroupProps) => (
+const FrameGroup = ({ frame, onRenameFrame, ...rows }: FrameGroupProps) => (
   <section aria-label={`CAN frame ${frame.frameId}`}>
     <FrameHeader frame={frame} onRenameFrame={onRenameFrame} />
     {frame.signals.map((signal: SignalDef) => (
       <SignalRow
         key={signal.name}
         signal={signal}
-        value={values[signal.name]}
-        pages={usage.get(signal.name) ?? []}
-        units={units}
-        onPatch={onPatch}
+        value={rows.values[signal.name]}
+        pages={rows.usage.get(signal.name) ?? []}
+        units={rows.units}
+        onPatch={rows.onPatch}
+        plotted={rows.plotted.includes(signal.name)}
+        onTogglePlot={rows.onTogglePlot}
       />
     ))}
   </section>
 )
 
 export const CanSignalTable = ({ frames, ...rest }: CanSignalTableProps) => (
-  <div className="min-h-0 flex-1 overflow-y-auto">
-    <div className="max-w-[1100px]">
-      {frames.map((frame) => (
-        <FrameGroup key={frame.frameId} frame={frame} {...rest} />
-      ))}
-      {frames.length === 0 && (
-        <p className="px-4 py-6 text-[13px] text-ui-muted">No signal matches.</p>
-      )}
-    </div>
+  <div>
+    {frames.map((frame) => (
+      <FrameGroup key={frame.frameId} frame={frame} {...rest} />
+    ))}
+    {frames.length === 0 && (
+      <p className="px-4 py-6 text-[13px] text-ui-muted">No signal matches.</p>
+    )}
   </div>
 )
