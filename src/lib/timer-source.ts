@@ -20,15 +20,6 @@ const KICKERS: Record<TimerSource, string> = {
   delta: 'DELTA',
 }
 
-const PLACEHOLDERS: Record<TimerSource, string> = {
-  elapsed: '00:00',
-  lap: '--:--',
-  best: '--:--',
-  last: '--:--',
-  lapCount: '0',
-  delta: '--',
-}
-
 const DEMO_VALUES: Record<TimerSource, string> = {
   elapsed: '01:23',
   lap: '1:38.42',
@@ -42,9 +33,6 @@ const DEMO_ELAPSED_SS_MMM = '12.847'
 
 export const timerKicker = (source: TimerSource | undefined): string =>
   KICKERS[source ?? DEFAULT_TIMER_SOURCE]
-
-export const timerPlaceholder = (source: TimerSource | undefined): string =>
-  PLACEHOLDERS[source ?? DEFAULT_TIMER_SOURCE]
 
 export const timerDemoValue = (
   source: TimerSource | undefined,

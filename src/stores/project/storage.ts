@@ -1,17 +1,6 @@
-import {
-  CURRENT_SCHEMA_VERSION,
-  PROJECT_FILE_VERSION,
-  ProjectSchema,
-  migrateConfig,
-} from '@canshift/core'
+import { CURRENT_SCHEMA_VERSION, ProjectSchema, migrateConfig } from '@canshift/core'
 import type { Project, ProjectMeta } from '@canshift/core'
-import {
-  readItem,
-  writeItem,
-  removeItem,
-  projectStorageKey,
-  STORAGE_KEYS,
-} from '../../lib/local-storage'
+import { readItem, writeItem, projectStorageKey, STORAGE_KEYS } from '../../lib/local-storage'
 
 export const PROJECT_INDEX_KEY = STORAGE_KEYS.projectIndex
 
@@ -82,10 +71,4 @@ export const writeProject = (project: Project): boolean => {
   return writeItem(projectStorageKey(project.id), JSON.stringify(project))
 }
 
-export const removeProject = (id: string): void => {
-  removeItem(projectStorageKey(id))
-}
-
 export { projectStorageKey }
-
-export const PROJECT_VERSION = PROJECT_FILE_VERSION

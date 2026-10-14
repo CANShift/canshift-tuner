@@ -2,17 +2,6 @@ import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 import type { ReactNode } from 'react'
 
-export const SCREEN_BG = '#0D0D0D'
-export const SCREEN_LABEL = '#AAAAAA'
-export const SCREEN_VALUE = '#888888'
-export const SCREEN_HEADER = '#CCCCCC'
-export const BTN_BG = '#111111'
-export const BTN_BORDER = '#2A2A2A'
-export const BTN_BORDER_DIM = '#1E1E1E'
-export const BTN_FG_DISABLED = '#444444'
-export const ACCENT_RED = '#CC3333'
-export const ACCENT_RED_BG = '#1A0A0A'
-
 const ROW_LABEL = 'tracking-[0.06em] text-[#AAAAAA]'
 
 const ROW_VALUE = 'text-[#888888]'

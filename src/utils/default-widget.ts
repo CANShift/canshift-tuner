@@ -5,11 +5,8 @@ import { createId } from './id'
 
 const ENUM_MAX_RANGE = 12
 const DECIMALS_RANGE_CUTOFF = 50
-const SHIFT_LIGHT_RED_SEGMENTS = 5
 
 export const SIGNAL_DRAG_MIME = 'application/x-canshift-signal'
-export const WIDGET_TYPE_DRAG_MIME = 'application/x-canshift-widget-type'
-
 export const SIGNAL_CONSUMING_TYPES: ReadonlySet<string> = new Set([
   'gauge',
   'warning',
@@ -68,12 +65,6 @@ const gaugeConfig = (signal: SignalDef): WidgetConfig => {
   return config
 }
 
-const shiftLightConfig = (signal: SignalDef): WidgetConfig => ({
-  type: 'shift_light',
-  startValue: Math.max(0, signal.min),
-  redSegments: SHIFT_LIGHT_RED_SEGMENTS,
-})
-
 const configForSignal = (signal: SignalDef): WidgetConfig => {
   if (isEnumSignal(signal)) return gearConfig()
   if (signalThreshold(signal) !== undefined) return warningConfig(signal)
@@ -97,18 +88,3 @@ const widgetFromConfig = (config: WidgetConfig, signalName: string): Widget => (
 
 export const defaultWidgetForSignal = (signal: SignalDef): Widget =>
   widgetFromConfig(configForSignal(signal), signal.name)
-
-export const widgetOfTypeForSignal = (type: string, signal: SignalDef): Widget | null => {
-  switch (type) {
-    case 'gear':
-      return widgetFromConfig(gearConfig(), signal.name)
-    case 'warning':
-      return widgetFromConfig(warningConfig(signal), signal.name)
-    case 'gauge':
-      return widgetFromConfig(gaugeConfig(signal), signal.name)
-    case 'shift_light':
-      return widgetFromConfig(shiftLightConfig(signal), signal.name)
-    default:
-      return null
-  }
-}

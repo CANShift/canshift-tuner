@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { CATALOGUE_INDEX, hasCatalogueXml, loadCatalogueXml } from './ecu-catalogue'
+import { CATALOGUE_INDEX, loadCatalogueXml } from './ecu-catalogue'
 
 describe('the bundled ECU catalogue', () => {
-  it('ships every vendor definition the manifest lists', () => {
+  it('ships every vendor definition the manifest lists', async () => {
     expect(CATALOGUE_INDEX.entries.length).toBeGreaterThan(0)
-    const missing = CATALOGUE_INDEX.entries.filter((entry) => !hasCatalogueXml(entry.id))
-    expect(missing).toEqual([])
+    const loaded = await Promise.all(
+      CATALOGUE_INDEX.entries.map(async (entry) => ({
+        id: entry.id,
+        xml: await loadCatalogueXml(entry.id),
+      }))
+    )
+    expect(loaded.filter((entry) => entry.xml === null).map((entry) => entry.id)).toEqual([])
   })
 
   it('loads a definition from the bundle, without the network', async () => {
