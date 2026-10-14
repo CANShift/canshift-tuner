@@ -160,7 +160,7 @@ const EditorRoute = () => {
         <div className="text-[32px] opacity-20">◫</div>
         <p className="text-[14px] text-ui-ink">No config loaded</p>
         <p className="max-w-[360px] text-center text-[11px] text-ui-muted">
-          Open the ECU Profile route, load a catalogue entry, then return here.
+          Open the Vehicle tab, load a catalogue entry, then return here.
         </p>
       </div>
     )

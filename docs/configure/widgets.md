@@ -1,6 +1,6 @@
 # Widgets & pages
 
-The **Editor** tab (`canshift-tuner/src/routes/EditorRoute.tsx`) is the visual canvas: a strip of pages down one side, a widget canvas in the middle, and a property panel on the right.
+The **Dash** tab (`canshift-tuner/src/routes/EditorRoute.tsx`) is the visual canvas: a strip of pages down one side, a widget canvas in the middle, and a property panel on the right.
 
 ## Pages
 
@@ -20,7 +20,7 @@ A widget binds a signal to a way of drawing it. The built-in types include a pla
 
 ## Binding to a signal
 
-A widget draws nothing until it's bound to a signal from the active [ECU profile](../configure/ecu-profiles.md). Bindings are by signal **name**, so re-applying a profile that keeps the same names leaves your layout intact. Check what a widget is receiving on the [Live data](../configure/live-data.md) tab.
+A widget draws nothing until it's bound to a signal from the active [ECU profile](../configure/ecu-profiles.md). Bindings are by signal **name**, so re-applying a profile that keeps the same names leaves your layout intact. Check what a widget is receiving in **Vehicle → Live values** ([Live data](../configure/live-data.md)).
 
 ## Saving
 

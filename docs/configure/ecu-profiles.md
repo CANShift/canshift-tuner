@@ -1,6 +1,6 @@
 # ECU profiles
 
-A profile is the signal set the dash decodes: the CAN frame IDs, bit layouts, scales and units that turn raw bus traffic into `rpm`, `coolant_temp`, and the rest. The Tuner's **ECU** tab (`canshift-tuner/src/routes/EcuRoute.tsx`) is where you pick one.
+A profile is the signal set the dash decodes: the CAN frame IDs, bit layouts, scales and units that turn raw bus traffic into `rpm`, `coolant_temp`, and the rest. The Tuner's **Vehicle** tab, in **Profile & signals** (`canshift-tuner/src/routes/SignalsRoute.tsx`), is where you pick one.
 
 ## Two ways in
 
@@ -19,4 +19,4 @@ Selecting a source shows its signals in a table (`components/ecu/SignalPreviewTa
 **Apply** opens a confirmation (`components/ecu/ApplyConfirmDialog.tsx`) and then swaps the active signal set. Bindings are by signal name, so a widget bound to a signal the new profile doesn't define keeps its binding — the value simply reads stale until a matching signal arrives.
 
 > [!WARNING]
-> Applying a profile changes what every widget decodes, not just what the CAN scan shows. If a gauge goes blank after a profile switch, the signal it was bound to is missing from the new set — rebind it in the [editor](../configure/widgets.md), or pick a profile that defines it. Confirm on the [Live data](../configure/live-data.md) tab.
+> Applying a profile changes what every widget decodes, not just what the CAN scan shows. If a gauge goes blank after a profile switch, the signal it was bound to is missing from the new set — rebind it in the [editor](../configure/widgets.md), or pick a profile that defines it. Confirm in **Vehicle → Live values** ([Live data](../configure/live-data.md)).

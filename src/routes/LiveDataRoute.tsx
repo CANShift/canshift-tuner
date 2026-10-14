@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import { LiveDataEmpty } from '../components/live-data/LiveDataEmpty'
 import { LiveCards } from '../components/live-data/LiveCards'
@@ -23,12 +22,15 @@ const stateLabel = (connected: boolean, simulation: boolean, paused: boolean): s
   return 'no device'
 }
 
-const LiveDataRoute = () => {
+export interface LiveDataRouteProps {
+  onShowSignals: () => void
+}
+
+const LiveDataRoute = ({ onShowSignals }: LiveDataRouteProps) => {
   const signals = useSignalStore((s) => s.signals)
   const connected = useDeviceStore((s) => s.connected)
   const simulationMode = useDeviceStore((s) => s.simulationMode)
   const live = useLiveSignals()
-  const navigate = useNavigate()
 
   const [paused, setPaused] = useState(false)
   const [frozen, setFrozen] = useState<Record<string, number>>({})
@@ -38,10 +40,6 @@ const LiveDataRoute = () => {
   const values = paused ? frozen : live
   const sampler = useLiveSampler(values, windowSeconds)
   const units = useDisplayUnits()
-
-  const goToSignals = () => {
-    void navigate('/signals')
-  }
 
   const toggle = (name: string) => {
     setSelected((current) =>
@@ -70,7 +68,11 @@ const LiveDataRoute = () => {
   if (signals.length === 0) {
     return (
       <div className="flex min-h-0 flex-1 flex-col bg-ui-bg">
-        <LiveDataEmpty hasProfile={false} onPickProfile={goToSignals} onCaptureBus={goToSignals} />
+        <LiveDataEmpty
+          hasProfile={false}
+          onPickProfile={onShowSignals}
+          onCaptureBus={onShowSignals}
+        />
       </div>
     )
   }

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import type { ReactNode } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import Header from './components/shell/Header'
@@ -6,11 +6,8 @@ import { Footer } from './components/shell/Footer'
 import { RouteLoading } from './components/shell/RouteLoading'
 import { DeviceAlertBar } from './components/shell/DeviceAlertBar'
 import { SimulationStrip } from './components/shell/SimulationStrip'
-import HomeRoute from './routes/HomeRoute'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { useConnectionStore } from './stores/connection.store'
 import { useDashboardStore } from './stores/dashboard.store'
-import { useDeviceStore } from './stores/device.store'
 import { useAutoReconnect } from './hooks/useAutoReconnect'
 import { useSimulationBootstrap } from './hooks/useSimulationBootstrap'
 import { useDeviceConfigBootstrap } from './hooks/useDeviceConfigBootstrap'
@@ -24,58 +21,30 @@ import { useWidgetOverflowWarnings } from './hooks/useWidgetOverflowWarnings'
 import { useUnsavedChangesGuard } from './hooks/useUnsavedChangesGuard'
 import { useDocumentMeta } from './hooks/useDocumentMeta'
 import { DeviceConfigConflictNotice } from './components/shell/DeviceConfigConflictNotice'
+import { ConnectGate } from './components/shell/ConnectGate'
 import { CliPanel } from './components/cli/CliPanel'
 import { CapabilityScreen } from './components/shell/CapabilityScreen'
 import { capabilityReason } from './lib/capability'
 import { useBelowFloor } from './hooks/useBelowFloor'
 import { isWebSerialAvailable } from './lib/web-serial'
 import { useUiStore } from './stores/ui.store'
-import {
-  DEVICE_GATED_PATHS,
-  LEGACY_REDIRECTS,
-  ROUTE_PATHS,
-  type RoutePath,
-} from './constants/routes'
+import { HOME_PATH, LEGACY_REDIRECTS, ROUTE_PATHS, type RoutePath } from './constants/routes'
 
 const EditorRoute = lazy(() => import('./routes/EditorRoute'))
-const SignalsRoute = lazy(() => import('./routes/SignalsRoute'))
-const LiveDataRoute = lazy(() => import('./routes/LiveDataRoute'))
+const VehicleRoute = lazy(() => import('./routes/VehicleRoute'))
 const DeviceRoute = lazy(() => import('./routes/DeviceRoute'))
 
 const ROUTE_ELEMENTS: Record<RoutePath, ReactNode> = {
-  '/': <HomeRoute />,
   '/dash': (
     <ErrorBoundary scope="editor">
       <EditorRoute />
     </ErrorBoundary>
   ),
-  '/signals': <SignalsRoute />,
-  '/live': <LiveDataRoute />,
+  '/vehicle': <VehicleRoute />,
   '/device': <DeviceRoute />,
 }
 
 const LEGACY_PATHS = Object.keys(LEGACY_REDIRECTS)
-
-const useSettledAfterMount = (): boolean => {
-  const [settled, setSettled] = useState(false)
-  useEffect(() => {
-    setSettled(true)
-  }, [])
-  return settled
-}
-
-const DeviceGate = ({ children }: { children: ReactNode }) => {
-  const status = useConnectionStore((s) => s.status)
-  const simulationMode = useDeviceStore((s) => s.simulationMode)
-  const location = useLocation()
-  const settled = useSettledAfterMount()
-  const live = status === 'connected' || status === 'reconnecting'
-  const gated = DEVICE_GATED_PATHS.has(location.pathname as RoutePath)
-  if (settled && !live && !simulationMode && gated) {
-    return <Navigate to="/" replace />
-  }
-  return <>{children}</>
-}
 
 const App = () => {
   const reason = capabilityReason(useBelowFloor(), isWebSerialAvailable())
@@ -108,7 +77,7 @@ const TunerShell = () => {
       <DeviceAlertBar />
       <DeviceConfigConflictNotice />
       <main className={MAIN}>
-        <DeviceGate>
+        <ConnectGate>
           <Suspense fallback={<RouteLoading />}>
             <Routes>
               {ROUTE_PATHS.map((path) => (
@@ -118,13 +87,13 @@ const TunerShell = () => {
                 <Route
                   key={path}
                   path={path}
-                  element={<Navigate to={LEGACY_REDIRECTS[path] ?? '/'} replace />}
+                  element={<Navigate to={LEGACY_REDIRECTS[path] ?? HOME_PATH} replace />}
                 />
               ))}
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<Navigate to={HOME_PATH} replace />} />
             </Routes>
           </Suspense>
-        </DeviceGate>
+        </ConnectGate>
       </main>
       <DashCli />
       <Footer />

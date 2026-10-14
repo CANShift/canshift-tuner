@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { ECU_PROFILES } from '@canshift/core'
 import { DEFAULT_SIM_CONFIG } from '../../config/default-sim-config'
-import { buildNewProjectDashboard } from '../../lib/new-project'
 import { useDashboardStore } from '../dashboard.store'
 import { useSignalStore } from '../signal.store'
 import { bootstrapProjects, useProjectStore } from './project.store'
@@ -125,11 +124,7 @@ describe('project store', () => {
     expect(maxx).toBeDefined()
     if (!maxx) return
 
-    const dashboard = buildNewProjectDashboard({
-      name: 'Track car',
-      targetProfile: 'crowpanel-28',
-      pageSetId: 'blank',
-    })
+    const dashboard = { ...structuredClone(DEFAULT_SIM_CONFIG), name: 'Track car' }
     const newId = useProjectStore.getState().createProject('Track car', dashboard, {
       key: 'builtin:maxxecu-street',
       signals: maxx.signals,
@@ -139,7 +134,7 @@ describe('project store', () => {
     expect(created?.name).toBe('Track car')
     expect(created?.ecuProfileKey).toBe('builtin:maxxecu-street')
     expect(created?.signals).toHaveLength(maxx.signals.length)
-    expect(created?.dashboard.pages).toHaveLength(1)
+    expect(created?.dashboard.pages).toHaveLength(DEFAULT_SIM_CONFIG.pages.length)
 
     expect(readProject(firstId)?.signals).toHaveLength(firstSignalCount)
   })
