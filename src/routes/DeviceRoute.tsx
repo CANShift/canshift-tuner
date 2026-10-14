@@ -7,7 +7,7 @@ import { DeviceSection } from '../components/device/DeviceSection'
 import { DeviceSettingsSection } from '../components/device/DeviceSettingsSection'
 import { BoardProfileSection } from '../components/device/BoardProfileSection'
 import { useDashboardStore } from '../stores/dashboard.store'
-import { useDeviceStore } from '../stores/device.store'
+import { useDeviceStore, type Transport } from '../stores/device.store'
 import { useSignalStore } from '../stores/signal.store'
 import { useProjectStore } from '../stores/project/project.store'
 import { useProjectFileActions } from '../hooks/useProjectFileActions'
@@ -19,7 +19,7 @@ import type { DashboardConfig } from '@canshift/core'
 
 const BoardConfigRoute = lazy(() => import('./BoardConfigRoute'))
 
-const TRANSPORT = 'USB CDC'
+const TRANSPORT_LABELS: Record<Transport, string> = { usb: 'USB', wifi: 'Wi-Fi' }
 const UNSET = '—'
 
 const displayFact = (screen: { width: number; height: number }, driver: string | null): string => {
@@ -40,6 +40,7 @@ const DeviceRoute = () => {
   const config = useDashboardStore((s) => s.config)
   const simulationMode = useDeviceStore((s) => s.simulationMode)
   const firmwareVersion = useDeviceStore((s) => s.firmwareVersion)
+  const transport = useDeviceStore((s) => s.transport)
   const selectedProfileKey = useSignalStore((s) => s.selectedProfileKey)
   const activeProjectId = useProjectStore((s) => s.activeProjectId)
   const panelDriver = useResolvedBoardProfile()?.profile.lcd.driver ?? null
@@ -54,7 +55,7 @@ const DeviceRoute = () => {
     <div className="flex min-h-0 flex-1 flex-col bg-ui-bg">
       <div className="min-h-0 flex-1 overflow-y-auto">
         {simulationMode && (
-          <p className="border-b border-l-[3px] border-ui-line border-l-ui-accent bg-ui-panel px-7 py-3.5 font-mono text-[12.5px] text-ui-ink">
+          <p className="border-b border-l-[3px] border-ui-line border-l-ui-accent bg-ui-panel px-4 py-3.5 font-mono sm:px-7 text-[12.5px] text-ui-ink">
             No board attached — these are the values your config will write, not what a dash
             reports.
           </p>
@@ -65,13 +66,13 @@ const DeviceRoute = () => {
             { label: 'MODEL', value: screen.name },
             { label: 'DISPLAY', value: displayFact(screen, panelDriver) },
             { label: 'FIRMWARE', value: firmwareVersion ?? UNSET },
-            { label: 'TRANSPORT', value: TRANSPORT },
+            { label: 'TRANSPORT', value: transport === null ? UNSET : TRANSPORT_LABELS[transport] },
             { label: 'ECU PROFILE', value: ecuLabelForKey(selectedProfileKey, CATALOGUE_INDEX) },
             { label: 'CONFIG', value: configSummary },
           ]}
         />
 
-        <div className="grid gap-x-14 gap-y-10 px-7 pb-11 pt-[30px] min-[1100px]:[grid-template-columns:minmax(380px,460px)_minmax(0,1fr)]">
+        <div className="grid gap-x-14 gap-y-10 px-4 pb-11 sm:px-7 pt-[30px] min-[1100px]:[grid-template-columns:minmax(380px,460px)_minmax(0,1fr)]">
           <DeviceSettingsSection />
           <div className="flex min-w-0 flex-col gap-10">
             <BoardProfileSection

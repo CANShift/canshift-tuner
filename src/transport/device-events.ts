@@ -9,7 +9,7 @@ import type { ZodType } from 'zod'
 
 import type { Handler, Unsubscribe } from './types'
 import { isRecord } from './types'
-import { getSerialClient } from './webserial-client'
+import { getDeviceLink } from './link'
 
 const SEEN_SCHEMA_ERRORS_CAP = 100
 const seenSchemaErrors = new Set<string>()
@@ -31,7 +31,7 @@ const subscribeParsed = <Wire, Out>(
   map: (wire: Wire) => Out,
   handler: Handler<Out>
 ): Unsubscribe =>
-  getSerialClient().subscribe(discriminator, (frame) => {
+  getDeviceLink().subscribe(discriminator, (frame) => {
     const parsed = schema.safeParse(frame)
     if (!parsed.success) {
       warnFrameDrop(discriminator, parsed.error.issues[0]?.code ?? 'unknown', JSON.stringify(frame))
@@ -72,7 +72,7 @@ export const deviceEvents = {
     subscribeParsed('heap_stats', HeapStatsFrameWireSchema, heapStatsFromWire, handler),
 
   onCanHealth: (handler: Handler<{ fps: number; errors: number }>): Unsubscribe => {
-    return getSerialClient().subscribe('can_stat', (frame) => {
+    return getDeviceLink().subscribe('can_stat', (frame) => {
       if (!isRecord(frame)) return
       handler({
         fps: typeof frame.fps === 'number' ? frame.fps : 0,
@@ -82,7 +82,7 @@ export const deviceEvents = {
   },
 
   onConnectionChange: (handler: Handler<{ connected: boolean; reason?: string }>): Unsubscribe => {
-    return getSerialClient().onStatus((status, error) => {
+    return getDeviceLink().onStatus((status, error) => {
       if (status === 'connected') {
         handler({ connected: true })
         return
@@ -96,6 +96,6 @@ export const deviceEvents = {
   },
 
   onActivity: (handler: Handler<'rx' | 'tx'>): Unsubscribe => {
-    return getSerialClient().onActivity(handler)
+    return getDeviceLink().onActivity(handler)
   },
 }

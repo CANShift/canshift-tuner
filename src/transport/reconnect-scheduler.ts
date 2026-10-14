@@ -19,20 +19,20 @@ export const nextReconnectAction = (ctx: ReconnectContext): ReconnectAction => {
   return stableUptime ? 'reset-backoff' : 'reconnect'
 }
 
-export interface ReconnectSchedulerDeps {
+export interface ReconnectSchedulerDeps<T> {
   enabled: () => boolean
-  attempt: (port: SerialPort) => Promise<void>
+  attempt: (target: T) => Promise<void>
   onScheduled: () => void
   onExhausted: () => void
 }
 
-export class ReconnectScheduler {
+export class ReconnectScheduler<T> {
   private timer: ReturnType<typeof setTimeout> | null = null
   private delay = RECONNECT_INITIAL_MS
   private attempts = 0
   private openedAt: number | null = null
 
-  constructor(private readonly deps: ReconnectSchedulerDeps) {}
+  constructor(private readonly deps: ReconnectSchedulerDeps<T>) {}
 
   isBackedOff(): boolean {
     return this.delay > RECONNECT_INITIAL_MS
@@ -50,7 +50,7 @@ export class ReconnectScheduler {
     this.attempts = 0
   }
 
-  handleClose(port: SerialPort | null, wasConnected: boolean): void {
+  handleClose(target: T | null, wasConnected: boolean): void {
     const action = nextReconnectAction({
       wasConnected,
       backedOff: this.isBackedOff(),
@@ -60,7 +60,7 @@ export class ReconnectScheduler {
     this.openedAt = null
     if (action === 'idle') return
     if (action === 'reset-backoff') this.delay = RECONNECT_INITIAL_MS
-    this.schedule(port)
+    this.schedule(target)
   }
 
   cancel(): void {
@@ -70,10 +70,10 @@ export class ReconnectScheduler {
     }
   }
 
-  private schedule(port: SerialPort | null): void {
+  private schedule(target: T | null): void {
     if (!this.deps.enabled()) return
     if (this.timer) return
-    if (!port) return
+    if (target === null) return
     if (this.attempts >= RECONNECT_MAX_ATTEMPTS) {
       this.deps.onExhausted()
       return
@@ -84,8 +84,8 @@ export class ReconnectScheduler {
       this.timer = null
       this.attempts += 1
       this.delay = Math.min(this.delay * RECONNECT_FACTOR, RECONNECT_MAX_MS)
-      void this.deps.attempt(port).catch(() => {
-        this.schedule(port)
+      void this.deps.attempt(target).catch(() => {
+        this.schedule(target)
       })
     }, this.delay)
   }

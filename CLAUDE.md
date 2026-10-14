@@ -1,6 +1,6 @@
 # canshift-tuner — Project Rules
 
-Browser configurator for CANShift dashes (org: github.com/CANShift). Vite + React 18 + TypeScript + Zustand/immer + Tailwind. Talks WebSerial (CH340 UART).
+Browser configurator for CANShift dashes (org: github.com/CANShift). Vite + React 18 + TypeScript + Zustand/immer + Tailwind. Talks to the dash over a WebSocket (`ws://<host>/ws`) when the dash serves it, or WebSerial over USB as the desktop fallback.
 
 ## Commands
 
@@ -14,6 +14,7 @@ Browser configurator for CANShift dashes (org: github.com/CANShift). Vite + Reac
 - Components live under `src/components/<area>/` with a props interface; check `src/components/ui/` (shadcn) before writing bespoke UI. Arrow functions, no comments, no nested ifs.
 - Zero comments policy; TS strict; wire-format JSON stays snake_case via boundary mappers.
 - Never write "RealDash" outside the literal `<RealDashCAN>` parser tag.
+- Transport: one `DeviceLink` interface, two clients (`websocket-client.ts`, `webserial-client.ts`) sharing `AckQueue` and the JSON line protocol; `src/lib/transport-choice.ts` decides which. `?dash=` / `VITE_DASH_HOST` points dev at a dash or a mock.
 - Offline by construction: the studio is served from the dash's own access point, so nothing may fetch from the network at runtime. No analytics, no remote APIs, no CDN assets.
 
 ## Code shape

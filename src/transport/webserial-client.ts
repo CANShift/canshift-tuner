@@ -1,12 +1,14 @@
 import { humanizeTransportError } from './humanize-transport-error'
 import { bestEffort } from './best-effort'
 import { errorMessage } from '../lib/error-message'
+import { parseFrame } from './frame-parse'
 import { LineFramer } from './line-framer'
 import { AckQueue } from './ack-queue'
 import { ReconnectScheduler } from './reconnect-scheduler'
 import { SerialEventHub } from './serial-events'
 import type { AckResult, SendOptions } from './ack-queue'
 import type { SerialActivityDirection, SerialStatus, StatusListener } from './serial-events'
+import type { DeviceLink } from './device-link'
 
 export { putConfigTimeoutMs } from './ack-queue'
 export type { AckResult, SendOptions } from './ack-queue'
@@ -31,23 +33,8 @@ interface PortHandles {
   writer: WritableStreamDefaultWriter<Uint8Array>
 }
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null
-
-const safeJsonParse = (line: string): unknown => {
-  const trimmed = line.trim()
-  if (trimmed.length === 0 || !trimmed.startsWith('{')) return null
-  try {
-    return JSON.parse(trimmed) as unknown
-  } catch (err) {
-    const reason = errorMessage(err, 'unknown')
-    const preview = trimmed.length > 80 ? `${trimmed.slice(0, 80)}…` : trimmed
-    console.warn(`[serial] dropped malformed frame (${reason}): ${preview}`)
-    return null
-  }
-}
-
-export class SerialClient {
+export class SerialClient implements DeviceLink {
+  readonly kind = 'usb'
   private active: PortHandles | null = null
   private readLoop: Promise<void> | null = null
   private status: SerialStatus = 'disconnected'
@@ -59,7 +46,7 @@ export class SerialClient {
   private readonly framer = new LineFramer()
   private readonly hub = new SerialEventHub()
   private readonly acks: AckQueue
-  private readonly reconnect: ReconnectScheduler
+  private readonly reconnect: ReconnectScheduler<SerialPort>
 
   constructor(opts: SerialClientOptions = {}) {
     this.baudRate = opts.baudRate ?? DEFAULT_BAUD_RATE
@@ -119,6 +106,13 @@ export class SerialClient {
     }
 
     return this.openPort(target)
+  }
+
+  async autoConnect(): Promise<void> {
+    if (typeof navigator === 'undefined' || !navigator.serial) return
+    const [first] = await navigator.serial.getPorts()
+    if (!first) return
+    await this.connect(first)
   }
 
   disconnect(): void {
@@ -261,8 +255,8 @@ export class SerialClient {
   }
 
   private onFrame(raw: string): void {
-    const parsed = safeJsonParse(raw)
-    if (!isRecord(parsed)) return
+    const parsed = parseFrame(raw)
+    if (parsed === null) return
     this.hub.emitActivity('rx')
     if (this.acks.routeAck(parsed)) return
     this.hub.routeSubscription(parsed)

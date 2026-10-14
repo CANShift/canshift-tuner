@@ -3,10 +3,10 @@ import { CURRENT_SCHEMA_VERSION } from '@canshift/core'
 
 import { DEFAULT_SIM_CONFIG } from '../../config/default-sim-config'
 import { deviceIpc } from '../device-ipc'
-import { getSerialClient } from '../webserial-client'
+import { getDeviceLink } from '../link'
 
-vi.mock('../webserial-client', () => ({
-  getSerialClient: vi.fn(),
+vi.mock('../link', () => ({
+  getDeviceLink: vi.fn(),
 }))
 
 const sendMock = vi.fn()
@@ -21,8 +21,8 @@ const respondWith = (response: {
 
 beforeEach(() => {
   sendMock.mockReset()
-  vi.mocked(getSerialClient).mockReturnValue({ send: sendMock } as unknown as ReturnType<
-    typeof getSerialClient
+  vi.mocked(getDeviceLink).mockReturnValue({ send: sendMock } as unknown as ReturnType<
+    typeof getDeviceLink
   >)
 })
 

@@ -4,7 +4,7 @@ import { CURRENT_SCHEMA_VERSION, DashboardConfigSchema, migrateConfig } from '@c
 import { CMD_GET_CONFIG } from './opcodes'
 import type { DeviceConfigResult } from './types'
 import { isRecord } from './types'
-import { getSerialClient } from './webserial-client'
+import { getDeviceLink } from './link'
 import { errorMessage } from '../lib/error-message'
 
 const migrateAndParse = (raw: Record<string, unknown>): DeviceConfigResult => {
@@ -30,7 +30,7 @@ const migrateAndParse = (raw: Record<string, unknown>): DeviceConfigResult => {
 
 export const deviceIpc = {
   getConfig: async (): Promise<DeviceConfigResult> => {
-    const result = await getSerialClient().send(CMD_GET_CONFIG, {}, { timeoutMs: 8_000 })
+    const result = await getDeviceLink().send(CMD_GET_CONFIG, {}, { timeoutMs: 8_000 })
     if (result.ok) {
       const cfg = result.data?.config
       if (!isRecord(cfg)) return { kind: 'none' }

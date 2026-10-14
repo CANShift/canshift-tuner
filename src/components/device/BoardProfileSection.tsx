@@ -4,7 +4,7 @@ import { DeviceSection } from './DeviceSection'
 
 const provisionBlockedNote = (hasBoard: boolean, linked: boolean): string => {
   if (!hasBoard) return 'No board picked — choose one in the board definition below.'
-  if (!linked) return 'Connect the dash over USB to write its board profile.'
+  if (!linked) return 'Connect the dash to write its board profile.'
   return ''
 }
 

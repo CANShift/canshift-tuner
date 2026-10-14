@@ -1,7 +1,7 @@
 import type { DashboardConfig } from '@canshift/core'
 
 import { CMD_PUT_CONFIG_CHUNK } from './opcodes'
-import { getSerialClient } from './webserial-client'
+import { getDeviceLink } from './link'
 import type { BurnPushResult } from './types'
 
 const CHUNK_BYTES = 512
@@ -30,7 +30,7 @@ export const burnConfigChunked = async (config: DashboardConfig): Promise<BurnPu
   if (chunks.length === 0) {
     return { kind: 'error', code: 'empty_config' }
   }
-  const client = getSerialClient()
+  const client = getDeviceLink()
 
   for (const [idx, chunk] of chunks.entries()) {
     const isLast = idx === chunks.length - 1

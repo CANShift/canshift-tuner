@@ -1,9 +1,8 @@
 import { create } from 'zustand'
-import { getSerialClient, type SerialStatus } from '../transport/webserial-client'
+import { getDeviceLink } from '../transport/link'
+import type { SerialStatus } from '../transport/serial-events'
 import { useDeviceStore } from './device.store'
 import { errorMessage } from '../lib/error-message'
-
-const USB_LABEL = 'webserial'
 
 const NON_ERROR_CODES = new Set(['no_port_selected'])
 
@@ -11,23 +10,22 @@ const toReportableError = (error: string | null | undefined): string | null =>
   error !== undefined && error !== null && !NON_ERROR_CODES.has(error) ? error : null
 
 interface ConnectionState {
-  port: SerialPort | null
   status: SerialStatus
   lastError: string | null
 
-  connect: (port?: SerialPort) => Promise<void>
+  connect: () => Promise<void>
   disconnect: () => void
   tryAutoReconnect: () => Promise<void>
 }
 
-export const useConnectionStore = create<ConnectionState>()((set, get) => {
-  const client = getSerialClient()
+export const useConnectionStore = create<ConnectionState>()((set) => {
+  const client = getDeviceLink()
 
   const unsubscribeStatus = client.onStatus((status, error) => {
     const reportable = toReportableError(error)
     set({ status, lastError: reportable })
     if (status === 'connected') {
-      useDeviceStore.getState().setConnected(USB_LABEL)
+      useDeviceStore.getState().setConnected(client.kind)
     } else if (status === 'disconnected') {
       const device = useDeviceStore.getState()
       if (device.connected || reportable) {
@@ -43,14 +41,12 @@ export const useConnectionStore = create<ConnectionState>()((set, get) => {
   }
 
   return {
-    port: client.getPort(),
     status: client.getStatus(),
     lastError: null,
 
-    connect: async (port) => {
+    connect: async () => {
       try {
-        await client.connect(port)
-        set({ port: client.getPort() })
+        await client.connect()
       } catch (err) {
         const msg = errorMessage(err, 'connect_failed')
         set({ lastError: toReportableError(msg) })
@@ -59,16 +55,11 @@ export const useConnectionStore = create<ConnectionState>()((set, get) => {
 
     disconnect: () => {
       client.disconnect()
-      set({ port: null })
     },
 
     tryAutoReconnect: async () => {
-      if (typeof navigator === 'undefined' || !navigator.serial) return
       try {
-        const ports = await navigator.serial.getPorts()
-        const first = ports[0]
-        if (!first) return
-        await get().connect(first)
+        await client.autoConnect()
       } catch (err) {
         const msg = errorMessage(err, 'auto_reconnect_failed')
         set({ lastError: msg })

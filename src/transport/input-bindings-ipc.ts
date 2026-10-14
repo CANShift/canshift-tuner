@@ -7,7 +7,7 @@ import {
 } from '@canshift/core'
 
 import { CMD_GET_INPUT_BINDINGS, CMD_PUT_INPUT_BINDINGS } from './opcodes'
-import { getSerialClient } from './webserial-client'
+import { getDeviceLink } from './link'
 
 export const inputBindingsIpc = {
   read: async (): Promise<{
@@ -15,7 +15,7 @@ export const inputBindingsIpc = {
     config: InputBindingsConfig | null
     error?: string
   }> => {
-    const result = await getSerialClient().send(CMD_GET_INPUT_BINDINGS)
+    const result = await getDeviceLink().send(CMD_GET_INPUT_BINDINGS)
     if (!result.ok) {
       if (result.error === 'config_not_found') {
         return { success: true, config: { inputBindings: [] } }
@@ -40,7 +40,7 @@ export const inputBindingsIpc = {
       return { success: false, error: 'invalid_input_bindings' }
     }
     const wire = inputBindingsToWire(parsed.data)
-    const result = await getSerialClient().send(CMD_PUT_INPUT_BINDINGS, wire)
+    const result = await getDeviceLink().send(CMD_PUT_INPUT_BINDINGS, wire)
     if (result.ok) return { success: true }
     return { success: false, error: result.error ?? 'unknown_error' }
   },

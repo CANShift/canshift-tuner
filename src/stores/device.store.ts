@@ -1,3 +1,4 @@
+import type { LinkKind } from '../transport/device-link'
 import { create } from 'zustand'
 import { readItem, writeItem, STORAGE_KEYS } from '../lib/local-storage'
 import type { DashboardConfig } from '@canshift/core'
@@ -5,7 +6,7 @@ import type { BurnFailure } from '../lib/burn-failure'
 
 export type ConnectionStatus = 'disconnected' | 'connected' | 'burning' | 'error'
 
-export type Transport = 'usb'
+export type Transport = LinkKind
 
 export type BurnPhase = 'idle' | 'pushing' | 'verifying' | 'done'
 
@@ -34,7 +35,6 @@ export const HEAP_STATS_RING_CAP = 360
 
 interface DeviceState {
   status: ConnectionStatus
-  portPath: string | null
   transport: Transport | null
   firmwareVersion: string | null
   boardId: string | null
@@ -54,7 +54,7 @@ interface DeviceState {
 
   isDayMode: boolean | null
 
-  setConnected: (portPath: string) => void
+  setConnected: (transport: Transport) => void
   setDisconnected: (error?: string | null) => void
   setSyncing: (syncing: boolean) => void
   setSyncComplete: (at: Date) => void
@@ -92,7 +92,6 @@ const simulationRestored = readSimulationMode()
 
 export const useDeviceStore = create<DeviceState>()((set) => ({
   status: simulationRestored ? 'connected' : 'disconnected',
-  portPath: null,
   transport: null,
   firmwareVersion: null,
   boardId: null,
@@ -109,11 +108,10 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
   burnPhase: 'idle',
   lastBurnResult: null,
 
-  setConnected: (portPath) => {
+  setConnected: (transport) => {
     set({
       status: 'connected',
-      portPath,
-      transport: 'usb',
+      transport,
       connected: true,
       simulationMode: false,
       syncing: false,
@@ -124,7 +122,6 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
   setDisconnected: (error) => {
     set({
       status: error ? 'error' : 'disconnected',
-      portPath: null,
       transport: null,
       connected: false,
       syncing: false,
@@ -203,7 +200,6 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
       simulationMode: true,
       status: 'connected',
       connected: true,
-      portPath: null,
       transport: null,
     })
   },
@@ -214,7 +210,6 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
       simulationMode: false,
       status: 'disconnected',
       connected: false,
-      portPath: null,
       transport: null,
     })
   },
