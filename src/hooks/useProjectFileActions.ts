@@ -1,5 +1,5 @@
 import { useRef, type ChangeEvent } from 'react'
-import { useProjectStore } from '../stores/project/project.store'
+import { useProjectStore, type ImportResult } from '../stores/project/project.store'
 import { useLogStore } from '../stores/log.store'
 import { useUiStore } from '../stores/ui.store'
 import { downloadProjectFile, readProjectFileText } from '../lib/project-file'
@@ -11,51 +11,60 @@ export interface ProjectFileActions {
   handleImportChange: (event: ChangeEvent<HTMLInputElement>) => Promise<void>
 }
 
-export const useProjectFileActions = (): ProjectFileActions => {
-  const importProject = useProjectStore((s) => s.importProject)
-  const exportProject = useProjectStore((s) => s.exportProject)
-  const log = useLogStore((s) => s.push)
-  const setImportNotice = useUiStore((s) => s.setImportNotice)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const exportProjectFile = (id: string | null, name: string) => {
-    if (id === null) return
-    const json = exportProject(id)
-    if (json === null) {
-      log('error', 'Could not export the project.')
-      return
-    }
-    downloadProjectFile(name, json)
-    log('info', `Exported “${name}”.`)
+const readImportText = async (file: File): Promise<string | null> => {
+  try {
+    return await readProjectFileText(file)
+  } catch {
+    useLogStore.getState().push('error', 'Could not read the selected file.')
+    return null
   }
+}
 
+const panelNotice = (name: string, panel: string | null): string | null =>
+  panel === null
+    ? null
+    : `“${name}” was built for a ${panel}. The panel switched to match — check the layout before burning.`
+
+const announceImport = (result: ImportResult) => {
+  const log = useLogStore.getState().push
+  if (!result.ok) {
+    log('error', result.error)
+    return
+  }
+  log('success', `Imported “${result.name}”.`)
+  useUiStore.getState().setImportNotice(panelNotice(result.name, result.panelSwitchedTo))
+}
+
+const exportFile = (id: string | null, name: string) => {
+  if (id === null) return
+  const log = useLogStore.getState().push
+  const json = useProjectStore.getState().exportProject(id)
+  if (json === null) {
+    log('error', 'Could not export the project.')
+    return
+  }
+  downloadProjectFile(name, json)
+  log('info', `Exported “${name}”.`)
+}
+
+const importFile = async (event: ChangeEvent<HTMLInputElement>) => {
+  const file = event.target.files?.[0]
+  event.target.value = ''
+  if (!file) return
+  const raw = await readImportText(file)
+  if (raw === null) return
+  announceImport(useProjectStore.getState().importProject(raw))
+}
+
+export const useProjectFileActions = (): ProjectFileActions => {
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const openImportPicker = () => {
     fileInputRef.current?.click()
   }
-
-  const handleImportChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    event.target.value = ''
-    if (!file) return
-    let raw: string
-    try {
-      raw = await readProjectFileText(file)
-    } catch {
-      log('error', 'Could not read the selected file.')
-      return
-    }
-    const result = importProject(raw)
-    if (!result.ok) {
-      log('error', result.error)
-      return
-    }
-    log('success', `Imported “${result.name}”.`)
-    setImportNotice(
-      result.panelSwitchedTo === null
-        ? null
-        : `“${result.name}” was built for a ${result.panelSwitchedTo}. The panel switched to match — check the layout before burning.`
-    )
+  return {
+    fileInputRef,
+    exportProjectFile: exportFile,
+    openImportPicker,
+    handleImportChange: importFile,
   }
-
-  return { fileInputRef, exportProjectFile, openImportPicker, handleImportChange }
 }

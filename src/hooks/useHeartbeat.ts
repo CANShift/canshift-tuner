@@ -3,67 +3,52 @@ import { useDeviceStore } from '../stores/device.store'
 import { useLogStore } from '../stores/log.store'
 import { usbService } from '../transport'
 import { transportErrorText } from '../transport/humanize-transport-error'
+import { HeartbeatTracker } from '../lib/heartbeat-tracker'
+import { useLiveTransport } from './useLiveTransport'
 
 const HEARTBEAT_INTERVAL_MS = 5_000
-const HEARTBEAT_MISS_THRESHOLD = 3
+
+const reportUnresponsive = (missed: number, error: string) => {
+  useLogStore
+    .getState()
+    .push(
+      'error',
+      `Firmware unresponsive — ${String(missed)} pings missed (${transportErrorText(error)})`
+    )
+}
+
+const startHeartbeat = (): (() => void) => {
+  const tracker = new HeartbeatTracker()
+  let cancelled = false
+  const probe = async () => {
+    const result = await usbService.ping()
+    if (cancelled) return
+    const outcome = tracker.record(result, Date.now())
+    if (outcome.liveness) useDeviceStore.getState().setFirmwareLiveness(outcome.liveness)
+    if (outcome.reportUnresponsive && result.kind === 'error')
+      reportUnresponsive(tracker.missedPings(), result.error)
+  }
+  void probe()
+  const id = window.setInterval(() => void probe(), HEARTBEAT_INTERVAL_MS)
+  return () => {
+    cancelled = true
+    window.clearInterval(id)
+  }
+}
 
 export const useHeartbeat = (): void => {
-  const connected = useDeviceStore((s) => s.connected)
-  const transport = useDeviceStore((s) => s.transport)
-  const simulationMode = useDeviceStore((s) => s.simulationMode)
+  const transport = useLiveTransport()
   const setFirmwareLiveness = useDeviceStore((s) => s.setFirmwareLiveness)
-  const log = useLogStore((s) => s.push)
 
   useEffect(() => {
-    if (!connected || simulationMode || transport === null) {
+    if (transport === null) {
       setFirmwareLiveness({ kind: 'unknown' })
       return
     }
-    let cancelled = false
-    let missed = 0
-    let unresponsiveLogged = false
-    let firstMissedAt: number | null = null
-
-    const probe = async () => {
-      const result = await usbService.ping()
-      if (cancelled) return
-      if (result.kind === 'ok') {
-        missed = 0
-        firstMissedAt = null
-        unresponsiveLogged = false
-        setFirmwareLiveness({
-          kind: 'alive',
-          lastPongAt: Date.now(),
-          uptimeMs: result.uptimeMs,
-        })
-        return
-      }
-      missed += 1
-      if (firstMissedAt === null) firstMissedAt = Date.now()
-      if (missed >= HEARTBEAT_MISS_THRESHOLD) {
-        setFirmwareLiveness({
-          kind: 'unresponsive',
-          missedPings: missed,
-          sinceMs: firstMissedAt,
-        })
-        if (!unresponsiveLogged) {
-          log(
-            'error',
-            `Firmware unresponsive — ${String(missed)} pings missed (${transportErrorText(result.error)})`
-          )
-          unresponsiveLogged = true
-        }
-      }
-    }
-
-    void probe()
-    const id = window.setInterval(() => {
-      void probe()
-    }, HEARTBEAT_INTERVAL_MS)
+    const stop = startHeartbeat()
     return () => {
-      cancelled = true
-      window.clearInterval(id)
+      stop()
       setFirmwareLiveness({ kind: 'unknown' })
     }
-  }, [connected, simulationMode, transport, setFirmwareLiveness, log])
+  }, [transport, setFirmwareLiveness])
 }

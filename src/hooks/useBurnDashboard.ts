@@ -74,56 +74,64 @@ const buildSteps = (deps: Omit<BurnSteps, 'fail'>): BurnSteps => ({
   },
 })
 
-export const useBurnDashboard = (): UseBurnDashboard => {
+const useBurnVerdict = (): BurnVerdict => {
   const config = useDashboardStore((s) => s.config)
   const isDirty = useDashboardStore((s) => s.isDirty)
-  const markPushed = useDashboardStore((s) => s.markPushed)
   const connected = useDeviceStore((s) => s.connected)
   const simulationMode = useDeviceStore((s) => s.simulationMode)
-  const firmwareCompat = useDeviceStore((s) => s.firmwareCompat)
+  const firmwareMismatch = useDeviceStore((s) => s.firmwareCompat.kind === 'mismatch')
   const connectionStatus = useConnectionStore((s) => s.status)
   const signals = useSignalStore((s) => s.signals)
-  const log = useLogStore((s) => s.push)
-
-  const burnPhase = useDeviceStore((s) => s.burnPhase)
-  const setBurnPhase = useDeviceStore((s) => s.setBurnPhase)
-  const setLastBurnResult = useDeviceStore((s) => s.setLastBurnResult)
-  const isBurning = burnPhase !== 'idle'
-
-  const verdict = useMemo(
+  return useMemo(
     () =>
       burnVerdict({
         hasDevice: connected && connectionStatus === 'connected',
         simulation: simulationMode,
-        firmwareMismatch: firmwareCompat.kind === 'mismatch',
+        firmwareMismatch,
         config,
         signals,
         isDirty,
       }),
-    [connected, connectionStatus, simulationMode, firmwareCompat.kind, config, signals, isDirty]
+    [connected, connectionStatus, simulationMode, firmwareMismatch, config, signals, isDirty]
   )
+}
 
+const burnException = (steps: BurnSteps, err: unknown) => {
+  const failure = describeBurnFailure({ stage: 'push', command: BURN_COMMAND, code: 'exception' })
+  steps.fail(failure, errorMessage(err))
+}
+
+const useBurnSteps = (): BurnSteps => {
+  const markPushed = useDashboardStore((s) => s.markPushed)
+  const setBurnPhase = useDeviceStore((s) => s.setBurnPhase)
+  const setLastBurnResult = useDeviceStore((s) => s.setLastBurnResult)
+  const log = useLogStore((s) => s.push)
+  return useMemo(
+    () => buildSteps({ log, markPushed, setBurnPhase, setLastBurnResult }),
+    [log, markPushed, setBurnPhase, setLastBurnResult]
+  )
+}
+
+export const useBurnDashboard = (): UseBurnDashboard => {
+  const config = useDashboardStore((s) => s.config)
+  const isBurning = useDeviceStore((s) => s.burnPhase !== 'idle')
+  const verdict = useBurnVerdict()
+  const steps = useBurnSteps()
   const canBurn = !isBurning && !burnBlocks(verdict)
 
   const burn = useCallback(async () => {
     if (!canBurn || !config) return
     if (useDeviceStore.getState().burnPhase !== 'idle') return
-    setBurnPhase('pushing')
-    setLastBurnResult(null)
-    const steps = buildSteps({ log, markPushed, setBurnPhase, setLastBurnResult })
+    steps.setBurnPhase('pushing')
+    steps.setLastBurnResult(null)
     try {
       await runBurn(config, steps)
     } catch (err) {
-      const failure = describeBurnFailure({
-        stage: 'push',
-        command: BURN_COMMAND,
-        code: 'exception',
-      })
-      steps.fail(failure, errorMessage(err))
+      burnException(steps, err)
     } finally {
-      setBurnPhase('idle')
+      steps.setBurnPhase('idle')
     }
-  }, [canBurn, config, markPushed, log, setBurnPhase, setLastBurnResult])
+  }, [canBurn, config, steps])
 
   const requestBurn = useCallback(() => {
     if (!canBurn) return
