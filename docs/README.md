@@ -1,9 +1,9 @@
 # Tuner documentation
 
-The tuner is the browser configurator: it flashes the dash, edits the
-dashboard, and reads live CAN data over Web Serial. Start with
-[First flash](install/first-flash.md) if the board is still sealed, or
-[Tuner tour](tour.md) if it already boots.
+The tuner is the browser configurator: it edits the dashboard and reads live
+CAN data over Web Serial. Put firmware on a sealed board with
+[Manual flash](install/manual-flash.md), then start with the
+[Tuner tour](tour.md).
 
 You need a Chromium browser (Chrome, Edge, Brave, Opera) — Web Serial does not
 exist in Firefox or Safari.
@@ -16,8 +16,7 @@ Docs for the other repos: [firmware](https://github.com/CANShift/canshift-firmwa
 
 | Doc                                        | What it covers                                                      |
 | ------------------------------------------ | ------------------------------------------------------------------- |
-| [First flash](install/first-flash.md)      | Sealed board to booting dashboard, about five minutes               |
-| [Manual flash](install/manual-flash.md)    | `esptool` over USB when the in-browser flasher will not do          |
+| [Manual flash](install/manual-flash.md)    | `esptool` over USB — writing firmware and recovering a stuck board  |
 | [Boot diagnostics](install/boot-issues.md) | Splash hangs, ErrorBar messages, silent USB — reading the boot logs |
 
 ## Configure

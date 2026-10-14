@@ -1,6 +1,6 @@
 # canshift-tuner — Project Rules
 
-Browser configurator for CANShift dashes (org: github.com/CANShift). Vite + React 18 + TypeScript + Zustand/immer + Tailwind. Talks WebSerial (CH340 UART); built-in esptool-js flasher.
+Browser configurator for CANShift dashes (org: github.com/CANShift). Vite + React 18 + TypeScript + Zustand/immer + Tailwind. Talks WebSerial (CH340 UART).
 
 ## Commands
 
@@ -14,8 +14,7 @@ Browser configurator for CANShift dashes (org: github.com/CANShift). Vite + Reac
 - Components live under `src/components/<area>/` with a props interface; check `src/components/ui/` (shadcn) before writing bespoke UI. Arrow functions, no comments, no nested ifs.
 - Zero comments policy; TS strict; wire-format JSON stays snake_case via boundary mappers.
 - Never write "RealDash" outside the literal `<RealDashCAN>` parser tag.
-- Observability: PostHog lives behind env (`VITE_POSTHOG_KEY`) _and_ behind consent — telemetry is opt-in, so nothing may load or beacon until `isObservabilityEnabled()` is true; scrub car data (payloads, frame ids, names) from anything sent.
-- Flasher reads releases from CANShift/canshift-firmware.
+- Offline by construction: the studio is served from the dash's own access point, so nothing may fetch from the network at runtime. No analytics, no remote APIs, no CDN assets.
 
 ## Code shape
 
@@ -34,4 +33,4 @@ Non-negotiable. Reviewed on every PR, ahead of feature count.
 
 - Branch `type/short-description`; Conventional Commits, subject only.
 - PR via `gh pr create`; required checks `lint`, `typecheck`, `test`, `build`; **rebase and merge only**.
-- Deploys: Cloudflare Workers via `.github/workflows/deploy.yml` — `wrangler versions upload` preview per PR, `wrangler deploy` on main. Static assets and the `/api/*` Worker ship together from `wrangler.jsonc`.
+- Deploys: Cloudflare Workers static assets via `.github/workflows/deploy.yml` — `wrangler versions upload` preview per PR, `wrangler deploy` on main, configured in `wrangler.jsonc`.

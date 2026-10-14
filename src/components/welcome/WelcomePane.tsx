@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react'
 import type { BenchEntry } from '../../lib/bench-entry'
 import { FirstRunChoice } from './FirstRunChoice'
 import { RecentConfigRow } from './RecentConfigRow'
@@ -18,7 +17,6 @@ export interface WelcomePaneProps {
   onOpen: (id: string) => void
   onExport: (id: string, name: string) => void
   onDelete: (id: string) => void
-  updateBand: ReactNode
 }
 
 const KICKER = 'font-mono text-[10.5px] tracking-[0.2em] text-ui-muted'
@@ -40,7 +38,6 @@ export const WelcomePane = ({
   onOpen,
   onExport,
   onDelete,
-  updateBand,
 }: WelcomePaneProps) => (
   <div className="flex min-h-0 flex-1 flex-col">
     <div className="min-h-0 flex-1 overflow-y-auto">
@@ -104,7 +101,6 @@ export const WelcomePane = ({
         )}
       </div>
     </div>
-    {updateBand}
   </div>
 )
 

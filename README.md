@@ -4,8 +4,7 @@ Betaflight-style web configurator for CANShift dashes. Hosted on Cloudflare Work
 to the firmware via **WebSerial** over the CH340 UART that already serves as
 the upload / serial port.
 
-📖 **[Documentation](docs/README.md)** — flashing, configuring, and a tour of
-every tab.
+📖 **[Documentation](docs/README.md)** — configuring, and a tour of every tab.
 
 ## Why this package
 
@@ -15,8 +14,7 @@ every tab.
 - WebSerial transport — works on any Chromium browser, talks to the
   Arduino `Serial` (UART) the firmware speaks. No on-device WiFi stack, no
   SPA-on-SPIFFS coupling between configurator and firmware partitions.
-- Betaflight-style sidebar UX — Welcome, Dashboard editor, Themes, CAN bus,
-  ECU profile, OBD-II, Live data, Logs, CLI, Firmware (flasher), About.
+- Betaflight-style UX — Welcome, Dash editor, Signals, Live data, Device.
 
 ## Editor highlights
 
@@ -29,9 +27,6 @@ every tab.
   switch as one unit; the CAN scan and Learn mode keep running across views.
 - Burn gate — unbound widgets render the device's `--` placeholder, are
   counted in the toolbar, and prompt once before burning.
-- Observability is opt-in (About view, off by default): nothing is loaded or
-  requested until the toggle is on. Once on, PostHog flow events only —
-  payloads, frame ids and names are scrubbed client-side.
 
 ## Dev
 
@@ -44,9 +39,6 @@ npm run lint
 npm run format:check # enforced in CI
 npm run build
 ```
-
-Optional env: `VITE_POSTHOG_KEY` / `VITE_POSTHOG_HOST` (analytics) — no-op when
-unset, and no-op until the user opts in.
 
 WebSerial requires Chrome / Edge / Brave / Opera. Firefox + Safari users get
 a friendly fallback message.

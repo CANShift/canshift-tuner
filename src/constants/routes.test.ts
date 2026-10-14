@@ -17,9 +17,9 @@ const V1_PATHS = [
 ]
 
 describe('the v2 route map', () => {
-  it('exposes five views and three home panes', () => {
-    expect(ROUTE_PATHS).toHaveLength(7)
-    expect(HOME_PATHS.size).toBe(3)
+  it('exposes four views and the home pane', () => {
+    expect(ROUTE_PATHS).toHaveLength(5)
+    expect(HOME_PATHS.size).toBe(1)
   })
 
   it('gives every v1 path a home, so no bookmark 404s', () => {

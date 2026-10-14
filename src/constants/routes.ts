@@ -7,16 +7,7 @@ export const ROUTE_META = {
   '/': {
     title: 'CANShift Tuner',
     description:
-      'Configure your CANShift dash, live. Edit pages, bind CAN signals, tune OBD-II polling and flash firmware — all in your browser.',
-  },
-  '/flash': {
-    title: 'Flash — CANShift Tuner',
-    description:
-      'Write a firmware version to the board over USB, or wipe it back to a blank state.',
-  },
-  '/contact': {
-    title: 'Contact — CANShift Tuner',
-    description: 'Report a bug, request an ECU profile, or ask a question about a build.',
+      'Configure your CANShift dash, live. Edit pages, bind CAN signals and tune OBD-II polling — all in your browser.',
   },
   '/dash': {
     title: 'Dash — CANShift Tuner',
@@ -50,12 +41,14 @@ export const LEGACY_REDIRECTS: Record<string, RoutePath> = {
   '/obd2': '/signals',
   '/themes': '/device',
   '/board': '/device',
-  '/firmware': '/flash',
-  '/about': '/contact',
+  '/firmware': '/',
+  '/flash': '/',
+  '/about': '/',
+  '/contact': '/',
   '/logs': '/live',
   '/cli': '/dash',
 }
 
-export const HOME_PATHS = new Set<RoutePath>(['/', '/flash', '/contact'])
+export const HOME_PATHS = new Set<RoutePath>(['/'])
 
 export const DEVICE_GATED_PATHS = new Set<RoutePath>(['/dash', '/signals', '/live', '/device'])

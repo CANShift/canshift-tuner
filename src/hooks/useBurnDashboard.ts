@@ -11,7 +11,6 @@ import { humanizeTransportError } from '../transport/humanize-transport-error'
 import { verifyBurnedConfig, type VerifyResult } from '../lib/verify-burned-config'
 import { describeBurnFailure, type BurnFailure } from '../lib/burn-failure'
 import { burnBlocks, burnVerdict, type BurnVerdict } from '../lib/burn-verdict'
-import { captureFlowEvent } from '../lib/posthog'
 import { errorMessage } from '../lib/error-message'
 
 const VERIFY_COMMAND = 'GET_CONFIG'
@@ -31,7 +30,7 @@ interface BurnSteps {
   markPushed: () => void
   setBurnPhase: (phase: BurnPhase) => void
   setLastBurnResult: (result: BurnResult | null) => void
-  fail: (failure: BurnFailure, outcome: string, detail: string | undefined) => void
+  fail: (failure: BurnFailure, detail: string | undefined) => void
 }
 
 const verifyDetail = (verify: VerifyFailure): string | undefined =>
@@ -46,7 +45,7 @@ const runBurn = async (config: DashboardConfig, steps: BurnSteps): Promise<void>
       code: pushed.code,
       chunk: pushed.chunk,
     })
-    steps.fail(failure, 'push_failed', pushed.detail)
+    steps.fail(failure, pushed.detail)
     return
   }
   steps.setBurnPhase('verifying')
@@ -58,22 +57,20 @@ const runBurn = async (config: DashboardConfig, steps: BurnSteps): Promise<void>
       command: VERIFY_COMMAND,
       code: verify.kind,
     })
-    steps.fail(failure, 'verify_failed', verifyDetail(verify))
+    steps.fail(failure, verifyDetail(verify))
     return
   }
   steps.markPushed()
   steps.log('success', 'Dashboard burned + verified on device')
   steps.setLastBurnResult({ kind: 'success' })
-  captureFlowEvent('burn_completed', { outcome: 'success' })
 }
 
 const buildSteps = (deps: Omit<BurnSteps, 'fail'>): BurnSteps => ({
   ...deps,
-  fail: (failure, outcome, detail) => {
+  fail: (failure, detail) => {
     const suffix = detail === undefined ? '' : ` (${detail})`
     deps.log('error', `Burn failed: ${failure.body}${suffix}`)
     deps.setLastBurnResult({ kind: 'error', failure })
-    captureFlowEvent('burn_completed', { outcome, reason: failure.code })
   },
 })
 
@@ -122,7 +119,7 @@ export const useBurnDashboard = (): UseBurnDashboard => {
         command: BURN_COMMAND,
         code: 'exception',
       })
-      steps.fail(failure, 'exception', errorMessage(err))
+      steps.fail(failure, errorMessage(err))
     } finally {
       setBurnPhase('idle')
     }

@@ -1,8 +1,8 @@
 # Manual flash
 
-Use the in-browser flasher first — it covers 95% of cases. **This page is
-the fallback** for when the in-browser path can't recover the device
-(corrupted flash, brownout damage, mid-write power glitch, etc.).
+The tuner has no flasher: firmware goes onto the board with `esptool`
+over USB. This page covers that path, including recovering a device left
+in a bad state (corrupted flash, brownout damage, mid-write power glitch, etc.).
 
 The procedure runs `esptool.py` directly against the CH340 UART. Tested on
 CrowPanel-28 (ESP32-D0WDQ6 rev 1.1 + W25Q32 flash).

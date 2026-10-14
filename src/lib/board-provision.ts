@@ -1,11 +1,5 @@
 import { serializeBoardProfile, type BoardProfile, type BoardProfileBlob } from '@canshift/core'
 
-import { buildNvsImage } from './nvs-image'
-
-const NVS_NAMESPACE = 'boardcfg'
-const NVS_KEY = 'profile'
-const NVS_PARTITION_SIZE = 0x5000
-
 export const INVALID_BOARD_PROFILE = 'invalid_board_profile'
 export const UNKNOWN_BOARD_ID = 'unknown_board_id'
 
@@ -29,9 +23,6 @@ export const boardProvisionPayload = (
 
 export const boardProfileBlob = (profile: BoardProfile): BoardProfileBlob =>
   JSON.parse(serializeBoardProfile(profile)) as BoardProfileBlob
-
-export const boardProfileNvsImage = (blob: string): Uint8Array =>
-  buildNvsImage(NVS_NAMESPACE, NVS_KEY, blob, NVS_PARTITION_SIZE)
 
 interface BoardProfileAck {
   ok: boolean
