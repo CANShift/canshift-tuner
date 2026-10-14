@@ -11,7 +11,7 @@ const roundTrip = (signals: readonly SignalDef[]): SignalDef[] => {
   return result.signals
 }
 
-describe('profile XML', () => {
+describe('profile XML: round-trips a built-in profile', () => {
   it('round-trips a built-in profile without losing a signal', () => {
     expect(MAXXECU.length).toBeGreaterThan(0)
     expect(roundTrip(MAXXECU)).toEqual(MAXXECU)
@@ -34,7 +34,9 @@ describe('profile XML', () => {
     }
     expect(roundTrip([signal])).toEqual([signal])
   })
+})
 
+describe('profile XML: carries the optional warning', () => {
   it('carries the optional warning and danger levels across the round trip', () => {
     const signal: SignalDef = {
       name: 'coolant',
@@ -60,7 +62,9 @@ describe('profile XML', () => {
     expect(xml).toContain('name="a&quot;b"')
     expect(roundTrip([{ ...MAXXECU[0], name: 'a"b' } as SignalDef])[0]?.name).toBe('a"b')
   })
+})
 
+describe('profile XML: reports a file', () => {
   it('reports a file that is not a CANShift profile', () => {
     expect(parseProfileXml('<RealDashCAN version="2"></RealDashCAN>')).toEqual({
       kind: 'not-a-profile',

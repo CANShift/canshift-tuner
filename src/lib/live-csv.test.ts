@@ -11,7 +11,7 @@ const SAMPLES = [
   { t: 0.1, values: { rpm: 5310.5, water: 88, gear: 4 } },
 ]
 
-describe('buildLiveCsv', () => {
+describe('buildLiveCsv: heads every column', () => {
   it('heads every column with the signal and its unit', () => {
     const [head] = buildLiveCsv(SIGNALS, SAMPLES, 'metric').split('\n')
     expect(head).toBe('seconds,rpm (rpm),water (°C),gear')
@@ -36,7 +36,9 @@ describe('buildLiveCsv', () => {
     )
     expect(csv.split('\n')[0]).toBe('seconds,"oil, hot (bar)"')
   })
+})
 
+describe('buildLiveCsv: writes the imperial unit', () => {
   it('writes the imperial unit in the header and the converted value in the row', () => {
     const csv = buildLiveCsv(
       [signal('coolant', '°C')],

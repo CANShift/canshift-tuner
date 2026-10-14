@@ -16,12 +16,12 @@ const frame = (over: Partial<CanFrameStats>): CanFrameStats => ({
 
 const ids = (frames: CanFrameStats[]): number[] => frames.map((f) => f.id)
 
-describe('sortFrames', () => {
-  const a = frame({ id: 0x200, lastSeenMs: 10, rateHz: 5, count: 100 })
-  const b = frame({ id: 0x100, lastSeenMs: 30, rateHz: 1, count: 300 })
-  const c = frame({ id: 0x300, lastSeenMs: 20, rateHz: 9, count: 200 })
-  const frames = [a, b, c]
+const a = frame({ id: 0x200, lastSeenMs: 10, rateHz: 5, count: 100 })
+const b = frame({ id: 0x100, lastSeenMs: 30, rateHz: 1, count: 300 })
+const c = frame({ id: 0x300, lastSeenMs: 20, rateHz: 9, count: 200 })
+const frames = [a, b, c]
 
+describe('sortFrames: sorts by id ascending', () => {
   it('sorts by id ascending', () => {
     expect(ids(sortFrames(frames, 'id', null))).toEqual([0x100, 0x200, 0x300])
   })
@@ -37,7 +37,9 @@ describe('sortFrames', () => {
   it('sorts by count descending', () => {
     expect(ids(sortFrames(frames, 'count', null))).toEqual([0x100, 0x300, 0x200])
   })
+})
 
+describe('sortFrames: sorts by learn activity, falling', () => {
   it('sorts by learn activity, falling back to id for ties', () => {
     const scores = new Map([
       [0x200, 9],
