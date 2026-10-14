@@ -42,9 +42,10 @@ const sendChunks = async (
 
 export const installFirmware = async (
   bytes: Uint8Array,
+  signature: Uint8Array,
   onProgress: UpdateProgress
 ): Promise<UpdateResult> => {
-  const begin = await otaIpc.begin(bytes.byteLength, await sha256Hex(bytes))
+  const begin = await otaIpc.begin(bytes.byteLength, await sha256Hex(bytes), toBase64(signature))
   if (!begin.ok) return failure(begin)
   const rejected = await sendChunks(bytes, onProgress)
   if (rejected !== null) {

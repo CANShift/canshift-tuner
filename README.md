@@ -63,9 +63,13 @@ npm run dev         # then open http://localhost:5173/?dash=localhost:8787
 
 The mock answers the version handshake, ping, config read and chunked burn, the device
 config (CAN bus speed, which reboots it like the real dash), firmware updates (it checks the
-image, the offsets and the SHA-256, then reboots reporting the new version), day/night and the
-other commands, and streams telemetry, heap and CAN-rate frames. It keeps its state in memory
-until you stop it.
+image, the offsets, the SHA-256 and the Ed25519 signature, then reboots reporting the new
+version), day/night and the other commands, and streams telemetry, heap and CAN-rate frames. It
+keeps its state in memory until you stop it.
+
+The mock verifies signatures against a throwaway key it generates on every start, never the
+release key. Sign a test image with it while it runs: `npm run mock-dash:sign -- <firmware.bin>`
+writes `<firmware.bin>.sig` beside it.
 
 ## Releasing the dash bundle
 

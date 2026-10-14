@@ -16,9 +16,10 @@ const INSTALLABLE = new Set<FirmwareUpdateState['kind']>(['ready', 'failed'])
 const sizeLabel = (bytes: number): string => `${String(Math.round(bytes / BYTES_PER_KB))} KB`
 
 const STATUS: Record<FirmwareUpdateState['kind'], (state: FirmwareUpdateState) => string> = {
-  empty: () => 'Download the signed firmware .bin from the release, then choose it here.',
+  empty: () => 'Download the firmware .bin and its .sig from the release, then choose both here.',
   invalid: (state) => (state.kind === 'invalid' ? state.message : ''),
-  ready: () => 'The dash checks the image, writes it to its spare slot and restarts into it.',
+  ready: () =>
+    'The dash checks the image and its signature, writes it to its spare slot and restarts into it.',
   installing: () => 'Installing — keep the dash powered and this page open.',
   installed: (state) => (state.kind === 'installed' ? INSTALLED_MESSAGES[state.link] : ''),
   failed: (state) => (state.kind === 'failed' ? state.message : ''),
@@ -52,7 +53,8 @@ const PickedSummary = ({ image }: { image: PickedImage }) => (
   <p className="text-[13px] text-ui-muted">
     <span className="font-mono text-ui-ink">{image.name}</span> ·{' '}
     {sizeLabel(image.bytes.byteLength)} · version{' '}
-    <span className="font-mono text-ui-ink">{image.info.version}</span>
+    <span className="font-mono text-ui-ink">{image.info.version}</span> · signature{' '}
+    <span className="font-mono text-ui-ink">{image.signatureName}</span>
   </p>
 )
 
@@ -69,7 +71,12 @@ const InstallProgress = ({ state }: { state: FirmwareUpdateState }) => {
   )
 }
 
-const FilePicker = ({ disabled, onPick }: { disabled: boolean; onPick: (file: File) => void }) => {
+interface FilePickerProps {
+  disabled: boolean
+  onPick: (files: readonly File[]) => void
+}
+
+const FilePicker = ({ disabled, onPick }: FilePickerProps) => {
   const input = useRef<HTMLInputElement>(null)
   return (
     <>
@@ -79,16 +86,18 @@ const FilePicker = ({ disabled, onPick }: { disabled: boolean; onPick: (file: Fi
         disabled={disabled}
         onClick={() => input.current?.click()}
       >
-        Choose .bin…
+        Choose .bin and .sig…
       </Button>
       <input
         ref={input}
         type="file"
-        accept=".bin,application/octet-stream"
+        accept=".bin,.sig,application/octet-stream"
+        multiple
+        aria-label="Firmware .bin and .sig"
         className="hidden"
         onChange={(event) => {
-          const file = event.target.files?.[0]
-          if (file) onPick(file)
+          const files = Array.from(event.target.files ?? [])
+          if (files.length > 0) onPick(files)
           event.target.value = ''
         }}
       />

@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import { APP_IMAGE_REJECTIONS, checkAppImage, type AppImageInfo } from '../lib/firmware-image'
 import { installFirmware } from '../lib/firmware-update'
+import {
+  FIRMWARE_FILES_REJECTIONS,
+  pairFirmwareFiles,
+  type PairedFiles,
+} from '../lib/firmware-files'
 import { errorMessage } from '../lib/error-message'
 import { releaseLinkAfterInstall } from '../lib/firmware-restart'
 import { useConnectionStore } from '../stores/connection.store'
@@ -10,7 +15,9 @@ import type { LinkKind } from '../transport/device-link'
 
 export interface PickedImage {
   name: string
+  signatureName: string
   bytes: Uint8Array
+  signature: Uint8Array
   info: AppImageInfo
 }
 
@@ -24,30 +31,42 @@ export type FirmwareUpdateState =
 
 export interface FirmwareUpdate {
   state: FirmwareUpdateState
-  pick: (file: File) => void
+  pick: (files: readonly File[]) => void
   install: () => void
 }
 
-const pickedState = (name: string, bytes: Uint8Array): FirmwareUpdateState => {
+const invalid = (files: readonly File[], message: string): FirmwareUpdateState => ({
+  kind: 'invalid',
+  name: files.map((file) => file.name).join(', '),
+  message,
+})
+
+const pickedState = (
+  pair: PairedFiles,
+  bytes: Uint8Array,
+  signature: Uint8Array
+): FirmwareUpdateState => {
   const check = checkAppImage(bytes)
   if (check.kind === 'rejected') {
-    return { kind: 'invalid', name, message: APP_IMAGE_REJECTIONS[check.rejection] }
+    return invalid([pair.image], APP_IMAGE_REJECTIONS[check.rejection])
   }
-  return { kind: 'ready', image: { name, bytes, info: check.info } }
+  const names = { name: pair.image.name, signatureName: pair.signature.name }
+  return { kind: 'ready', image: { ...names, bytes, signature, info: check.info } }
 }
 
 const imageOf = (state: FirmwareUpdateState): PickedImage | null =>
   'image' in state ? state.image : null
 
-const readFile = async (file: File): Promise<FirmwareUpdateState> => {
+const bytesOf = async (file: File): Promise<Uint8Array> => new Uint8Array(await file.arrayBuffer())
+
+const readFiles = async (files: readonly File[]): Promise<FirmwareUpdateState> => {
+  const pair = pairFirmwareFiles(files)
+  if (pair.kind === 'rejected') return invalid(files, FIRMWARE_FILES_REJECTIONS[pair.rejection])
   try {
-    return pickedState(file.name, new Uint8Array(await file.arrayBuffer()))
+    const [bytes, signature] = await Promise.all([bytesOf(pair.image), bytesOf(pair.signature)])
+    return pickedState(pair, bytes, signature)
   } catch (err) {
-    return {
-      kind: 'invalid',
-      name: file.name,
-      message: errorMessage(err, 'Could not read the file'),
-    }
+    return invalid(files, errorMessage(err, 'Could not read the files'))
   }
 }
 
@@ -56,7 +75,7 @@ const runInstall = async (
   setState: (state: FirmwareUpdateState) => void
 ): Promise<FirmwareUpdateState> => {
   setState({ kind: 'installing', image, sent: 0 })
-  const result = await installFirmware(image.bytes, (sent) => {
+  const result = await installFirmware(image.bytes, image.signature, (sent) => {
     setState({ kind: 'installing', image, sent })
   })
   if (result.kind === 'failed') return { kind: 'failed', image, message: result.message }
@@ -69,8 +88,8 @@ export const useFirmwareUpdate = (): FirmwareUpdate => {
   const [state, setState] = useState<FirmwareUpdateState>({ kind: 'empty' })
   const log = useLogStore((s) => s.push)
 
-  const pick = (file: File) => {
-    void readFile(file).then(setState)
+  const pick = (files: readonly File[]) => {
+    void readFiles(files).then(setState)
   }
 
   const install = () => {

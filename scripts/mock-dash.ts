@@ -3,6 +3,7 @@ import { CMD_OTA_WRITE, CMD_PING } from '../src/transport/opcodes'
 import { COMMAND_HANDLERS, unknownCommand } from './mock-dash-commands'
 import { canStatFrame, heapFrame, teleFrame } from './mock-dash-telemetry'
 import { freshState, reboot, type MockDashState } from './mock-dash-state'
+import { MOCK_SIGNING_KEY_PATH, startSigningKey } from './mock-dash-signing'
 import type { Command, Outcome } from './mock-dash-replies'
 
 const DEFAULT_PORT = 8787
@@ -14,7 +15,7 @@ const MS_PER_S = 1_000
 const QUIET_COMMANDS = new Set([CMD_OTA_WRITE, CMD_PING])
 
 const port = Number(process.env.MOCK_DASH_PORT ?? DEFAULT_PORT)
-const state = freshState()
+const state = freshState(startSigningKey())
 
 const parseCommand = (raw: string): Command | null => {
   try {
@@ -80,3 +81,5 @@ server.on('connection', (socket) => {
 
 console.log(`[mock-dash] listening on ws://localhost:${String(port)}${SOCKET_PATH}`)
 console.log(`[mock-dash] open the tuner with ?dash=localhost:${String(port)}`)
+console.log(`[mock-dash] throwaway signing key in ${MOCK_SIGNING_KEY_PATH}`)
+console.log('[mock-dash] sign a test image with: npm run mock-dash:sign -- <firmware.bin>')
