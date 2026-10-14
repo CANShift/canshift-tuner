@@ -2,14 +2,7 @@ import { displayUnit } from '@canshift/core'
 import type { SignalDef } from '@canshift/core'
 import type { DisplayUnits } from '../../hooks/useDisplayUnits'
 import { UNIT_SYSTEM_OPTIONS } from '../../constants/units'
-
-const DECIMALS = 1
-const NO_VALUE = '—'
-
-const formatValue = (value: number | undefined): string => {
-  if (value === undefined) return NO_VALUE
-  return Number.isInteger(value) ? String(value) : value.toFixed(DECIMALS)
-}
+import { formatSignalValue } from '../../lib/format'
 
 interface UnitProps {
   signal: SignalDef
@@ -47,7 +40,7 @@ export const SignalValueCell = ({ signal, units, value, className }: SignalValue
   const shown = value === undefined ? undefined : units.valueOf(value, signal.unit)
   return (
     <span className={`flex items-baseline justify-end gap-1.5 ${className ?? ''}`}>
-      <span className="font-mono tabular-nums">{formatValue(shown)}</span>
+      <span className="font-mono tabular-nums">{formatSignalValue(shown)}</span>
       <UnitChoice signal={signal} units={units} />
     </span>
   )
