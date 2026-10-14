@@ -11,17 +11,12 @@ type Face = 'night' | 'day'
 const FACE_LABELS: Record<Face, string> = { night: 'NIGHT', day: 'DAY' }
 const FACES = Object.keys(FACE_LABELS) as Face[]
 
-export const DayNightControl = () => {
+const useFacePicker = () => {
   const connected = useDeviceStore((s) => s.connected)
   const simulationMode = useDeviceStore((s) => s.simulationMode)
-  const isDayMode = useDeviceStore((s) => s.isDayMode)
   const setIsDayMode = useDeviceStore((s) => s.setIsDayMode)
-  const log = useLogStore((s) => s.push)
   const [busy, setBusy] = useState(false)
-
   const live = connected && !simulationMode
-  const active: Face = isDayMode === true ? 'day' : 'night'
-
   const pick = async (face: Face) => {
     const day = face === 'day'
     if (!live) {
@@ -29,16 +24,27 @@ export const DayNightControl = () => {
       return
     }
     setBusy(true)
-    const result = await usbService.setDayNight(day)
-    if (result.success) {
-      setIsDayMode(day)
-      log('success', `Dash forced to ${FACE_LABELS[face]}`)
-    } else {
-      log('error', `Could not switch the dash: ${transportErrorText(result.error)}`)
-    }
+    await switchDash(face, setIsDayMode)
     setBusy(false)
   }
+  return { live, busy, pick }
+}
 
+const switchDash = async (face: Face, setIsDayMode: (day: boolean) => void) => {
+  const log = useLogStore.getState().push
+  const result = await usbService.setDayNight(face === 'day')
+  if (!result.success) {
+    log('error', `Could not switch the dash: ${transportErrorText(result.error)}`)
+    return
+  }
+  setIsDayMode(face === 'day')
+  log('success', `Dash forced to ${FACE_LABELS[face]}`)
+}
+
+export const DayNightControl = () => {
+  const isDayMode = useDeviceStore((s) => s.isDayMode)
+  const { live, busy, pick } = useFacePicker()
+  const active: Face = isDayMode === true ? 'day' : 'night'
   return (
     <div className="flex flex-wrap items-center gap-3">
       <span className="font-mono text-[10.5px] tracking-[0.16em] text-ui-muted">PREVIEW</span>
@@ -48,9 +54,7 @@ export const DayNightControl = () => {
             key={face}
             type="button"
             disabled={busy}
-            onClick={() => {
-              void pick(face)
-            }}
+            onClick={() => void pick(face)}
             className={cn(segment({ active: face === active }))}
           >
             {FACE_LABELS[face]}

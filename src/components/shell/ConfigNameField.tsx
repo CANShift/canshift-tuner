@@ -5,13 +5,11 @@ export interface ConfigNameFieldProps {
   onCommit: (name: string) => void
 }
 
-export const ConfigNameField = ({ name, onCommit }: ConfigNameFieldProps) => {
+const useNameDraft = ({ name, onCommit }: ConfigNameFieldProps) => {
   const [draft, setDraft] = useState(name)
-
   useEffect(() => {
     setDraft(name)
   }, [name])
-
   const commit = () => {
     const trimmed = draft.trim()
     if (trimmed.length === 0 || trimmed === name) {
@@ -20,7 +18,16 @@ export const ConfigNameField = ({ name, onCommit }: ConfigNameFieldProps) => {
     }
     onCommit(trimmed)
   }
+  return { draft, setDraft, commit, reset: () => setDraft(name) }
+}
 
+const KEY_ACTIONS: Record<string, (input: HTMLInputElement, reset: () => void) => void> = {
+  Enter: (input) => input.blur(),
+  Escape: (_input, reset) => reset(),
+}
+
+export const ConfigNameField = (props: ConfigNameFieldProps) => {
+  const { draft, setDraft, commit, reset } = useNameDraft(props)
   return (
     <input
       value={draft}
@@ -29,8 +36,7 @@ export const ConfigNameField = ({ name, onCommit }: ConfigNameFieldProps) => {
       }}
       onBlur={commit}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') e.currentTarget.blur()
-        if (e.key === 'Escape') setDraft(name)
+        KEY_ACTIONS[e.key]?.(e.currentTarget, reset)
       }}
       spellCheck={false}
       title="Config name"
