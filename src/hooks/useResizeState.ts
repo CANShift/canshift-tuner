@@ -1,19 +1,10 @@
-import { useCallback, useRef, type PointerEvent as ReactPointerEvent, type RefObject } from 'react'
+import { useCallback, type PointerEvent as ReactPointerEvent, type RefObject } from 'react'
 import type { Widget } from '@canshift/core'
-import { LAYOUT_GRID } from '@canshift/core'
 import { useDisplayTier } from './useDisplayTier'
 import { useDashboardStore } from '../stores/dashboard.store'
-
-const MIN_SPAN = 1
-
-interface ResizeState {
-  pageId: string
-  widgetId: string
-  startX: number
-  startSpan: number
-  startCol: number
-  lastSpan: number
-}
+import type { DashboardState } from '../stores/dashboard/types'
+import { resizedSpan, trackPitch } from '../lib/drag-geometry'
+import { followPointer } from '../lib/follow-pointer'
 
 export interface ResizeInputs {
   pageId: string
@@ -25,8 +16,44 @@ export interface UseResizeStateOptions {
   scaleRef: RefObject<number>
 }
 
-const trackPitch = (areaSize: number, tracks: number): number =>
-  (areaSize - 2 * LAYOUT_GRID.FRAME_PADDING + LAYOUT_GRID.GUTTER) / tracks
+interface ResizeSession {
+  pageId: string
+  widgetId: string
+  startX: number
+  startSpan: number
+  startCol: number
+  lastSpan: number
+  began: boolean
+}
+
+interface ResizeContext {
+  actions: Pick<DashboardState, 'moveWidget' | 'beginDrag'>
+  pitch: number
+  columns: number
+  scale: () => number
+}
+
+const resizeTo = (session: ResizeSession, ev: MouseEvent, ctx: ResizeContext) => {
+  const deltaCols = Math.round((ev.clientX - session.startX) / (ctx.pitch * ctx.scale()))
+  const nextSpan = resizedSpan(session.startSpan, session.startCol, deltaCols, ctx.columns)
+  if (nextSpan === session.lastSpan) return
+  if (!session.began) {
+    ctx.actions.beginDrag(session.pageId, [session.widgetId])
+    session.began = true
+  }
+  session.lastSpan = nextSpan
+  ctx.actions.moveWidget(session.pageId, session.widgetId, { colSpan: nextSpan })
+}
+
+const sessionFor = (e: ReactPointerEvent, widget: Widget, pageId: string): ResizeSession => ({
+  pageId,
+  widgetId: widget.id,
+  startX: e.clientX,
+  startSpan: widget.layout.colSpan,
+  startCol: widget.layout.col,
+  lastSpan: widget.layout.colSpan,
+  began: false,
+})
 
 export const useResizeState = ({
   inputsRef,
@@ -35,7 +62,6 @@ export const useResizeState = ({
   const tier = useDisplayTier()
   const moveWidget = useDashboardStore((s) => s.moveWidget)
   const beginDrag = useDashboardStore((s) => s.beginDrag)
-  const stateRef = useRef<ResizeState | null>(null)
 
   return useCallback(
     (e: ReactPointerEvent, widget: Widget) => {
@@ -43,43 +69,17 @@ export const useResizeState = ({
       if (!inputs) return
       e.preventDefault()
       e.stopPropagation()
-
-      stateRef.current = {
-        pageId: inputs.pageId,
-        widgetId: widget.id,
-        startX: e.clientX,
-        startSpan: widget.layout.colSpan,
-        startCol: widget.layout.col,
-        lastSpan: widget.layout.colSpan,
+      const session = sessionFor(e, widget, inputs.pageId)
+      const ctx: ResizeContext = {
+        actions: { moveWidget, beginDrag },
+        pitch: trackPitch(inputs.canvasW, tier.columns),
+        columns: tier.columns,
+        scale: () => scaleRef.current ?? 1,
       }
-
-      const pitch = trackPitch(inputs.canvasW, tier.columns)
-      let began = false
-
-      const onMove = (ev: PointerEvent) => {
-        const state = stateRef.current
-        if (!state) return
-        const scale = scaleRef.current ?? 1
-        const deltaCols = Math.round((ev.clientX - state.startX) / (pitch * scale))
-        const maxSpan = tier.columns - state.startCol
-        const nextSpan = Math.min(maxSpan, Math.max(MIN_SPAN, state.startSpan + deltaCols))
-        if (nextSpan === state.lastSpan) return
-        if (!began) {
-          beginDrag(state.pageId, [state.widgetId])
-          began = true
-        }
-        state.lastSpan = nextSpan
-        moveWidget(state.pageId, state.widgetId, { colSpan: nextSpan })
-      }
-
-      const onUp = () => {
-        stateRef.current = null
-        window.removeEventListener('pointermove', onMove)
-        window.removeEventListener('pointerup', onUp)
-      }
-
-      window.addEventListener('pointermove', onMove)
-      window.addEventListener('pointerup', onUp)
+      followPointer('pointer', {
+        onMove: (ev) => resizeTo(session, ev, ctx),
+        onUp: () => undefined,
+      })
     },
     [inputsRef, scaleRef, moveWidget, beginDrag, tier]
   )

@@ -8,44 +8,56 @@ export interface UseClipboardWidgetsOptions {
   pasteWidgets: (pageId: string) => void
 }
 
+type ClipboardKind = 'copy' | 'cut' | 'paste'
+type ClipboardHandler = (e: ClipboardEvent) => void
+
+const CLIPBOARD_EVENTS: readonly ClipboardKind[] = ['copy', 'cut', 'paste']
+
+const whenSelected =
+  (act: (pageId: string, ids: string[]) => void): ClipboardHandler =>
+  (e) => {
+    if (isEditableTarget(e.target)) return
+    const { selectedWidgetIds: ids, selectedPageId } = useDashboardStore.getState()
+    if (ids.length === 0 || !selectedPageId) return
+    e.preventDefault()
+    act(selectedPageId, ids)
+  }
+
+const whenClipboardFilled =
+  (paste: (pageId: string) => void): ClipboardHandler =>
+  (e) => {
+    if (isEditableTarget(e.target)) return
+    const { clipboardWidgets, selectedPageId } = useDashboardStore.getState()
+    if (clipboardWidgets.length === 0 || !selectedPageId) return
+    e.preventDefault()
+    paste(selectedPageId)
+  }
+
+const clipboardHandlers = (
+  options: UseClipboardWidgetsOptions
+): Record<ClipboardKind, ClipboardHandler> => ({
+  copy: whenSelected(options.copyWidgets),
+  cut: whenSelected((pageId, ids) => {
+    options.copyWidgets(pageId, ids)
+    options.removeWidgets(pageId, ids)
+  }),
+  paste: whenClipboardFilled(options.pasteWidgets),
+})
+
 export const useClipboardWidgets = ({
   copyWidgets,
   removeWidgets,
   pasteWidgets,
 }: UseClipboardWidgetsOptions): void => {
   useEffect(() => {
-    const handleCopy = (e: ClipboardEvent) => {
-      if (isEditableTarget(e.target)) return
-      const { selectedWidgetIds: ids, selectedPageId } = useDashboardStore.getState()
-      if (ids.length === 0 || !selectedPageId) return
-      e.preventDefault()
-      copyWidgets(selectedPageId, ids)
-    }
-
-    const handleCut = (e: ClipboardEvent) => {
-      if (isEditableTarget(e.target)) return
-      const { selectedWidgetIds: ids, selectedPageId } = useDashboardStore.getState()
-      if (ids.length === 0 || !selectedPageId) return
-      e.preventDefault()
-      copyWidgets(selectedPageId, ids)
-      removeWidgets(selectedPageId, ids)
-    }
-
-    const handlePaste = (e: ClipboardEvent) => {
-      if (isEditableTarget(e.target)) return
-      const { clipboardWidgets, selectedPageId } = useDashboardStore.getState()
-      if (clipboardWidgets.length === 0 || !selectedPageId) return
-      e.preventDefault()
-      pasteWidgets(selectedPageId)
-    }
-
-    document.addEventListener('copy', handleCopy)
-    document.addEventListener('cut', handleCut)
-    document.addEventListener('paste', handlePaste)
+    const handlers = clipboardHandlers({ copyWidgets, removeWidgets, pasteWidgets })
+    CLIPBOARD_EVENTS.forEach((kind) => {
+      document.addEventListener(kind, handlers[kind])
+    })
     return () => {
-      document.removeEventListener('copy', handleCopy)
-      document.removeEventListener('cut', handleCut)
-      document.removeEventListener('paste', handlePaste)
+      CLIPBOARD_EVENTS.forEach((kind) => {
+        document.removeEventListener(kind, handlers[kind])
+      })
     }
   }, [copyWidgets, removeWidgets, pasteWidgets])
 }
