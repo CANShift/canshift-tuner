@@ -45,6 +45,18 @@ To develop against a dash (or a mock) over WebSocket, point the dev server at it
 `?dash=<host[:port]>` in the URL or `VITE_DASH_HOST=<host[:port]>` in the environment.
 Without either, `localhost` uses WebSerial.
 
+No board? Run the mock dash in a second terminal and open the tuner against it:
+
+```bash
+npm run mock-dash   # ws://localhost:8787/ws (MOCK_DASH_PORT to change it)
+npm run dev         # then open http://localhost:5173/?dash=localhost:8787
+```
+
+The mock answers the version handshake, ping, config read and chunked burn, the device
+config (CAN bus speed, which reboots it like the real dash), day/night and the other
+commands, and streams telemetry, heap and CAN-rate frames. It keeps its state in memory
+until you stop it.
+
 ## Browser requirements
 
 - Served by the dash: any current browser, phones included.
