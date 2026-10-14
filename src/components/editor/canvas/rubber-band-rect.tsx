@@ -1,4 +1,4 @@
-import type { RubberBand } from '../../../hooks/useRubberBandSelection'
+import type { RubberBand } from '../../../lib/rubber-band'
 
 export interface RubberBandRectProps {
   rubberBand: RubberBand | null

@@ -15,30 +15,80 @@ export interface CliPanelContext extends CliContext {
   deviceLabel: string
 }
 
-export const useCliContext = (onAsync: (result: RawResult) => void): CliPanelContext => {
-  const config = useDashboardStore((s) => s.config)
-  const selectedPageId = useDashboardStore((s) => s.selectedPageId)
+type CliActions = CliContext['actions']
+
+const sendRaw: CliActions['raw'] = async (opcode, fields) => {
+  const result = await usbService.sendRaw(opcode, fields)
+  if (result.kind === 'ok') return { ok: true, text: JSON.stringify(result.data ?? {}) }
+  return { ok: false, text: transportErrorText(result.error) }
+}
+
+const usePageActions = () => {
   const selectPage = useDashboardStore((s) => s.selectPage)
   const setDefaultPage = useDashboardStore((s) => s.setDefaultPage)
-  const updateWidget = useDashboardStore((s) => s.updateWidget)
   const setTheme = useDashboardStore((s) => s.setTheme)
+  const updateSignal = useSignalStore((s) => s.updateSignal)
+  return useMemo(
+    () => ({ selectPage, setDefaultPage, setTheme, updateSignal }),
+    [selectPage, setDefaultPage, setTheme, updateSignal]
+  )
+}
+
+const useWidgetActions = () => {
+  const updateWidget = useDashboardStore((s) => s.updateWidget)
   const copyWidgets = useDashboardStore((s) => s.copyWidgets)
   const pasteWidgets = useDashboardStore((s) => s.pasteWidgets)
   const undo = useDashboardStore((s) => s.undo)
-  const signals = useSignalStore((s) => s.signals)
-  const updateSignal = useSignalStore((s) => s.updateSignal)
+  return useMemo(
+    () => ({ updateWidget, copyWidgets, pasteWidgets, undo }),
+    [updateWidget, copyWidgets, pasteWidgets, undo]
+  )
+}
+
+const useProjectActions = () => {
+  const configName = useDashboardStore((s) => s.config?.name)
+  const activeProjectId = useProjectStore((s) => s.activeProjectId)
+  const save = useProjectStore((s) => s.saveActiveProject)
+  const { exportProjectFile, openImportPicker } = useProjectFileActions()
+  return useMemo(
+    () => ({
+      save,
+      exportConfig: () => {
+        exportProjectFile(activeProjectId, configName ?? 'config')
+      },
+      importConfig: openImportPicker,
+    }),
+    [save, exportProjectFile, activeProjectId, configName, openImportPicker]
+  )
+}
+
+const useCliActions = (): CliActions => {
+  const pages = usePageActions()
+  const widgets = useWidgetActions()
+  const project = useProjectActions()
+  const { requestBurn } = useBurnDashboard()
+  const scan = useCanScanStore((s) => s.start)
+  return useMemo(
+    () => ({ raw: sendRaw, ...pages, ...widgets, ...project, burn: requestBurn, scan }),
+    [pages, widgets, project, requestBurn, scan]
+  )
+}
+
+const useDeviceLabel = (): { hasDevice: boolean; deviceLabel: string } => {
+  const targetProfile = useDashboardStore((s) => s.config?.targetProfile)
   const connected = useDeviceStore((s) => s.connected)
   const simulationMode = useDeviceStore((s) => s.simulationMode)
   const firmwareVersion = useDeviceStore((s) => s.firmwareVersion)
-  const activeProjectId = useProjectStore((s) => s.activeProjectId)
-  const saveActiveProject = useProjectStore((s) => s.saveActiveProject)
-  const startScan = useCanScanStore((s) => s.start)
-  const { exportProjectFile, openImportPicker } = useProjectFileActions()
-  const { requestBurn } = useBurnDashboard()
+  const deviceLabel = `${resolveScreenProfile(targetProfile).name} · fw ${firmwareVersion ?? '—'}`
+  return { hasDevice: connected && !simulationMode, deviceLabel }
+}
 
-  const hasDevice = connected && !simulationMode
-  const deviceLabel = `${resolveScreenProfile(config?.targetProfile).name} · fw ${firmwareVersion ?? '—'}`
-
+export const useCliContext = (onAsync: (result: RawResult) => void): CliPanelContext => {
+  const config = useDashboardStore((s) => s.config)
+  const selectedPageId = useDashboardStore((s) => s.selectedPageId)
+  const signals = useSignalStore((s) => s.signals)
+  const { hasDevice, deviceLabel } = useDeviceLabel()
+  const actions = useCliActions()
   return useMemo(
     () => ({
       config,
@@ -48,50 +98,8 @@ export const useCliContext = (onAsync: (result: RawResult) => void): CliPanelCon
       deviceLabel,
       opcodes: KNOWN_OPCODES,
       onAsync,
-      actions: {
-        raw: async (opcode, fields) => {
-          const result = await usbService.sendRaw(opcode, fields)
-          if (result.kind === 'ok') return { ok: true, text: JSON.stringify(result.data ?? {}) }
-          return { ok: false, text: transportErrorText(result.error) }
-        },
-        selectPage,
-        setDefaultPage,
-        updateWidget,
-        updateSignal,
-        setTheme,
-        copyWidgets,
-        pasteWidgets,
-        undo,
-        save: saveActiveProject,
-        exportConfig: () => {
-          exportProjectFile(activeProjectId, config?.name ?? 'config')
-        },
-        importConfig: openImportPicker,
-        burn: requestBurn,
-        scan: startScan,
-      },
+      actions,
     }),
-    [
-      config,
-      selectedPageId,
-      signals,
-      hasDevice,
-      deviceLabel,
-      onAsync,
-      selectPage,
-      setDefaultPage,
-      updateWidget,
-      updateSignal,
-      setTheme,
-      copyWidgets,
-      pasteWidgets,
-      undo,
-      saveActiveProject,
-      exportProjectFile,
-      activeProjectId,
-      openImportPicker,
-      requestBurn,
-      startScan,
-    ]
+    [config, selectedPageId, signals, hasDevice, deviceLabel, onAsync, actions]
   )
 }
