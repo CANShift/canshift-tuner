@@ -12,11 +12,20 @@ export interface CanBusSectionProps {
 
 const EDITABLE = new Set<CanSpeedState['kind']>(['ready', 'written', 'error'])
 
-export const CanBusSection = ({ state, onWrite }: CanBusSectionProps) => {
+const useSpeedDraft = (state: CanSpeedState, onWrite: (speed: CanSpeedKbps) => void) => {
   const current = configOf(state).canSpeedKbps
   const [draft, setDraft] = useState<CanSpeedKbps | null>(null)
-  const editable = EDITABLE.has(state.kind)
   const chosen = draft ?? current
+  const write = () => {
+    onWrite(chosen)
+    setDraft(null)
+  }
+  return { chosen, changed: chosen !== current, setDraft, write }
+}
+
+export const CanBusSection = ({ state, onWrite }: CanBusSectionProps) => {
+  const { chosen, changed, setDraft, write } = useSpeedDraft(state, onWrite)
+  const editable = EDITABLE.has(state.kind)
 
   return (
     <section className="max-w-[560px] px-6 py-6">
@@ -30,19 +39,15 @@ export const CanBusSection = ({ state, onWrite }: CanBusSectionProps) => {
           setDraft(parseCanSpeed(value))
         }}
       />
-      <div className="mt-4">
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={!editable || chosen === current}
-          onClick={() => {
-            onWrite(chosen)
-            setDraft(null)
-          }}
-        >
-          Write to the dash
-        </Button>
-      </div>
+      <Button
+        className="mt-4"
+        variant="outline"
+        size="sm"
+        disabled={!editable || !changed}
+        onClick={write}
+      >
+        Write to the dash
+      </Button>
     </section>
   )
 }
