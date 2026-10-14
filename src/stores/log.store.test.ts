@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useLogStore, LOG_RING_CAP, type LogEntry } from './log.store'
 
-describe('log.store ring buffer (#1704)', () => {
-  beforeEach(() => {
-    useLogStore.getState().clear()
-  })
+beforeEach(() => {
+  useLogStore.getState().clear()
+})
 
+describe('log store ring buffer', () => {
   it('caps entries at LOG_RING_CAP, dropping the oldest', () => {
     const push = useLogStore.getState().push
     for (let i = 0; i < LOG_RING_CAP + 10; i++) {
@@ -16,7 +16,9 @@ describe('log.store ring buffer (#1704)', () => {
     expect(entries[0]?.message).toBe('msg 10')
     expect(entries[entries.length - 1]?.message).toBe(`msg ${String(LOG_RING_CAP + 9)}`)
   })
+})
 
+describe('log store bridged entries', () => {
   it('caps bridged entries too', () => {
     const pushFromBridge = useLogStore.getState().pushFromBridge
     for (let i = 0; i < LOG_RING_CAP + 5; i++) {

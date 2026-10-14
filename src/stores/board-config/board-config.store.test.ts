@@ -31,12 +31,12 @@ const validDraft = () => {
   return draft
 }
 
-describe('board-config store', () => {
-  beforeEach(() => {
-    globalThis.localStorage = memoryStorage()
-    useBoardConfigStore.setState({ customBoards: [], selected: null })
-  })
+beforeEach(() => {
+  globalThis.localStorage = memoryStorage()
+  useBoardConfigStore.setState({ customBoards: [], selected: null })
+})
 
+describe('board-config store selection', () => {
   it('selects a catalog board and persists the selection', () => {
     const first = BOARD_PROFILES[0]
     expect(first).toBeDefined()
@@ -61,7 +61,9 @@ describe('board-config store', () => {
     expect(useBoardConfigStore.getState().selected).toBeNull()
     expect(readSelectedBoard()).toBeNull()
   })
+})
 
+describe('board-config store custom boards', () => {
   it('saves a valid custom board, persists it, and selects it', () => {
     const result = useBoardConfigStore.getState().saveCustom('Custom One', validDraft())
     expect(result.ok).toBe(true)
@@ -87,7 +89,9 @@ describe('board-config store', () => {
     expect(useBoardConfigStore.getState().customBoards).toHaveLength(0)
     expect(readCustomBoards()).toHaveLength(0)
   })
+})
 
+describe('board-config store deletion', () => {
   it('deletes a custom board and clears the selection when it was selected', () => {
     const result = useBoardConfigStore.getState().saveCustom('Custom One', validDraft())
     expect(result.ok).toBe(true)

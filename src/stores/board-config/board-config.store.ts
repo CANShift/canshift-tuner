@@ -1,4 +1,4 @@
-import { create } from 'zustand'
+import { create, type StoreApi } from 'zustand'
 import { getBoardProfile, type BoardProfile } from '@canshift/core'
 import { validateBoardProfile } from '../../lib/board-profile'
 import { createId } from '../../utils/id'
@@ -27,35 +27,46 @@ interface BoardConfigState {
 
 const nowIso = (): string => new Date().toISOString()
 
-export const useBoardConfigStore = create<BoardConfigState>()((set, get) => ({
-  customBoards: readCustomBoards(),
-  selected: readSelectedBoard(),
+const boardName = (name: string): string => name.trim().slice(0, BOARD_NAME_MAX)
 
-  selectCatalog: (boardId) => {
-    if (!getBoardProfile(boardId)) return
-    const selected: SelectedBoard = { source: 'catalog', boardId }
+const customEntry = (id: string, name: string, profile: BoardProfile): CustomBoardEntry => ({
+  id,
+  name: boardName(name) || profile.boardName || 'Custom board',
+  createdAt: nowIso(),
+  profile,
+})
+
+const isSelectedCustom = (selected: SelectedBoard | null, id: string): boolean =>
+  selected?.source === 'custom' && selected.boardId === id
+
+type SetBoardConfig = StoreApi<BoardConfigState>['setState']
+type GetBoardConfig = StoreApi<BoardConfigState>['getState']
+
+const selectionActions = (set: SetBoardConfig, get: GetBoardConfig) => {
+  const select = (selected: SelectedBoard) => {
     set({ selected })
     writeSelectedBoard(selected)
-  },
+  }
 
-  selectCustom: (id) => {
-    if (!get().customBoards.some((b) => b.id === id)) return
-    const selected: SelectedBoard = { source: 'custom', boardId: id }
-    set({ selected })
-    writeSelectedBoard(selected)
-  },
+  return {
+    selectCatalog: (boardId: string) => {
+      if (!getBoardProfile(boardId)) return
+      select({ source: 'catalog', boardId })
+    },
 
-  saveCustom: (name, profile) => {
+    selectCustom: (id: string) => {
+      if (!get().customBoards.some((b) => b.id === id)) return
+      select({ source: 'custom', boardId: id })
+    },
+  }
+}
+
+const customActions = (set: SetBoardConfig, get: GetBoardConfig) => ({
+  saveCustom: (name: string, profile: BoardProfile): SaveCustomResult => {
     const validation = validateBoardProfile(profile)
     if (!validation.ok) return { ok: false, issues: validation.issues }
     const id = createId('board')
-    const entry: CustomBoardEntry = {
-      id,
-      name: name.trim().slice(0, BOARD_NAME_MAX) || profile.boardName || 'Custom board',
-      createdAt: nowIso(),
-      profile,
-    }
-    const customBoards = [entry, ...get().customBoards]
+    const customBoards = [customEntry(id, name, profile), ...get().customBoards]
     const selected: SelectedBoard = { source: 'custom', boardId: id }
     set({ customBoards, selected })
     writeCustomBoards(customBoards)
@@ -63,21 +74,26 @@ export const useBoardConfigStore = create<BoardConfigState>()((set, get) => ({
     return { ok: true, id }
   },
 
-  renameCustom: (id, name) => {
-    const trimmed = name.trim().slice(0, BOARD_NAME_MAX)
+  renameCustom: (id: string, name: string) => {
+    const trimmed = boardName(name)
     if (trimmed.length === 0) return
     const customBoards = get().customBoards.map((b) => (b.id === id ? { ...b, name: trimmed } : b))
     set({ customBoards })
     writeCustomBoards(customBoards)
   },
 
-  deleteCustom: (id) => {
+  deleteCustom: (id: string) => {
     const customBoards = get().customBoards.filter((b) => b.id !== id)
-    const current = get().selected
-    const selected =
-      current && current.source === 'custom' && current.boardId === id ? null : current
-    set({ customBoards, selected })
+    const wasSelected = isSelectedCustom(get().selected, id)
+    set(wasSelected ? { customBoards, selected: null } : { customBoards })
     writeCustomBoards(customBoards)
-    if (selected !== current) writeSelectedBoard(selected)
+    if (wasSelected) writeSelectedBoard(null)
   },
+})
+
+export const useBoardConfigStore = create<BoardConfigState>()((set, get) => ({
+  customBoards: readCustomBoards(),
+  selected: readSelectedBoard(),
+  ...selectionActions(set, get),
+  ...customActions(set, get),
 }))

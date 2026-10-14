@@ -26,13 +26,13 @@ const memoryStorage = (): Storage => {
 
 const freshConfig = () => structuredClone(DEFAULT_SIM_CONFIG)
 
-describe('project store', () => {
-  beforeEach(() => {
-    globalThis.localStorage = memoryStorage()
-    useProjectStore.setState({ projects: [], activeProjectId: null })
-    useDashboardStore.getState().setConfig(freshConfig())
-  })
+beforeEach(() => {
+  globalThis.localStorage = memoryStorage()
+  useProjectStore.setState({ projects: [], activeProjectId: null })
+  useDashboardStore.getState().setConfig(freshConfig())
+})
 
+describe('project store bootstrap', () => {
   it('bootstrap adopts the current editor state as the first project', () => {
     bootstrapProjects()
 
@@ -44,7 +44,17 @@ describe('project store', () => {
     expect(stored?.dashboard.defaultPageId).toBe(DEFAULT_SIM_CONFIG.defaultPageId)
     expect(readProjectIndex()?.activeId).toBe(activeProjectId)
   })
+})
 
+const expectSameContent = (importedId: string, originalId: string) => {
+  const imported = readProject(importedId)
+  const original = readProject(originalId)
+  expect(imported?.name).toBe(original?.name)
+  expect(imported?.dashboard.defaultPageId).toBe(original?.dashboard.defaultPageId)
+  expect(imported?.signals).toEqual(original?.signals)
+}
+
+describe('project store round trip', () => {
   it('exports and re-imports a project as a new copy without data loss', () => {
     bootstrapProjects()
     const originalId = useProjectStore.getState().activeProjectId ?? ''
@@ -62,14 +72,11 @@ describe('project store', () => {
     expect(result.id).not.toBe(originalId)
     expect(useProjectStore.getState().activeProjectId).toBe(result.id)
     expect(useProjectStore.getState().projects).toHaveLength(2)
-
-    const imported = readProject(result.id)
-    const original = readProject(originalId)
-    expect(imported?.name).toBe(original?.name)
-    expect(imported?.dashboard.defaultPageId).toBe(original?.dashboard.defaultPageId)
-    expect(imported?.signals).toEqual(original?.signals)
+    expectSameContent(result.id, originalId)
   })
+})
 
+describe('project store bad imports', () => {
   it('reports a distinct readable error for each kind of bad import', () => {
     bootstrapProjects()
     const activeId = useProjectStore.getState().activeProjectId ?? ''
@@ -91,7 +98,9 @@ describe('project store', () => {
     expect(tooNew.error).toContain('Update CANShift')
     expect(useProjectStore.getState().projects).toHaveLength(1)
   })
+})
 
+describe('project store export flush', () => {
   it('export flushes pending editor edits into the envelope before serializing', () => {
     bootstrapProjects()
     const id = useProjectStore.getState().activeProjectId ?? ''

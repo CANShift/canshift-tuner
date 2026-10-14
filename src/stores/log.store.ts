@@ -25,20 +25,12 @@ const VERBOSE_STORAGE_KEY = STORAGE_KEYS.logVerbose
 
 const readVerboseFlag = (): boolean => {
   if (typeof window === 'undefined') return false
-  try {
-    return readItem(VERBOSE_STORAGE_KEY) === '1'
-  } catch {
-    return false
-  }
+  return readItem(VERBOSE_STORAGE_KEY) === '1'
 }
 
 const writeVerboseFlag = (verbose: boolean): void => {
   if (typeof window === 'undefined') return
-  try {
-    writeItem(VERBOSE_STORAGE_KEY, verbose ? '1' : '0')
-  } catch {
-    void 0
-  }
+  writeItem(VERBOSE_STORAGE_KEY, verbose ? '1' : '0')
 }
 
 export const LOG_RING_CAP = 2000
@@ -53,42 +45,52 @@ const appendCapped = (entries: LogEntry[], entry: LogEntry): LogEntry[] => {
 
 let nextId = 1
 
-export const useLogStore = create<LogState>()((set, get) => ({
-  entries: [],
-  verbose: readVerboseFlag(),
+const withScope = (entry: LogEntry, scope: string | undefined): LogEntry =>
+  scope === undefined ? entry : { ...entry, scope }
 
-  push: (level, message, scope) => {
-    if (level === 'debug' && !get().verbose) return
-    const entry: LogEntry =
-      scope !== undefined
-        ? { id: nextId++, level, message, timestamp: new Date(), scope }
-        : { id: nextId++, level, message, timestamp: new Date() }
-    set((s) => ({
-      entries: appendCapped(s.entries, entry),
-    }))
-  },
+const localEntry = (level: LogLevel, message: string, scope?: string): LogEntry =>
+  withScope({ id: nextId++, level, message, timestamp: new Date() }, scope)
 
-  pushFromBridge: (entry) => {
-    if (entry.level === 'debug' && !get().verbose) return
-    const base: LogEntry = {
+const bridgedEntry = (entry: LogEntry): LogEntry =>
+  withScope(
+    {
       id: nextId++,
       level: entry.level,
       message: entry.message,
       timestamp: entry.timestamp,
       bridged: true,
-    }
-    const local: LogEntry = entry.scope !== undefined ? { ...base, scope: entry.scope } : base
-    set((s) => ({
-      entries: appendCapped(s.entries, local),
-    }))
-  },
+    },
+    entry.scope
+  )
 
-  setVerbose: (verbose) => {
-    writeVerboseFlag(verbose)
-    set({ verbose })
-  },
+export const useLogStore = create<LogState>()((set, get) => {
+  const dropped = (level: LogLevel): boolean => level === 'debug' && !get().verbose
 
-  clear: () => {
-    set({ entries: [] })
-  },
-}))
+  const append = (entry: LogEntry) => {
+    set((s) => ({ entries: appendCapped(s.entries, entry) }))
+  }
+
+  return {
+    entries: [],
+    verbose: readVerboseFlag(),
+
+    push: (level, message, scope) => {
+      if (dropped(level)) return
+      append(localEntry(level, message, scope))
+    },
+
+    pushFromBridge: (entry) => {
+      if (dropped(entry.level)) return
+      append(bridgedEntry(entry))
+    },
+
+    setVerbose: (verbose) => {
+      writeVerboseFlag(verbose)
+      set({ verbose })
+    },
+
+    clear: () => {
+      set({ entries: [] })
+    },
+  }
+})
