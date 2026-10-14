@@ -42,7 +42,7 @@ const ROUTE_ELEMENTS: Record<RoutePath, ReactNode> = {
 
 const LEGACY_PATHS = Object.keys(LEGACY_REDIRECTS)
 
-const App = () => {
+const useDeviceSession = (): void => {
   useAutoReconnect()
   useSimulationBootstrap()
   useVersionHandshake()
@@ -50,15 +50,38 @@ const App = () => {
   useHeapStatsSubscription()
   useFirmwareLogBridge()
   useDeviceConfigBootstrap()
+}
+
+const useEditorSession = (): void => {
   useSaveShortcut()
   useWidgetOverflowWarnings()
   useUnsavedChangesGuard()
   useDocumentMeta()
-
   const hasDashboardConfig = useDashboardStore((s) => s.config !== null)
   useEffect(() => {
     bootstrapProjects()
   }, [hasDashboardConfig])
+}
+
+const AppRoutes = () => (
+  <Routes>
+    {ROUTE_PATHS.map((path) => (
+      <Route key={path} path={path} element={ROUTE_ELEMENTS[path]} />
+    ))}
+    {LEGACY_PATHS.map((path) => (
+      <Route
+        key={path}
+        path={path}
+        element={<Navigate to={LEGACY_REDIRECTS[path] ?? HOME_PATH} replace />}
+      />
+    ))}
+    <Route path="*" element={<Navigate to={HOME_PATH} replace />} />
+  </Routes>
+)
+
+const App = () => {
+  useDeviceSession()
+  useEditorSession()
 
   return (
     <div className={SHELL}>
@@ -69,19 +92,7 @@ const App = () => {
       <main className={MAIN}>
         <ConnectGate>
           <Suspense fallback={<RouteLoading />}>
-            <Routes>
-              {ROUTE_PATHS.map((path) => (
-                <Route key={path} path={path} element={ROUTE_ELEMENTS[path]} />
-              ))}
-              {LEGACY_PATHS.map((path) => (
-                <Route
-                  key={path}
-                  path={path}
-                  element={<Navigate to={LEGACY_REDIRECTS[path] ?? HOME_PATH} replace />}
-                />
-              ))}
-              <Route path="*" element={<Navigate to={HOME_PATH} replace />} />
-            </Routes>
+            <AppRoutes />
           </Suspense>
         </ConnectGate>
       </main>

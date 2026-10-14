@@ -51,6 +51,69 @@ export interface HeaderViewProps {
   LinkComponent: ComponentType<HeaderLinkProps>
 }
 
+const HeaderBrand = () => (
+  <div className="flex h-[52px] items-center gap-2.5 px-3 min-[1100px]:px-5">
+    <TunerMark height={19} />
+    <span className="hidden sm:contents">
+      <Wordmark />
+    </span>
+    <span className="hidden font-mono text-[11px] tracking-[0.16em] text-ui-faint min-[1000px]:inline">
+      TUNER
+    </span>
+  </div>
+)
+
+interface HeaderTabsProps {
+  activePath: string
+  gatingActive: boolean
+  LinkComponent: ComponentType<HeaderLinkProps>
+}
+
+const HeaderTabs = ({ activePath, gatingActive, LinkComponent }: HeaderTabsProps) => (
+  <nav
+    aria-label="Primary"
+    className="order-last flex h-11 w-full items-stretch border-t border-ui-header-line md:order-none md:ml-2 md:h-auto md:w-auto md:border-t-0 min-[1100px]:ml-[18px]"
+  >
+    {HEADER_TABS.map((tab) => (
+      <HeaderTabItem
+        key={tab.to}
+        tab={tab}
+        active={activePath === tab.to}
+        disabled={gatingActive}
+        LinkComponent={LinkComponent}
+      />
+    ))}
+  </nav>
+)
+
+const HeaderStatusChip = ({ status }: { status: HeaderStatus }) => {
+  const visual = STATUS_VISUAL[status]
+  return (
+    <div
+      className={cn(
+        'hidden items-center gap-[9px] whitespace-nowrap px-[18px] font-mono text-[11.5px] tracking-[0.08em] min-[1060px]:flex',
+        visual.tint
+      )}
+    >
+      <span aria-hidden="true" className="block size-[7px] bg-current" />
+      <span role="status" aria-live="polite">
+        {visual.label}
+      </span>
+    </div>
+  )
+}
+
+const DisconnectButton = ({ onDisconnect }: { onDisconnect: () => void }) => (
+  <button
+    type="button"
+    onClick={onDisconnect}
+    title="Disconnect the dash"
+    className="cursor-pointer whitespace-nowrap border-0 border-l border-solid border-ui-header-line bg-transparent px-2.5 font-mono text-[11px] tracking-[0.14em] text-ui-faint hover:text-ui-engaged min-[1100px]:px-4"
+  >
+    DISCONNECT
+  </button>
+)
+
 export const HeaderView = ({
   activePath,
   gatingActive,
@@ -61,69 +124,19 @@ export const HeaderView = ({
   saveButton,
   burnButton,
   LinkComponent,
-}: HeaderViewProps) => {
-  const visual = STATUS_VISUAL[status]
-  return (
-    <header className="flex shrink-0 flex-wrap items-stretch bg-ui-header-bg text-ui-header-ink md:h-[52px] md:flex-nowrap">
-      <div className="flex h-[52px] items-center gap-2.5 px-3 min-[1100px]:px-5">
-        <TunerMark height={19} />
-        <span className="hidden sm:contents">
-          <Wordmark />
-        </span>
-        <span className="hidden font-mono text-[11px] tracking-[0.16em] text-ui-faint min-[1000px]:inline">
-          TUNER
-        </span>
-      </div>
-
-      <span className="hidden sm:contents">{configNameField}</span>
-
-      <nav
-        aria-label="Primary"
-        className="order-last flex h-11 w-full items-stretch border-t border-ui-header-line md:order-none md:ml-2 md:h-auto md:w-auto md:border-t-0 min-[1100px]:ml-[18px]"
-      >
-        {HEADER_TABS.map((tab) => (
-          <HeaderTabItem
-            key={tab.to}
-            tab={tab}
-            active={activePath === tab.to}
-            disabled={gatingActive}
-            LinkComponent={LinkComponent}
-          />
-        ))}
-      </nav>
-
-      <div className="flex-1" />
-
-      <div
-        className={cn(
-          'hidden items-center gap-[9px] whitespace-nowrap px-[18px] font-mono text-[11.5px] tracking-[0.08em] min-[1060px]:flex',
-          visual.tint
-        )}
-      >
-        <span aria-hidden="true" className="block size-[7px] bg-current" />
-        <span role="status" aria-live="polite">
-          {visual.label}
-        </span>
-      </div>
-
-      {themeToggle}
-
-      {onDisconnect && (
-        <button
-          type="button"
-          onClick={onDisconnect}
-          title="Disconnect the dash"
-          className="cursor-pointer whitespace-nowrap border-0 border-l border-solid border-ui-header-line bg-transparent px-2.5 font-mono text-[11px] tracking-[0.14em] text-ui-faint hover:text-ui-engaged min-[1100px]:px-4"
-        >
-          DISCONNECT
-        </button>
-      )}
-
-      {saveButton}
-      {burnButton}
-    </header>
-  )
-}
+}: HeaderViewProps) => (
+  <header className="flex shrink-0 flex-wrap items-stretch bg-ui-header-bg text-ui-header-ink md:h-[52px] md:flex-nowrap">
+    <HeaderBrand />
+    <span className="hidden sm:contents">{configNameField}</span>
+    <HeaderTabs activePath={activePath} gatingActive={gatingActive} LinkComponent={LinkComponent} />
+    <div className="flex-1" />
+    <HeaderStatusChip status={status} />
+    {themeToggle}
+    {onDisconnect && <DisconnectButton onDisconnect={onDisconnect} />}
+    {saveButton}
+    {burnButton}
+  </header>
+)
 
 interface HeaderTabItemProps {
   tab: HeaderTab

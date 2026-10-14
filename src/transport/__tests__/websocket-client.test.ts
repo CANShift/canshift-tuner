@@ -65,13 +65,15 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-describe('WebSocketClient', () => {
+describe('WebSocketClient connecting', () => {
   it('connects to the dash socket', async () => {
     const { client } = await connected()
     expect(client.getStatus()).toBe('connected')
     expect(client.kind).toBe('wifi')
   })
+})
 
+describe('WebSocketClient commands', () => {
   it('sends one JSON line per frame and resolves on the status frame', async () => {
     const { client, latest } = await connected()
     const result = client.send(0x11)
@@ -102,7 +104,9 @@ describe('WebSocketClient', () => {
     latest().receive('{"can_stat":{"hz":842}}')
     expect(handler).toHaveBeenCalledWith({ can_stat: { hz: 842 } })
   })
+})
 
+describe('WebSocketClient losing the link', () => {
   it('fails the pending command and reconnects when the dash drops the socket', async () => {
     const { client, sockets, latest } = await connected()
     const pending = client.send(0x11)
@@ -114,7 +118,9 @@ describe('WebSocketClient', () => {
     latest().accept()
     expect(client.getStatus()).toBe('connected')
   })
+})
 
+describe('WebSocketClient lifecycle', () => {
   it('opens one socket however many times it is asked to connect', async () => {
     const { client, sockets, latest } = harness()
     const first = client.connect()

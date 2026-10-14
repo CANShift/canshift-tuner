@@ -15,7 +15,7 @@ const env = (overrides: Partial<TransportEnv> = {}): TransportEnv => ({
 const hosted = (hostname: string, overrides: Partial<TransportEnv> = {}): TransportEnv =>
   env({ host: hostname, hostname, ...overrides })
 
-describe('chooseTransport', () => {
+describe('chooseTransport on a page the dash served', () => {
   it('talks WebSocket to the dash that served the page', () => {
     expect(chooseTransport(env())).toEqual({ kind: 'websocket', url: 'ws://192.168.4.1/ws' })
   })
@@ -24,7 +24,9 @@ describe('chooseTransport', () => {
     const choice = chooseTransport(env({ host: 'dash.local:8080', hostname: 'dash.local' }))
     expect(choice).toEqual({ kind: 'websocket', url: 'ws://dash.local:8080/ws' })
   })
+})
 
+describe('chooseTransport on a hosted origin', () => {
   it('falls back to Web Serial on a hosted origin with a serial-capable browser', () => {
     for (const name of [
       'localhost',
@@ -51,7 +53,9 @@ describe('chooseTransport', () => {
     const choice = chooseTransport(hosted('localhost', { devDashHost: 'localhost:8787' }))
     expect(choice).toEqual({ kind: 'websocket', url: 'ws://localhost:8787/ws' })
   })
+})
 
+describe('chooseTransport edge cases', () => {
   it('uses wss when the page itself is https', () => {
     const choice = chooseTransport(env({ protocol: 'https:' }))
     expect(choice).toEqual({ kind: 'websocket', url: 'wss://192.168.4.1/ws' })
