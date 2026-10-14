@@ -1,22 +1,22 @@
 # Live data
 
-The **Live values** section of the **Vehicle** tab (`canshift-tuner/src/routes/LiveDataRoute.tsx`) lists every signal in the active profile with its current value, so you can confirm a binding is working without looking at the dash.
+Live values sit in the signal table on **Vehicle → Signals** (`canshift-tuner/src/components/signals/SignalsWorkspace.tsx`): every signal in the active profile shows its current value next to its unit, so you can confirm a binding works without looking at the dash.
 
 ## Where the numbers come from
 
-A badge next to the signal count tells you the source (`components/live-data/SourceBadge.tsx`):
+- A dash connected over Wi-Fi or USB streams the real decoded values.
+- In simulation (**Edit offline**) the built-in simulator drives them, and the red strip under the header says so.
+- If the dash is connected but the bus is silent, a notice above the table says how long no frame has arrived.
 
-- **live** — a dash is connected over Wi-Fi or USB and streaming real frames,
-- **sim** — the built-in simulator is driving the values,
-- **none** — nothing is connected, so the values hold at their last state.
+## The plot
 
-## Reading the table
+Tick a signal's box to draw it on the live plot: beside the table from 1100 px wide, above it on narrower screens. The first three used signals start ticked. Each line is scaled to its own range; the legend gives each signal's minimum and maximum over the window.
 
-Each row shows the signal **name**, its **value**, **unit**, and the **min / max** from the profile. A value at or above 90% of its max is flagged — a quick way to spot a signal that's redlining or mis-scaled. Filter the list by typing part of a name or a unit.
+The end of the toolbar holds the time window (`−` / `+`, 5 to 120 s), **Pause**, which freezes the values and the plot, and **Record**.
+
+## Recording
+
+**Record** samples every signal until you press **Stop & save**, then downloads a CSV named `canshift-live-<timestamp>.csv`, in the unit system the tuner is set to.
 
 > [!TIP]
-> Use Live data to validate an [ECU profile](../configure/ecu-profiles.md) before you place a single widget: apply the profile, drive the simulator or the car, and check the signals move the way you expect.
-
-## Export
-
-**Export** writes the current signals to a CSV named `canshift-live-<timestamp>.csv`, with the columns `name, value, unit, min, max` — handy for filing a bug or comparing two profiles offline.
+> Use live data to validate an [ECU profile](../configure/ecu-profiles.md) before you place a single widget: apply the profile, drive the simulator or the car, and check the signals move the way you expect.

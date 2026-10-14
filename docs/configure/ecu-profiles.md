@@ -19,4 +19,4 @@ Selecting a source shows its signals in a table (`components/ecu/SignalPreviewTa
 **Apply** opens a confirmation (`components/ecu/ApplyConfirmDialog.tsx`) and then swaps the active signal set. Bindings are by signal name, so a widget bound to a signal the new profile doesn't define keeps its binding — the value simply reads stale until a matching signal arrives.
 
 > [!WARNING]
-> Applying a profile changes what every widget decodes, not just what the CAN scan shows. If a gauge goes blank after a profile switch, the signal it was bound to is missing from the new set — rebind it in the [editor](../configure/widgets.md), or pick a profile that defines it. Confirm in **Vehicle → Live values** ([Live data](../configure/live-data.md)).
+> Applying a profile changes what every widget decodes, not just what the CAN scan shows. If a gauge goes blank after a profile switch, the signal it was bound to is missing from the new set — rebind it in the [editor](../configure/widgets.md), or pick a profile that defines it. Confirm in **Vehicle → Signals** ([Live data](../configure/live-data.md)).

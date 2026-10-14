@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { SignalDef } from '@canshift/core'
 import { cn } from '@/lib/utils'
+import { Checkbox } from '@/components/ui/checkbox'
 import type { DisplayUnits } from '../../hooks/useDisplayUnits'
 import { byteRangeLabel, parseByteRange } from '../../lib/signal-bytes'
 import { displayLabelForSignal } from '../../utils/signal-labels'
@@ -15,12 +16,14 @@ export interface SignalRowProps {
   pages: readonly number[]
   units: DisplayUnits
   onPatch: SignalPatch
+  plotted: boolean
+  onTogglePlot: (name: string) => void
 }
 
 export const SIGNAL_GRID = cn(
   'grid grid-cols-[minmax(0,1fr)_auto_auto] gap-x-4',
   "[grid-template-areas:'label_value_more'_'meta_meta_meta'_'detail_detail_detail']",
-  'md:grid-cols-[minmax(0,1fr)_110px_170px_140px_28px]',
+  'md:grid-cols-[minmax(0,1fr)_96px_150px_112px_24px]',
   "md:[grid-template-areas:'label_bytes_value_pages_more'_'detail_detail_detail_detail_detail']"
 )
 
@@ -57,9 +60,28 @@ const PagesCell = ({ pages }: { pages: readonly number[] }) => (
   </span>
 )
 
-const SignalName = ({ name }: { name: string }) => (
-  <span className="flex min-w-0 items-baseline gap-2 [grid-area:label]">
-    <span className="truncate text-[13.5px] font-bold">{displayLabelForSignal(name)}</span>
+type SignalNameProps = Pick<SignalRowProps, 'plotted' | 'onTogglePlot'> & { name: string }
+
+const RowMeta = ({
+  signal,
+  pages,
+  onPatch,
+}: Pick<SignalRowProps, 'signal' | 'pages' | 'onPatch'>) => (
+  <span className="flex items-center gap-3 [grid-area:meta] md:contents">
+    <span className="font-mono text-[11px] text-ui-muted md:hidden">{signal.name}</span>
+    <BytesCell signal={signal} onPatch={onPatch} />
+    <PagesCell pages={pages} />
+  </span>
+)
+
+const SignalName = ({ name, plotted, onTogglePlot }: SignalNameProps) => (
+  <span className="flex min-w-0 items-center gap-2 [grid-area:label]">
+    <Checkbox
+      checked={plotted}
+      aria-label={`Plot ${displayLabelForSignal(name)}`}
+      onCheckedChange={() => onTogglePlot(name)}
+    />
+    <span className="shrink-0 text-[13.5px] font-bold">{displayLabelForSignal(name)}</span>
     <span className="hidden truncate font-mono text-[11px] text-ui-muted md:inline">{name}</span>
   </span>
 )
@@ -90,7 +112,15 @@ const MoreToggle = ({ open, onToggle }: { open: boolean; onToggle: () => void })
   </button>
 )
 
-export const SignalRow = ({ signal, value, pages, units, onPatch }: SignalRowProps) => {
+export const SignalRow = ({
+  signal,
+  value,
+  pages,
+  units,
+  onPatch,
+  plotted,
+  onTogglePlot,
+}: SignalRowProps) => {
   const [detailOpen, setDetailOpen] = useState(false)
   const unused = pages.length === 0
   return (
@@ -101,13 +131,9 @@ export const SignalRow = ({ signal, value, pages, units, onPatch }: SignalRowPro
         unused ? 'text-ui-faint' : 'text-ui-ink'
       )}
     >
-      <SignalName name={signal.name} />
+      <SignalName name={signal.name} plotted={plotted} onTogglePlot={onTogglePlot} />
       <SignalValueCell signal={signal} units={units} value={value} className="[grid-area:value]" />
-      <span className="flex items-center gap-3 [grid-area:meta] md:contents">
-        <span className="font-mono text-[11px] text-ui-muted md:hidden">{signal.name}</span>
-        <BytesCell signal={signal} onPatch={onPatch} />
-        <PagesCell pages={pages} />
-      </span>
+      <RowMeta signal={signal} pages={pages} onPatch={onPatch} />
       <MoreToggle open={detailOpen} onToggle={() => setDetailOpen((open) => !open)} />
       {detailOpen && <FrameDetail signal={signal} onPatch={onPatch} />}
     </div>
