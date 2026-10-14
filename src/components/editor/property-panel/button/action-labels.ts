@@ -5,7 +5,7 @@ export const ACTION_TYPE_LABELS: Record<ButtonAction['type'], string> = {
   map_switch: 'Map Switch',
   can_raw: 'CAN Raw',
   cruise_control: 'Cruise Ctrl',
-  timer_control: 'Cruise Ctrl',
+  timer_control: 'Timer',
 }
 
 export const ACTION_CATEGORY_COLORS: Record<ButtonAction['category'], string> = {
