@@ -8,14 +8,14 @@ export interface OverflowingWidget {
   layout: Widget['layout']
 }
 
-export const detectOverflow = (config: DashboardConfig): OverflowingWidget[] => {
-  const out: OverflowingWidget[] = []
-  for (const page of config.pages) {
-    for (const widget of page.widgets) {
-      if (isSpanOverflowing(widget.layout)) {
-        out.push({ pageId: page.id, widgetId: widget.id, type: widget.type, layout: widget.layout })
-      }
-    }
-  }
-  return out
-}
+export const detectOverflow = (config: DashboardConfig): OverflowingWidget[] =>
+  config.pages.flatMap((page) =>
+    page.widgets
+      .filter((widget) => isSpanOverflowing(widget.layout))
+      .map((widget) => ({
+        pageId: page.id,
+        widgetId: widget.id,
+        type: widget.type,
+        layout: widget.layout,
+      }))
+  )

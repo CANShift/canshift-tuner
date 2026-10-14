@@ -92,39 +92,53 @@ const attributesOf = (raw: string): Record<string, string> => {
   return found
 }
 
-const optionalFields = (attributes: Record<string, string>): Record<string, unknown> => {
-  const fields: Record<string, unknown> = {}
-  for (const [attribute, field] of Object.entries(OPTIONAL_NUMBERS)) {
-    const raw = attributes[attribute]
-    if (raw !== undefined && raw.length > 0) fields[field] = Number(raw)
-  }
-  for (const [attribute, field] of Object.entries(OPTIONAL_STRINGS)) {
-    const raw = attributes[attribute]
-    if (raw !== undefined && raw.length > 0) fields[field] = raw
-  }
+const isPresent = (raw: string | undefined): raw is string => raw !== undefined && raw.length > 0
+
+const presentFields = <V>(
+  attributes: Record<string, string>,
+  table: Record<string, string>,
+  convert: (raw: string) => V
+): Record<string, V> =>
+  Object.fromEntries(
+    Object.entries(table).flatMap(([attribute, field]) => {
+      const raw = attributes[attribute]
+      return isPresent(raw) ? [[field, convert(raw)]] : []
+    })
+  )
+
+const exprRefsField = (attributes: Record<string, string>): Record<string, number[]> => {
   const refs = attributes[EXPR_REFS]
-  if (refs !== undefined && refs.length > 0) fields.exprRefs = refs.split(',').map(Number)
-  return fields
+  return isPresent(refs) ? { exprRefs: refs.split(',').map(Number) } : {}
 }
 
-const candidateFrom = (attributes: Record<string, string>): Record<string, unknown> => {
+const optionalFields = (attributes: Record<string, string>): Record<string, unknown> => ({
+  ...presentFields(attributes, OPTIONAL_NUMBERS, Number),
+  ...presentFields(attributes, OPTIONAL_STRINGS, (raw) => raw),
+  ...exprRefsField(attributes),
+})
+
+const byteFields = (attributes: Record<string, string>) => {
   const range = parseByteRange(attributes.bytes ?? '')
-  return {
-    name: attributes.name ?? '',
-    canFrameId: attributes.id ?? '',
-    startByte: range?.startByte ?? -1,
-    byteLength: range?.byteLength ?? 0,
-    bigEndian: attributes.endian === 'big',
-    signed: attributes.signed === 'true',
-    scale: Number(attributes.scale ?? '1'),
-    offset: Number(attributes.offset ?? '0'),
-    unit: attributes.unit ?? '',
-    min: Number(attributes.min ?? '0'),
-    max: Number(attributes.max ?? '100'),
-    timeoutMs: Number(attributes.timeout ?? '1000'),
-    ...optionalFields(attributes),
-  }
+  return { startByte: range?.startByte ?? -1, byteLength: range?.byteLength ?? 0 }
 }
+
+const numberOr = (attributes: Record<string, string>, name: string, fallback: string): number =>
+  Number(attributes[name] ?? fallback)
+
+const candidateFrom = (attributes: Record<string, string>): Record<string, unknown> => ({
+  name: attributes.name ?? '',
+  canFrameId: attributes.id ?? '',
+  ...byteFields(attributes),
+  bigEndian: attributes.endian === 'big',
+  signed: attributes.signed === 'true',
+  scale: numberOr(attributes, 'scale', '1'),
+  offset: numberOr(attributes, 'offset', '0'),
+  unit: attributes.unit ?? '',
+  min: numberOr(attributes, 'min', '0'),
+  max: numberOr(attributes, 'max', '100'),
+  timeoutMs: numberOr(attributes, 'timeout', '1000'),
+  ...optionalFields(attributes),
+})
 
 export const parseProfileXml = (xml: string): ProfileXmlResult => {
   if (!xml.includes(`<${PROFILE_XML_ROOT}`)) return { kind: 'not-a-profile' }
