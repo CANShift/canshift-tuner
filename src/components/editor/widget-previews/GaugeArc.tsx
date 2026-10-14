@@ -4,6 +4,8 @@ import {
   GAUGE_TRACK_COLORS,
   STALE_PLACEHOLDER,
   gaugeValueFontSize,
+  type GaugeWidgetConfig,
+  type Widget,
 } from '@canshift/core'
 import { cn } from '@/lib/utils'
 import { WIDGET_DIM_COLOR, thresholdPct } from '../widget-preview.styles'
@@ -24,58 +26,81 @@ const SIGNAL_LABEL_FONT_SIZE = 9
 
 const BLINK = '[animation:canshift-blink_0.7s_step-end_infinite]'
 
-export const GaugeArcPreview = memo(function GaugeArcPreview({
-  widget,
-  w,
-  h,
-  revLimiting,
-  danger,
-  testValue,
-  toDisplay,
-  unbound = false,
-  scale,
-}: GaugeArcRendererProps) {
-  if (widget.config.type !== 'gauge') return null
-  const cfg = widget.config
-  const st = widget.style
+interface ArcGeometry {
+  cx: number
+  cy: number
+  r: number
+  strokeW: number
+  maxOuterR: number
+}
 
-  const dangerPct = thresholdPct(cfg.dangerLevel, cfg.minValue, cfg.maxValue)
-  const bound = shownValue(testValue, cfg.minValue, cfg.maxValue, toDisplay)
-  const valuePct = unbound ? 0 : bound.pct
-
-  const valueStr = unbound ? STALE_PLACEHOLDER : bound.raw.toFixed(cfg.decimalPlaces)
-
-  const inDanger = valuePct >= dangerPct
-  const inkColor = inDanger ? st.criticalColor : st.textColor
-
-  const cx = w / 2
-  const cy = h * 0.5
-  const valueYOffset = 0
+const arcGeometry = (w: number, h: number): ArcGeometry => {
   const maxOuterR = Math.min(w, h) / 2 - GAUGE_ARC.containerPadding / 2
   const idealR = maxOuterR / (1 + GAUGE_ARC.strokeRatio / 2)
   const strokeW = Math.max(GAUGE_ARC.strokeWidthFloor, idealR * GAUGE_ARC.strokeRatio)
-  const r = maxOuterR - strokeW / 2
+  return { cx: w / 2, cy: h * 0.5, r: maxOuterR - strokeW / 2, strokeW, maxOuterR }
+}
 
-  const revFlash = cfg.revFlash === true
-  const showRevFlash = revFlash && revLimiting
+interface ArcReading {
+  valuePct: number
+  valueStr: string
+  inkColor: string
+}
 
-  const valueFontSize = gaugeValueFontSize(h / scale, cfg.big) * scale
+const arcReading = (
+  widget: Widget,
+  cfg: GaugeWidgetConfig,
+  props: GaugeArcRendererProps
+): ArcReading => {
+  const unbound = props.unbound ?? false
+  const bound = shownValue(props.testValue, cfg.minValue, cfg.maxValue, props.toDisplay)
+  const valuePct = unbound ? 0 : bound.pct
+  const inDanger = valuePct >= thresholdPct(cfg.dangerLevel, cfg.minValue, cfg.maxValue)
+  return {
+    valuePct,
+    valueStr: unbound ? STALE_PLACEHOLDER : bound.raw.toFixed(cfg.decimalPlaces),
+    inkColor: inDanger ? widget.style.criticalColor : widget.style.textColor,
+  }
+}
 
+const RevFlash = ({
+  geometry,
+  w,
+  h,
+  active,
+}: {
+  geometry: ArcGeometry
+  w: number
+  h: number
+  active: boolean
+}) => (
+  <>
+    {active && <rect x={0} y={0} width={w} height={h} fill="#FF000022" />}
+    <circle
+      cx={geometry.cx}
+      cy={geometry.cy}
+      r={Math.min(geometry.r + geometry.strokeW * 0.6, geometry.maxOuterR - 1.5)}
+      fill="none"
+      stroke="#FF0000"
+      strokeWidth={active ? 3 : 1.5}
+      opacity={active ? 1 : 0.45}
+      strokeDasharray={active ? undefined : '4 3'}
+    />
+  </>
+)
+
+const ArcTracks = ({
+  geometry,
+  reading,
+  danger,
+}: {
+  geometry: ArcGeometry
+  reading: ArcReading
+  danger: boolean
+}) => {
+  const { cx, cy, r, strokeW } = geometry
   return (
-    <svg width={w} height={h} className="block overflow-hidden" aria-hidden="true">
-      {showRevFlash && <rect x={0} y={0} width={w} height={h} fill="#FF000022" />}
-      {revFlash && (
-        <circle
-          cx={cx}
-          cy={cy}
-          r={Math.min(r + strokeW * 0.6, maxOuterR - 1.5)}
-          fill="none"
-          stroke="#FF0000"
-          strokeWidth={showRevFlash ? 3 : 1.5}
-          opacity={showRevFlash ? 1 : 0.45}
-          strokeDasharray={showRevFlash ? undefined : '4 3'}
-        />
-      )}
+    <>
       <path
         d={gaugeArcD(cx, cy, r, 0, 1)}
         fill="none"
@@ -84,40 +109,70 @@ export const GaugeArcPreview = memo(function GaugeArcPreview({
         strokeLinecap="butt"
       />
       <path
-        d={gaugeArcD(cx, cy, r, 0, valuePct)}
+        d={gaugeArcD(cx, cy, r, 0, reading.valuePct)}
         fill="none"
-        stroke={inkColor}
+        stroke={reading.inkColor}
         strokeWidth={strokeW}
         strokeLinecap="butt"
         className={cn(danger && BLINK)}
       />
-      <text
-        x={cx}
-        y={cy + valueYOffset}
-        textAnchor="middle"
-        dominantBaseline="middle"
-        fill={inkColor}
-        fontSize={valueFontSize}
-        fontWeight="900"
-        fontFamily={MONO_FONT}
-        className={cn(danger && BLINK)}
-      >
-        {valueStr}
-      </text>
-      <text
-        x={4}
-        y={SIGNAL_LABEL_FONT_SIZE + 4}
-        textAnchor="start"
-        dominantBaseline="auto"
-        fill={WIDGET_DIM_COLOR}
-        fontSize={SIGNAL_LABEL_FONT_SIZE}
-        fontFamily={UI_FONT}
-        fontWeight={UI_LABEL_WEIGHT}
-        letterSpacing={UI_LABEL_TRACKING}
-        className="uppercase"
-      >
-        {formatSignalLabel(widget.signal).toUpperCase()}
-      </text>
+    </>
+  )
+}
+
+interface ArcValueProps {
+  geometry: ArcGeometry
+  reading: ArcReading
+  fontSize: number
+  danger: boolean
+}
+
+const ArcValue = ({ geometry, reading, fontSize, danger }: ArcValueProps) => (
+  <text
+    x={geometry.cx}
+    y={geometry.cy}
+    textAnchor="middle"
+    dominantBaseline="middle"
+    fill={reading.inkColor}
+    fontSize={fontSize}
+    fontWeight="900"
+    fontFamily={MONO_FONT}
+    className={cn(danger && BLINK)}
+  >
+    {reading.valueStr}
+  </text>
+)
+
+const SignalLabel = ({ signal }: { signal: string }) => (
+  <text
+    x={4}
+    y={SIGNAL_LABEL_FONT_SIZE + 4}
+    textAnchor="start"
+    dominantBaseline="auto"
+    fill={WIDGET_DIM_COLOR}
+    fontSize={SIGNAL_LABEL_FONT_SIZE}
+    fontFamily={UI_FONT}
+    fontWeight={UI_LABEL_WEIGHT}
+    letterSpacing={UI_LABEL_TRACKING}
+    className="uppercase"
+  >
+    {formatSignalLabel(signal).toUpperCase()}
+  </text>
+)
+
+export const GaugeArcPreview = memo(function GaugeArcPreview(props: GaugeArcRendererProps) {
+  const { widget, w, h, revLimiting, danger, scale } = props
+  if (widget.config.type !== 'gauge') return null
+  const cfg = widget.config
+  const geometry = arcGeometry(w, h)
+  const reading = arcReading(widget, cfg, props)
+  const fontSize = gaugeValueFontSize(h / scale, cfg.big) * scale
+  return (
+    <svg width={w} height={h} className="block overflow-hidden" aria-hidden="true">
+      {cfg.revFlash === true && <RevFlash geometry={geometry} w={w} h={h} active={revLimiting} />}
+      <ArcTracks geometry={geometry} reading={reading} danger={danger} />
+      <ArcValue geometry={geometry} reading={reading} fontSize={fontSize} danger={danger} />
+      <SignalLabel signal={widget.signal} />
     </svg>
   )
 })

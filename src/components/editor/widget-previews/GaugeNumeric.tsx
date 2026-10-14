@@ -5,16 +5,11 @@ import {
   WIDGET_TOP_RULE,
   gaugeValueFontSize,
   valueUnitFontSize,
-  widgetTopRulePx,
+  type GaugeWidgetConfig,
 } from '@canshift/core'
 import { cn } from '@/lib/utils'
-import {
-  BLINK,
-  WIDGET_DIM_COLOR,
-  WIDGET_KICKER,
-  ruleTier,
-  widgetTopRule,
-} from '../widget-preview.styles'
+import { BLINK, WIDGET_DIM_COLOR, WIDGET_KICKER } from '../widget-preview.styles'
+import { TopRule } from './TopRule'
 import { shownValue } from './gauge-math'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
 
@@ -42,89 +37,93 @@ export interface GaugeNumericRendererProps extends BaseRendererProps {
   scale: number
 }
 
-export const GaugeNumericPreview = memo(function GaugeNumericPreview({
-  widget,
-  w,
-  h,
-  danger,
-  testValue,
-  signalUnit,
-  toDisplay,
-  unbound = false,
-  scale,
-}: GaugeNumericRendererProps) {
+const SIGNAL_HEADER_PX = 14
+
+interface NumericReading {
+  text: string
+  pct: number
+}
+
+const numericReading = (
+  cfg: GaugeWidgetConfig,
+  props: GaugeNumericRendererProps
+): NumericReading => {
+  const unbound = props.unbound ?? false
+  const bound = shownValue(props.testValue, cfg.minValue, cfg.maxValue, props.toDisplay)
+  const value = unbound ? STALE_PLACEHOLDER : bound.raw.toFixed(cfg.decimalPlaces)
+  return { text: (cfg.prefix ?? '') + String(value), pct: unbound ? 0 : bound.pct }
+}
+
+const fillPercent = (pct: number): string =>
+  `${String(Math.round(Math.max(0, Math.min(1, pct)) * 100))}%`
+
+const SecondaryBar = ({ pct, color }: { pct: number; color: string }) => (
+  <span
+    aria-hidden="true"
+    className={BAR_TRACK}
+    // eslint-disable-next-line no-inline-style/no-inline-style
+    style={{ height: SECONDARY_BAR.heightPx, background: WIDGET_TOP_RULE.trackColor }}
+  >
+    {/* eslint-disable-next-line no-inline-style/no-inline-style */}
+    <span className={BAR_FILL} style={{ width: fillPercent(pct), background: color }} />
+  </span>
+)
+
+interface ValueRowProps {
+  text: string
+  unit: string
+  color: string
+  fontSize: number
+  danger: boolean
+}
+
+const ValueRow = ({ text, unit, color, fontSize, danger }: ValueRowProps) => (
+  <div className={VALUE_ROW}>
+    <span
+      className={cn(VALUE, danger && BLINK)}
+      // eslint-disable-next-line no-inline-style/no-inline-style
+      style={{ color, fontSize }}
+    >
+      {text}
+    </span>
+    {unit !== '' && (
+      <span
+        className={UNIT}
+        // eslint-disable-next-line no-inline-style/no-inline-style
+        style={{ color: WIDGET_DIM_COLOR, fontSize: valueUnitFontSize(Math.round(fontSize)) }}
+      >
+        {unit}
+      </span>
+    )}
+  </div>
+)
+
+export const GaugeNumericPreview = memo(function GaugeNumericPreview(
+  props: GaugeNumericRendererProps
+) {
+  const { widget, w, h, danger, signalUnit, scale } = props
   if (widget.config.type !== 'gauge') return null
   const cfg = widget.config
-  const st = widget.style
-
-  const bound = shownValue(testValue, cfg.minValue, cfg.maxValue, toDisplay)
-  const valuePct = unbound ? 0 : bound.pct
-  const valueOnly = unbound ? STALE_PLACEHOLDER : bound.raw.toFixed(cfg.decimalPlaces)
-  const showBar = cfg.showBar === true && cfg.maxValue > cfg.minValue
-  const prefix = cfg.prefix ?? ''
-
-  const valueColor = st.textColor
-
-  const signalLabel = formatSignalLabel(widget.signal)
-  const sigHeaderH = 14
-
-  const valueStr = String(valueOnly)
+  const color = widget.style.textColor
+  const reading = numericReading(cfg, props)
   const fontSize = gaugeValueFontSize(h / scale, cfg.big) * scale
-  const rulePx = widgetTopRulePx(Math.round(fontSize))
-  const ruleColor = danger
-    ? WIDGET_TOP_RULE.dangerColor
-    : rulePx === WIDGET_TOP_RULE.primaryPx
-      ? valueColor
-      : WIDGET_TOP_RULE.trackColor
-
+  const showBar = cfg.showBar === true && cfg.maxValue > cfg.minValue
   return (
     <div
       className={FRAME}
       // eslint-disable-next-line no-inline-style/no-inline-style
-      style={{ width: w, height: h, padding: `${String(sigHeaderH + 2)}px 4px 2px` }}
+      style={{ width: w, height: h, padding: `${String(SIGNAL_HEADER_PX + 2)}px 4px 2px` }}
     >
-      <span
-        aria-hidden="true"
-        className={cn(widgetTopRule({ tier: ruleTier(rulePx), blink: danger }))}
-        // eslint-disable-next-line no-inline-style/no-inline-style
-        style={{ background: ruleColor }}
+      <TopRule fontSize={fontSize} inkColor={color} danger={danger} />
+      {showBar && <SecondaryBar pct={reading.pct} color={color} />}
+      <span className={WIDGET_KICKER}>{formatSignalLabel(widget.signal).toUpperCase()}</span>
+      <ValueRow
+        text={reading.text}
+        unit={signalUnit}
+        color={color}
+        fontSize={fontSize}
+        danger={danger}
       />
-      {showBar && (
-        <span
-          aria-hidden="true"
-          className={BAR_TRACK}
-          // eslint-disable-next-line no-inline-style/no-inline-style
-          style={{ height: SECONDARY_BAR.heightPx, background: WIDGET_TOP_RULE.trackColor }}
-        >
-          <span
-            className={BAR_FILL}
-            // eslint-disable-next-line no-inline-style/no-inline-style
-            style={{
-              width: `${String(Math.round(Math.max(0, Math.min(1, valuePct)) * 100))}%`,
-              background: valueColor,
-            }}
-          />
-        </span>
-      )}
-      <span className={WIDGET_KICKER}>{signalLabel.toUpperCase()}</span>
-      <div className={VALUE_ROW}>
-        <span
-          className={cn(VALUE, danger && BLINK)}
-          // eslint-disable-next-line no-inline-style/no-inline-style
-          style={{ color: valueColor, fontSize }}
-        >
-          {prefix + valueStr}
-        </span>
-        {signalUnit !== '' && (
-          <span
-            className={UNIT}
-            // eslint-disable-next-line no-inline-style/no-inline-style
-            style={{ color: WIDGET_DIM_COLOR, fontSize: valueUnitFontSize(Math.round(fontSize)) }}
-          >
-            {signalUnit}
-          </span>
-        )}
-      </div>
     </div>
   )
 })

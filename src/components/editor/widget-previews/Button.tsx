@@ -1,11 +1,18 @@
 import { memo } from 'react'
-import { CONTROL_STEP_MAX, GAUGE_TRACK_COLORS, type ControlState } from '@canshift/core'
+import {
+  CONTROL_STEP_MAX,
+  GAUGE_TRACK_COLORS,
+  type ButtonWidgetConfig,
+  type ControlState,
+  type Widget,
+} from '@canshift/core'
 import { cn } from '@/lib/utils'
 import {
   controlFor,
   controlSurface,
   controlText,
   defaultControlColors,
+  type ControlSurface,
 } from '../../../lib/control-paint'
 import { BLINK } from '../widget-preview.styles'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
@@ -60,18 +67,22 @@ const KICKER_BY_ACTION_TYPE: Record<string, string> = {
   cruise_control: 'CRUISE',
 }
 
-const kickerFromConfig = (cfg: { mode: string }, signal: string): string => {
-  const anyCfg = cfg as {
-    mode: string
-    kicker?: string
-    actions?: { type: string }[]
-    states?: { action: { type: string } }[]
-  }
-  if (anyCfg.kicker !== undefined && anyCfg.kicker !== '') return anyCfg.kicker.toUpperCase()
+interface KickerSource {
+  mode: string
+  kicker?: string
+  actions?: { type: string }[]
+  states?: { action: { type: string } }[]
+}
+
+const actionTypeOf = (cfg: KickerSource): string | undefined =>
+  cfg.mode === 'cycle' ? cfg.states?.[0]?.action.type : cfg.actions?.[0]?.type
+
+const kickerFromConfig = (config: { mode: string }, signal: string): string => {
+  const cfg = config as KickerSource
+  if (cfg.kicker !== undefined && cfg.kicker !== '') return cfg.kicker.toUpperCase()
   const fromSignal = formatSignalLabel(signal)
   if (fromSignal !== '') return fromSignal.toUpperCase()
-  const actionType =
-    anyCfg.mode === 'cycle' ? anyCfg.states?.[0]?.action.type : anyCfg.actions?.[0]?.type
+  const actionType = actionTypeOf(cfg)
   return actionType !== undefined ? (KICKER_BY_ACTION_TYPE[actionType] ?? '') : ''
 }
 
@@ -88,79 +99,128 @@ const SegmentRow = ({ level, lit, unlit }: { level: number; lit: string; unlit: 
   </span>
 )
 
-export const ButtonPreview = memo(function ButtonPreview({
-  widget,
-  w,
-  h,
-  state,
-  cycleStateIndex,
-}: ButtonRendererProps) {
-  if (widget.config.type !== 'button') return null
-  const cfg = widget.config
-  const st = widget.style
+interface ButtonPaint {
+  kicker: string
+  qualifier: string
+  word: string
+  fontSize: number
+  surface: ControlSurface
+  stepper: boolean
+}
 
-  const activeStateIdx = cfg.mode === 'cycle' ? (cycleStateIndex ?? cfg.initialActiveIndex) : null
-  const activeState =
-    cfg.mode === 'cycle' && activeStateIdx !== null ? cfg.states[activeStateIdx] : null
+const activeStateOf = (cfg: ButtonWidgetConfig, cycleStateIndex: number | undefined) => {
+  if (cfg.mode !== 'cycle') return null
+  return cfg.states[cycleStateIndex ?? cfg.initialActiveIndex] ?? null
+}
 
-  const displayLabel = activeState?.label ?? cfg.label
-  const displayColors = activeState?.colors ?? cfg.colors
+const displayOf = (
+  widget: Widget,
+  cfg: ButtonWidgetConfig,
+  cycleStateIndex: number | undefined
+) => {
+  const activeState = activeStateOf(cfg, cycleStateIndex)
+  const colors = activeState?.colors ?? cfg.colors
+  return {
+    text: (activeState?.label ?? cfg.label).toUpperCase(),
+    colors: defaultControlColors(colors?.normal ?? widget.style.textColor, colors?.active),
+  }
+}
 
-  const displayText = displayLabel.toUpperCase()
-  const kicker = kickerFromConfig(cfg, widget.signal)
-  const showLabel = cfg.showLabel !== false
-  const { fontSize } = computeButtonPreviewMetrics(w, h, kicker !== '', displayText.length)
-
+const wordsOf = (kicker: string, state: ControlState, displayText: string) => {
   const control = controlFor(kicker)
-  const colors = defaultControlColors(displayColors?.normal ?? st.textColor, displayColors?.active)
-  const surface = controlSurface(state, colors)
   const text = control === null ? null : controlText(control, state, displayText)
-  const word = text?.word ?? displayText
-  const qualifier = text?.qualifier ?? ''
-  const stepper = control?.kind === 'stepper'
+  return {
+    qualifier: text?.qualifier ?? '',
+    word: text?.word ?? displayText,
+    stepper: control?.kind === 'stepper',
+  }
+}
 
+const buttonPaint = (
+  widget: Widget,
+  cfg: ButtonWidgetConfig,
+  props: ButtonRendererProps
+): ButtonPaint => {
+  const display = displayOf(widget, cfg, props.cycleStateIndex)
+  const kicker = kickerFromConfig(cfg, widget.signal)
+  const { fontSize } = computeButtonPreviewMetrics(
+    props.w,
+    props.h,
+    kicker !== '',
+    display.text.length
+  )
+  return {
+    kicker,
+    fontSize,
+    surface: controlSurface(props.state, display.colors),
+    ...wordsOf(kicker, props.state, display.text),
+  }
+}
+
+const ButtonKicker = ({ paint }: { paint: ButtonPaint }) => (
+  <span
+    className={KICKER}
+    // eslint-disable-next-line no-inline-style/no-inline-style
+    style={{ color: paint.surface.kickerColor, opacity: paint.surface.kickerOpacity }}
+  >
+    {paint.kicker}
+    {paint.qualifier !== '' && (
+      <>
+        <br />
+        {paint.qualifier}
+      </>
+    )}
+  </span>
+)
+
+const ButtonWord = ({ paint }: { paint: ButtonPaint }) => (
+  <span
+    className={LABEL}
+    // eslint-disable-next-line no-inline-style/no-inline-style
+    style={{ color: paint.surface.wordColor, fontSize: paint.fontSize }}
+  >
+    {paint.word}
+  </span>
+)
+
+const ButtonBody = ({
+  paint,
+  showLabel,
+  state,
+}: {
+  paint: ButtonPaint
+  showLabel: boolean
+  state: ControlState
+}) => (
+  <>
+    {showLabel && paint.kicker !== '' && <ButtonKicker paint={paint} />}
+    {showLabel && <ButtonWord paint={paint} />}
+    {paint.stepper && state !== 'unavailable' && (
+      <SegmentRow
+        level={state === 'off' ? 0 : DEMO_LEVEL}
+        lit={paint.surface.wordColor}
+        unlit={GAUGE_TRACK_COLORS.plain}
+      />
+    )}
+  </>
+)
+
+export const ButtonPreview = memo(function ButtonPreview(props: ButtonRendererProps) {
+  const { widget, w, h, state } = props
+  if (widget.config.type !== 'button') return null
+  const paint = buttonPaint(widget, widget.config, props)
   return (
     <div
-      className={cn(FRAME, surface.pulses && BLINK)}
+      className={cn(FRAME, paint.surface.pulses && BLINK)}
       // eslint-disable-next-line no-inline-style/no-inline-style
       style={{
         width: w,
         height: h,
-        background: surface.background,
-        borderColor: surface.borderColor,
+        background: paint.surface.background,
+        borderColor: paint.surface.borderColor,
       }}
     >
-      {showLabel && kicker !== '' && (
-        <span
-          className={KICKER}
-          // eslint-disable-next-line no-inline-style/no-inline-style
-          style={{ color: surface.kickerColor, opacity: surface.kickerOpacity }}
-        >
-          {kicker}
-          {qualifier !== '' && (
-            <>
-              <br />
-              {qualifier}
-            </>
-          )}
-        </span>
-      )}
-      {showLabel && (
-        <span
-          className={LABEL}
-          // eslint-disable-next-line no-inline-style/no-inline-style
-          style={{ color: surface.wordColor, fontSize }}
-        >
-          {word}
-        </span>
-      )}
-      {stepper && state !== 'unavailable' && (
-        <SegmentRow
-          level={state === 'off' ? 0 : DEMO_LEVEL}
-          lit={surface.wordColor}
-          unlit={GAUGE_TRACK_COLORS.plain}
-        />
-      )}
+      <ButtonBody paint={paint} showLabel={widget.config.showLabel !== false} state={state} />
     </div>
   )
 })
