@@ -12,6 +12,9 @@ const firmwareMajor = existsSync(FIRMWARE_PKG_PATH)
     )
   : Number(readFileSync(resolve(__dirname, 'firmware-major.txt'), 'utf8').trim())
 
+const FLAT_HASHED_SCRIPT = '[hash:10].js'
+const FLAT_HASHED_ASSET = '[hash:10][extname]'
+
 const CORE_SRC_INDEX = resolve(__dirname, '../canshift-core/src/index.ts')
 const CORE_SIBLING_READY =
   existsSync(CORE_SRC_INDEX) && existsSync(resolve(__dirname, '../canshift-core/node_modules'))
@@ -35,11 +38,15 @@ export default defineConfig(({ command }) => ({
   },
   build: {
     outDir: 'dist',
+    assetsDir: '',
     target: 'es2022',
     sourcemap: false,
     reportCompressedSize: true,
     rollupOptions: {
       output: {
+        entryFileNames: FLAT_HASHED_SCRIPT,
+        chunkFileNames: FLAT_HASHED_SCRIPT,
+        assetFileNames: FLAT_HASHED_ASSET,
         manualChunks(id) {
           if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
             return 'vendor-react'
@@ -52,6 +59,9 @@ export default defineConfig(({ command }) => ({
           }
           if (id.includes('node_modules/zustand') || id.includes('node_modules/immer')) {
             return 'vendor-state'
+          }
+          if (id.includes('node_modules/zod') || id.includes('src/lib/strict-csp')) {
+            return 'vendor-zod'
           }
           if (id.includes('@canshift/core')) {
             return 'vendor-core'

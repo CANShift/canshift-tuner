@@ -5,3 +5,4 @@ dist/
 src/styles/tokens.generated.css
 public/sitemap.xml
 .dev.vars
+dist-tuner/
