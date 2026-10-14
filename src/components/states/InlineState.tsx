@@ -88,6 +88,25 @@ interface InlineStateActionsProps {
   className: string
 }
 
+type ActionTone = 'primary' | 'secondary'
+
+const ACTION_TONES: Record<ActionTone, { variant: 'default' | 'outline'; className: string }> = {
+  primary: { variant: 'default', className: ACTION },
+  secondary: { variant: 'outline', className: cn(ACTION, SECONDARY_ACTION) },
+}
+
+const ActionButton = ({ action, tone }: { action: InlineStateAction; tone: ActionTone }) => (
+  <Button
+    type="button"
+    variant={ACTION_TONES[tone].variant}
+    className={ACTION_TONES[tone].className}
+    disabled={action.disabled}
+    onClick={action.onClick}
+  >
+    {action.label}
+  </Button>
+)
+
 const InlineStateActions = ({
   primaryAction,
   secondaryAction,
@@ -96,28 +115,8 @@ const InlineStateActions = ({
   if (!primaryAction && !secondaryAction) return null
   return (
     <div className={cn('flex gap-px', className)}>
-      {primaryAction ? (
-        <Button
-          type="button"
-          variant="default"
-          className={ACTION}
-          disabled={primaryAction.disabled}
-          onClick={primaryAction.onClick}
-        >
-          {primaryAction.label}
-        </Button>
-      ) : null}
-      {secondaryAction ? (
-        <Button
-          type="button"
-          variant="outline"
-          className={cn(ACTION, SECONDARY_ACTION)}
-          disabled={secondaryAction.disabled}
-          onClick={secondaryAction.onClick}
-        >
-          {secondaryAction.label}
-        </Button>
-      ) : null}
+      {primaryAction ? <ActionButton action={primaryAction} tone="primary" /> : null}
+      {secondaryAction ? <ActionButton action={secondaryAction} tone="secondary" /> : null}
     </div>
   )
 }
@@ -136,34 +135,42 @@ export const InlineStateHeaderRow = ({ header }: InlineStateHeaderRowProps) => {
   )
 }
 
-export const InlineState = ({
-  severity,
-  title,
+type Skin = (typeof SKINS)[keyof typeof SKINS]
+
+const InlineStateText = ({
   kicker,
+  title,
   body,
-  header,
-  primaryAction,
-  secondaryAction,
-  footnote,
-  children,
-  className,
-}: InlineStateProps) => {
+  skin,
+}: Pick<InlineStateProps, 'kicker' | 'title' | 'body'> & { skin: Skin }) => (
+  <>
+    {kicker ? <div className={cn(KICKER, skin.kicker)}>{kicker}</div> : null}
+    {title ? <div className={cn(TITLE, skin.title)}>{title}</div> : null}
+    {body ? <div className={BODY}>{body}</div> : null}
+  </>
+)
+
+export const InlineState = (props: InlineStateProps) => {
+  const { severity, header, footnote } = props
   const skin = SKINS[severity]
   return (
-    <div className={cn('flex flex-col', className)}>
+    <div className={cn('flex flex-col', props.className)}>
       <div role={skin.role} className={cn('flex flex-col', skin.block)}>
         <InlineStateHeaderRow header={header} />
         <div
           className={cn('flex flex-col items-start', header ? FRAMED_REGION : skin.region)}
           data-inline-state={severity}
         >
-          {kicker ? <div className={cn(KICKER, skin.kicker)}>{kicker}</div> : null}
-          {title ? <div className={cn(TITLE, skin.title)}>{title}</div> : null}
-          {body ? <div className={BODY}>{body}</div> : null}
-          {children}
+          <InlineStateText
+            kicker={props.kicker}
+            title={props.title}
+            body={props.body}
+            skin={skin}
+          />
+          {props.children}
           <InlineStateActions
-            primaryAction={primaryAction}
-            secondaryAction={secondaryAction}
+            primaryAction={props.primaryAction}
+            secondaryAction={props.secondaryAction}
             className={skin.actions}
           />
         </div>

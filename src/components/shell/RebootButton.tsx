@@ -10,42 +10,36 @@ export interface RebootButtonProps {
   label?: string
 }
 
+const requestReboot = async (): Promise<void> => {
+  const log = useLogStore.getState().push
+  log('info', 'Reboot requested')
+  try {
+    const result = await usbService.reboot()
+    if (result.success) {
+      log('success', 'Reboot command sent — dash is restarting')
+      return
+    }
+    log('error', `Reboot failed: ${transportErrorText(result.error)}`)
+  } catch (err) {
+    log('error', `Reboot failed: ${errorMessage(err)}`)
+  }
+}
+
 export const RebootButton = ({ label = 'Reboot' }: RebootButtonProps) => {
   const connected = useDeviceStore((s) => s.connected)
   const simulationMode = useDeviceStore((s) => s.simulationMode)
-  const log = useLogStore((s) => s.push)
   const [rebooting, setRebooting] = useState(false)
-
-  const disabled = !connected || simulationMode || rebooting
-
-  const handleClick = () => {
+  const reboot = () => {
     setRebooting(true)
-    log('info', 'Reboot requested')
-    void usbService
-      .reboot()
-      .then((result) => {
-        if (result.success) {
-          log('success', 'Reboot command sent — dash is restarting')
-        } else {
-          log('error', `Reboot failed: ${transportErrorText(result.error)}`)
-        }
-      })
-      .catch((err: unknown) => {
-        const message = errorMessage(err)
-        log('error', `Reboot failed: ${message}`)
-      })
-      .finally(() => {
-        setRebooting(false)
-      })
+    void requestReboot().finally(() => setRebooting(false))
   }
-
   return (
     <Button
       type="button"
       size="sm"
       variant="outline"
-      disabled={disabled}
-      onClick={handleClick}
+      disabled={!connected || simulationMode || rebooting}
+      onClick={reboot}
       aria-busy={rebooting}
     >
       {rebooting ? 'Rebooting…' : label}

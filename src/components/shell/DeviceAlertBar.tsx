@@ -90,28 +90,28 @@ const buildDeviceAlerts = (inputs: AlertInputs): Alert[] =>
     (alert): alert is Alert => alert !== null
   )
 
-export const DeviceAlertBar = () => {
-  const liveness = useDeviceStore((s) => s.firmwareLiveness)
-  const compat = useDeviceStore((s) => s.firmwareCompat)
-  const heapStats = useDeviceStore((s) => s.heapStats)
-  const connected = useDeviceStore((s) => s.connected)
-  const simulationMode = useDeviceStore((s) => s.simulationMode)
-
-  const [heapLowDismissed, setHeapLowDismissed] = useState(false)
-  const [expanded, setExpanded] = useState(false)
+const useTickWhileUnresponsive = (unresponsive: boolean): number => {
   const [now, setNow] = useState(() => Date.now())
-
   useEffect(() => {
-    if (liveness.kind !== 'unresponsive') return
+    if (!unresponsive) return
     const id = window.setInterval(() => {
       setNow(Date.now())
     }, 1_000)
     return () => {
       window.clearInterval(id)
     }
-  }, [liveness.kind])
+  }, [unresponsive])
+  return now
+}
 
-  const alerts = buildDeviceAlerts({
+const useDeviceAlerts = (heapLowDismissed: boolean): Alert[] => {
+  const liveness = useDeviceStore((s) => s.firmwareLiveness)
+  const compat = useDeviceStore((s) => s.firmwareCompat)
+  const heapStats = useDeviceStore((s) => s.heapStats)
+  const connected = useDeviceStore((s) => s.connected)
+  const simulationMode = useDeviceStore((s) => s.simulationMode)
+  const now = useTickWhileUnresponsive(liveness.kind === 'unresponsive')
+  return buildDeviceAlerts({
     liveness,
     compat,
     heapStats,
@@ -120,31 +120,39 @@ export const DeviceAlertBar = () => {
     heapLowDismissed,
     now,
   })
+}
 
-  if (alerts.length === 0) return null
+const MoreToggle = ({
+  count,
+  expanded,
+  onToggle,
+}: {
+  count: number
+  expanded: boolean
+  onToggle: () => void
+}) =>
+  count > 0 ? (
+    <Button type="button" variant="ghost" size="sm" onClick={onToggle}>
+      {expanded ? 'Hide' : `${String(count)} more`}
+    </Button>
+  ) : null
 
-  const [primary, ...rest] = alerts
+export const DeviceAlertBar = () => {
+  const [heapLowDismissed, setHeapLowDismissed] = useState(false)
+  const [expanded, setExpanded] = useState(false)
+  const [primary, ...rest] = useDeviceAlerts(heapLowDismissed)
   if (!primary) return null
-
   const handleDismiss = (id: Alert['id']) => {
     if (id === 'heap-low') setHeapLowDismissed(true)
   }
-
   return (
     <div className="flex shrink-0 flex-col">
       <AlertRow alert={primary} onDismiss={handleDismiss}>
-        {rest.length > 0 && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setExpanded((v) => !v)
-            }}
-          >
-            {expanded ? 'Hide' : `${String(rest.length)} more`}
-          </Button>
-        )}
+        <MoreToggle
+          count={rest.length}
+          expanded={expanded}
+          onToggle={() => setExpanded((v) => !v)}
+        />
       </AlertRow>
       {expanded &&
         rest.map((alert) => <AlertRow key={alert.id} alert={alert} onDismiss={handleDismiss} />)}
