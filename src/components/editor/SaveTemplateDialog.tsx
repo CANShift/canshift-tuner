@@ -19,28 +19,46 @@ export interface SaveTemplateDialogProps {
   onSave: (name: string) => void
 }
 
-export const SaveTemplateDialog = ({
-  open,
-  defaultName,
-  onOpenChange,
-  onSave,
-}: SaveTemplateDialogProps) => {
+const useTemplateName = ({ open, defaultName, onOpenChange, onSave }: SaveTemplateDialogProps) => {
   const [name, setName] = useState(defaultName)
-
   useEffect(() => {
     if (open) setName(defaultName)
   }, [open, defaultName])
-
   const canSave = name.trim().length > 0
-
-  const handleSave = () => {
+  const save = () => {
     if (!canSave) return
     onSave(name.trim())
     onOpenChange(false)
   }
+  return { name, setName, canSave, save }
+}
 
+const NameField = ({
+  name,
+  setName,
+  save,
+}: Pick<ReturnType<typeof useTemplateName>, 'name' | 'setName' | 'save'>) => (
+  <div className="grid gap-1.5">
+    <Label htmlFor="template-name">Template name</Label>
+    <Input
+      id="template-name"
+      value={name}
+      onChange={(e) => {
+        setName(e.target.value)
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') save()
+      }}
+      maxLength={PAGE_TEMPLATE_NAME_MAX}
+      autoFocus
+    />
+  </div>
+)
+
+export const SaveTemplateDialog = (props: SaveTemplateDialogProps) => {
+  const template = useTemplateName(props)
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={props.open} onOpenChange={props.onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Save as template</DialogTitle>
@@ -48,31 +66,12 @@ export const SaveTemplateDialog = ({
             Templates are stored on this browser and offered when adding a page to any project.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-1.5">
-          <Label htmlFor="template-name">Template name</Label>
-          <Input
-            id="template-name"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value)
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleSave()
-            }}
-            maxLength={PAGE_TEMPLATE_NAME_MAX}
-            autoFocus
-          />
-        </div>
+        <NameField {...template} />
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => {
-              onOpenChange(false)
-            }}
-          >
+          <Button variant="outline" onClick={() => props.onOpenChange(false)}>
             Cancel
           </Button>
-          <Button disabled={!canSave} onClick={handleSave}>
+          <Button disabled={!template.canSave} onClick={template.save}>
             Save template
           </Button>
         </DialogFooter>

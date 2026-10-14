@@ -17,11 +17,9 @@ const UNDO_BUTTON = [
 
 const DISMISS = 'cursor-pointer border-none bg-transparent p-0 text-[11px] text-brand-neutral-500'
 
-export const UndoToast = () => {
+const useToastExpiry = () => {
   const toast = useUndoToastStore((s) => s.toast)
-  const undoFromToast = useUndoToastStore((s) => s.undoFromToast)
   const dismiss = useUndoToastStore((s) => s.dismiss)
-
   useEffect(() => {
     if (!toast) return
     const id = toast.id
@@ -32,9 +30,13 @@ export const UndoToast = () => {
       window.clearTimeout(timer)
     }
   }, [toast, dismiss])
+  return { toast, dismiss }
+}
 
+export const UndoToast = () => {
+  const { toast, dismiss } = useToastExpiry()
+  const undoFromToast = useUndoToastStore((s) => s.undoFromToast)
   if (!toast) return null
-
   return (
     <div role="status" className={TOAST}>
       <span className={LABEL}>{toast.label}</span>
@@ -47,9 +49,7 @@ export const UndoToast = () => {
       </button>
       <button
         type="button"
-        onClick={() => {
-          dismiss(toast.id)
-        }}
+        onClick={() => dismiss(toast.id)}
         aria-label="Dismiss"
         className={DISMISS}
       >

@@ -1,9 +1,10 @@
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 import { useLiveSignals } from '../../hooks/useLiveSignals'
 import { useSignalStore } from '../../stores/signal.store'
 import { useDeviceStore } from '../../stores/device.store'
+import type { SignalDef } from '@canshift/core'
 
 interface DiagnosticsPanelProps {
   scale: number
@@ -63,149 +64,134 @@ const levelOf = (pct: number | null): SignalLevel => {
   return 'ok'
 }
 
-interface SignalRowProps {
-  name: string
-  unit: string
-  displayValue: string
-  pct: number | null
+interface DiagMetrics {
+  scale: number
   fs: number
-  rowPad: number
   pad: number
+  rowPad: number
   barW: number
   barH: number
-  scale: number
 }
 
-const SignalRowImpl = ({
-  name,
-  unit,
-  displayValue,
-  pct,
-  fs,
-  rowPad,
-  pad,
-  barW,
-  barH,
+const diagMetrics = (scale: number): DiagMetrics => ({
   scale,
-}: SignalRowProps) => {
-  const level = levelOf(pct)
-  return (
-    <div
-      className={ROW}
-      // eslint-disable-next-line no-inline-style/no-inline-style
-      style={{ padding: `${String(rowPad)}px ${String(pad)}px`, gap: Math.round(scale * 3) }}
-    >
-      {/* eslint-disable-next-line no-inline-style/no-inline-style */}
-      <span className={ROW_LABEL} style={{ fontSize: fs }}>
-        {name.replace(/_/g, ' ')}
-      </span>
+  fs: Math.round(scale * 5.5),
+  pad: Math.round(scale * 6),
+  rowPad: Math.round(scale * 3),
+  barW: Math.round(scale * 32),
+  barH: Math.round(scale * 4),
+})
 
-      {/* eslint-disable-next-line no-inline-style/no-inline-style */}
-      <div className={BAR_TRACK} style={{ width: barW, height: barH }}>
-        {pct !== null && (
-          <div
-            className={cn(barFill({ level }))}
-            // eslint-disable-next-line no-inline-style/no-inline-style
-            style={{ width: `${String(Math.round(pct * 100))}%` }}
-          />
-        )}
-      </div>
-
-      <span
-        className={cn(rowValue({ level }))}
-        // eslint-disable-next-line no-inline-style/no-inline-style
-        style={{ fontSize: fs, minWidth: Math.round(scale * 18) }}
-      >
-        {displayValue}
-      </span>
-
-      <span
-        className={ROW_UNIT}
-        // eslint-disable-next-line no-inline-style/no-inline-style
-        style={{ fontSize: fs - 1, minWidth: Math.round(scale * 10) }}
-      >
-        {unit}
-      </span>
-    </div>
-  )
+const linkStateOf = (connected: boolean, simulationMode: boolean): LinkState => {
+  if (simulationMode) return 'sim'
+  return connected ? 'live' : 'none'
 }
+
+interface SignalReading {
+  pct: number | null
+  displayValue: string
+}
+
+const readingOf = (sig: SignalDef, raw: number | undefined): SignalReading => {
+  if (raw === undefined) return { pct: null, displayValue: '—' }
+  const range = sig.max - sig.min || 1
+  return { pct: Math.max(0, Math.min(1, (raw - sig.min) / range)), displayValue: raw.toFixed(1) }
+}
+
+interface SignalRowProps extends SignalReading {
+  sig: SignalDef
+  m: DiagMetrics
+}
+
+const LevelBar = ({ pct, m }: { pct: number | null; m: DiagMetrics }) => (
+  // eslint-disable-next-line no-inline-style/no-inline-style
+  <div className={BAR_TRACK} style={{ width: m.barW, height: m.barH }}>
+    {pct !== null && (
+      <div
+        className={cn(barFill({ level: levelOf(pct) }))}
+        // eslint-disable-next-line no-inline-style/no-inline-style
+        style={{ width: `${String(Math.round(pct * 100))}%` }}
+      />
+    )}
+  </div>
+)
+
+const SignalRowImpl = ({ sig, pct, displayValue, m }: SignalRowProps) => (
+  <div
+    className={ROW}
+    // eslint-disable-next-line no-inline-style/no-inline-style
+    style={{ padding: `${String(m.rowPad)}px ${String(m.pad)}px`, gap: Math.round(m.scale * 3) }}
+  >
+    {/* eslint-disable-next-line no-inline-style/no-inline-style */}
+    <span className={ROW_LABEL} style={{ fontSize: m.fs }}>
+      {sig.name.replace(/_/g, ' ')}
+    </span>
+    <LevelBar pct={pct} m={m} />
+    <span
+      className={cn(rowValue({ level: levelOf(pct) }))}
+      // eslint-disable-next-line no-inline-style/no-inline-style
+      style={{ fontSize: m.fs, minWidth: Math.round(m.scale * 18) }}
+    >
+      {displayValue}
+    </span>
+    {/* eslint-disable-next-line no-inline-style/no-inline-style */}
+    <span className={ROW_UNIT} style={{ fontSize: m.fs - 1, minWidth: Math.round(m.scale * 10) }}>
+      {sig.unit}
+    </span>
+  </div>
+)
 
 const SignalRow = memo(SignalRowImpl)
 
-const DiagnosticsPanel = ({ scale }: DiagnosticsPanelProps) => {
+const DiagHeader = ({ m, linkState }: { m: DiagMetrics; linkState: LinkState }) => (
+  <div
+    className={HEADER}
+    // eslint-disable-next-line no-inline-style/no-inline-style
+    style={{
+      padding: `${String(m.pad)}px ${String(m.pad)}px ${String(Math.round(m.scale * 3))}px`,
+      gap: Math.round(m.scale * 4),
+    }}
+  >
+    {/* eslint-disable-next-line no-inline-style/no-inline-style */}
+    <span className={TITLE} style={{ fontSize: m.fs + 2 }}>
+      Diagnostics
+    </span>
+    {/* eslint-disable-next-line no-inline-style/no-inline-style */}
+    <span className={cn(linkLabel({ state: linkState }))} style={{ fontSize: m.fs - 1 }}>
+      {LINK_TEXT[linkState]}
+    </span>
+    {/* eslint-disable-next-line no-inline-style/no-inline-style */}
+    <span className={HINT} style={{ fontSize: m.fs - 1 }}>
+      swipe ↓ to close
+    </span>
+  </div>
+)
+
+const SignalRows = ({ m }: { m: DiagMetrics }) => {
   const signals = useSignalStore((s) => s.signals)
+  const values = useLiveSignals()
+  if (signals.length === 0) {
+    return (
+      // eslint-disable-next-line no-inline-style/no-inline-style
+      <div className={EMPTY} style={{ padding: m.pad, paddingTop: m.pad * 3, fontSize: m.fs }}>
+        No signals configured.
+      </div>
+    )
+  }
+  return signals.map((sig) => (
+    <SignalRow key={sig.name} sig={sig} {...readingOf(sig, values[sig.name])} m={m} />
+  ))
+}
+
+const DiagnosticsPanel = ({ scale }: DiagnosticsPanelProps) => {
   const connected = useDeviceStore((s) => s.connected)
   const simulationMode = useDeviceStore((s) => s.simulationMode)
-  const values = useLiveSignals()
-
-  const fs = Math.round(scale * 5.5)
-  const pad = Math.round(scale * 6)
-  const rowPad = Math.round(scale * 3)
-  const barW = Math.round(scale * 32)
-  const barH = Math.round(scale * 4)
-
-  const linkState: LinkState =
-    connected && !simulationMode ? 'live' : simulationMode ? 'sim' : 'none'
-
+  const m = useMemo(() => diagMetrics(scale), [scale])
   return (
     <div className={PANEL}>
-      <div
-        className={HEADER}
-        // eslint-disable-next-line no-inline-style/no-inline-style
-        style={{
-          padding: `${String(pad)}px ${String(pad)}px ${String(Math.round(scale * 3))}px`,
-          gap: Math.round(scale * 4),
-        }}
-      >
-        {/* eslint-disable-next-line no-inline-style/no-inline-style */}
-        <span className={TITLE} style={{ fontSize: fs + 2 }}>
-          Diagnostics
-        </span>
-        <span
-          className={cn(linkLabel({ state: linkState }))}
-          // eslint-disable-next-line no-inline-style/no-inline-style
-          style={{ fontSize: fs - 1 }}
-        >
-          {LINK_TEXT[linkState]}
-        </span>
-        {/* eslint-disable-next-line no-inline-style/no-inline-style */}
-        <span className={HINT} style={{ fontSize: fs - 1 }}>
-          swipe ↓ to close
-        </span>
-      </div>
-
+      <DiagHeader m={m} linkState={linkStateOf(connected, simulationMode)} />
       <div className="flex-1 overflow-y-auto">
-        {signals.length === 0 ? (
-          <div
-            className={EMPTY}
-            // eslint-disable-next-line no-inline-style/no-inline-style
-            style={{ padding: pad, paddingTop: pad * 3, fontSize: fs }}
-          >
-            No signals configured.
-          </div>
-        ) : (
-          signals.map((sig) => {
-            const raw = values[sig.name]
-            const range = sig.max - sig.min || 1
-            const pct = raw !== undefined ? Math.max(0, Math.min(1, (raw - sig.min) / range)) : null
-            const displayValue = raw !== undefined ? raw.toFixed(1) : '—'
-            return (
-              <SignalRow
-                key={sig.name}
-                name={sig.name}
-                unit={sig.unit}
-                displayValue={displayValue}
-                pct={pct}
-                fs={fs}
-                rowPad={rowPad}
-                pad={pad}
-                barW={barW}
-                barH={barH}
-                scale={scale}
-              />
-            )
-          })
-        )}
+        <SignalRows m={m} />
       </div>
     </div>
   )

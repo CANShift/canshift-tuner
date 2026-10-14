@@ -1,5 +1,5 @@
-import { memo, type DragEvent, type MouseEvent, type PointerEvent } from 'react'
-import type { PagePalette, Widget } from '@canshift/core'
+import { memo, type CSSProperties, type DragEvent, type MouseEvent, type PointerEvent } from 'react'
+import type { GridRect, PagePalette, Widget } from '@canshift/core'
 import { resolveGridRect } from '@canshift/core'
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
@@ -86,33 +86,93 @@ const ringOf = (isFlashing: boolean, isSelected: boolean): BoxRing => {
   return 'none'
 }
 
-export const WidgetBox = memo(function WidgetBox({
-  widget,
-  palette,
-  scale,
-  areaWidth,
-  areaHeight,
-  isSelected,
-  isInMultiSelection,
-  isOverlapping,
-  isOverflowing,
-  isFlashing,
-  revLimiting,
-  onSelect,
-  onShiftSelect,
-  onDragStart,
-  onResizeStart,
-  onSignalDrop,
-  groundColor,
-}: WidgetBoxProps) {
+const signalDropHandlers = ({ widget, onSignalDrop }: WidgetBoxProps) => {
   const acceptsSignal = SIGNAL_CONSUMING_TYPES.has(widget.type)
-  const fill = fillOf(isOverlapping, isOverflowing, isSelected, isInMultiSelection)
-  const isPlain = fill === 'plain'
-  const { layout } = widget
-  const rect = resolveGridRect(layout, { width: areaWidth, height: areaHeight })
-  const displayW = rect.w * scale
-  const displayH = rect.h * scale
+  return {
+    onDragOver: (e: DragEvent) => {
+      if (!acceptsSignal || !e.dataTransfer.types.includes(SIGNAL_DRAG_MIME)) return
+      e.preventDefault()
+      e.stopPropagation()
+      e.dataTransfer.dropEffect = 'link'
+    },
+    onDrop: (e: DragEvent) => {
+      const name = e.dataTransfer.getData(SIGNAL_DRAG_MIME)
+      if (!acceptsSignal || !name) return
+      e.preventDefault()
+      e.stopPropagation()
+      onSignalDrop(widget, name)
+    },
+  }
+}
 
+const boxHandlers = (props: WidgetBoxProps) => ({
+  onFocus: () => {
+    if (!props.isSelected) props.onSelect(props.widget.id)
+  },
+  onMouseDown: (e: MouseEvent) => {
+    e.stopPropagation()
+    if (e.shiftKey) {
+      props.onShiftSelect(props.widget.id)
+      return
+    }
+    props.onSelect(props.widget.id)
+    props.onDragStart(e, props.widget)
+  },
+  ...signalDropHandlers(props),
+})
+
+const boxClass = (props: WidgetBoxProps): string =>
+  cn(
+    box({
+      fill: fillOf(
+        props.isOverlapping,
+        props.isOverflowing,
+        props.isSelected,
+        props.isInMultiSelection
+      ),
+      glow: glowOf(props.isOverlapping, props.isOverflowing, props.isInMultiSelection),
+      ring: ringOf(props.isFlashing, props.isSelected),
+    }),
+    props.isFlashing && 'widget-rebind-flash'
+  )
+
+const boxStyle = (rect: GridRect, scale: number, ground: string | null): CSSProperties => ({
+  left: rect.x * scale,
+  top: rect.y * scale,
+  width: rect.w * scale,
+  height: rect.h * scale,
+  ...(ground === null ? {} : { background: ground }),
+})
+
+const ResizeGrip = ({
+  widget,
+  onResizeStart,
+}: {
+  widget: Widget
+  onResizeStart: NonNullable<WidgetBoxProps['onResizeStart']>
+}) => (
+  <div
+    role="separator"
+    aria-label={`Resize ${widget.type}`}
+    title="Drag to resize"
+    onPointerDown={(e) => {
+      onResizeStart(e, widget)
+    }}
+    onMouseDown={(e) => {
+      e.stopPropagation()
+    }}
+    className="absolute inset-y-0 right-0 z-[2] cursor-ew-resize bg-transparent hover:bg-white/10"
+    // eslint-disable-next-line no-inline-style/no-inline-style
+    style={{ width: GRIP_WIDTH_PX }}
+  />
+)
+
+export const WidgetBox = memo(function WidgetBox(props: WidgetBoxProps) {
+  const { widget, scale, isSelected, isOverflowing, onResizeStart } = props
+  const { layout } = widget
+  const rect = resolveGridRect(layout, { width: props.areaWidth, height: props.areaHeight })
+  const isPlain =
+    fillOf(props.isOverlapping, isOverflowing, isSelected, props.isInMultiSelection) === 'plain'
   return (
     <div
       data-widget="true"
@@ -121,71 +181,19 @@ export const WidgetBox = memo(function WidgetBox({
       aria-label={`${widget.type} widget at column ${String(layout.col)}, row ${String(layout.row)}`}
       aria-pressed={isSelected}
       title={isOverflowing ? 'Widget spans past the 12-column grid' : undefined}
-      onFocus={() => {
-        if (!isSelected) onSelect(widget.id)
-      }}
-      onMouseDown={(e) => {
-        e.stopPropagation()
-        if (e.shiftKey) {
-          onShiftSelect(widget.id)
-        } else {
-          onSelect(widget.id)
-          onDragStart(e, widget)
-        }
-      }}
-      onDragOver={(e: DragEvent) => {
-        if (!acceptsSignal || !e.dataTransfer.types.includes(SIGNAL_DRAG_MIME)) return
-        e.preventDefault()
-        e.stopPropagation()
-        e.dataTransfer.dropEffect = 'link'
-      }}
-      onDrop={(e: DragEvent) => {
-        const name = e.dataTransfer.getData(SIGNAL_DRAG_MIME)
-        if (!acceptsSignal || !name) return
-        e.preventDefault()
-        e.stopPropagation()
-        onSignalDrop(widget, name)
-      }}
-      className={cn(
-        box({
-          fill,
-          glow: glowOf(isOverlapping, isOverflowing, isInMultiSelection),
-          ring: ringOf(isFlashing, isSelected),
-        }),
-        isFlashing && 'widget-rebind-flash'
-      )}
+      {...boxHandlers(props)}
+      className={boxClass(props)}
       // eslint-disable-next-line no-inline-style/no-inline-style
-      style={{
-        left: rect.x * scale,
-        top: rect.y * scale,
-        width: displayW,
-        height: displayH,
-        ...(isPlain ? { background: groundColor } : {}),
-      }}
+      style={boxStyle(rect, scale, isPlain ? props.groundColor : null)}
     >
-      {onResizeStart && (
-        <div
-          role="separator"
-          aria-label={`Resize ${widget.type}`}
-          title="Drag to resize"
-          onPointerDown={(e) => {
-            onResizeStart(e, widget)
-          }}
-          onMouseDown={(e) => {
-            e.stopPropagation()
-          }}
-          className="absolute inset-y-0 right-0 z-[2] cursor-ew-resize bg-transparent hover:bg-white/10"
-          // eslint-disable-next-line no-inline-style/no-inline-style
-          style={{ width: GRIP_WIDTH_PX }}
-        />
-      )}
+      {onResizeStart && <ResizeGrip widget={widget} onResizeStart={onResizeStart} />}
       <WidgetPreview
         widget={widget}
-        palette={palette}
-        displayW={displayW}
-        displayH={displayH}
+        palette={props.palette}
+        displayW={rect.w * scale}
+        displayH={rect.h * scale}
         scale={scale}
-        revLimiting={revLimiting}
+        revLimiting={props.revLimiting}
       />
     </div>
   )
