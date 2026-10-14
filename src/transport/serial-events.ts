@@ -54,13 +54,11 @@ export class SerialEventHub {
   }
 
   routeSubscription(parsed: Record<string, unknown>): void {
-    for (const sub of this.subscriptions) {
-      if (sub.discriminator in parsed) {
-        void bestEffort(`[serial] ${sub.discriminator} subscriber`, () => {
-          sub.handler(parsed)
-        })
-        return
-      }
+    const matching = this.subscriptions.filter((sub) => sub.discriminator in parsed)
+    for (const sub of matching) {
+      void bestEffort(`[serial] ${sub.discriminator} subscriber`, () => {
+        sub.handler(parsed)
+      })
     }
   }
 }

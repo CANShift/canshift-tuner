@@ -152,3 +152,16 @@ describe('WebSocketClient lifecycle', () => {
     await expect(client.send(0x11)).resolves.toEqual({ ok: false, error: 'not_connected' })
   })
 })
+
+describe('WebSocketClient subscriptions', () => {
+  it('hands a frame to every subscriber of its kind', async () => {
+    const { client, latest } = await connected()
+    const live = vi.fn()
+    const busWatch = vi.fn()
+    client.subscribe('tele', live)
+    client.subscribe('tele', busWatch)
+    latest().receive('{"tele":1,"v":{"rpm":3000}}')
+    expect(live).toHaveBeenCalledTimes(1)
+    expect(busWatch).toHaveBeenCalledTimes(1)
+  })
+})
