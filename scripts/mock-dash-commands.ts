@@ -7,6 +7,9 @@ import {
   CMD_GET_INPUT_BINDINGS,
   CMD_OBD_CLEAR_DTC,
   CMD_OBD_READ_DTC,
+  CMD_OTA_BEGIN,
+  CMD_OTA_END,
+  CMD_OTA_WRITE,
   CMD_PING,
   CMD_PUT_CONFIG_CHUNK,
   CMD_PUT_DEVICE_CONFIG,
@@ -19,18 +22,18 @@ import {
   CMD_TOGGLE_DAY_NIGHT,
 } from '../src/transport/opcodes'
 import { putConfigChunk } from './mock-dash-chunks'
+import { otaBegin, otaEnd, otaWrite } from './mock-dash-ota'
 import { fail, ok, okThenReboot, type Command, type Outcome } from './mock-dash-replies'
 import type { MockDashState } from './mock-dash-state'
 
 type CommandHandler = (command: Command, state: MockDashState) => Outcome
 
-const FIRMWARE_VERSION = '0.20.0'
 const PROTOCOL_VERSION = 1
 const BOARD_ID = 'waveshare_s3_28'
 
 const queryVersion: CommandHandler = (_command, state) =>
   ok({
-    version: FIRMWARE_VERSION,
+    version: state.firmwareVersion,
     protocol: PROTOCOL_VERSION,
     is_day: state.isDay ? 1 : 0,
     board_id: BOARD_ID,
@@ -85,6 +88,9 @@ export const COMMAND_HANDLERS: Record<number, CommandHandler> = {
   [CMD_CAN_SCAN_STOP]: acknowledge,
   [CMD_OBD_READ_DTC]: readDtc,
   [CMD_OBD_CLEAR_DTC]: acknowledge,
+  [CMD_OTA_BEGIN]: otaBegin,
+  [CMD_OTA_WRITE]: otaWrite,
+  [CMD_OTA_END]: otaEnd,
   [CMD_REBOOT]: reboot,
 }
 

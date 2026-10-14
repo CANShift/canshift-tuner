@@ -16,6 +16,9 @@ export const CMD_CAN_SCAN_START = 0x20
 export const CMD_CAN_SCAN_STOP = 0x21
 export const CMD_OBD_READ_DTC = 0x22
 export const CMD_OBD_CLEAR_DTC = 0x23
+export const CMD_OTA_BEGIN = 0x30
+export const CMD_OTA_WRITE = 0x31
+export const CMD_OTA_END = 0x32
 export const CMD_REBOOT = 0xf0
 
 export interface KnownOpcode {
@@ -83,5 +86,16 @@ export const KNOWN_OPCODES: readonly KnownOpcode[] = [
     description: 'Read stored DTCs (OBD-II Mode 03)',
   },
   { id: CMD_OBD_CLEAR_DTC, name: 'CMD_OBD_CLEAR_DTC', description: 'Clear DTCs (OBD-II Mode 04)' },
+  {
+    id: CMD_OTA_BEGIN,
+    name: 'CMD_OTA_BEGIN',
+    description: 'Open the inactive app slot for an update',
+  },
+  { id: CMD_OTA_WRITE, name: 'CMD_OTA_WRITE', description: 'Write one chunk of the update' },
+  {
+    id: CMD_OTA_END,
+    name: 'CMD_OTA_END',
+    description: 'Commit (verify and reboot) or abort the update',
+  },
   { id: CMD_REBOOT, name: 'CMD_REBOOT', description: 'Reboot the dash' },
 ]

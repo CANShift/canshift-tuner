@@ -28,6 +28,7 @@ Docs for the other repos: [firmware](https://github.com/CANShift/canshift-firmwa
 | [Widgets & pages](configure/widgets.md)             | Building the dashboard within the firmware's limits                    |
 | [Live data](configure/live-data.md)                 | Watching decoded signals in real time — car, simulator, or neither     |
 | [Burn errors](configure/burn-errors.md)             | When the burn overlay turns red, and how to recover                    |
+| [Firmware update](configure/firmware-update.md)     | Installing a new firmware from the Device tab                          |
 
 ## The app itself
 

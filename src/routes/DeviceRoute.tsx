@@ -5,6 +5,7 @@ import { DeviceFactsBand } from '../components/device/DeviceFactsBand'
 import { DeviceSection } from '../components/device/DeviceSection'
 import { DeviceSettingsSection } from '../components/device/DeviceSettingsSection'
 import { BoardProfileSection } from '../components/device/BoardProfileSection'
+import { FirmwareUpdateSection } from '../components/device/FirmwareUpdateSection'
 import { useDeviceStore } from '../stores/device.store'
 
 const BoardConfigRoute = lazy(() => import('./BoardConfigRoute'))
@@ -42,7 +43,10 @@ const DeviceRoute = () => {
       <SimulationNotice />
       <DeviceFactsBand />
       <div className={GRID}>
-        <DeviceSettingsSection />
+        <div className="flex min-w-0 flex-col gap-10">
+          <DeviceSettingsSection />
+          <FirmwareUpdateSection />
+        </div>
         <div className="flex min-w-0 flex-col gap-10">
           <BoardProfileSection
             definitionOpen={definitionOpen}
