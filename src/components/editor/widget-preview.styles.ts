@@ -22,8 +22,3 @@ export const widgetTopRule = cva('absolute left-0 right-0 top-0', {
 
 export const ruleTier = (rulePx: number): 'primary' | 'secondary' =>
   rulePx === WIDGET_TOP_RULE.primaryPx ? 'primary' : 'secondary'
-
-export const thresholdPct = (level: number, min: number, max: number): number => {
-  const range = max - min || 1
-  return Math.max(0, Math.min(1, (level - min) / range))
-}

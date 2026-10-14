@@ -8,8 +8,8 @@ import {
   type Widget,
 } from '@canshift/core'
 import { cn } from '@/lib/utils'
-import { WIDGET_DIM_COLOR, thresholdPct } from '../widget-preview.styles'
-import { gaugeArcD, shownValue } from './gauge-math'
+import { WIDGET_DIM_COLOR } from '../widget-preview.styles'
+import { gaugeArcD, isGaugeInDanger, shownValue } from './gauge-math'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
 import { MONO_FONT, UI_FONT, UI_LABEL_TRACKING, UI_LABEL_WEIGHT } from '../../../lib/typography'
 
@@ -55,7 +55,7 @@ const arcReading = (
   const unbound = props.unbound ?? false
   const bound = shownValue(props.testValue, cfg.minValue, cfg.maxValue, props.toDisplay)
   const valuePct = unbound ? 0 : bound.pct
-  const inDanger = valuePct >= thresholdPct(cfg.dangerLevel, cfg.minValue, cfg.maxValue)
+  const inDanger = !unbound && isGaugeInDanger(cfg, props.testValue)
   return {
     valuePct,
     valueStr: unbound ? STALE_PLACEHOLDER : bound.raw.toFixed(cfg.decimalPlaces),
