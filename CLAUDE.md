@@ -15,7 +15,7 @@ Browser configurator for CANShift dashes (org: github.com/CANShift). Vite + Reac
 - Zero comments policy; TS strict; wire-format JSON stays snake_case via boundary mappers.
 - Never write "RealDash" outside the literal `<RealDashCAN>` parser tag.
 - Transport: one `DeviceLink` interface, two clients (`websocket-client.ts`, `webserial-client.ts`) sharing `AckQueue` and the JSON line protocol; `src/lib/transport-choice.ts` decides which. `?dash=` / `VITE_DASH_HOST` points dev at a dash or a mock.
-- Offline by construction: the studio is served from the dash's own access point, so nothing may fetch from the network at runtime. No analytics, no remote APIs, no CDN assets.
+- Offline by construction: the tuner is served from the dash's own access point, so nothing may fetch from the network at runtime. No analytics, no remote APIs, no CDN assets.
 
 ## Code shape
 
