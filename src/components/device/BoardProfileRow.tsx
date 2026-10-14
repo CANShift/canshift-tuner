@@ -19,7 +19,7 @@ export const BoardProfileRow = ({
   note,
   onProvision,
 }: BoardProfileRowProps) => (
-  <div className="mt-4 border-t border-ui-line pt-4">
+  <div className="border-b border-ui-line py-4">
     <div className="flex flex-wrap items-center gap-4">
       <div className="min-w-0">
         <div className="mb-[3px] font-mono text-[10.5px] tracking-[0.16em] text-ui-muted">

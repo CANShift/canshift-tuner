@@ -34,7 +34,7 @@ export const SettingRow = ({
       onChange={(e) => {
         onChange(e.target.value)
       }}
-      className="ml-auto shrink-0 border border-ui-ink bg-ui-bg py-2 pl-2.5 pr-[26px] font-mono text-[14px] font-bold text-ui-ink hover:border-ui-accent disabled:cursor-not-allowed disabled:border-ui-line disabled:text-ui-faint"
+      className="ml-auto w-[180px] shrink-0 border border-ui-ink bg-ui-bg py-2 pl-2.5 pr-[26px] font-mono text-[14px] font-bold text-ui-ink hover:border-ui-accent disabled:cursor-not-allowed disabled:border-ui-line disabled:text-ui-faint"
     >
       {options.map((option) => (
         <option key={option.value} value={option.value}>

@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button'
+import { DeviceSection } from './DeviceSection'
 
 export interface ConfigBackupSectionProps {
   summary: string
@@ -7,10 +8,7 @@ export interface ConfigBackupSectionProps {
 }
 
 export const ConfigBackupSection = ({ summary, onExport, onImport }: ConfigBackupSectionProps) => (
-  <section className="border-b border-ui-line px-7 pb-[34px] pt-[30px]">
-    <h2 className="border-b-2 border-ui-rule pb-3 font-mono text-[10.5px] tracking-[0.18em] text-ui-muted">
-      CONFIG BACKUP
-    </h2>
+  <DeviceSection title="CONFIG BACKUP">
     <p className="mb-4 mt-3.5 text-[13px] text-ui-faint">
       Save the open config ({summary}) to a file, or restore one saved earlier.
     </p>
@@ -22,5 +20,5 @@ export const ConfigBackupSection = ({ summary, onExport, onImport }: ConfigBacku
         Restore
       </Button>
     </div>
-  </section>
+  </DeviceSection>
 )
