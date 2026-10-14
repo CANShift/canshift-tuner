@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { DeviceSection } from './DeviceSection'
+import { INSTALLED_MESSAGES } from '../../lib/firmware-restart'
 import { useDeviceStore } from '../../stores/device.store'
 import {
   useFirmwareUpdate,
@@ -19,8 +20,7 @@ const STATUS: Record<FirmwareUpdateState['kind'], (state: FirmwareUpdateState) =
   invalid: (state) => (state.kind === 'invalid' ? state.message : ''),
   ready: () => 'The dash checks the image, writes it to its spare slot and restarts into it.',
   installing: () => 'Installing — keep the dash powered and this page open.',
-  installed: () =>
-    'Installed. The dash is restarting into the new firmware and reconnects on its own.',
+  installed: (state) => (state.kind === 'installed' ? INSTALLED_MESSAGES[state.link] : ''),
   failed: (state) => (state.kind === 'failed' ? state.message : ''),
 }
 

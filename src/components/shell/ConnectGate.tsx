@@ -32,6 +32,13 @@ const LINK_COPY: Record<TransportChoice['kind'], LinkCopy> = {
   },
 }
 
+const INSTALLED_TITLE = 'Firmware installed'
+
+const gateCopy = (notice: string | null): LinkCopy =>
+  notice === null
+    ? LINK_COPY[transportChoice().kind]
+    : { title: INSTALLED_TITLE, body: notice, canConnect: true }
+
 const CONNECT_LABEL: Record<ConnectionStatus, string> = {
   connected: 'Connect',
   connecting: 'Connecting…',
@@ -46,6 +53,7 @@ export interface ConnectGateProps {
 export const ConnectGate = ({ children }: ConnectGateProps) => {
   const status = useConnectionStore((s) => s.status)
   const lastError = useConnectionStore((s) => s.lastError)
+  const notice = useConnectionStore((s) => s.notice)
   const connect = useConnectionStore((s) => s.connect)
   const simulationMode = useDeviceStore((s) => s.simulationMode)
   const enterSimulation = useDeviceStore((s) => s.enterSimulation)
@@ -53,7 +61,7 @@ export const ConnectGate = ({ children }: ConnectGateProps) => {
   const live = status === 'connected' || status === 'reconnecting'
   if (live || simulationMode) return <>{children}</>
 
-  const copy = LINK_COPY[transportChoice().kind]
+  const copy = gateCopy(notice)
   return (
     <ConnectPanel
       title={copy.title}

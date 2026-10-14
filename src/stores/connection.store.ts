@@ -13,9 +13,11 @@ const toReportableError = (error: string | null | undefined): string | null =>
 interface ConnectionState {
   status: SerialStatus
   lastError: string | null
+  notice: string | null
 
   connect: () => Promise<void>
   disconnect: () => void
+  disconnectWithNotice: (notice: string) => void
   tryAutoReconnect: () => Promise<void>
 }
 
@@ -40,6 +42,19 @@ const followLinkStatus = (link: DeviceLink, set: (state: Partial<ConnectionState
   import.meta.hot?.dispose(unsubscribe)
 }
 
+type SetConnection = (state: Partial<ConnectionState>) => void
+
+const disconnectActions = (link: DeviceLink, set: SetConnection) => ({
+  disconnect: () => {
+    set({ notice: null })
+    link.disconnect()
+  },
+  disconnectWithNotice: (notice: string) => {
+    set({ notice })
+    link.disconnect()
+  },
+})
+
 export const useConnectionStore = create<ConnectionState>()((set) => {
   const link = getDeviceLink()
   followLinkStatus(link, set)
@@ -47,16 +62,16 @@ export const useConnectionStore = create<ConnectionState>()((set) => {
   return {
     status: link.getStatus(),
     lastError: null,
+    notice: null,
     connect: async () => {
+      set({ notice: null })
       try {
         await link.connect()
       } catch (err) {
         set({ lastError: toReportableError(errorMessage(err, 'connect_failed')) })
       }
     },
-    disconnect: () => {
-      link.disconnect()
-    },
+    ...disconnectActions(link, set),
     tryAutoReconnect: async () => {
       try {
         await link.autoConnect()
