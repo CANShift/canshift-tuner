@@ -93,33 +93,36 @@ const SHORTCUTS: Shortcut[] = [
   },
 ]
 
+const keyHandler =
+  (options: UseCanvasKeyboardOptions) =>
+  (event: KeyboardEvent): void => {
+    if (isEditableTarget(event.target)) return
+    const ctx: ShortcutContext = {
+      event,
+      activeIds: useDashboardStore.getState().selectedWidgetIds,
+      kbd: options.kbdRef.current,
+      options,
+    }
+    const shortcut = SHORTCUTS.find((s) => s.match(ctx))
+    if (!shortcut) return
+    event.preventDefault()
+    event.stopPropagation()
+    shortcut.run(ctx)
+  }
+
 export const useCanvasKeyboard = (options: UseCanvasKeyboardOptions): void => {
   const { selectWidget, selectWidgets, removeWidgets, nudgeWidgets, kbdRef, setShortcutsOpen } =
     options
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (isEditableTarget(event.target)) return
-      const ctx: ShortcutContext = {
-        event,
-        activeIds: useDashboardStore.getState().selectedWidgetIds,
-        kbd: kbdRef.current,
-        options: {
-          selectWidget,
-          selectWidgets,
-          removeWidgets,
-          nudgeWidgets,
-          kbdRef,
-          setShortcutsOpen,
-        },
-      }
-      const shortcut = SHORTCUTS.find((s) => s.match(ctx))
-      if (!shortcut) return
-      event.preventDefault()
-      event.stopPropagation()
-      shortcut.run(ctx)
-    }
-
+    const handleKeyDown = keyHandler({
+      selectWidget,
+      selectWidgets,
+      removeWidgets,
+      nudgeWidgets,
+      kbdRef,
+      setShortcutsOpen,
+    })
     window.addEventListener('keydown', handleKeyDown, { capture: true })
     return () => {
       window.removeEventListener('keydown', handleKeyDown, { capture: true })

@@ -18,16 +18,21 @@ export interface CanvasSignalDropHandlers {
   handleSignalDrop: (e: React.DragEvent) => void
 }
 
-export const useCanvasSignalDrop = ({
-  pageId,
-  pageWidgets,
-  templateLocked,
-}: UseCanvasSignalDropOptions): CanvasSignalDropHandlers => {
-  const addWidget = useDashboardStore((s) => s.addWidget)
+const widgetForDrop = (name: string, pageWidgets: readonly Widget[]): Widget | null => {
+  const signal = useSignalStore.getState().signals.find((s) => s.name === name)
+  if (!signal) return null
+  const widget = defaultWidgetForSignal(signal)
+  const slot = autoPlace(
+    { colSpan: widget.layout.colSpan, rowSpan: widget.layout.rowSpan },
+    pageWidgets.map((w) => w.layout)
+  )
+  return slot ? widget : null
+}
+
+const useWidgetSignalDrop = ({ pageId, templateLocked }: UseCanvasSignalDropOptions) => {
   const updateWidget = useDashboardStore((s) => s.updateWidget)
   const flashWidget = useRebindFlashStore((s) => s.flash)
-
-  const handleWidgetSignalDrop = useCallback(
+  return useCallback(
     (widget: Widget, signalName: string) => {
       if (templateLocked || widget.signal === signalName) return
       updateWidget(pageId, widget.id, { signal: signalName })
@@ -35,7 +40,26 @@ export const useCanvasSignalDrop = ({
     },
     [templateLocked, updateWidget, pageId, flashWidget]
   )
+}
 
+const useSignalDrop = ({ pageId, pageWidgets, templateLocked }: UseCanvasSignalDropOptions) => {
+  const addWidget = useDashboardStore((s) => s.addWidget)
+  return useCallback(
+    (e: React.DragEvent) => {
+      const name = e.dataTransfer.getData(SIGNAL_DRAG_MIME)
+      if (!name || templateLocked) return
+      e.preventDefault()
+      const widget = widgetForDrop(name, pageWidgets)
+      if (widget) addWidget(pageId, widget)
+    },
+    [templateLocked, addWidget, pageId, pageWidgets]
+  )
+}
+
+export const useCanvasSignalDrop = (
+  options: UseCanvasSignalDropOptions
+): CanvasSignalDropHandlers => {
+  const { templateLocked } = options
   const handleSignalDragOver = useCallback(
     (e: React.DragEvent) => {
       if (templateLocked || !e.dataTransfer.types.includes(SIGNAL_DRAG_MIME)) return
@@ -44,24 +68,9 @@ export const useCanvasSignalDrop = ({
     },
     [templateLocked]
   )
-
-  const handleSignalDrop = useCallback(
-    (e: React.DragEvent) => {
-      const name = e.dataTransfer.getData(SIGNAL_DRAG_MIME)
-      if (!name || templateLocked) return
-      e.preventDefault()
-      const signal = useSignalStore.getState().signals.find((s) => s.name === name)
-      if (!signal) return
-      const widget = defaultWidgetForSignal(signal)
-      const slot = autoPlace(
-        { colSpan: widget.layout.colSpan, rowSpan: widget.layout.rowSpan },
-        pageWidgets.map((w) => w.layout)
-      )
-      if (!slot) return
-      addWidget(pageId, widget)
-    },
-    [templateLocked, addWidget, pageId, pageWidgets]
-  )
-
-  return { handleWidgetSignalDrop, handleSignalDragOver, handleSignalDrop }
+  return {
+    handleWidgetSignalDrop: useWidgetSignalDrop(options),
+    handleSignalDragOver,
+    handleSignalDrop: useSignalDrop(options),
+  }
 }
