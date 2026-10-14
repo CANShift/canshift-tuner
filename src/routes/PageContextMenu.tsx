@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type RefObject } from 'react'
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
@@ -48,24 +48,16 @@ export interface PageContextMenuProps {
   onManageTemplates: () => void
 }
 
-export const PageContextMenu = ({
-  x,
-  y,
-  isDefault,
-  isVisible,
-  canDelete,
-  onClose,
-  onDuplicate,
-  onSaveAsTemplate,
-  onSetDefault,
-  onToggleVisible,
-  onDelete,
-  templates,
-  onInsertTemplate,
-  onManageTemplates,
-}: PageContextMenuProps) => {
-  const ref = useRef<HTMLDivElement>(null)
+interface MenuItem {
+  label: string
+  action: () => void
+  danger?: boolean
+  disabled?: boolean
+}
 
+type MenuRef = RefObject<HTMLDivElement | null>
+
+const useCloseOnOutsideClick = (ref: MenuRef, onClose: () => void) => {
   useEffect(() => {
     const close = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) onClose()
@@ -74,76 +66,91 @@ export const PageContextMenu = ({
     return () => {
       document.removeEventListener('mousedown', close)
     }
-  }, [onClose])
+  }, [ref, onClose])
+}
 
+const ARROW_STEPS: Record<string, number> = { ArrowDown: 1, ArrowUp: -1 }
+
+const enabledButtons = (ref: MenuRef): HTMLButtonElement[] =>
+  Array.from(ref.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? [])
+
+const moveFocus = (ref: MenuRef, step: number) => {
+  const list = enabledButtons(ref)
+  const idx = list.indexOf(document.activeElement as HTMLButtonElement)
+  list[(idx + step + list.length) % list.length]?.focus()
+}
+
+const useMenuKeyboard = (ref: MenuRef, onClose: () => void) => {
   useEffect(() => {
-    const btns = () =>
-      Array.from(ref.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? [])
-    btns()[0]?.focus()
+    enabledButtons(ref)[0]?.focus()
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault()
         onClose()
         return
       }
-      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return
+      const step = ARROW_STEPS[e.key]
+      if (step === undefined) return
       e.preventDefault()
-      const list = btns()
-      const idx = list.indexOf(document.activeElement as HTMLButtonElement)
-      const next = e.key === 'ArrowDown' ? idx + 1 : idx - 1
-      list[(next + list.length) % list.length]?.focus()
+      moveFocus(ref, step)
     }
     document.addEventListener('keydown', onKey)
     return () => {
       document.removeEventListener('keydown', onKey)
     }
-  }, [onClose])
+  }, [ref, onClose])
+}
 
-  const items: {
-    label: string
-    action: () => void
-    danger?: boolean
-    disabled?: boolean
-  }[] = [
-    { label: 'Duplicate', action: onDuplicate },
-    { label: 'Save as template', action: onSaveAsTemplate },
-    {
-      label: isDefault ? 'Default ★' : 'Set as default',
-      action: onSetDefault,
-      disabled: isDefault,
+export const menuItems = (props: PageContextMenuProps): MenuItem[] => [
+  { label: 'Duplicate', action: props.onDuplicate },
+  { label: 'Save as template', action: props.onSaveAsTemplate },
+  {
+    label: props.isDefault ? 'Default ★' : 'Set as default',
+    action: props.onSetDefault,
+    disabled: props.isDefault,
+  },
+  { label: props.isVisible ? 'Hide page' : 'Show page', action: props.onToggleVisible },
+  { label: 'Delete', action: props.onDelete, danger: true, disabled: !props.canDelete },
+  ...props.templates.map((template) => ({
+    label: `Insert “${template.name}”`,
+    action: () => {
+      props.onInsertTemplate(template.id)
     },
-    { label: isVisible ? 'Hide page' : 'Show page', action: onToggleVisible },
-    { label: 'Delete', action: onDelete, danger: true, disabled: !canDelete },
-    ...templates.map((template) => ({
-      label: `Insert “${template.name}”`,
-      action: () => {
-        onInsertTemplate(template.id)
-      },
-    })),
-    { label: 'Manage templates…', action: onManageTemplates, disabled: templates.length === 0 },
-  ]
+  })),
+  {
+    label: 'Manage templates…',
+    action: props.onManageTemplates,
+    disabled: props.templates.length === 0,
+  },
+]
 
+const MenuButton = ({ item, onClose }: { item: MenuItem; onClose: () => void }) => (
+  <button
+    disabled={item.disabled}
+    onClick={() => {
+      if (item.disabled) return
+      item.action()
+      onClose()
+    }}
+    className={cn(menuItem({ tone: toneOf(item) }))}
+  >
+    {item.label}
+  </button>
+)
+
+export const PageContextMenu = (props: PageContextMenuProps) => {
+  const ref = useRef<HTMLDivElement>(null)
+  useCloseOnOutsideClick(ref, props.onClose)
+  useMenuKeyboard(ref, props.onClose)
   return (
     <div
       ref={ref}
       className={MENU}
       // eslint-disable-next-line no-inline-style/no-inline-style
-      style={{ top: y, left: x }}
+      style={{ top: props.y, left: props.x }}
     >
-      {items.map((item) => (
-        <button
-          key={item.label}
-          disabled={item.disabled}
-          onClick={() => {
-            if (!item.disabled) {
-              item.action()
-              onClose()
-            }
-          }}
-          className={cn(menuItem({ tone: toneOf(item) }))}
-        >
-          {item.label}
-        </button>
+      {menuItems(props).map((item) => (
+        <MenuButton key={item.label} item={item} onClose={props.onClose} />
       ))}
     </div>
   )

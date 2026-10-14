@@ -56,35 +56,33 @@ const TemplateRow = ({ entry, onRename, onDelete }: TemplateRowProps) => {
   )
 }
 
-export const ManageTemplatesDialog = ({ open, onOpenChange }: ManageTemplatesDialogProps) => {
+const TemplateRows = () => {
   const templates = useTemplateStore((s) => s.templates)
   const renameTemplate = useTemplateStore((s) => s.renameTemplate)
   const deleteTemplate = useTemplateStore((s) => s.deleteTemplate)
-
+  if (templates.length === 0) return <p className="text-sm text-ui-muted">No templates yet.</p>
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Manage page templates</DialogTitle>
-          <DialogDescription>
-            Rename or delete the templates saved on this browser.
-          </DialogDescription>
-        </DialogHeader>
-        {templates.length === 0 ? (
-          <p className="text-sm text-ui-muted">No templates yet.</p>
-        ) : (
-          <div className="grid gap-2">
-            {templates.map((entry) => (
-              <TemplateRow
-                key={entry.id}
-                entry={entry}
-                onRename={renameTemplate}
-                onDelete={deleteTemplate}
-              />
-            ))}
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
+    <div className="grid gap-2">
+      {templates.map((entry) => (
+        <TemplateRow
+          key={entry.id}
+          entry={entry}
+          onRename={renameTemplate}
+          onDelete={deleteTemplate}
+        />
+      ))}
+    </div>
   )
 }
+
+export const ManageTemplatesDialog = ({ open, onOpenChange }: ManageTemplatesDialogProps) => (
+  <Dialog open={open} onOpenChange={onOpenChange}>
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Manage page templates</DialogTitle>
+        <DialogDescription>Rename or delete the templates saved on this browser.</DialogDescription>
+      </DialogHeader>
+      <TemplateRows />
+    </DialogContent>
+  </Dialog>
+)
