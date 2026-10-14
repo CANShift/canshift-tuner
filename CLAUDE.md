@@ -35,5 +35,5 @@ Non-negotiable. Reviewed on every PR, ahead of feature count.
 ## Workflow
 
 - Branch `type/short-description`; Conventional Commits, subject only.
-- PR via `gh pr create`; required checks `lint`, `typecheck`, `test`, `build`; **rebase and merge only**.
+- PR via `gh pr create`; required checks `lint`, `typecheck`, `test`, `build`, all in `ci.yml` behind the `ci-success` gate; **rebase and merge only**.
 - No web deploy: the tuner is only served by the dash. A `vX.Y.Z` tag publishes the dash bundle as a GitHub Release, which the firmware pins.
