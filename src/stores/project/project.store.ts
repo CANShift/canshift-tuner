@@ -60,64 +60,74 @@ const upsertMeta = (projects: ProjectMeta[], meta: ProjectMeta): ProjectMeta[] =
   return [...rest, meta].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
 }
 
-export const useProjectStore = create<ProjectState>()((set, get) => ({
+const projectState = (): ProjectState => useProjectStore.getState()
+
+const setProjects = (projects: ProjectMeta[], activeProjectId: string | null): void => {
+  useProjectStore.setState({ projects, activeProjectId })
+  persistIndex(projects, activeProjectId)
+}
+
+const saveActiveProject = (): void => {
+  const { activeProjectId, projects } = projectState()
+  const meta = projects.find((p) => p.id === activeProjectId)
+  if (!meta) return
+  const project = assembleActiveProject(meta)
+  if (!project || !writeProject(project)) return
+  setProjects(upsertMeta(projects, { ...meta, updatedAt: project.updatedAt }), meta.id)
+}
+
+const renameProject = (id: string, name: string): void => {
+  const trimmed = name.trim().slice(0, PROJECT_NAME_MAX)
+  if (trimmed.length === 0) return
+  const project = readProject(id)
+  if (project && !writeProject({ ...project, name: trimmed, updatedAt: nowIso() })) return
+  const { projects, activeProjectId } = projectState()
+  setProjects(
+    projects.map((p) => (p.id === id ? { ...p, name: trimmed } : p)),
+    activeProjectId
+  )
+}
+
+const adoptProject = (project: Project): void => {
+  const meta: ProjectMeta = {
+    id: project.id,
+    name: project.name,
+    createdAt: project.createdAt,
+    updatedAt: project.updatedAt,
+  }
+  setProjects(upsertMeta(projectState().projects, meta), project.id)
+  loadProjectIntoStores(project)
+}
+
+const panelOf = (dashboard: unknown) =>
+  resolveScreenProfile((dashboard as DashboardConfig | null)?.targetProfile)
+
+const importProject = (raw: string): ImportResult => {
+  const result = parseCanshiftFile(raw)
+  if (result.kind !== 'ok') return { ok: false, error: describeCanshiftFileError(result) }
+  saveActiveProject()
+  const before = panelOf(useDashboardStore.getState().config)
+  const imported: Project = { ...result.project, id: createId('proj'), updatedAt: nowIso() }
+  if (!writeProject(imported)) return { ok: false, error: 'Could not save the imported project.' }
+  adoptProject(imported)
+  const after = panelOf(imported.dashboard)
+  const panelSwitchedTo = after.id === before.id ? null : after.name
+  return { ok: true, id: imported.id, name: imported.name, panelSwitchedTo }
+}
+
+const exportProject = (id: string): string | null => {
+  if (id === projectState().activeProjectId) saveActiveProject()
+  const project = readProject(id)
+  return project ? serializeCanshiftFile(project) : null
+}
+
+export const useProjectStore = create<ProjectState>()(() => ({
   projects: [],
   activeProjectId: null,
-
-  saveActiveProject: () => {
-    const { activeProjectId, projects } = get()
-    if (activeProjectId === null) return
-    const meta = projects.find((p) => p.id === activeProjectId)
-    if (!meta) return
-    const project = assembleActiveProject(meta)
-    if (!project) return
-    if (!writeProject(project)) return
-    const nextProjects = upsertMeta(projects, { ...meta, updatedAt: project.updatedAt })
-    set({ projects: nextProjects })
-    persistIndex(nextProjects, activeProjectId)
-  },
-
-  renameProject: (id, name) => {
-    const trimmed = name.trim().slice(0, PROJECT_NAME_MAX)
-    if (trimmed.length === 0) return
-    const project = readProject(id)
-    if (project && !writeProject({ ...project, name: trimmed, updatedAt: nowIso() })) return
-    const nextProjects = get().projects.map((p) => (p.id === id ? { ...p, name: trimmed } : p))
-    set({ projects: nextProjects })
-    persistIndex(nextProjects, get().activeProjectId)
-  },
-
-  importProject: (raw) => {
-    const result = parseCanshiftFile(raw)
-    if (result.kind !== 'ok') return { ok: false, error: describeCanshiftFileError(result) }
-    get().saveActiveProject()
-    const before = resolveScreenProfile(useDashboardStore.getState().config?.targetProfile)
-    const newId = createId('proj')
-    const imported: Project = { ...result.project, id: newId, updatedAt: nowIso() }
-    if (!writeProject(imported)) return { ok: false, error: 'Could not save the imported project.' }
-    const nextProjects = upsertMeta(get().projects, {
-      id: newId,
-      name: imported.name,
-      createdAt: imported.createdAt,
-      updatedAt: imported.updatedAt,
-    })
-    set({ projects: nextProjects, activeProjectId: newId })
-    persistIndex(nextProjects, newId)
-    loadProjectIntoStores(imported)
-    const after = resolveScreenProfile((imported.dashboard as DashboardConfig).targetProfile)
-    return {
-      ok: true,
-      id: newId,
-      name: imported.name,
-      panelSwitchedTo: after.id === before.id ? null : after.name,
-    }
-  },
-
-  exportProject: (id) => {
-    if (id === get().activeProjectId) get().saveActiveProject()
-    const project = readProject(id)
-    return project ? serializeCanshiftFile(project) : null
-  },
+  saveActiveProject,
+  renameProject,
+  importProject,
+  exportProject,
 }))
 
 const restoreIndexedProjects = (
