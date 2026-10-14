@@ -14,7 +14,7 @@ the upload / serial port.
 - WebSerial transport — works on any Chromium browser, talks to the
   Arduino `Serial` (UART) the firmware speaks. No on-device WiFi stack, no
   SPA-on-SPIFFS coupling between configurator and firmware partitions.
-- Betaflight-style UX — Welcome, Dash editor, Signals, Live data, Device.
+- Three tabs — Dash (canvas and widgets), Vehicle (ECU profile, signals, live values), Device (board, units, backup).
 
 ## Editor highlights
 

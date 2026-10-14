@@ -16,7 +16,7 @@ export const useSaveShortcut = (): void => {
       if (isEditableTarget(event.target)) return
       event.preventDefault()
       if (activeProjectId === null) {
-        log('info', 'Nothing to save yet — start a config from HOME.')
+        log('info', 'Nothing to save yet — connect the dash or edit offline.')
         return
       }
       saveActiveProject()

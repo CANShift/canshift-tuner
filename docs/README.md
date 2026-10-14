@@ -31,10 +31,10 @@ Docs for the other repos: [firmware](https://github.com/CANShift/canshift-firmwa
 
 ## The app itself
 
-| Doc                               | What it covers                        |
-| --------------------------------- | ------------------------------------- |
-| [Tuner tour](tour.md)             | A map of every tab and what it is for |
-| [Layout editor](layout-editor.md) | Canvas, page strip, property panel    |
+| Doc                               | What it covers                     |
+| --------------------------------- | ---------------------------------- |
+| [Tuner tour](tour.md)             | The three tabs and what each holds |
+| [Layout editor](layout-editor.md) | Canvas, page strip, property panel |
 
 ## Design
 

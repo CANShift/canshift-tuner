@@ -1,6 +1,6 @@
 # Live data
 
-The **Live data** tab (`canshift-tuner/src/routes/LiveDataRoute.tsx`) lists every signal in the active profile with its current value, so you can confirm a binding is working without looking at the dash.
+The **Live values** section of the **Vehicle** tab (`canshift-tuner/src/routes/LiveDataRoute.tsx`) lists every signal in the active profile with its current value, so you can confirm a binding is working without looking at the dash.
 
 ## Where the numbers come from
 

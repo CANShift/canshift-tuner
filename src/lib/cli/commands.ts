@@ -65,7 +65,7 @@ const safeJson = (raw: string): Record<string, unknown> => {
   }
 }
 
-const NO_CONFIG = err('No config open. Start one from HOME.')
+const NO_CONFIG = err('No config open. Connect the dash or edit offline.')
 const NEEDS_DEVICE = err('That needs a dash. Plug one in — simulation cannot answer for it.')
 
 const currentPage = (context: CliContext): PageConfig | null => {

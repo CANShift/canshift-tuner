@@ -41,30 +41,28 @@ anything that measures (every value, ID, byte, version, path). Tabular numerals 
 
 ## 2. Shell
 
-Three rows, fixed: header 52 px, view (scrolls), footer 34 px. `min-width: 900px`; below that the page
+Two rows: header 52 px and the view (scrolls); on DASH only, a 34 px footer carrying the CLI handle. `min-width: 900px`; below that the page
 scrolls horizontally rather than clipping.
 
 **Header** — mark + `CANSHIFT` + `TUNER` tag, the config-name input (only in an editing session), then the
-tabs `HOME · DASH · SIGNALS · LIVE · DEVICE`, a spacer, the connection chip, `DISCONNECT`, the theme
+tabs `DASH · VEHICLE · DEVICE`, a spacer, the connection chip, `DISCONNECT`, the theme
 toggle, `SAVE`, `BURN`. It must survive its longest state (`BURN` can read `OUT OF BOUNDS`): the name
 input shrinks (`flex: 0 1 160px; min-width: 56px`), every label is `nowrap`, and the `TUNER` tag hides
 below 1000 px. Never hide the theme toggle.
 
-**Footer** — the CLI handle on the left (Dash only; the bar turns `#0d0d0d` with a 2 px accent top border
-when the CLI is collapsed) and the device readout on the right: green dot + panel model + ECU profile +
-`fw 0.1.0`, or `NO DEVICE · <profile>`.
+**Footer** — DASH only: the CLI handle; the bar turns `#0d0d0d` with a 2 px accent top border when the CLI
+is collapsed.
 
-**Gating.** DASH, SIGNALS, LIVE and DEVICE need a board. With none they are `--t-hdr-line`,
-`cursor: not-allowed`, and clicks do nothing. `Edit offline` turns on **simulation mode**: the four tabs
-open, a full-width `#ec3013` strip reads `MODE SIMULATION ACTIVATED · editing a config without a board ·
-burning is disabled` with a `TURN OFF` button, and `BURN` stays disabled reading `NO DEVICE`. HOME stays
-reachable at all times.
+**Gating.** Every tab needs a board. With none they are `--t-hdr-line`, `cursor: not-allowed`, and the
+view is the connect panel. `Edit offline` turns on **simulation mode**: the tabs open, a full-width
+`#ec3013` strip reads `MODE SIMULATION ACTIVATED · editing a config without a board · burning is disabled`
+with a `TURN OFF` button, and `BURN` stays disabled reading `NO DEVICE`.
 
-## 3. HOME
+## 3. Connect panel
 
-**Welcome** — status kicker over a 2 px rule, "Plug the dash in.", the three connect steps, `CONNECT`
-(accent) + `Edit offline` (outlined), then RECENT CONFIGS from local storage (name + `ECU · panel ·
-N pages`). On first run, before that list: a choice between `SIX DEFAULT PAGES` and `One blank page`.
+A plain form in place of the view while no board is linked: a title, one line on plugging in, `Connect`
+(accent) and `Edit offline` (outlined), and the humanised connection error under them. Everything outside
+the dash canvas stays this plain — forms, not chrome.
 
 ## 4. DASH — the editor
 
@@ -102,7 +100,10 @@ Typing filters a suggestion list above the prompt (first entry highlighted, clic
 walk the history. Commands: `help ls page boot bind span type id theme alert copy paste undo scan save
 export import burn`. Everything the UI can do, the CLI can do.
 
-## 5. SIGNALS
+## 5. VEHICLE — profile & signals
+
+VEHICLE holds two sections behind a pill switch: **Profile & signals** (this section) and
+**Live values** (section 6).
 
 Toolbar: a `CAN` / `OBD-II` segmented control, the ECU profile select (MaxxECU, ECUMaster Black,
 MegaSquirt MS3, Link G4X, Haltech Elite, Motec M1, AEM Infinity, Generic OBD-II, Custom profile), the
@@ -123,7 +124,7 @@ A polled PID counts as a binding, so a widget bound to it does not block the bur
 `SAVE` writes the profile locally; `BURN` is the separate act of writing to the dash. The XML profile is
 `<canshift-profile><signals><signal name id bytes unit/>…`.
 
-## 6. LIVE
+## 6. VEHICLE — live values
 
 Toolbar: `LIVE DATA`, the state (`listening · 500 kbit · 842 Hz · CAN`), the sample count while recording,
 `RECORD` / `STOP & SAVE` (downloads a CSV), and `START` / `PAUSE`.
@@ -136,7 +137,8 @@ colour swatch. Samples are deterministic per tick so cards, plot and CSV agree.
 
 ## 7. DEVICE
 
-Four full-width sections, top to bottom, each under a 2 px rule:
+Full-width sections, top to bottom, each under a 2 px rule — settings, board, config backup (back up and
+restore the config file) and theme:
 
 1. **BOARD** — a 3 × 2 band: MODEL, DISPLAY (`ILI9341 · 320 × 240`), FIRMWARE, TRANSPORT (`USB CDC` —
    BLE is the phone's transport, never the Tuner's), ECU PROFILE, CONFIG (`6 pages · 41 widgets`).
@@ -154,12 +156,11 @@ dash reports. No firmware actions here.
 ## 8. State, storage, files
 
 Client-side only. `SAVE` (or ⌘S) writes pages, signal map, panel, theme, bus, units, ECU profile, boot
-page, polled PIDs, the critical alert and the config name to local storage, and adds an entry to RECENT
-CONFIGS; the app restores it on load and shows the first-run choice when there is nothing.
+page, polled PIDs, the critical alert and the config name to local storage; the app restores it on load.
 
-`Export` downloads `canshift-<model>.canshift` — JSON carrying `name`, `device`, `screen {w,h}`, `bus`,
+`Back up` (DEVICE) downloads `canshift-<model>.canshift` — JSON carrying `name`, `device`, `screen {w,h}`, `bus`,
 `units`, `theme`, `bootPage`, `wheelOrder`, `criticalAlert`, `signals[]` and `pages[]` (each widget with
-kicker, signal, type, span, size, danger, warnAt, dangerAt, dir). `Import` accepts it back and, when the
+kicker, signal, type, span, size, danger, warnAt, dangerAt, dir). `Restore` accepts it back and, when the
 file names another panel, switches the panel and says so in an amber band.
 
 Keyboard: ⌘Z undo (25 snapshots, every mutation), ⌘S save, ⌘C / ⌘V copy-paste a widget, Delete removes the
@@ -180,10 +181,10 @@ selected widget, arrows move the selection. Shortcuts must not fire while a fiel
 ## 10. Order of work
 
 1. Tokens, both themes, the shell (header, gated tabs, footer) and the view router.
-2. HOME: welcome, first run, simulation mode.
+2. The connect panel and simulation mode.
 3. DASH: the carousel with measured scaling, page CRUD, the widget list and the selected-widget editor.
 4. Editing gestures: drag to reorder, drag to resize, thresholds, preview modes.
-5. SIGNALS: CAN table, scan, OBD-II, XML.
-6. LIVE: cards, plot, recording.
+5. VEHICLE: CAN table, scan, OBD-II, XML.
+6. VEHICLE: live cards, plot, recording.
 7. DEVICE: the four sections.
 8. Storage, import/export, keyboard, then the burn path with its failure states.

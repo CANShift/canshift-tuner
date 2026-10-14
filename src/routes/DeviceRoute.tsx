@@ -11,7 +11,7 @@ import { BoardBand } from '../components/device/BoardBand'
 import { SettingRow } from '../components/device/SettingRow'
 import { ThemeSampleCard } from '../components/device/ThemeSampleCard'
 import { DayNightControl } from '../components/device/DayNightControl'
-import { SignalsAction } from '../components/signals/SignalsToolbar'
+import { ConfigBackupSection } from '../components/device/ConfigBackupSection'
 import { useDashboardStore } from '../stores/dashboard.store'
 import { useDeviceStore } from '../stores/device.store'
 import { useSignalStore } from '../stores/signal.store'
@@ -76,28 +76,11 @@ const DeviceRoute = () => {
   const widgets = config?.pages.reduce((total, page) => total + page.widgets.length, 0) ?? 0
   const activeTheme = config?.theme ?? defaultThemePreset()
   const face = isDayMode === true ? 'day' : 'night'
+  const configSummary =
+    config === null ? 'no config open' : `${plural(pages, 'page')} · ${plural(widgets, 'widget')}`
 
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-ui-bg">
-      <div className="flex h-[54px] shrink-0 items-center gap-4 border-b-2 border-ui-rule px-7">
-        <span className="font-mono text-[11px] tracking-[0.18em] text-ui-muted">DEVICE</span>
-        <span className="whitespace-nowrap font-mono text-[11.5px] text-ui-muted">
-          {config === null
-            ? 'no config open'
-            : `${plural(pages, 'page')} · ${plural(widgets, 'widget')}`}
-        </span>
-        <div className="ml-auto flex gap-2">
-          <SignalsAction onClick={openImportPicker}>Import</SignalsAction>
-          <SignalsAction
-            onClick={() => {
-              exportProjectFile(activeProjectId, config?.name ?? 'config')
-            }}
-          >
-            Export
-          </SignalsAction>
-        </div>
-      </div>
-
       <div className="min-h-0 flex-1 overflow-y-auto">
         {simulationMode && (
           <p className="border-b border-l-[3px] border-ui-line border-l-ui-accent bg-ui-panel px-7 py-3.5 font-mono text-[12.5px] text-ui-ink">
@@ -113,7 +96,7 @@ const DeviceRoute = () => {
             { label: 'FIRMWARE', value: firmwareVersion ?? UNSET },
             { label: 'TRANSPORT', value: TRANSPORT },
             { label: 'ECU PROFILE', value: ecuLabelForKey(selectedProfileKey, CATALOGUE_INDEX) },
-            { label: 'CONFIG', value: `${plural(pages, 'page')} · ${plural(widgets, 'widget')}` },
+            { label: 'CONFIG', value: configSummary },
           ]}
         />
 
@@ -180,6 +163,14 @@ const DeviceRoute = () => {
             </div>
           )}
         </section>
+
+        <ConfigBackupSection
+          summary={configSummary}
+          onExport={() => {
+            exportProjectFile(activeProjectId, config?.name ?? 'config')
+          }}
+          onImport={openImportPicker}
+        />
 
         <section className="px-7 pb-11 pt-[30px]">
           <div className={`${SECTION_HEAD} flex items-center justify-between gap-4 text-ui-muted`}>

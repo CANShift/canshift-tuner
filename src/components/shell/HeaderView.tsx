@@ -11,15 +11,12 @@ export type HeaderStatus =
 export interface HeaderTab {
   to: RoutePath
   label: string
-  gated: boolean
 }
 
 export const HEADER_TABS: readonly HeaderTab[] = [
-  { to: '/', label: 'HOME', gated: false },
-  { to: '/dash', label: 'DASH', gated: true },
-  { to: '/signals', label: 'SIGNALS', gated: true },
-  { to: '/live', label: 'LIVE', gated: true },
-  { to: '/device', label: 'DEVICE', gated: true },
+  { to: '/dash', label: 'DASH' },
+  { to: '/vehicle', label: 'VEHICLE' },
+  { to: '/device', label: 'DEVICE' },
 ]
 
 export interface HeaderLinkProps {
@@ -84,7 +81,7 @@ export const HeaderView = ({
             key={tab.to}
             tab={tab}
             active={activePath === tab.to}
-            disabled={tab.gated && gatingActive}
+            disabled={gatingActive}
             LinkComponent={LinkComponent}
           />
         ))}

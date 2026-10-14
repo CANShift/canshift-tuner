@@ -1,6 +1,6 @@
 # Layout editor
 
-The **Editor** tab (`/dashboard`, `canshift-tuner/src/routes/EditorRoute.tsx`) is where the dashboard is drawn. Three regions: a strip of pages down one side, the widget canvas in the middle, and a property panel on the right for whatever is selected.
+The **Dash** tab (`/dash`, `canshift-tuner/src/routes/EditorRoute.tsx`) is where the dashboard is drawn. Three regions: a strip of pages down one side, the widget canvas in the middle, and a property panel on the right for whatever is selected.
 
 This page is the tool overview. For the step-by-step — adding pages, binding widgets to signals, saving and burning — read [Widgets & pages](configure/widgets.md).
 

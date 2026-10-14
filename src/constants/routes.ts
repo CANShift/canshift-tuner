@@ -4,29 +4,19 @@ export interface RouteMeta {
 }
 
 export const ROUTE_META = {
-  '/': {
-    title: 'CANShift Tuner',
-    description:
-      'Configure your CANShift dash, live. Edit pages, bind CAN signals and tune OBD-II polling — all in your browser.',
-  },
   '/dash': {
     title: 'Dash — CANShift Tuner',
     description:
       'Arrange pages and widgets on the dash canvas — gauges, warnings, gear and shift lights — with a live device-accurate preview.',
   },
-  '/signals': {
-    title: 'Signals — CANShift Tuner',
+  '/vehicle': {
+    title: 'Vehicle — CANShift Tuner',
     description:
-      'Bind CAN signals and OBD-II PIDs, scan the bus live, and load an ECU broadcast profile.',
-  },
-  '/live': {
-    title: 'Live — CANShift Tuner',
-    description:
-      'Watch decoded signal values stream from the device in real time, and record them.',
+      'Pick an ECU profile, bind CAN signals and OBD-II PIDs, scan the bus and watch live values.',
   },
   '/device': {
     title: 'Device — CANShift Tuner',
-    description: 'Board, settings, dash theme and the critical alert the config will write.',
+    description: 'Units, brightness, board and theme, and backing up or restoring the config.',
   },
 } as const satisfies Record<string, RouteMeta>
 
@@ -34,21 +24,22 @@ export type RoutePath = keyof typeof ROUTE_META
 
 export const ROUTE_PATHS = Object.keys(ROUTE_META) as readonly RoutePath[]
 
+export const HOME_PATH: RoutePath = '/dash'
+
 export const LEGACY_REDIRECTS: Record<string, RoutePath> = {
+  '/': '/dash',
   '/dashboard': '/dash',
-  '/can': '/signals',
-  '/ecu': '/signals',
-  '/obd2': '/signals',
+  '/cli': '/dash',
+  '/signals': '/vehicle',
+  '/live': '/vehicle',
+  '/logs': '/vehicle',
+  '/can': '/vehicle',
+  '/ecu': '/vehicle',
+  '/obd2': '/vehicle',
   '/themes': '/device',
   '/board': '/device',
-  '/firmware': '/',
-  '/flash': '/',
-  '/about': '/',
-  '/contact': '/',
-  '/logs': '/live',
-  '/cli': '/dash',
+  '/firmware': '/device',
+  '/flash': '/device',
+  '/about': '/dash',
+  '/contact': '/dash',
 }
-
-export const HOME_PATHS = new Set<RoutePath>(['/'])
-
-export const DEVICE_GATED_PATHS = new Set<RoutePath>(['/dash', '/signals', '/live', '/device'])

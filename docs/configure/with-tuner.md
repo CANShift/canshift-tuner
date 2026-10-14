@@ -8,26 +8,26 @@ The Tuner lives at [canshift.app](https://canshift.app) — open the URL, plug t
 
 1. Plug the dash in over USB-C.
 2. Open [canshift.app](https://canshift.app) in a Chromium-based browser.
-3. Click **Connect device** in the top-right and pick the serial port.
+3. Click **Connect** and pick the serial port.
 
 The header switches from a red _Disconnected_ dot to a green _Connected_ one, with the device's `vendor:product` next to it. The firmware version slot fills in once the handshake completes (~50 ms).
 
 > [!TIP]
 > **Simulation mode**
 >
-> No dash on hand? The Tuner runs in simulation when no device is connected — pages and widgets are
+> No dash on hand? Click **Edit offline** and the Tuner runs in simulation — pages and widgets are
 > interactive, the signal store fakes values. Useful for laying out a dashboard the night before
 > fitting.
 
 ## Edit the dashboard
 
-The **Dashboard** route is the visual editor. Page thumbnails on the left (up to `CONFIG_MAX_PAGES = 5`), the canvas in the middle, the inspector on the right. Click a widget to bind it to a signal, drop a new widget from the palette to add it, drag to reorder.
+The **Dash** tab is the visual editor. Page thumbnails on the left (up to `CONFIG_MAX_PAGES = 5`), the canvas in the middle, the inspector on the right. Click a widget to bind it to a signal, drop a new widget from the palette to add it, drag to reorder.
 
 Changes are local until you burn. The canvas previews exactly what the dash will render — same fonts, same tokens, same units.
 
 ## Pick an ECU profile
 
-Open the **ECU** route. CANShift ships presets for the common aftermarket and stock setups:
+Open the **Vehicle** tab. CANShift ships presets for the common aftermarket and stock setups:
 
 - **Aftermarket**: Haltech, Ecumaster EmuBlack, Adaptronic, AEM, Link, MaxxECU, MoTeC, Flagtronics.
 - **OEM-style**: stock OBD-II PIDs (works with most road cars supporting the standard).
@@ -38,7 +38,7 @@ Custom map? Drop a **CAN XML** export onto the page. The parser lives in `@tmbk/
 
 ## Style with themes
 
-The **Themes** route swaps the dash's colour palette — day vs night, accent colours, gauge backgrounds. The Tuner reads the active mode from the device on connect and exposes three actions: toggle, force _Day_, force _Night_. The commands hit the dash as `CMD_TOGGLE_DAY_NIGHT` / `CMD_SET_DAY_NIGHT` over USB.
+The theme section of the **Device** tab swaps the dash's colour palette — day vs night, accent colours, gauge backgrounds. The Tuner reads the active mode from the device on connect and exposes three actions: toggle, force _Day_, force _Night_. The commands hit the dash as `CMD_TOGGLE_DAY_NIGHT` / `CMD_SET_DAY_NIGHT` over USB.
 
 ## Burn = write the config
 
@@ -58,7 +58,7 @@ If the overlay flips red, see [Burn errors](../configure/burn-errors.md).
 >
 > The dash's USB RX buffer doubles as the PUT_CONFIG receive buffer. A live CAN scan keeps that
 > buffer busy, and a burn that lands in the middle of a scan can time out. Stop the scan in the
-> **CAN bus** route first, then burn.
+> **Vehicle** tab first, then burn.
 
 ## Schema vs firmware version
 
