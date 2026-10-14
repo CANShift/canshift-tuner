@@ -3,7 +3,6 @@ import { canScannerIpc, deviceEvents } from '../../transport'
 import { useDeviceStore } from '../device.store'
 import { useLogStore } from '../log.store'
 import { createScanAccumulator, emptySnapshot } from './accumulator'
-import { captureFlowEvent } from '../../lib/posthog'
 import type { CanScanSnapshot } from './accumulator'
 import { transportErrorText } from '../../transport/humanize-transport-error'
 
@@ -113,7 +112,6 @@ export const useCanScanStore = create<CanScanState>()((set, get) => {
       if (get().status !== 'running') return
       accumulator.startLearn()
       set({ snapshot: accumulator.snapshot(performance.now()) })
-      captureFlowEvent('can_learn_started')
     },
 
     stopLearn: () => {

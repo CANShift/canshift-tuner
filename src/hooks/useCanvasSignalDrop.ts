@@ -5,7 +5,6 @@ import { useSignalStore } from '../stores/signal.store'
 import { useRebindFlashStore } from '../stores/rebind-flash.store'
 import { defaultWidgetForSignal, SIGNAL_DRAG_MIME } from '../utils/default-widget'
 import { autoPlace } from '../utils/layout'
-import { captureFlowEvent } from '../lib/posthog'
 
 export interface UseCanvasSignalDropOptions {
   pageId: string
@@ -33,7 +32,6 @@ export const useCanvasSignalDrop = ({
       if (templateLocked || widget.signal === signalName) return
       updateWidget(pageId, widget.id, { signal: signalName })
       flashWidget(widget.id)
-      captureFlowEvent('signal_rebound', { target: 'widget' })
     },
     [templateLocked, updateWidget, pageId, flashWidget]
   )
@@ -61,7 +59,6 @@ export const useCanvasSignalDrop = ({
       )
       if (!slot) return
       addWidget(pageId, widget)
-      captureFlowEvent('signal_bound', { target: 'canvas', widgetType: widget.type })
     },
     [templateLocked, addWidget, pageId, pageWidgets]
   )

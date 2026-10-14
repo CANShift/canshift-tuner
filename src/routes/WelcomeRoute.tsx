@@ -1,15 +1,12 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DEFAULT_SCREEN_PROFILE_ID } from '@canshift/core'
 import { WelcomePane } from '../components/welcome/WelcomePane'
-import { FirmwareUpdateBand } from '../components/welcome/FirmwareUpdateBand'
 import { useConnectionStore } from '../stores/connection.store'
 import { useDeviceStore } from '../stores/device.store'
 import { useProjectStore } from '../stores/project/project.store'
 import { useLogStore } from '../stores/log.store'
 import { useBenchEntries } from '../hooks/useBenchEntries'
 import { useProjectFileActions } from '../hooks/useProjectFileActions'
-import { useFirmwareUpdate } from '../hooks/useFirmwareUpdate'
 import { buildNewProjectDashboard, BLANK_PAGE_SET, DEFAULT_PAGE_SET } from '../lib/new-project'
 import { PROJECT_FILE_ACCEPT } from '../lib/project-file'
 import { humanizeTransportError } from '../transport/humanize-transport-error'
@@ -50,8 +47,6 @@ const WelcomeRoute = () => {
   const navigate = useNavigate()
   const entries = useBenchEntries()
   const { fileInputRef, exportProjectFile, handleImportChange } = useProjectFileActions()
-  const update = useFirmwareUpdate()
-  const [updateDismissed, setUpdateDismissed] = useState(false)
 
   const openEditor = () => {
     if (status !== 'connected' && !simulationMode) enterSimulation()
@@ -106,21 +101,6 @@ const WelcomeRoute = () => {
         onOpen={open}
         onExport={exportProjectFile}
         onDelete={remove}
-        updateBand={
-          update !== null && !updateDismissed ? (
-            <FirmwareUpdateBand
-              current={update.current}
-              latest={update.latest}
-              notesUrl={update.notesUrl}
-              onGoToFlash={() => {
-                void navigate('/flash')
-              }}
-              onDismiss={() => {
-                setUpdateDismissed(true)
-              }}
-            />
-          ) : null
-        }
       />
       <input
         ref={fileInputRef}

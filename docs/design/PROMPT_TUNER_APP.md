@@ -60,28 +60,11 @@ open, a full-width `#ec3013` strip reads `MODE SIMULATION ACTIVATED · editing a
 burning is disabled` with a `TURN OFF` button, and `BURN` stays disabled reading `NO DEVICE`. HOME stays
 reachable at all times.
 
-## 3. HOME — three panes in a 208 px rail
+## 3. HOME
 
 **Welcome** — status kicker over a 2 px rule, "Plug the dash in.", the three connect steps, `CONNECT`
 (accent) + `Edit offline` (outlined), then RECENT CONFIGS from local storage (name + `ECU · panel ·
 N pages`). On first run, before that list: a choice between `SIX DEFAULT PAGES` and `One blank page`.
-A dismissible dark band at the bottom announces a firmware update (`0.1.0 → 0.1.1`) with `GO TO FLASH`
-and `Changelog ↗`; it never overlaps the rows because it is in the flow, not absolute.
-
-**Flash** — panel **model** first (`CrowPanel 2.8″ · ILI9341`, 3.5″ ST7796, 4.3″ and 7.0″ EK9716BD3),
-because firmware builds are per model, then a `FLASH` / `ERASE` segmented control. FLASH shows the
-version select (0.1.1 LATEST … 0.0.8) and, under it, the changelog of the selected version with `ADD`
-(accent) / `FIX` (ink) / `CHG` (faint) tags — picking an older version adds an amber "this is a rollback"
-line. ERASE explains what is wiped and offers `Export config first`.
-While running: a black block with the step, the percent at 30 px, a 10 px bar, `DO NOT UNPLUG` in amber,
-and the step list below with `✓` done / `›` running / `·` pending (CONNECT, CHECK MODEL, WRITE, VERIFY,
-REBOOT — or CONNECT, ERASE, VERIFY). Then a green-ruled DONE panel with `OPEN THE DASH`. Drive progress
-from elapsed time so a remount cannot freeze it.
-
-**Contact** — type (BUG / ECU REQUEST / QUESTION), email, message; for a bug, the board/config context is
-attached automatically and can be removed. A FILES block: `Attach files`, `Attach current config`,
-`Download report` (a text file with board, firmware, ECU, bus, config counts, the message and the config
-JSON). Validate email and message before sending.
 
 ## 4. DASH — the editor
 
@@ -166,7 +149,7 @@ Four full-width sections, top to bottom, each under a 2 px rule:
    red takeover previewed beside the fields.
 
 In simulation mode a line at the top states that these are the values the config will write, not what a
-dash reports. No firmware actions here — flashing lives on Home.
+dash reports. No firmware actions here.
 
 ## 8. State, storage, files
 
@@ -203,4 +186,4 @@ selected widget, arrows move the selection. Shortcuts must not fire while a fiel
 5. SIGNALS: CAN table, scan, OBD-II, XML.
 6. LIVE: cards, plot, recording.
 7. DEVICE: the four sections.
-8. Storage, import/export, keyboard, then the burn and flash paths with their failure states.
+8. Storage, import/export, keyboard, then the burn path with its failure states.

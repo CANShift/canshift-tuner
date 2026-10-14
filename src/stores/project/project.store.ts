@@ -9,7 +9,6 @@ import {
 } from '@canshift/core'
 import type { DashboardConfig, Project, ProjectMeta, SignalDef } from '@canshift/core'
 import { createId } from '../../utils/id'
-import { captureFlowEvent } from '../../lib/posthog'
 import { useDashboardStore } from '../dashboard.store'
 import { useSignalStore, DEFAULT_PROFILE_KEY } from '../signal.store'
 import {
@@ -124,7 +123,6 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
     set({ projects: nextProjects, activeProjectId: id })
     persistIndex(nextProjects, id)
     loadProjectIntoStores(project)
-    captureFlowEvent('project_created')
     return id
   },
 
@@ -137,7 +135,6 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
     set({ activeProjectId: id })
     persistIndex(get().projects, id)
     loadProjectIntoStores(target)
-    captureFlowEvent('project_switched')
     return true
   },
 
@@ -188,7 +185,6 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
     set({ projects: nextProjects, activeProjectId: newId })
     persistIndex(nextProjects, newId)
     loadProjectIntoStores(copy)
-    captureFlowEvent('project_duplicated')
     return newId
   },
 
@@ -209,7 +205,6 @@ export const useProjectStore = create<ProjectState>()((set, get) => ({
     set({ projects: nextProjects, activeProjectId: newId })
     persistIndex(nextProjects, newId)
     loadProjectIntoStores(imported)
-    captureFlowEvent('project_imported')
     const after = resolveScreenProfile((imported.dashboard as DashboardConfig).targetProfile)
     return {
       ok: true,

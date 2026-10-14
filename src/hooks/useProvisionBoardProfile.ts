@@ -6,7 +6,7 @@ import {
   boardProfileBlob,
   type BoardProfileWriteResult,
   type BoardProvision,
-} from '../lib/firmware/board-provision'
+} from '../lib/board-provision'
 import { useResolvedBoardProfile, type ResolvedBoardProfile } from './useResolvedBoardProfile'
 import { errorMessage } from '../lib/error-message'
 import { transportErrorText } from '../transport/humanize-transport-error'

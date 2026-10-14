@@ -19,7 +19,7 @@ import {
   interpretBoardProfileAck,
   type BoardProfileWriteResult,
   type BoardProvision,
-} from '../lib/firmware/board-provision'
+} from '../lib/board-provision'
 import { getSerialClient } from './webserial-client'
 import { burnConfigChunked } from './chunked-config'
 

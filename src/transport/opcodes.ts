@@ -16,9 +16,6 @@ export const CMD_CAN_SCAN_START = 0x20
 export const CMD_CAN_SCAN_STOP = 0x21
 export const CMD_OBD_READ_DTC = 0x22
 export const CMD_OBD_CLEAR_DTC = 0x23
-export const CMD_OTA_BEGIN = 0x30
-export const CMD_OTA_WRITE = 0x31
-export const CMD_OTA_END = 0x32
 export const CMD_REBOOT = 0xf0
 
 export interface KnownOpcode {

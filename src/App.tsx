@@ -44,8 +44,6 @@ const DeviceRoute = lazy(() => import('./routes/DeviceRoute'))
 
 const ROUTE_ELEMENTS: Record<RoutePath, ReactNode> = {
   '/': <HomeRoute />,
-  '/flash': <HomeRoute />,
-  '/contact': <HomeRoute />,
   '/dash': (
     <ErrorBoundary scope="editor">
       <EditorRoute />

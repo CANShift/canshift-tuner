@@ -2,7 +2,6 @@ import { create } from 'zustand'
 import { getBoardProfile, type BoardProfile } from '@canshift/core'
 import { validateBoardProfile } from '../../lib/board-profile'
 import { createId } from '../../utils/id'
-import { captureFlowEvent } from '../../lib/posthog'
 import {
   readCustomBoards,
   readSelectedBoard,
@@ -61,7 +60,6 @@ export const useBoardConfigStore = create<BoardConfigState>()((set, get) => ({
     set({ customBoards, selected })
     writeCustomBoards(customBoards)
     writeSelectedBoard(selected)
-    captureFlowEvent('custom_board_saved')
     return { ok: true, id }
   },
 

@@ -1,17 +1,7 @@
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { Readable } from 'node:stream'
-import type { ReadableStream as NodeReadableStream } from 'node:stream/web'
-
-const BUILD_ID_LENGTH = 7
-const LOCAL_BUILD_ID = 'dev'
-
-const buildId = (): string => {
-  const sha = process.env.GITHUB_SHA
-  return sha === undefined || sha.length === 0 ? LOCAL_BUILD_ID : sha.slice(0, BUILD_ID_LENGTH)
-}
 
 const FIRMWARE_PKG_PATH = resolve(__dirname, '../canshift-firmware/package.json')
 const firmwareMajor = existsSync(FIRMWARE_PKG_PATH)
@@ -26,60 +16,12 @@ const CORE_SRC_INDEX = resolve(__dirname, '../canshift-core/src/index.ts')
 const CORE_SIBLING_READY =
   existsSync(CORE_SRC_INDEX) && existsSync(resolve(__dirname, '../canshift-core/node_modules'))
 
-const FIRMWARE_OWNER = 'CANShift'
-const FIRMWARE_REPO = 'canshift-firmware'
-const FIRMWARE_TAG_RE = /^v?\d+\.\d+\.\d+([.-][a-z0-9.-]+)?$/i
-const FIRMWARE_ASSET_RE = /^[a-z0-9._-]+\.(bin|json)$/i
-
-const firmwareAssetContentType = (asset: string): string =>
-  asset.toLowerCase().endsWith('.json') ? 'application/json' : 'application/octet-stream'
-
-const firmwareDownloadDevProxy = (): Plugin => ({
-  name: 'firmware-download-dev-proxy',
-  configureServer(server) {
-    server.middlewares.use('/api/firmware-download', (req, res) => {
-      const url = new URL(req.url ?? '', 'http://localhost')
-      const tag = url.searchParams.get('tag')
-      const asset = url.searchParams.get('asset')
-      if (!tag || !FIRMWARE_TAG_RE.test(tag) || tag.includes('..')) {
-        res.statusCode = 400
-        res.end('bad_tag')
-        return
-      }
-      if (!asset || !FIRMWARE_ASSET_RE.test(asset) || asset.includes('..')) {
-        res.statusCode = 400
-        res.end('bad_asset')
-        return
-      }
-      const target = `https://github.com/${FIRMWARE_OWNER}/${FIRMWARE_REPO}/releases/download/${tag}/${asset}`
-      fetch(target, { redirect: 'follow' })
-        .then((upstream) => {
-          if (!upstream.ok || !upstream.body) {
-            res.statusCode = upstream.status
-            res.end(`upstream_failed_${upstream.status.toString()}`)
-            return
-          }
-          res.setHeader('Content-Type', firmwareAssetContentType(asset))
-          const length = upstream.headers.get('content-length')
-          if (length) res.setHeader('Content-Length', length)
-          Readable.fromWeb(upstream.body as NodeReadableStream<Uint8Array>).pipe(res)
-        })
-        .catch((err: unknown) => {
-          const message = err instanceof Error ? err.message : 'unknown'
-          res.statusCode = 502
-          res.end(`upstream_failed: ${message}`)
-        })
-    })
-  },
-})
-
 export default defineConfig(({ command }) => ({
   root: resolve(__dirname, '.'),
   define: {
-    __TUNER_BUILD__: JSON.stringify(buildId()),
     __EXPECTED_FIRMWARE_MAJOR__: JSON.stringify(firmwareMajor),
   },
-  plugins: [react(), firmwareDownloadDevProxy()],
+  plugins: [react()],
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),

@@ -13,8 +13,6 @@ The Tuner ([canshift-tuner](https://canshift.app)) is a browser app that talks t
 - **Live data** (`/live`) — every decoded signal with its current value. See [Live data](configure/live-data.md).
 - **Logs** (`/logs`) — the dash's log stream.
 - **CLI** (`/cli`) — a command console for the wire protocol, for when you need the raw commands.
-- **Firmware** (`/firmware`) — flash a firmware build to the board; the flasher lives here.
-- **About** (`/about`) — version and project links.
 
 > [!NOTE]
 > The Tuner speaks **Web Serial** over USB — it needs a Chromium-based browser and a wired connection. Bluetooth is the mobile app's job; see [Pairing over BLE](https://github.com/CANShift/canshift-mobile/blob/main/docs/pairing.md).
