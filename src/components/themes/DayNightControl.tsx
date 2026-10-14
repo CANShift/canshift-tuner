@@ -40,7 +40,7 @@ export const DayNightControl = () => {
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-wrap items-center gap-3">
       <span className="font-mono text-[10.5px] tracking-[0.16em] text-ui-muted">PREVIEW</span>
       <div className="flex gap-px">
         {FACES.map((face) => (

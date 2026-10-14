@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 import { WidgetList } from '../components/editor/WidgetList'
 import { SelectedWidgetEditor } from '../components/editor/SelectedWidgetEditor'
 import { RouteLoading } from '../components/shell/RouteLoading'
+import { ThemeSection } from '../components/themes/ThemeSection'
 import { useDashboardStore } from '../stores/dashboard.store'
 import { useSignalStore } from '../stores/signal.store'
 import { useDisplayUnits } from '../hooks/useDisplayUnits'
@@ -171,6 +172,8 @@ export const RightSidebar = ({ pageId }: RightSidebarProps) => {
           </div>
         )}
       </div>
+
+      <ThemeSection />
     </aside>
   )
 }

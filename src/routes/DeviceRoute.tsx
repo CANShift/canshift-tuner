@@ -5,7 +5,7 @@ import { BoardBand } from '../components/device/BoardBand'
 import { ConfigBackupSection } from '../components/device/ConfigBackupSection'
 import { DeviceSection } from '../components/device/DeviceSection'
 import { DeviceSettingsSection } from '../components/device/DeviceSettingsSection'
-import { ThemeSection } from '../components/device/ThemeSection'
+import { BoardProfileSection } from '../components/device/BoardProfileSection'
 import { useDashboardStore } from '../stores/dashboard.store'
 import { useDeviceStore } from '../stores/device.store'
 import { useSignalStore } from '../stores/signal.store'
@@ -72,14 +72,14 @@ const DeviceRoute = () => {
         />
 
         <div className="grid gap-x-14 gap-y-10 px-7 pb-11 pt-[30px] min-[1100px]:[grid-template-columns:minmax(380px,460px)_minmax(0,1fr)]">
-          <DeviceSettingsSection
-            advancedOpen={advancedOpen}
-            onToggleAdvanced={() => {
-              setAdvancedOpen((open) => !open)
-            }}
-          />
+          <DeviceSettingsSection />
           <div className="flex min-w-0 flex-col gap-10">
-            <ThemeSection />
+            <BoardProfileSection
+              definitionOpen={advancedOpen}
+              onToggleDefinition={() => {
+                setAdvancedOpen((open) => !open)
+              }}
+            />
             <ConfigBackupSection
               summary={configSummary}
               onExport={() => {
