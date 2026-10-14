@@ -1,6 +1,6 @@
 import type { ThemePresetEntry } from '@canshift/core'
 import { cn } from '@/lib/utils'
-import { trackColorFor } from '../themes/ThemeCard'
+import { trackColorFor } from './ThemeCard'
 
 const DANGER = '#FF4444'
 const WATER_FILL_PERCENT = 70

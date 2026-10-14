@@ -23,8 +23,9 @@ the upload / serial port.
   widget to rebind it, or a Library widget onto a signal row.
 - 100-step undo/redo (`⌘Z` / `⇧⌘Z`) with a labelled History panel; autosave
   to local storage restores the exact canvas (selection included) on reload.
-- Multi-project model — pages + widgets + ECU profile + theme + target panel
-  switch as one unit; the CAN scan and Learn mode keep running across views.
+- One config at a time — pages + widgets + ECU profile + theme + target panel
+  back up and restore as one `.canshift` file; the CAN scan and Learn mode keep
+  running across tabs.
 - Burn gate — unbound widgets render the device's `--` placeholder, are
   counted in the toolbar, and prompt once before burning.
 

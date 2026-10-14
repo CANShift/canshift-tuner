@@ -6,11 +6,11 @@ Until a dash is connected, the Tuner shows a connect panel: **Connect** opens th
 
 ## The tabs
 
-- **Dash** (`/dash`) — the page strip, the canvas and the selected widget's properties. The canvas renders each page as the dash does. See [Layout editor](layout-editor.md) and, for the workflow, [Widgets & pages](configure/widgets.md). A CLI console for the wire protocol folds out from the bottom of this tab.
+- **Dash** (`/dash`) — the page strip, the canvas and the selected widget's properties. The canvas renders each page as the dash does. See [Layout editor](layout-editor.md) and, for the workflow, [Widgets & pages](configure/widgets.md). The dash theme (presets and the day/night preview) folds out under the widget list, and a CLI console for the wire protocol from the bottom of the tab.
 - **Vehicle** (`/vehicle`) — two sections:
   - **Profile & signals** — pick an ECU profile, edit CAN signals or OBD-II polling, scan the bus, and analyse unknown frames. See [ECU profiles](configure/ecu-profiles.md).
   - **Live values** — every decoded signal with its current value, a plot, and CSV recording. See [Live data](configure/live-data.md).
-- **Device** (`/device`) — panel model, units, brightness, the board profile and its definition, config backup and restore, and the dash theme.
+- **Device** (`/device`) — settings (panel model, units, brightness) on one side, the board profile and its definition, and config backup and restore on the other.
 
 Old links (`/signals`, `/live`, `/dashboard`, `/themes` and the rest) redirect to the tab that now holds them.
 

@@ -16,7 +16,7 @@ export const ROUTE_META = {
   },
   '/device': {
     title: 'Device — CANShift Tuner',
-    description: 'Units, brightness, board and theme, and backing up or restoring the config.',
+    description: 'Units, brightness, the board profile, and backing up or restoring the config.',
   },
 } as const satisfies Record<string, RouteMeta>
 

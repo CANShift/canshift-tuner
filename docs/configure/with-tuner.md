@@ -38,7 +38,7 @@ Custom map? Drop a **CAN XML** export onto the page. The parser lives in `@tmbk/
 
 ## Style with themes
 
-The theme section of the **Device** tab swaps the dash's colour palette — day vs night, accent colours, gauge backgrounds. The Tuner reads the active mode from the device on connect and exposes three actions: toggle, force _Day_, force _Night_. The commands hit the dash as `CMD_TOGGLE_DAY_NIGHT` / `CMD_SET_DAY_NIGHT` over USB.
+The **Dash theme** panel under the widget list on the **Dash** tab swaps the dash's colour palette — day vs night, accent colours, gauge backgrounds. The Tuner reads the active mode from the device on connect and exposes three actions: toggle, force _Day_, force _Night_. The commands hit the dash as `CMD_TOGGLE_DAY_NIGHT` / `CMD_SET_DAY_NIGHT` over USB.
 
 ## Burn = write the config
 
