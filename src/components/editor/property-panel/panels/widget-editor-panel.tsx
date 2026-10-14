@@ -41,16 +41,32 @@ interface WidgetEditorPanelProps {
   onRemove: (pageId: string, widgetId: string) => void
 }
 
-export const WidgetEditorPanel = ({
-  pageId,
-  widget,
-  signals,
-  patch,
-  onRemove,
-}: WidgetEditorPanelProps) => {
+export const signalPatch = (
+  widget: Widget,
+  signalDef: SignalDef | undefined,
+  signal: string
+): Partial<Widget> => {
+  if (!signalDef || widget.config.type !== 'gauge') return { signal }
+  return {
+    signal,
+    config: {
+      ...widget.config,
+      suffix: signalDef.unit,
+      minValue: signalDef.min,
+      maxValue: signalDef.max,
+      ...(signalDef.dangerLevel !== undefined && { dangerLevel: signalDef.dangerLevel }),
+    },
+  }
+}
+
+export const dayModeStyle = (style: Widget['style'], follow: boolean): Widget['style'] => {
+  const { respectDayMode: _, ...rest } = style
+  return follow ? rest : { ...rest, respectDayMode: false }
+}
+
+const useHexParser = () => {
   const pushLog = useLogStore((s) => s.push)
   const [colorError, setColorError] = useState<string | null>(null)
-
   const safeParseHex = useCallback(
     (raw: string): HexColor | null => {
       const result = HexColorSchema.safeParse(raw)
@@ -65,102 +81,106 @@ export const WidgetEditorPanel = ({
     },
     [pushLog]
   )
+  return { colorError, safeParseHex }
+}
 
+const PanelHeader = ({ widget, onDelete }: { widget: Widget; onDelete: () => void }) => (
+  <div className="mb-3.5 flex items-center justify-between">
+    <div>
+      <div className="text-[10px] uppercase tracking-[0.08em] text-brand-neutral-600">
+        Properties
+      </div>
+      <div className="mt-0.5 text-[12px] font-semibold text-status-danger">{widget.type}</div>
+    </div>
+    <button type="button" onClick={onDelete} title="Delete widget (Del)" className={DELETE_BUTTON}>
+      <IconTrash size={11} color={DANGER_FG} />
+      Delete
+    </button>
+  </div>
+)
+
+type FieldProps = Pick<WidgetEditorPanelProps, 'widget' | 'signals' | 'patch'>
+
+const signalOptions = (signals: SignalDef[]) => [
+  { value: '', label: '— none —' },
+  ...signals.map((s) => ({ value: s.name, label: s.unit ? `${s.name} — ${s.unit}` : s.name })),
+]
+
+const SignalField = ({ widget, signals, patch }: FieldProps) => (
+  <PanelField label="Signal">
+    <CompactSelect
+      value={widget.signal || ''}
+      options={signalOptions(signals)}
+      onChange={(next) => {
+        patch(
+          signalPatch(
+            widget,
+            signals.find((s) => s.name === next),
+            next
+          )
+        )
+      }}
+    />
+  </PanelField>
+)
+
+const DayModeField = ({ widget, patch }: Omit<FieldProps, 'signals'>) => (
+  <PanelField label="Follow day-mode text colour">
+    <label className="flex cursor-pointer items-center gap-1.5 text-[12px] text-brand-neutral-600">
+      <Checkbox
+        checked={widget.style.respectDayMode !== false}
+        onCheckedChange={(checked) => {
+          patch({ style: dayModeStyle(widget.style, checked === true) })
+        }}
+      />
+      When off, the widget keeps its bespoke text colour in day mode
+    </label>
+  </PanelField>
+)
+
+const ConfigSection = ({ widget, signals, patch }: FieldProps) => {
   const ConfigFields = CONFIG_FIELDS[widget.type]
-  const boundSignalDef = signals.find((s) => s.name === widget.signal)
+  if (!ConfigFields) return null
+  return (
+    <>
+      <div className="mb-1.5 mt-1">
+        <SectionLabel>{widget.type} config</SectionLabel>
+      </div>
+      <ConfigFields
+        widget={widget}
+        onChange={patch}
+        signalDef={signals.find((s) => s.name === widget.signal)}
+      />
+    </>
+  )
+}
 
+export const WidgetEditorPanel = ({
+  pageId,
+  widget,
+  signals,
+  patch,
+  onRemove,
+}: WidgetEditorPanelProps) => {
+  const { colorError, safeParseHex } = useHexParser()
   return (
     <div className="flex-1 overflow-y-auto p-3">
-      <div className="mb-3.5 flex items-center justify-between">
-        <div>
-          <div className="text-[10px] uppercase tracking-[0.08em] text-brand-neutral-600">
-            Properties
-          </div>
-          <div className="mt-0.5 text-[12px] font-semibold text-status-danger">{widget.type}</div>
-        </div>
-        <button
-          type="button"
-          onClick={() => {
-            onRemove(pageId, widget.id)
-          }}
-          title="Delete widget (Del)"
-          className={DELETE_BUTTON}
-        >
-          <IconTrash size={11} color={DANGER_FG} />
-          Delete
-        </button>
-      </div>
-
+      <PanelHeader widget={widget} onDelete={() => onRemove(pageId, widget.id)} />
       <PanelField label="ID">
         <div className="py-[3px] font-mono text-[10px] text-brand-neutral-600">{widget.id}</div>
       </PanelField>
-
       {!SIZE_HIDDEN_TYPES.has(widget.type) && <SizeTokenPicker widget={widget} onChange={patch} />}
-
       {!SIGNAL_HIDDEN_TYPES.has(widget.type) && (
-        <PanelField label="Signal">
-          <CompactSelect
-            value={widget.signal || ''}
-            options={[
-              { value: '', label: '— none —' },
-              ...signals.map((s) => ({
-                value: s.name,
-                label: s.unit ? `${s.name} — ${s.unit}` : s.name,
-              })),
-            ]}
-            onChange={(newSignal) => {
-              const signalDef = signals.find((s) => s.name === newSignal)
-              const p: Partial<Widget> = { signal: newSignal }
-              if (signalDef && widget.config.type === 'gauge') {
-                p.config = {
-                  ...widget.config,
-                  suffix: signalDef.unit,
-                  minValue: signalDef.min,
-                  maxValue: signalDef.max,
-                  ...(signalDef.dangerLevel !== undefined && {
-                    dangerLevel: signalDef.dangerLevel,
-                  }),
-                }
-              }
-              patch(p)
-            }}
-          />
-        </PanelField>
+        <SignalField widget={widget} signals={signals} patch={patch} />
       )}
-
-      <PanelField label="Follow day-mode text colour">
-        <label className="flex cursor-pointer items-center gap-1.5 text-[12px] text-brand-neutral-600">
-          <Checkbox
-            checked={widget.style.respectDayMode !== false}
-            onCheckedChange={(checked) => {
-              const nextStyle = { ...widget.style }
-              if (checked === true) {
-                delete nextStyle.respectDayMode
-              } else {
-                nextStyle.respectDayMode = false
-              }
-              patch({ style: nextStyle })
-            }}
-          />
-          When off, the widget keeps its bespoke text colour in day mode
-        </label>
-      </PanelField>
-
+      <DayModeField widget={widget} patch={patch} />
       <ButtonColorsRow
         widget={widget}
         colorError={colorError}
         safeParseHex={safeParseHex}
         onChange={patch}
       />
-
-      {ConfigFields && (
-        <>
-          <div className="mb-1.5 mt-1">
-            <SectionLabel>{widget.type} config</SectionLabel>
-          </div>
-          <ConfigFields widget={widget} onChange={patch} signalDef={boundSignalDef} />
-        </>
-      )}
+      <ConfigSection widget={widget} signals={signals} patch={patch} />
     </div>
   )
 }

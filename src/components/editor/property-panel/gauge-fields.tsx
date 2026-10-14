@@ -1,3 +1,4 @@
+import type { GaugeDisplayStyle, GaugeWidgetConfig, SignalDef, Widget } from '@canshift/core'
 import { cn } from '@/lib/utils'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -8,6 +9,7 @@ import {
 } from '../../../utils/size-tokens'
 import { ConfigFieldsProps, GAUGE_STYLES } from './shared'
 import { PanelField, PanelInput, PanelRow, segmentPill } from '@/components/ui/form-field'
+import { withBig, withMax, withMin } from './gauge/gauge-range'
 
 const resetAction = (enabled: boolean, run: () => void): (() => void) | undefined =>
   enabled ? run : undefined
@@ -21,187 +23,195 @@ const BIG_CHOICES = [
   { label: 'XS', big: 34, title: 'Secondary 34 — device 17' },
 ] as const
 
-export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) => {
-  const cfg = widget.config.type === 'gauge' ? widget.config : null
-  if (!cfg) return null
-  const style = cfg.displayStyle
-  const defaultDanger = signalDef?.dangerLevel
-  const allowedTokenIds = gaugeTokenIds(style)
+interface GaugeFieldProps {
+  widget: Widget
+  cfg: GaugeWidgetConfig
+  onChange: ConfigFieldsProps['onChange']
+  signalDef: SignalDef | undefined
+}
+
+const StyleField = ({ widget, cfg, onChange }: GaugeFieldProps) => (
+  <PanelField label="Style">
+    <div className="flex gap-1">
+      {GAUGE_STYLES.map(({ value, label }) => (
+        <button
+          key={value}
+          onClick={() => {
+            const token = SIZE_TOKENS[GAUGE_DEFAULT_TOKEN[value]]
+            onChange({
+              config: { ...cfg, displayStyle: value },
+              layout: { ...widget.layout, colSpan: token.colSpan, rowSpan: token.rowSpan },
+            })
+          }}
+          className={cn(
+            segmentPill({ tone: 'blue', active: cfg.displayStyle === value }),
+            'uppercase'
+          )}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  </PanelField>
+)
+
+const TypeField = ({ cfg, onChange }: GaugeFieldProps) => (
+  <PanelField label="Type">
+    <div className="flex gap-1">
+      {BIG_CHOICES.map((choice) => (
+        <button
+          key={choice.label}
+          onClick={() => {
+            onChange({ config: withBig(cfg, choice.big) })
+          }}
+          title={choice.title}
+          className={cn(segmentPill({ tone: 'green', active: (cfg.big ?? 0) === choice.big }))}
+        >
+          {choice.label}
+        </button>
+      ))}
+    </div>
+  </PanelField>
+)
+
+const SizeField = ({ widget, cfg, onChange }: GaugeFieldProps) => {
+  const allowedTokenIds = gaugeTokenIds(cfg.displayStyle)
   const activeTokenId =
     tokenFromSpans(widget.layout.colSpan, widget.layout.rowSpan) ?? allowedTokenIds[0] ?? null
-
   return (
-    <>
-      <PanelField label="Style">
-        <div className="flex gap-1">
-          {GAUGE_STYLES.map(({ value, label }) => (
+    <PanelField label="Size">
+      <div className="flex gap-1">
+        {allowedTokenIds.map((tokenId) => {
+          const token = SIZE_TOKENS[tokenId]
+          return (
             <button
-              key={value}
+              key={tokenId}
               onClick={() => {
-                const defaultTokenId = GAUGE_DEFAULT_TOKEN[value]
-                const defaultToken = SIZE_TOKENS[defaultTokenId]
                 onChange({
-                  config: { ...cfg, displayStyle: value },
-                  layout: {
-                    ...widget.layout,
-                    colSpan: defaultToken.colSpan,
-                    rowSpan: defaultToken.rowSpan,
-                  },
+                  layout: { ...widget.layout, colSpan: token.colSpan, rowSpan: token.rowSpan },
                 })
               }}
-              className={cn(segmentPill({ tone: 'blue', active: style === value }), 'uppercase')}
+              title={token.description}
+              className={cn(segmentPill({ tone: 'green', active: tokenId === activeTokenId }))}
             >
-              {label}
+              {token.label}
             </button>
-          ))}
-        </div>
-      </PanelField>
+          )
+        })}
+      </div>
+    </PanelField>
+  )
+}
 
-      <PanelField label="Type">
-        <div className="flex gap-1">
-          {BIG_CHOICES.map((choice) => {
-            const isActive = (cfg.big ?? 0) === choice.big
-            return (
-              <button
-                key={choice.label}
-                onClick={() => {
-                  onChange({
-                    config:
-                      choice.big === 0
-                        ? (({ big: _, ...rest }) => rest)(cfg)
-                        : { ...cfg, big: choice.big },
-                  })
-                }}
-                title={choice.title}
-                className={cn(segmentPill({ tone: 'green', active: isActive }))}
-              >
-                {choice.label}
-              </button>
-            )
-          })}
-        </div>
-      </PanelField>
+const MinField = ({ cfg, onChange, signalDef }: GaugeFieldProps) => (
+  <PanelField
+    label="Min"
+    onReset={resetAction(signalDef !== undefined && cfg.minValue !== signalDef.min, () => {
+      if (signalDef) onChange({ config: { ...cfg, minValue: signalDef.min } })
+    })}
+  >
+    <PanelInput
+      type="number"
+      value={cfg.minValue}
+      onChange={(e) => {
+        onChange({ config: withMin(cfg, Number(e.target.value)) })
+      }}
+    />
+  </PanelField>
+)
 
-      <PanelField label="Size">
-        <div className="flex gap-1">
-          {allowedTokenIds.map((tokenId) => {
-            const token = SIZE_TOKENS[tokenId]
-            const isActive = tokenId === activeTokenId
-            return (
-              <button
-                key={tokenId}
-                onClick={() => {
-                  onChange({
-                    layout: { ...widget.layout, colSpan: token.colSpan, rowSpan: token.rowSpan },
-                  })
-                }}
-                title={token.description}
-                className={cn(segmentPill({ tone: 'green', active: isActive }))}
-              >
-                {token.label}
-              </button>
-            )
-          })}
-        </div>
-      </PanelField>
+const MaxField = ({ cfg, onChange, signalDef }: GaugeFieldProps) => (
+  <PanelField
+    label="Max"
+    onReset={resetAction(signalDef !== undefined && cfg.maxValue !== signalDef.max, () => {
+      if (signalDef) onChange({ config: { ...cfg, maxValue: signalDef.max } })
+    })}
+  >
+    <PanelInput
+      type="number"
+      value={cfg.maxValue}
+      onChange={(e) => {
+        onChange({ config: withMax(cfg, Number(e.target.value)) })
+      }}
+    />
+  </PanelField>
+)
 
-      {style === 'arc' && (
-        <>
-          <PanelRow>
-            <PanelField
-              label="Min"
-              onReset={resetAction(
-                signalDef !== undefined && cfg.minValue !== signalDef.min,
-                () => {
-                  if (signalDef) onChange({ config: { ...cfg, minValue: signalDef.min } })
-                }
-              )}
-            >
-              <PanelInput
-                type="number"
-                value={cfg.minValue}
-                onChange={(e) => {
-                  const newMin = Number(e.target.value)
-                  onChange({
-                    config: {
-                      ...cfg,
-                      minValue: newMin,
-                      dangerLevel: Math.max(cfg.dangerLevel, newMin),
-                    },
-                  })
-                }}
-              />
-            </PanelField>
-            <PanelField
-              label="Max"
-              onReset={resetAction(
-                signalDef !== undefined && cfg.maxValue !== signalDef.max,
-                () => {
-                  if (signalDef) onChange({ config: { ...cfg, maxValue: signalDef.max } })
-                }
-              )}
-            >
-              <PanelInput
-                type="number"
-                value={cfg.maxValue}
-                onChange={(e) => {
-                  const newMax = Number(e.target.value)
-                  const range = cfg.maxValue - cfg.minValue || 1
-                  const dangerPct = (cfg.dangerLevel - cfg.minValue) / range
-                  const newRange = newMax - cfg.minValue || 1
-                  onChange({
-                    config: {
-                      ...cfg,
-                      maxValue: newMax,
-                      dangerLevel: Math.round(cfg.minValue + dangerPct * newRange),
-                    },
-                  })
-                }}
-              />
-            </PanelField>
-          </PanelRow>
-          <PanelRow>
-            <PanelField
-              label="Danger"
-              onReset={resetAction(
-                defaultDanger !== undefined && cfg.dangerLevel !== defaultDanger,
-                () => {
-                  if (defaultDanger !== undefined) {
-                    onChange({ config: { ...cfg, dangerLevel: defaultDanger } })
-                  }
-                }
-              )}
-            >
-              <PanelInput
-                type="number"
-                value={cfg.dangerLevel}
-                onChange={(e) => {
-                  onChange({ config: { ...cfg, dangerLevel: Number(e.target.value) } })
-                }}
-              />
-            </PanelField>
-          </PanelRow>
-          <PanelField label="Rev flash">
-            <Checkbox
-              checked={cfg.revFlash ?? false}
-              onCheckedChange={(checked) => {
-                onChange({ config: { ...cfg, revFlash: checked === true } })
-              }}
-            />
-          </PanelField>
-        </>
-      )}
-      {style === 'numeric' && (
-        <PanelField label="Value bar">
-          <Checkbox
-            aria-label="Value bar"
-            checked={cfg.showBar ?? false}
-            onCheckedChange={(checked) => {
-              onChange({ config: { ...cfg, showBar: checked === true } })
-            }}
-          />
-        </PanelField>
-      )}
+const RangeFields = (props: GaugeFieldProps) => (
+  <PanelRow>
+    <MinField {...props} />
+    <MaxField {...props} />
+  </PanelRow>
+)
+
+const DangerField = ({ cfg, onChange, signalDef }: GaugeFieldProps) => {
+  const defaultDanger = signalDef?.dangerLevel
+  return (
+    <PanelRow>
+      <PanelField
+        label="Danger"
+        onReset={resetAction(
+          defaultDanger !== undefined && cfg.dangerLevel !== defaultDanger,
+          () => {
+            if (defaultDanger !== undefined)
+              onChange({ config: { ...cfg, dangerLevel: defaultDanger } })
+          }
+        )}
+      >
+        <PanelInput
+          type="number"
+          value={cfg.dangerLevel}
+          onChange={(e) => {
+            onChange({ config: { ...cfg, dangerLevel: Number(e.target.value) } })
+          }}
+        />
+      </PanelField>
+    </PanelRow>
+  )
+}
+
+const ArcFields = (props: GaugeFieldProps) => (
+  <>
+    <RangeFields {...props} />
+    <DangerField {...props} />
+    <PanelField label="Rev flash">
+      <Checkbox
+        checked={props.cfg.revFlash ?? false}
+        onCheckedChange={(checked) => {
+          props.onChange({ config: { ...props.cfg, revFlash: checked === true } })
+        }}
+      />
+    </PanelField>
+  </>
+)
+
+const NumericFields = ({ cfg, onChange }: GaugeFieldProps) => (
+  <PanelField label="Value bar">
+    <Checkbox
+      aria-label="Value bar"
+      checked={cfg.showBar ?? false}
+      onCheckedChange={(checked) => {
+        onChange({ config: { ...cfg, showBar: checked === true } })
+      }}
+    />
+  </PanelField>
+)
+
+const STYLE_FIELDS: Record<GaugeDisplayStyle, (props: GaugeFieldProps) => React.JSX.Element> = {
+  arc: ArcFields,
+  numeric: NumericFields,
+}
+
+export const GaugeFields = ({ widget, onChange, signalDef }: ConfigFieldsProps) => {
+  if (widget.config.type !== 'gauge') return null
+  const props: GaugeFieldProps = { widget, cfg: widget.config, onChange, signalDef }
+  const StyleSpecific = STYLE_FIELDS[widget.config.displayStyle]
+  return (
+    <>
+      <StyleField {...props} />
+      <TypeField {...props} />
+      <SizeField {...props} />
+      <StyleSpecific {...props} />
     </>
   )
 }

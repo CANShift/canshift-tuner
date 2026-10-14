@@ -11,31 +11,22 @@ interface PropertyPanelProps {
   pageId: string
 }
 
-const PropertyPanel = ({ pageId }: PropertyPanelProps) => {
-  const {
-    config,
-    selectedWidgetId,
-    updateWidget,
-    removeWidget,
-    addPage,
-    removePage,
-    setTargetProfile,
-  } = useDashboardConfig()
-  const signals = useSignalStore((s) => s.signals)
+const NoConfig = () => (
+  <div className="p-3">
+    <p className="text-[11px] text-brand-neutral-500">No config loaded.</p>
+  </div>
+)
+
+const useWidgetActions = (pageId: string, widgetId: string | undefined) => {
+  const { updateWidget, removeWidget } = useDashboardConfig()
   const showUndoToast = useUndoToastStore((s) => s.showForLastAction)
-
-  const page = config?.pages.find((p) => p.id === pageId)
-  const widget = page?.widgets.find((w) => w.id === selectedWidgetId)
-  const widgetId = widget?.id
-
-  const removeWidgetWithToast = useCallback(
+  const removeWithToast = useCallback(
     (targetPageId: string, targetWidgetId: string) => {
       removeWidget(targetPageId, targetWidgetId)
       showUndoToast()
     },
     [removeWidget, showUndoToast]
   )
-
   const patch = useCallback(
     (p: Partial<Widget>) => {
       if (!widgetId) return
@@ -43,32 +34,33 @@ const PropertyPanel = ({ pageId }: PropertyPanelProps) => {
     },
     [updateWidget, pageId, widgetId]
   )
+  return { patch, removeWithToast }
+}
 
-  if (!widget) {
-    if (!page || !config) {
-      return (
-        <div className="p-3">
-          <p className="text-[11px] text-brand-neutral-500">No config loaded.</p>
-        </div>
-      )
-    }
+const PropertyPanel = ({ pageId }: PropertyPanelProps) => {
+  const { config, selectedWidgetId, addPage, removePage, setTargetProfile } = useDashboardConfig()
+  const signals = useSignalStore((s) => s.signals)
+  const page = config?.pages.find((p) => p.id === pageId)
+  const widget = page?.widgets.find((w) => w.id === selectedWidgetId)
+  const { patch, removeWithToast } = useWidgetActions(pageId, widget?.id)
+  if (widget) {
     return (
-      <PageConfigPanel
-        config={config}
-        setTargetProfile={setTargetProfile}
-        addPage={addPage}
-        removePage={removePage}
+      <WidgetEditorPanel
+        pageId={pageId}
+        widget={widget}
+        signals={signals}
+        patch={patch}
+        onRemove={removeWithToast}
       />
     )
   }
-
+  if (!page || !config) return <NoConfig />
   return (
-    <WidgetEditorPanel
-      pageId={pageId}
-      widget={widget}
-      signals={signals}
-      patch={patch}
-      onRemove={removeWidgetWithToast}
+    <PageConfigPanel
+      config={config}
+      setTargetProfile={setTargetProfile}
+      addPage={addPage}
+      removePage={removePage}
     />
   )
 }

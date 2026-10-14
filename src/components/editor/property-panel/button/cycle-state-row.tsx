@@ -7,6 +7,7 @@ import { PanelInput } from '@/components/ui/form-field'
 import { ActionEditor } from './action-editor'
 import { ActionTypeMenu } from './action-type-menu'
 import type { CycleState } from './shared'
+import { ACTION_CATEGORY_COLORS, ACTION_TYPE_LABELS } from './action-labels'
 
 const card = cva('mb-[5px] border border-solid px-2 py-1.5', {
   variants: {
@@ -48,80 +49,90 @@ interface CycleStateRowProps {
   onSetInitial: () => void
 }
 
-export const CycleStateRow = ({
+type StateHeaderProps = Pick<
+  CycleStateRowProps,
+  'state' | 'index' | 'isInitial' | 'canRemove' | 'onUpdate' | 'onRemove' | 'onSetInitial'
+>
+
+const RemoveStateButton = ({
+  canRemove,
+  onRemove,
+}: Pick<CycleStateRowProps, 'canRemove' | 'onRemove'>) => (
+  <button
+    type="button"
+    onClick={onRemove}
+    disabled={!canRemove}
+    aria-label="Remove state"
+    className={cn(removeButton({ enabled: canRemove }))}
+    title={canRemove ? 'Remove state' : `Need at least ${String(MIN_CYCLE_STATES)} states`}
+  >
+    <IconTrash size={11} color={canRemove ? '#553333' : 'hsl(var(--brand-neutral-300))'} />
+  </button>
+)
+
+const StateHeader = ({
   state,
   index,
   isInitial,
-  canRemove,
+  onUpdate,
+  onSetInitial,
+  ...remove
+}: StateHeaderProps) => (
+  <div className={ROW}>
+    <span className="min-w-4 text-[10px] text-brand-neutral-500">{index + 1}</span>
+    <PanelInput
+      className="flex-1 text-[11px]"
+      value={state.label}
+      placeholder={`State ${String(index + 1)}`}
+      onChange={(e) => {
+        onUpdate({ ...state, label: e.target.value })
+      }}
+    />
+    <label className={cn(initialLabel({ initial: isInitial }))} title="Active on load">
+      <input
+        type="radio"
+        checked={isInitial}
+        onChange={onSetInitial}
+        className="cursor-pointer accent-[#7788CC]"
+      />
+      Initial
+    </label>
+    <RemoveStateButton {...remove} />
+  </div>
+)
+
+const StateActionType = ({
+  state,
   pageIds,
   onUpdate,
-  onRemove,
-  onSetInitial,
-}: CycleStateRowProps) => {
-  const typeLabel =
-    state.action.type === 'navigate'
-      ? 'Navigate'
-      : state.action.type === 'map_switch'
-        ? 'Map Switch'
-        : state.action.type === 'can_raw'
-          ? 'CAN Raw'
-          : 'Cruise Ctrl'
-  const categoryColor = state.action.category === 'ecu' ? '#CC8800' : '#5577CC'
+}: Pick<CycleStateRowProps, 'state' | 'pageIds' | 'onUpdate'>) => (
+  <div className={ROW}>
+    <span
+      className={CATEGORY}
+      // eslint-disable-next-line no-inline-style/no-inline-style
+      style={{ color: ACTION_CATEGORY_COLORS[state.action.category] }}
+    >
+      {state.action.category} — {ACTION_TYPE_LABELS[state.action.type]}
+    </span>
+    <ActionTypeMenu
+      pageIds={pageIds}
+      onSelect={(action) => {
+        onUpdate({ ...state, action })
+      }}
+    />
+  </div>
+)
 
-  return (
-    <div className={cn(card({ initial: isInitial }))}>
-      <div className={ROW}>
-        <span className="min-w-4 text-[10px] text-brand-neutral-500">{index + 1}</span>
-        <PanelInput
-          className="flex-1 text-[11px]"
-          value={state.label}
-          placeholder={`State ${String(index + 1)}`}
-          onChange={(e) => {
-            onUpdate({ ...state, label: e.target.value })
-          }}
-        />
-        <label className={cn(initialLabel({ initial: isInitial }))} title="Active on load">
-          <input
-            type="radio"
-            checked={isInitial}
-            onChange={onSetInitial}
-            className="cursor-pointer accent-[#7788CC]"
-          />
-          Initial
-        </label>
-        <button
-          type="button"
-          onClick={onRemove}
-          disabled={!canRemove}
-          aria-label="Remove state"
-          className={cn(removeButton({ enabled: canRemove }))}
-          title={canRemove ? 'Remove state' : `Need at least ${String(MIN_CYCLE_STATES)} states`}
-        >
-          <IconTrash size={11} color={canRemove ? '#553333' : 'hsl(var(--brand-neutral-300))'} />
-        </button>
-      </div>
-      <div className={ROW}>
-        <span
-          className={CATEGORY}
-          // eslint-disable-next-line no-inline-style/no-inline-style
-          style={{ color: categoryColor }}
-        >
-          {state.action.category} — {typeLabel}
-        </span>
-        <ActionTypeMenu
-          pageIds={pageIds}
-          onSelect={(action) => {
-            onUpdate({ ...state, action })
-          }}
-        />
-      </div>
-      <ActionEditor
-        action={state.action}
-        pageIds={pageIds}
-        onUpdate={(action) => {
-          onUpdate({ ...state, action })
-        }}
-      />
-    </div>
-  )
-}
+export const CycleStateRow = (props: CycleStateRowProps) => (
+  <div className={cn(card({ initial: props.isInitial }))}>
+    <StateHeader {...props} />
+    <StateActionType state={props.state} pageIds={props.pageIds} onUpdate={props.onUpdate} />
+    <ActionEditor
+      action={props.state.action}
+      pageIds={props.pageIds}
+      onUpdate={(action) => {
+        props.onUpdate({ ...props.state, action })
+      }}
+    />
+  </div>
+)

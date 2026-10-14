@@ -26,98 +26,99 @@ export interface SelectedWidgetEditorProps {
   onDangerBelow: (below: boolean) => void
 }
 
-export const SelectedWidgetEditor = ({
-  widget,
-  name,
-  nameEditable,
-  onName,
-  onMove,
-  canMoveUp,
-  canMoveDown,
-  dangerAt,
-  dangerBelow,
-  dangerEditable,
-  onDangerAt,
-  onDangerBelow,
-}: SelectedWidgetEditorProps) => (
+export const parseThreshold = (raw: string): number | null => {
+  const parsed = Number(raw)
+  return raw.trim().length === 0 || !Number.isFinite(parsed) ? null : parsed
+}
+
+type NameRowProps = Pick<
+  SelectedWidgetEditorProps,
+  'name' | 'nameEditable' | 'onName' | 'onMove' | 'canMoveUp' | 'canMoveDown'
+>
+
+const NameRow = ({ name, nameEditable, onName, onMove, canMoveUp, canMoveDown }: NameRowProps) => (
+  <div className="mb-3 flex items-center gap-2.5">
+    <span className="font-mono text-[10px] tracking-[0.16em] text-ui-muted">NAME</span>
+    <input
+      value={name}
+      readOnly={!nameEditable}
+      title={nameEditable ? undefined : NAME_UNAVAILABLE}
+      aria-label="Widget name"
+      spellCheck={false}
+      onChange={(e) => {
+        onName(e.target.value)
+      }}
+      className={cn(FIELD, 'flex-1 font-bold', !nameEditable && 'text-ui-faint')}
+    />
+    <MoveButton label="Move up" disabled={!canMoveUp} onClick={() => onMove(-1)}>
+      <path d="M8 13 V4 M4 8 L8 4 L12 8" />
+    </MoveButton>
+    <MoveButton label="Move down" disabled={!canMoveDown} onClick={() => onMove(1)}>
+      <path d="M8 3 V12 M4 8 L8 12 L12 8" />
+    </MoveButton>
+  </div>
+)
+
+const WarnField = () => (
+  <label className="block">
+    <span className={cn(LABEL, 'text-ui-warning')}>WARN AT</span>
+    <input
+      readOnly
+      value=""
+      placeholder="—"
+      title={WARN_UNAVAILABLE}
+      aria-label="Warn threshold"
+      className={cn(FIELD, 'cursor-not-allowed text-ui-faint')}
+    />
+  </label>
+)
+
+type DangerProps = Pick<
+  SelectedWidgetEditorProps,
+  'dangerAt' | 'dangerBelow' | 'dangerEditable' | 'onDangerAt' | 'onDangerBelow'
+>
+
+const DangerField = ({ dangerAt, dangerEditable, onDangerAt }: DangerProps) => (
+  <label className="block">
+    <span className={cn(LABEL, 'text-ui-danger')}>DANGER AT</span>
+    <input
+      value={dangerAt === null ? '' : String(dangerAt)}
+      readOnly={!dangerEditable}
+      placeholder="—"
+      title={dangerEditable ? undefined : DANGER_UNAVAILABLE}
+      aria-label="Danger threshold"
+      spellCheck={false}
+      onChange={(e) => {
+        onDangerAt(parseThreshold(e.target.value))
+      }}
+      className={cn(FIELD, !dangerEditable && 'cursor-not-allowed text-ui-faint')}
+    />
+  </label>
+)
+
+const DangerDirection = ({ dangerBelow, dangerEditable, onDangerBelow }: DangerProps) => (
+  <select
+    value={dangerBelow ? 'below' : 'above'}
+    disabled={!dangerEditable}
+    aria-label="Danger direction"
+    onChange={(e) => {
+      onDangerBelow(e.target.value === 'below')
+    }}
+    className="border border-ui-line-strong bg-transparent px-1 py-1.5 font-mono text-[12.5px] text-ui-ink disabled:cursor-not-allowed disabled:text-ui-faint"
+  >
+    <option value="above">above</option>
+    <option value="below">below</option>
+  </select>
+)
+
+export const SelectedWidgetEditor = ({ widget, ...props }: SelectedWidgetEditorProps) => (
   <div className="shrink-0 border-t-2 border-ui-rule bg-ui-panel px-4 pb-[15px] pt-[13px]">
-    <div className="mb-3 flex items-center gap-2.5">
-      <span className="font-mono text-[10px] tracking-[0.16em] text-ui-muted">NAME</span>
-      <input
-        value={name}
-        readOnly={!nameEditable}
-        title={nameEditable ? undefined : NAME_UNAVAILABLE}
-        aria-label="Widget name"
-        spellCheck={false}
-        onChange={(e) => {
-          onName(e.target.value)
-        }}
-        className={cn(FIELD, 'flex-1 font-bold', !nameEditable && 'text-ui-faint')}
-      />
-      <MoveButton
-        label="Move up"
-        disabled={!canMoveUp}
-        onClick={() => {
-          onMove(-1)
-        }}
-      >
-        <path d="M8 13 V4 M4 8 L8 4 L12 8" />
-      </MoveButton>
-      <MoveButton
-        label="Move down"
-        disabled={!canMoveDown}
-        onClick={() => {
-          onMove(1)
-        }}
-      >
-        <path d="M8 3 V12 M4 8 L8 12 L12 8" />
-      </MoveButton>
-    </div>
-
+    <NameRow {...props} />
     <div className="grid grid-cols-[1fr_1fr_84px] items-end gap-2">
-      <label className="block">
-        <span className={cn(LABEL, 'text-ui-warning')}>WARN AT</span>
-        <input
-          readOnly
-          value=""
-          placeholder="—"
-          title={WARN_UNAVAILABLE}
-          aria-label="Warn threshold"
-          className={cn(FIELD, 'cursor-not-allowed text-ui-faint')}
-        />
-      </label>
-      <label className="block">
-        <span className={cn(LABEL, 'text-ui-danger')}>DANGER AT</span>
-        <input
-          value={dangerAt === null ? '' : String(dangerAt)}
-          readOnly={!dangerEditable}
-          placeholder="—"
-          title={dangerEditable ? undefined : DANGER_UNAVAILABLE}
-          aria-label="Danger threshold"
-          spellCheck={false}
-          onChange={(e) => {
-            const parsed = Number(e.target.value)
-            onDangerAt(
-              e.target.value.trim().length === 0 || !Number.isFinite(parsed) ? null : parsed
-            )
-          }}
-          className={cn(FIELD, !dangerEditable && 'cursor-not-allowed text-ui-faint')}
-        />
-      </label>
-      <select
-        value={dangerBelow ? 'below' : 'above'}
-        disabled={!dangerEditable}
-        aria-label="Danger direction"
-        onChange={(e) => {
-          onDangerBelow(e.target.value === 'below')
-        }}
-        className="border border-ui-line-strong bg-transparent px-1 py-1.5 font-mono text-[12.5px] text-ui-ink disabled:cursor-not-allowed disabled:text-ui-faint"
-      >
-        <option value="above">above</option>
-        <option value="below">below</option>
-      </select>
+      <WarnField />
+      <DangerField {...props} />
+      <DangerDirection {...props} />
     </div>
-
     <p className="mt-2 font-mono text-[10.5px] text-ui-faint">{widget.type}</p>
   </div>
 )
