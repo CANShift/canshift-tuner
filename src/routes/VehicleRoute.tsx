@@ -2,15 +2,17 @@ import { lazy, Suspense, useState } from 'react'
 import type { ReactNode } from 'react'
 import { RouteLoading } from '../components/shell/RouteLoading'
 import { TogglePill } from '../components/ui/toggle-pill'
+import { CanBusPanel } from '../components/vehicle/CanBusPanel'
 
 const SignalsRoute = lazy(() => import('./SignalsRoute'))
 const LiveDataRoute = lazy(() => import('./LiveDataRoute'))
 
-type VehicleSection = 'signals' | 'live'
+type VehicleSection = 'signals' | 'live' | 'bus'
 
 const SECTION_LABELS: Record<VehicleSection, string> = {
   signals: 'Profile & signals',
   live: 'Live values',
+  bus: 'CAN bus',
 }
 
 const SECTIONS = Object.keys(SECTION_LABELS) as VehicleSection[]
@@ -27,6 +29,7 @@ const VehicleRoute = () => {
         }}
       />
     ),
+    bus: <CanBusPanel />,
   }
 
   return (
