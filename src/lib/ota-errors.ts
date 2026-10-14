@@ -4,6 +4,10 @@ const OTA_ERROR_MESSAGES: Record<string, string> = {
   bad_args: 'The dash rejected the update request as malformed. Reload the tuner and try again.',
   no_ota_partition: 'This board has no spare update slot, so it cannot update itself.',
   size_out_of_range: 'The image does not fit this board. Check it is the build for this model.',
+  ota_unsigned:
+    'The dash refused an unsigned image. Choose the release’s .sig together with the .bin.',
+  ota_bad_signature:
+    'The dash refused the image: its signature does not match. Use the .bin and .sig from the same official release.',
   ota_begin_failed: 'The dash could not open its update slot. Restart the dash and try again.',
   begin_failed: 'The dash refused to start the update. Restart it and try again.',
   sha_engine_failed: 'The dash’s checksum engine failed. Restart the dash and try again.',

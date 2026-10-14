@@ -1,3 +1,4 @@
+import type { KeyObject } from 'node:crypto'
 import simConfig from '../src/config/default-sim-config.json' with { type: 'json' }
 
 export interface ChunkUpload {
@@ -8,6 +9,7 @@ export interface ChunkUpload {
 export interface OtaSession {
   total: number
   sha256: string
+  signature: Buffer
   parts: Buffer[]
   written: number
 }
@@ -20,12 +22,13 @@ export interface MockDashState {
   upload: ChunkUpload | null
   ota: OtaSession | null
   firmwareVersion: string
+  signingKey: KeyObject
 }
 
 const DEFAULT_CAN_SPEED_KBPS = 500
 const DEFAULT_FIRMWARE_VERSION = '0.20.0'
 
-export const freshState = (): MockDashState => ({
+export const freshState = (signingKey: KeyObject): MockDashState => ({
   config: structuredClone(simConfig),
   deviceConfig: { can_speed_kbps: DEFAULT_CAN_SPEED_KBPS },
   isDay: false,
@@ -33,6 +36,7 @@ export const freshState = (): MockDashState => ({
   upload: null,
   ota: null,
   firmwareVersion: DEFAULT_FIRMWARE_VERSION,
+  signingKey,
 })
 
 export const reboot = (state: MockDashState): void => {

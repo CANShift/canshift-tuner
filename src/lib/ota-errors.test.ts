@@ -5,6 +5,8 @@ const FIRMWARE_CODES = [
   'bad_args',
   'no_ota_partition',
   'size_out_of_range',
+  'ota_unsigned',
+  'ota_bad_signature',
   'ota_begin_failed',
   'begin_failed',
   'sha_engine_failed',
@@ -35,6 +37,11 @@ describe('otaErrorText', () => {
   it('explains a known esp_err detail and keeps an unknown one for bug reports', () => {
     expect(otaErrorText('ota_end_failed', '0x1503')).toMatch(/not a valid ESP32 app/)
     expect(otaErrorText('ota_end_failed', '0x9999')).toContain('0x9999')
+  })
+
+  it('points an unsigned or badly signed image at the release .sig', () => {
+    expect(otaErrorText('ota_unsigned')).toMatch(/unsigned.*\.sig/)
+    expect(otaErrorText('ota_bad_signature')).toMatch(/signature does not match/)
   })
 
   it('ignores an empty detail', () => {

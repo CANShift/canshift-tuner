@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto'
+import { createHash, verify } from 'node:crypto'
 import { fail, ok, okThenReboot, type Command, type Outcome } from './mock-dash-replies'
 import type { MockDashState, OtaSession } from './mock-dash-state'
 
@@ -9,6 +9,7 @@ const APP_DESC_OFFSET = 0x20
 const APP_VERSION_OFFSET = APP_DESC_OFFSET + 16
 const APP_TEXT_BYTES = 32
 const SHA256_HEX = /^[0-9a-f]{64}$/i
+const SIGNATURE_BYTES = 64
 
 const failWritten = (message: string, written: number): Outcome => {
   const outcome = fail(message)
@@ -24,12 +25,18 @@ const imageVersion = (image: Buffer): string => {
   return field.subarray(0, end === -1 ? field.length : end).toString('utf8')
 }
 
+const signatureOf = (command: Command): Buffer | null =>
+  typeof command.sig === 'string' ? Buffer.from(command.sig, 'base64') : null
+
 export const otaBegin = (command: Command, state: MockDashState): Outcome => {
   const total = Number(command.total)
   const sha256 = String(command.sha256 ?? '')
+  const signature = signatureOf(command)
   if (!(total > 0) || !SHA256_HEX.test(sha256)) return fail('bad_args')
   if (total > SLOT_BYTES) return fail('size_out_of_range')
-  state.ota = { total, sha256: sha256.toLowerCase(), parts: [], written: 0 }
+  if (signature === null) return fail('ota_unsigned')
+  if (signature.length !== SIGNATURE_BYTES) return fail('ota_bad_signature')
+  state.ota = { total, sha256: sha256.toLowerCase(), signature, parts: [], written: 0 }
   return ok()
 }
 
@@ -57,6 +64,7 @@ const commit = (session: OtaSession, state: MockDashState): Outcome => {
   const image = Buffer.concat(session.parts)
   const actual = createHash('sha256').update(image).digest('hex')
   if (actual !== session.sha256) return fail('sha256_mismatch')
+  if (!verify(null, image, state.signingKey, session.signature)) return fail('ota_bad_signature')
   state.firmwareVersion = imageVersion(image)
   return okThenReboot({ restart: true })
 }
