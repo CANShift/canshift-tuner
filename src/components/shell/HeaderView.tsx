@@ -45,7 +45,6 @@ export interface HeaderViewProps {
   status: HeaderStatus
   configNameField: ReactNode
   onDisconnect?: (() => void) | undefined
-  themeToggle: ReactNode
   saveButton: ReactNode
   burnButton: ReactNode
   LinkComponent: ComponentType<HeaderLinkProps>
@@ -120,7 +119,6 @@ export const HeaderView = ({
   status,
   configNameField,
   onDisconnect,
-  themeToggle,
   saveButton,
   burnButton,
   LinkComponent,
@@ -131,7 +129,6 @@ export const HeaderView = ({
     <HeaderTabs activePath={activePath} gatingActive={gatingActive} LinkComponent={LinkComponent} />
     <div className="flex-1" />
     <HeaderStatusChip status={status} />
-    {themeToggle}
     {onDisconnect && <DisconnectButton onDisconnect={onDisconnect} />}
     {saveButton}
     {burnButton}

@@ -13,13 +13,9 @@ const HEADER = [
   '',
 ].join('\n')
 
-const buildCss = (cssVars, lightCssVars) => {
+const buildCss = (cssVars) => {
   const lines = [':root {']
   for (const [name, value] of Object.entries(cssVars)) {
-    lines.push(`  ${name}: ${value};`)
-  }
-  lines.push('}', '', ":root[data-theme='light'] {")
-  for (const [name, value] of Object.entries(lightCssVars)) {
     lines.push(`  ${name}: ${value};`)
   }
   lines.push('}', '')
@@ -43,7 +39,6 @@ const main = async () => {
     FONT_TOKENS,
     tokensToCssVars,
     brandTokensToCssVars,
-    brandLightThemeCssVars,
     fontTokensToCssVars,
   } = await import('@canshift/core')
   const cssVars = {
@@ -51,7 +46,7 @@ const main = async () => {
     ...brandTokensToCssVars(BRAND_TOKENS),
     ...fontTokensToCssVars(FONT_TOKENS),
   }
-  const css = buildCss(cssVars, brandLightThemeCssVars(BRAND_TOKENS))
+  const css = buildCss(cssVars)
   const changed = writeIfChanged(OUTPUT_PATH, css)
   const rel = OUTPUT_PATH.replace(`${PKG_ROOT}/`, '')
   console.log(changed ? `[tokens:gen] wrote ${rel}` : `[tokens:gen] up to date — ${rel}`)

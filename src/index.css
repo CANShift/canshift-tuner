@@ -11,11 +11,6 @@
   --brand-accent-700: 10 100% 76%;
 }
 
-:root[data-theme='light'] {
-  --brand-accent-100: 11 100% 97%;
-  --brand-accent-700: 8 100% 34%;
-}
-
 @font-face {
   font-family: Archivo;
   font-weight: 400 800;

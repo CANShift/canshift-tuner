@@ -14,28 +14,29 @@ forms; the canvas follows [the dash design system](DASH_DESIGN_SYSTEM.md).
 Defined in [`src/styles/ui-tokens.css`](../../src/styles/ui-tokens.css), exposed to Tailwind as the `ui`
 colour family in `tailwind.config.ts`. Never hard-code these values in a component.
 
-## Themed
+## Surfaces
 
-Dark is the default on `:root`; light overrides on `:root[data-theme='light']`.
+The tuner is dark only: one value per token, on `:root`. Day and night belong to the dash's own
+themes, previewed on the canvas, not to the app.
 
-| Mockup         | CSS variable       | Tailwind         | Light                 | Dark                     | Use                                |
-| -------------- | ------------------ | ---------------- | --------------------- | ------------------------ | ---------------------------------- |
-| `--t-bg`       | `--ui-bg`          | `ui-bg`          | `#f3f2f2`             | `#17161a`                | page ground                        |
-| `--t-panel`    | `--ui-panel`       | `ui-panel`       | `#eae9e9`             | `#201f24`                | hover, inset panels, canvas ground |
-| `--t-ink`      | `--ui-ink`         | `ui-ink`         | `#201e1d`             | `#f3f2f2`                | text, borders, 2 px rules          |
-| `--t-muted`    | `--ui-muted`       | `ui-muted`       | `#605d5d`             | `#a09da3`                | labels, secondary text             |
-| `--t-faint`    | `--ui-faint`       | `ui-faint`       | `#8a8785`             | `#7a777d`                | tertiary, disabled text            |
-| `--t-line`     | `--ui-line`        | `ui-line`        | `rgb(32 30 29 / .16)` | `rgb(243 242 242 / .16)` | 1 px separators                    |
-| `--t-line2`    | `--ui-line-strong` | `ui-line-strong` | `rgb(32 30 29 / .3)`  | `rgb(243 242 242 / .32)` | input borders                      |
-| `--t-rule`     | `--ui-rule`        | `ui-rule`        | `#201e1d`             | `#f3f2f2`                | 2 px rules                         |
-| `--t-hdr-bg`   | `--ui-header-bg`   | `ui-header-bg`   | `#201e1d`             | `#0d0d0f`                | header + footer ground             |
-| `--t-hdr-ink`  | `--ui-header-ink`  | `ui-header-ink`  | `#f3f2f2`             | `#f3f2f2`                | header text                        |
-| `--t-hdr-dim`  | `--ui-header-dim`  | `ui-header-dim`  | `#b9b6b4`             | `#86838a`                | header idle text                   |
-| `--t-hdr-line` | `--ui-header-line` | `ui-header-line` | `#3a3736`             | `#2b2a30`                | header separators                  |
+| Mockup         | CSS variable       | Tailwind         | Value                    | Use                                |
+| -------------- | ------------------ | ---------------- | ------------------------ | ---------------------------------- |
+| `--t-bg`       | `--ui-bg`          | `ui-bg`          | `#17161a`                | page ground                        |
+| `--t-panel`    | `--ui-panel`       | `ui-panel`       | `#201f24`                | hover, inset panels, canvas ground |
+| `--t-ink`      | `--ui-ink`         | `ui-ink`         | `#f3f2f2`                | text, borders, 2 px rules          |
+| `--t-muted`    | `--ui-muted`       | `ui-muted`       | `#a09da3`                | labels, secondary text             |
+| `--t-faint`    | `--ui-faint`       | `ui-faint`       | `#7a777d`                | tertiary, disabled text            |
+| `--t-line`     | `--ui-line`        | `ui-line`        | `rgb(243 242 242 / .16)` | 1 px separators                    |
+| `--t-line2`    | `--ui-line-strong` | `ui-line-strong` | `rgb(243 242 242 / .32)` | input borders                      |
+| `--t-rule`     | `--ui-rule`        | `ui-rule`        | `#f3f2f2`                | 2 px rules                         |
+| `--t-hdr-bg`   | `--ui-header-bg`   | `ui-header-bg`   | `#0d0d0f`                | header + footer ground             |
+| `--t-hdr-ink`  | `--ui-header-ink`  | `ui-header-ink`  | `#f3f2f2`                | header text                        |
+| `--t-hdr-dim`  | `--ui-header-dim`  | `ui-header-dim`  | `#86838a`                | header idle text                   |
+| `--t-hdr-line` | `--ui-header-line` | `ui-header-line` | `#2b2a30`                | header separators                  |
 
 ## Fixed
 
-Identical in both themes. There is no thirteenth colour.
+Accents and states. There is no thirteenth colour.
 
 | CSS variable        | Tailwind          | Value     | Use                                              |
 | ------------------- | ----------------- | --------- | ------------------------------------------------ |

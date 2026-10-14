@@ -7,8 +7,6 @@ import { BurnButton as UiBurnButton, BurnSuccessPill } from './BurnButton'
 import { useConnectionStore } from '../../stores/connection.store'
 import { useDashboardStore } from '../../stores/dashboard.store'
 import { useDeviceStore } from '../../stores/device.store'
-import { useThemeStore } from '../../stores/theme.store'
-import { ThemeToggleButton } from './ThemeToggleButton'
 import { useProjectStore } from '../../stores/project/project.store'
 import { useBurnDashboard } from '../../hooks/useBurnDashboard'
 import { burnLabel, burnTitle } from '../../lib/burn-verdict'
@@ -21,56 +19,56 @@ const HeaderLink = ({ to, className, children, ...rest }: HeaderLinkProps) => (
   </Link>
 )
 
-const Header = () => {
-  const status = useConnectionStore((s) => s.status)
-  const disconnect = useConnectionStore((s) => s.disconnect)
-  const simulationMode = useDeviceStore((s) => s.simulationMode)
-  const exitSimulation = useDeviceStore((s) => s.exitSimulation)
+const HeaderConfigName = () => {
   const configName = useDashboardStore((s) => s.config?.name ?? null)
   const activeProjectId = useProjectStore((s) => s.activeProjectId)
   const renameProject = useProjectStore((s) => s.renameProject)
-  const saveActiveProject = useProjectStore((s) => s.saveActiveProject)
-  const location = useLocation()
-
-  const live = status === 'connected' || status === 'reconnecting'
-  const resolvedStatus: HeaderStatus = simulationMode ? 'simulation' : status
-
-  const handleDisconnect = () => {
-    if (simulationMode) {
-      exitSimulation()
-      return
-    }
-    disconnect()
-  }
-
+  if (configName === null || activeProjectId === null) return null
   return (
-    <HeaderView
-      activePath={location.pathname}
-      gatingActive={!live && !simulationMode}
-      status={resolvedStatus}
-      configNameField={
-        configName !== null && activeProjectId !== null ? (
-          <ConfigNameField
-            name={configName}
-            onCommit={(name) => {
-              renameProject(activeProjectId, name)
-            }}
-          />
-        ) : null
-      }
-      themeToggle={<ThemeToggle />}
-      saveButton={<SaveButton disabled={configName === null} onSave={saveActiveProject} />}
-      burnButton={<BurnButton />}
-      {...(live || simulationMode ? { onDisconnect: handleDisconnect } : {})}
-      LinkComponent={HeaderLink}
+    <ConfigNameField
+      name={configName}
+      onCommit={(name) => {
+        renameProject(activeProjectId, name)
+      }}
     />
   )
 }
 
-const ThemeToggle = () => {
-  const theme = useThemeStore((s) => s.theme)
-  const toggleTheme = useThemeStore((s) => s.toggleTheme)
-  return <ThemeToggleButton theme={theme} onToggle={toggleTheme} />
+const HeaderSave = () => {
+  const hasConfig = useDashboardStore((s) => s.config !== null)
+  const saveActiveProject = useProjectStore((s) => s.saveActiveProject)
+  return <SaveButton disabled={!hasConfig} onSave={saveActiveProject} />
+}
+
+const useDisconnectAction = (): (() => void) | null => {
+  const status = useConnectionStore((s) => s.status)
+  const disconnect = useConnectionStore((s) => s.disconnect)
+  const simulationMode = useDeviceStore((s) => s.simulationMode)
+  const exitSimulation = useDeviceStore((s) => s.exitSimulation)
+  if (simulationMode) return exitSimulation
+  const live = status === 'connected' || status === 'reconnecting'
+  return live ? disconnect : null
+}
+
+const Header = () => {
+  const status = useConnectionStore((s) => s.status)
+  const simulationMode = useDeviceStore((s) => s.simulationMode)
+  const location = useLocation()
+  const onDisconnect = useDisconnectAction()
+  const resolvedStatus: HeaderStatus = simulationMode ? 'simulation' : status
+
+  return (
+    <HeaderView
+      activePath={location.pathname}
+      gatingActive={onDisconnect === null}
+      status={resolvedStatus}
+      configNameField={<HeaderConfigName />}
+      saveButton={<HeaderSave />}
+      burnButton={<BurnButton />}
+      {...(onDisconnect === null ? {} : { onDisconnect })}
+      LinkComponent={HeaderLink}
+    />
+  )
 }
 
 const useBurnSuccessAutoClear = (): void => {
