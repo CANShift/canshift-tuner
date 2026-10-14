@@ -35,52 +35,65 @@ export const serializeAutosave = (state: AutosaveSource, savedAt: number): strin
   return JSON.stringify(payload)
 }
 
-export const parseAutosave = (raw: string): AutosavePayload | null => {
-  let outer: unknown
+const parseRecord = (raw: string): Record<string, unknown> | null => {
   try {
-    outer = JSON.parse(raw)
+    const parsed: unknown = JSON.parse(raw)
+    return typeof parsed === 'object' && parsed !== null
+      ? (parsed as Record<string, unknown>)
+      : null
   } catch {
     return null
   }
-  if (typeof outer !== 'object' || outer === null) return null
-  const candidate = outer as Record<string, unknown>
-  if (typeof candidate.savedAt !== 'number') return null
+}
 
-  let migrated: Record<string, unknown>
+const migrated = (config: unknown): Record<string, unknown> | null => {
   try {
-    migrated = migrateConfig(
-      candidate.config as Record<string, unknown>,
-      CURRENT_SCHEMA_VERSION
-    ).config
+    return migrateConfig(config as Record<string, unknown>, CURRENT_SCHEMA_VERSION).config
   } catch {
     return null
   }
-  const parsed = DashboardConfigSchema.safeParse(migrated)
-  if (!parsed.success) return null
-  const config = parsed.data as DashboardConfig
+}
 
+const validConfig = (config: unknown): DashboardConfig | null => {
+  const parsed = DashboardConfigSchema.safeParse(migrated(config))
+  return parsed.success ? (parsed.data as DashboardConfig) : null
+}
+
+type RestoredSelection = Pick<
+  AutosavePayload,
+  'selectedPageId' | 'selectedWidgetId' | 'selectedWidgetIds'
+>
+
+const knownId = (value: unknown, known: ReadonlySet<string>): value is string =>
+  typeof value === 'string' && known.has(value)
+
+const restoreSelection = (
+  candidate: Record<string, unknown>,
+  config: DashboardConfig
+): RestoredSelection => {
   const pageIds = new Set(config.pages.map((p) => p.id))
   const widgetIds = new Set(config.pages.flatMap((p) => p.widgets.map((w) => w.id)))
-  const selectedPageId =
-    typeof candidate.selectedPageId === 'string' && pageIds.has(candidate.selectedPageId)
-      ? candidate.selectedPageId
-      : (config.pages[0]?.id ?? null)
-  const selectedWidgetId =
-    typeof candidate.selectedWidgetId === 'string' && widgetIds.has(candidate.selectedWidgetId)
-      ? candidate.selectedWidgetId
-      : null
-  const selectedWidgetIds = Array.isArray(candidate.selectedWidgetIds)
-    ? candidate.selectedWidgetIds.filter(
-        (id): id is string => typeof id === 'string' && widgetIds.has(id)
-      )
-    : []
+  const { selectedPageId, selectedWidgetId, selectedWidgetIds } = candidate
+  return {
+    selectedPageId: knownId(selectedPageId, pageIds)
+      ? selectedPageId
+      : (config.pages[0]?.id ?? null),
+    selectedWidgetId: knownId(selectedWidgetId, widgetIds) ? selectedWidgetId : null,
+    selectedWidgetIds: Array.isArray(selectedWidgetIds)
+      ? selectedWidgetIds.filter((id): id is string => knownId(id, widgetIds))
+      : [],
+  }
+}
 
+export const parseAutosave = (raw: string): AutosavePayload | null => {
+  const candidate = parseRecord(raw)
+  if (candidate === null || typeof candidate.savedAt !== 'number') return null
+  const config = validConfig(candidate.config)
+  if (config === null) return null
   return {
     config,
     isDirty: candidate.isDirty === true,
-    selectedPageId,
-    selectedWidgetId,
-    selectedWidgetIds,
+    ...restoreSelection(candidate, config),
     savedAt: candidate.savedAt,
   }
 }
@@ -102,73 +115,73 @@ interface AutosaveStore {
   subscribe: (listener: () => void) => () => void
 }
 
-export const startAutosave = (store: AutosaveStore): (() => void) => {
-  if (typeof window === 'undefined') return () => {}
+const snapshotOf = (store: AutosaveStore): AutosaveSource => {
+  const s = store.getState()
+  return {
+    config: s.config,
+    isDirty: s.isDirty,
+    selectedPageId: s.selectedPageId,
+    selectedWidgetId: s.selectedWidgetId,
+    selectedWidgetIds: s.selectedWidgetIds,
+  }
+}
 
+const sameSnapshot = (a: AutosaveSource | null, b: AutosaveSource): boolean =>
+  a !== null &&
+  a.config === b.config &&
+  a.selectedPageId === b.selectedPageId &&
+  a.selectedWidgetId === b.selectedWidgetId &&
+  a.selectedWidgetIds === b.selectedWidgetIds
+
+interface AutosaveWriter {
+  schedule: () => void
+  flush: () => void
+  cancel: () => void
+}
+
+const createWriter = (store: AutosaveStore): AutosaveWriter => {
   let timer: number | null = null
   let lastWritten: AutosaveSource | null = null
-
-  const snapshot = (): AutosaveSource => {
-    const s = store.getState()
-    return {
-      config: s.config,
-      isDirty: s.isDirty,
-      selectedPageId: s.selectedPageId,
-      selectedWidgetId: s.selectedWidgetId,
-      selectedWidgetIds: s.selectedWidgetIds,
-    }
+  const cancel = () => {
+    if (timer !== null) window.clearTimeout(timer)
+    timer = null
   }
-
-  const sameAsWritten = (s: AutosaveSource): boolean =>
-    lastWritten !== null &&
-    lastWritten.config === s.config &&
-    lastWritten.selectedPageId === s.selectedPageId &&
-    lastWritten.selectedWidgetId === s.selectedWidgetId &&
-    lastWritten.selectedWidgetIds === s.selectedWidgetIds
-
   const write = () => {
-    const s = snapshot()
-    if (sameAsWritten(s)) return
+    const snapshot = snapshotOf(store)
     const savedAt = Date.now()
-    const raw = serializeAutosave(s, savedAt)
-    if (raw === null) return
-    if (!writeItem(AUTOSAVE_KEY, raw)) return
-    lastWritten = s
+    const raw = sameSnapshot(lastWritten, snapshot) ? null : serializeAutosave(snapshot, savedAt)
+    if (raw === null || !writeItem(AUTOSAVE_KEY, raw)) return
+    lastWritten = snapshot
     store.getState().markAutosaved(savedAt)
   }
-
-  const scheduleWrite = () => {
-    if (sameAsWritten(snapshot())) return
-    if (timer !== null) window.clearTimeout(timer)
+  const schedule = () => {
+    if (sameSnapshot(lastWritten, snapshotOf(store))) return
+    cancel()
     timer = window.setTimeout(() => {
       timer = null
       write()
     }, AUTOSAVE_DEBOUNCE_MS)
   }
-
   const flush = () => {
-    if (timer !== null) {
-      window.clearTimeout(timer)
-      timer = null
-    }
+    cancel()
     write()
   }
+  return { schedule, flush, cancel }
+}
 
+export const startAutosave = (store: AutosaveStore): (() => void) => {
+  if (typeof window === 'undefined') return () => undefined
+  const writer = createWriter(store)
   const onVisibilityChange = () => {
-    if (document.visibilityState === 'hidden') flush()
+    if (document.visibilityState === 'hidden') writer.flush()
   }
-
-  const unsubscribe = store.subscribe(scheduleWrite)
-  window.addEventListener('beforeunload', flush)
+  const unsubscribe = store.subscribe(writer.schedule)
+  window.addEventListener('beforeunload', writer.flush)
   window.addEventListener('visibilitychange', onVisibilityChange)
-
   return () => {
     unsubscribe()
-    if (timer !== null) {
-      window.clearTimeout(timer)
-      timer = null
-    }
-    window.removeEventListener('beforeunload', flush)
+    writer.cancel()
+    window.removeEventListener('beforeunload', writer.flush)
     window.removeEventListener('visibilitychange', onVisibilityChange)
   }
 }

@@ -1,5 +1,6 @@
 import type { DashboardConfig } from '@canshift/core'
 import { DEFAULT_UNIT_SYSTEM, defaultThemePreset } from '@canshift/core'
+import type { ScreenProfileId, UnitSystem } from '@canshift/core'
 import { DEFAULT_SIM_CONFIG } from '../../config/default-sim-config'
 import { pushHistory } from './helpers'
 import type {
@@ -20,90 +21,68 @@ const applyLoadedConfig = (s: DashboardState, config: DashboardConfig): void => 
   s.pendingDeviceConfig = null
 }
 
+type LoadOutcome = LoadFromDeviceOrDemoResult
+
+const loadOutcome = (s: DashboardState, deviceConfig: DashboardConfig | null): LoadOutcome => {
+  if (deviceConfig === null) return s.config === null ? 'demo' : 'kept-edits'
+  return s.config !== null && s.isDirty ? 'staged' : 'device'
+}
+
+const LOADERS: Record<
+  LoadOutcome,
+  (s: DashboardState, deviceConfig: DashboardConfig | null) => void
+> = {
+  staged: (s, deviceConfig) => {
+    s.pendingDeviceConfig = deviceConfig
+  },
+  device: (s, deviceConfig) => {
+    if (deviceConfig) applyLoadedConfig(s, deviceConfig)
+  },
+  demo: (s) => applyLoadedConfig(s, structuredClone(DEFAULT_SIM_CONFIG)),
+  'kept-edits': () => undefined,
+}
+
+const setTargetProfileIn = (s: DashboardState, id: ScreenProfileId): void => {
+  if (!s.config || s.config.targetProfile === id) return
+  pushHistory(s, 'Changed target screen')
+  s.config.targetProfile = id
+  s.isDirty = true
+}
+
+const setUnitsIn = (s: DashboardState, units: UnitSystem): void => {
+  if (!s.config || (s.config.units ?? DEFAULT_UNIT_SYSTEM) === units) return
+  pushHistory(s, 'Changed units')
+  s.config.units = units
+  s.isDirty = true
+}
+
+const acceptPendingIn = (s: DashboardState): void => {
+  if (s.pendingDeviceConfig) applyLoadedConfig(s, s.pendingDeviceConfig)
+}
+
 export const createLifecycleSlice: SliceCreator<LifecycleSlice> = (set) => ({
   config: null,
   isDirty: false,
   pendingDeviceConfig: null,
   lastSavedAt: null,
-
-  setConfig: (config) => {
-    set((s) => {
-      applyLoadedConfig(s, { ...config, theme: config.theme ?? defaultThemePreset() })
-    })
-  },
-
-  setTargetProfile: (id) => {
-    set((s) => {
-      if (!s.config) return
-      if (s.config.targetProfile === id) return
-      pushHistory(s, 'Changed target screen')
-      s.config.targetProfile = id
-      s.isDirty = true
-    })
-  },
-
-  setUnits: (units) => {
-    set((s) => {
-      if (!s.config) return
-      if ((s.config.units ?? DEFAULT_UNIT_SYSTEM) === units) return
-      pushHistory(s, 'Changed units')
-      s.config.units = units
-      s.isDirty = true
-    })
-  },
-
+  setConfig: (config) =>
+    set((s) => applyLoadedConfig(s, { ...config, theme: config.theme ?? defaultThemePreset() })),
+  setTargetProfile: (id) => set((s) => setTargetProfileIn(s, id)),
+  setUnits: (units) => set((s) => setUnitsIn(s, units)),
   loadFromDeviceOrDemo: (deviceConfig) => {
-    let outcome: LoadFromDeviceOrDemoResult = 'kept-edits'
+    let outcome: LoadOutcome = 'kept-edits'
     set((s) => {
-      if (deviceConfig) {
-        if (s.config !== null && s.isDirty) {
-          s.pendingDeviceConfig = deviceConfig
-          outcome = 'staged'
-          return
-        }
-        applyLoadedConfig(s, deviceConfig)
-        outcome = 'device'
-        return
-      }
-      if (s.config === null) {
-        applyLoadedConfig(s, structuredClone(DEFAULT_SIM_CONFIG))
-        outcome = 'demo'
-        return
-      }
-      outcome = 'kept-edits'
+      outcome = loadOutcome(s, deviceConfig)
+      LOADERS[outcome](s, deviceConfig)
     })
     return outcome
   },
-
-  acceptPendingDeviceConfig: () => {
-    set((s) => {
-      const pending = s.pendingDeviceConfig
-      if (!pending) return
-      applyLoadedConfig(s, pending)
-    })
-  },
-
-  dismissPendingDeviceConfig: () => {
-    set((s) => {
-      s.pendingDeviceConfig = null
-    })
-  },
-
-  markAutosaved: (ts) => {
-    set((s) => {
-      s.lastSavedAt = ts
-    })
-  },
-
-  markPushed: () => {
-    set((s) => {
-      s.isDirty = false
-    })
-  },
-
-  markDirty: () => {
+  acceptPendingDeviceConfig: () => set(acceptPendingIn),
+  dismissPendingDeviceConfig: () => set({ pendingDeviceConfig: null }),
+  markAutosaved: (ts) => set({ lastSavedAt: ts }),
+  markPushed: () => set({ isDirty: false }),
+  markDirty: () =>
     set((s) => {
       if (s.config) s.isDirty = true
-    })
-  },
+    }),
 })
