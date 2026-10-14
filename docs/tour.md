@@ -8,7 +8,7 @@ Until a dash is connected, the Tuner shows a connect panel. Served by the dash, 
 
 - **Dash** (`/dash`) — the page strip, the canvas and the selected widget's properties. The canvas renders each page as the dash does. See [Layout editor](layout-editor.md) and, for the workflow, [Widgets & pages](configure/widgets.md). The dash theme (presets and the day/night preview) folds out under the widget list, and a CLI console for the wire protocol from the bottom of the tab.
 - **Vehicle** (`/vehicle`) — three sections:
-  - **Profile & signals** — pick an ECU profile, edit CAN signals or OBD-II polling, scan the bus, and analyse unknown frames. See [ECU profiles](configure/ecu-profiles.md).
+  - **Profile & signals** — pick an ECU profile, edit CAN signals (grouped by CAN frame, with their live value and the pages that use them; **Hide unused** trims the list) or OBD-II polling, scan the bus, and analyse unknown frames. Profile XML imports and downloads from the **XML** menu. See [ECU profiles](configure/ecu-profiles.md).
   - **Live values** — every decoded signal with its current value, a plot, and CSV recording. See [Live data](configure/live-data.md).
   - **CAN bus** — the bus speed the dash listens at (125, 250, 500 or 1000 kbit/s), read from the dash and written back to it. Writing it reboots the dash.
 - **Device** (`/device`) — settings (panel model, units, brightness) on one side, the board profile and its definition, and config backup and restore on the other.

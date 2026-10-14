@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
+import { Checkbox } from '@/components/ui/checkbox'
 
 export type SignalSource = 'can' | 'obd2'
 
@@ -15,12 +16,15 @@ export interface ProfileGroup {
 }
 
 export interface SignalsToolbarProps {
-  source: SignalSource
-  onSource: (source: SignalSource) => void
   groups: readonly ProfileGroup[]
   profileKey: string
   onProfile: (key: string) => void
-  meta: string
+  source: SignalSource
+  onSource: (source: SignalSource) => void
+  usedCount: number
+  totalCount: number
+  hideUnused: boolean
+  onHideUnused: (hide: boolean) => void
   filter: string
   onFilter: (filter: string) => void
   actions: ReactNode
@@ -29,79 +33,15 @@ export interface SignalsToolbarProps {
 const SOURCE_LABELS: Record<SignalSource, string> = { can: 'CAN', obd2: 'OBD-II' }
 const SOURCES = Object.keys(SOURCE_LABELS) as SignalSource[]
 
-export const SignalsToolbar = ({
-  source,
-  onSource,
-  groups,
-  profileKey,
-  onProfile,
-  meta,
-  filter,
-  onFilter,
-  actions,
-}: SignalsToolbarProps) => (
-  <div className="flex shrink-0 flex-wrap items-center gap-2.5 border-b-2 border-ui-rule px-3 py-2 md:h-[54px] md:flex-nowrap md:px-6 md:py-0 min-[1180px]:gap-4">
-    <div className="flex gap-px">
-      {SOURCES.map((value) => (
-        <button
-          key={value}
-          type="button"
-          onClick={() => {
-            onSource(value)
-          }}
-          className={cn(segment({ active: value === source }))}
-        >
-          {SOURCE_LABELS[value]}
-        </button>
-      ))}
-    </div>
-
-    <select
-      value={profileKey}
-      onChange={(e) => {
-        onProfile(e.target.value)
-      }}
-      aria-label="ECU profile"
-      className="max-w-[150px] border border-ui-ink bg-ui-bg py-2 pl-2.5 pr-[26px] font-mono text-[13px] font-bold text-ui-ink min-[1180px]:max-w-[220px]"
-    >
-      {groups.map((group) => (
-        <optgroup key={group.label} label={group.label}>
-          {group.options.map((option) => (
-            <option key={option.key} value={option.key}>
-              {option.label}
-            </option>
-          ))}
-        </optgroup>
-      ))}
-    </select>
-
-    <span className="hidden whitespace-nowrap font-mono text-[11.5px] text-ui-muted min-[1240px]:inline">
-      {meta}
-    </span>
-
-    <input
-      value={filter}
-      onChange={(e) => {
-        onFilter(e.target.value)
-      }}
-      placeholder="filter"
-      aria-label="Filter signals"
-      className="ml-auto w-28 border border-ui-ink bg-ui-bg px-2.5 py-2 font-mono text-[13px] text-ui-ink outline-none min-[1180px]:w-40"
-    />
-
-    {actions}
-  </div>
-)
+const BAR =
+  'flex min-h-[54px] shrink-0 flex-wrap items-center gap-x-3 gap-y-2 border-b-2 border-ui-rule px-3 py-2 md:px-6'
 
 const segment = cva(
-  [
-    'cursor-pointer whitespace-nowrap border border-ui-ink px-[18px] py-[9px]',
-    'text-[12.5px] font-bold tracking-[0.06em]',
-  ].join(' '),
+  'cursor-pointer whitespace-nowrap border border-ui-ink px-3.5 py-[7px] text-[12.5px]',
   {
     variants: {
       active: {
-        true: 'bg-ui-rule text-ui-bg',
+        true: 'bg-ui-rule font-bold text-ui-bg',
         false: 'bg-transparent text-ui-ink hover:bg-ui-panel',
       },
     },
@@ -109,31 +49,99 @@ const segment = cva(
   }
 )
 
-const ACTION_BASE = 'whitespace-nowrap border px-4 py-2 text-left text-[12.5px] font-bold'
-const ACTION_ENABLED = 'cursor-pointer border-ui-ink bg-transparent text-ui-ink hover:bg-ui-panel'
-const ACTION_DISABLED = 'cursor-not-allowed border-ui-line bg-transparent text-ui-faint'
+type ProfileSelectProps = Pick<SignalsToolbarProps, 'groups' | 'profileKey' | 'onProfile'>
 
-export interface SignalsFileActionProps {
-  accept: string
-  onFile: (file: File) => void
-  children: ReactNode
-}
+const ProfileSelect = ({ groups, profileKey, onProfile }: ProfileSelectProps) => (
+  <select
+    value={profileKey}
+    onChange={(e) => {
+      onProfile(e.target.value)
+    }}
+    aria-label="ECU profile"
+    className="max-w-[220px] border border-ui-ink bg-ui-bg py-[7px] pl-2.5 pr-[26px] text-[13px] font-bold text-ui-ink"
+  >
+    {groups.map((group) => (
+      <optgroup key={group.label} label={group.label}>
+        {group.options.map((option) => (
+          <option key={option.key} value={option.key}>
+            {option.label}
+          </option>
+        ))}
+      </optgroup>
+    ))}
+  </select>
+)
 
-export const SignalsFileAction = ({ accept, onFile, children }: SignalsFileActionProps) => (
-  <label className={cn(ACTION_BASE, ACTION_ENABLED)}>
-    {children}
-    <input
-      type="file"
-      accept={accept}
-      className="hidden"
-      onChange={(e) => {
-        const file = e.target.files?.[0]
-        if (file) onFile(file)
-        e.target.value = ''
+const SourceSwitch = ({ source, onSource }: Pick<SignalsToolbarProps, 'source' | 'onSource'>) => (
+  <div className="flex gap-px">
+    {SOURCES.map((value) => (
+      <button
+        key={value}
+        type="button"
+        aria-pressed={value === source}
+        onClick={() => {
+          onSource(value)
+        }}
+        className={cn(segment({ active: value === source }))}
+      >
+        {SOURCE_LABELS[value]}
+      </button>
+    ))}
+  </div>
+)
+
+type HideUnusedProps = Pick<SignalsToolbarProps, 'hideUnused' | 'onHideUnused'>
+
+const HideUnused = ({ hideUnused, onHideUnused }: HideUnusedProps) => (
+  <label className="flex cursor-pointer items-center gap-2 text-[12.5px] text-ui-ink">
+    <Checkbox
+      checked={hideUnused}
+      onCheckedChange={(checked) => {
+        onHideUnused(checked === true)
       }}
     />
+    Hide unused
   </label>
 )
+
+const FilterInput = ({ filter, onFilter }: Pick<SignalsToolbarProps, 'filter' | 'onFilter'>) => (
+  <input
+    value={filter}
+    onChange={(e) => {
+      onFilter(e.target.value)
+    }}
+    placeholder="Filter"
+    aria-label="Filter signals"
+    className="w-36 border border-ui-ink bg-ui-bg px-2.5 py-[7px] text-[13px] text-ui-ink outline-none md:ml-auto"
+  />
+)
+
+export const SignalsToolbar = (props: SignalsToolbarProps) => (
+  <div className={BAR}>
+    <ProfileSelect
+      groups={props.groups}
+      profileKey={props.profileKey}
+      onProfile={props.onProfile}
+    />
+    <SourceSwitch source={props.source} onSource={props.onSource} />
+    <span className="whitespace-nowrap text-[12.5px] text-ui-muted">
+      {props.usedCount} of {props.totalCount} used
+    </span>
+    <HideUnused hideUnused={props.hideUnused} onHideUnused={props.onHideUnused} />
+    <FilterInput filter={props.filter} onFilter={props.onFilter} />
+    {props.actions}
+  </div>
+)
+
+const ACTION = cva('whitespace-nowrap border px-3.5 py-[7px] text-[12.5px] font-bold', {
+  variants: {
+    disabled: {
+      true: 'cursor-not-allowed border-ui-line bg-transparent text-ui-faint',
+      false: 'cursor-pointer border-ui-ink bg-transparent text-ui-ink hover:bg-ui-panel',
+    },
+  },
+  defaultVariants: { disabled: false },
+})
 
 export interface SignalsActionProps {
   onClick: () => void
@@ -153,8 +161,10 @@ export const SignalsAction = ({
     onClick={onClick}
     disabled={disabled}
     title={title}
-    className={cn(ACTION_BASE, disabled ? ACTION_DISABLED : ACTION_ENABLED)}
+    className={cn(ACTION({ disabled }))}
   >
     {children}
   </button>
 )
+
+export const SIGNALS_ACTION_CLASS = cn(ACTION({ disabled: false }))

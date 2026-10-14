@@ -1,205 +1,180 @@
 import { lazy, Suspense, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import { OBD2_DEFAULT_INTERVAL_MS, OBD2_MODE01_PIDS } from '@canshift/core'
 import { RouteLoading } from '../components/shell/RouteLoading'
-import {
-  SignalsToolbar,
-  SignalsAction,
-  SignalsFileAction,
-  type SignalSource,
-} from '../components/signals/SignalsToolbar'
+import { SignalsToolbar, type SignalSource } from '../components/signals/SignalsToolbar'
+import { SignalsActions } from '../components/signals/SignalsActions'
 import { CanSignalTable } from '../components/signals/CanSignalTable'
 import { BusScanPanel } from '../components/signals/BusScanPanel'
-import { Obd2Table } from '../components/signals/Obd2Table'
 import { ProfileStrip } from '../components/signals/ProfileStrip'
-import { useCanScanner } from '../hooks/useCanScanner'
-import { useDeviceStore } from '../stores/device.store'
-import { formatFrameIdHex, parseHexFrameId } from '../utils/frame-id'
+import { Obd2Pane } from '../components/signals/Obd2Pane'
 import { useSignalStore } from '../stores/signal.store'
 import { useLiveSignals } from '../hooks/useLiveSignals'
 import { useSignalUsage } from '../hooks/useSignalUsage'
-import { CATALOGUE_INDEX } from '../lib/ecu-catalogue'
 import { useProfileChange } from '../hooks/useProfileChange'
 import { useDisplayUnits } from '../hooks/useDisplayUnits'
-import { ecuLabelForKey } from '../utils/ecu-label'
+import { useVisibleFrames } from '../hooks/useVisibleSignals'
+import { useBusScan } from '../hooks/useBusScanPanel'
+import { CATALOGUE_INDEX } from '../lib/ecu-catalogue'
 import { profileGroups } from '../lib/profile-options'
-import { downloadFile } from '../lib/download'
-import {
-  PROFILE_XML_ACCEPT,
-  PROFILE_XML_MIME,
-  profileXmlFilename,
-  serializeProfileXml,
-} from '../lib/profile-xml'
+import { ecuLabelForKey } from '../utils/ecu-label'
+import { formatFrameIdHex } from '../utils/frame-id'
 
 const CanBusRoute = lazy(() => import('./CanBusRoute'))
-const DtcPanel = lazy(() =>
-  import('../components/obd2/DtcPanel').then((m) => ({ default: m.DtcPanel }))
-)
 
-const POLL_INTERVALS = [100, 200, 500, 1000]
 type Pane = SignalSource | 'analysis'
 
-const SignalsRoute = () => {
-  const signals = useSignalStore((s) => s.signals)
+const useProfile = () => {
   const selectedProfileKey = useSignalStore((s) => s.selectedProfileKey)
-  const updateSignal = useSignalStore((s) => s.updateSignal)
-  const values = useLiveSignals()
-  const usage = useSignalUsage()
   const profile = useProfileChange()
-  const units = useDisplayUnits()
-  const scanner = useCanScanner()
-  const connected = useDeviceStore((s) => s.connected)
-  const simulationMode = useDeviceStore((s) => s.simulationMode)
+  const label = ecuLabelForKey(selectedProfileKey, CATALOGUE_INDEX)
+  const groups = useMemo(
+    () => profileGroups(CATALOGUE_INDEX.entries, selectedProfileKey, label),
+    [selectedProfileKey, label]
+  )
+  return { key: selectedProfileKey, label, groups, profile }
+}
 
+const useRenameFrame = () => {
+  const signals = useSignalStore((s) => s.signals)
+  const updateSignal = useSignalStore((s) => s.updateSignal)
+  return (from: string, to: string) => {
+    for (const signal of signals) {
+      if (signal.canFrameId === from) updateSignal(signal.name, { canFrameId: to })
+    }
+  }
+}
+
+const CanPane = ({ filter, hideUnused }: { filter: string; hideUnused: boolean }) => {
+  const signals = useSignalStore((s) => s.signals)
+  const updateSignal = useSignalStore((s) => s.updateSignal)
+  const usage = useSignalUsage()
+  const frames = useVisibleFrames(signals, usage, filter, hideUnused)
+  const values = useLiveSignals()
+  const units = useDisplayUnits()
+  const renameFrame = useRenameFrame()
+  return (
+    <CanSignalTable
+      frames={frames}
+      values={values}
+      usage={usage}
+      units={units}
+      onPatch={updateSignal}
+      onRenameFrame={renameFrame}
+    />
+  )
+}
+
+const ScanResults = () => {
+  const signals = useSignalStore((s) => s.signals)
+  const updateSignal = useSignalStore((s) => s.updateSignal)
+  const { scanner, frames, boundTo } = useBusScan(signals)
+  if (frames.length === 0) return null
+  return (
+    <BusScanPanel
+      frames={frames}
+      totalFrames={scanner.snapshot.totalFrames}
+      signals={signals}
+      boundTo={boundTo}
+      onAssign={(frameId, signalName) => {
+        updateSignal(signalName, { canFrameId: formatFrameIdHex(frameId) })
+      }}
+      onClear={scanner.reset}
+    />
+  )
+}
+
+interface ViewFilter {
+  filter: string
+  hideUnused: boolean
+}
+
+const PANE_BODIES: Record<Pane, (view: ViewFilter) => ReactNode> = {
+  can: (view) => (
+    <>
+      <ScanResults />
+      <CanPane filter={view.filter} hideUnused={view.hideUnused} />
+    </>
+  ),
+  obd2: () => <Obd2Pane />,
+  analysis: () => <CanBusRoute />,
+}
+
+const useScanToggle = (onScanStart: () => void) => {
+  const signals = useSignalStore((s) => s.signals)
+  const scan = useBusScan(signals)
+  const toggle = () => {
+    if (scan.scanning) {
+      void scan.scanner.stop()
+      return
+    }
+    onScanStart()
+    void scan.scanner.start()
+  }
+  return { scanning: scan.scanning, canScan: scan.canScan, toggle }
+}
+
+interface SignalsActionBarProps {
+  pane: Pane
+  onPane: (pane: Pane) => void
+  profile: ReturnType<typeof useProfile>
+}
+
+const SignalsActionBar = ({ pane, onPane, profile }: SignalsActionBarProps) => {
+  const signals = useSignalStore((s) => s.signals)
+  const scan = useScanToggle(() => onPane('can'))
+  const analysing = pane === 'analysis'
+  return (
+    <SignalsActions
+      scanning={scan.scanning}
+      canScan={scan.canScan}
+      analysing={analysing}
+      onToggleScan={scan.toggle}
+      onToggleAnalysis={() => onPane(analysing ? 'can' : 'analysis')}
+      signals={signals}
+      profileLabel={profile.label}
+      onImportXml={profile.profile.importXml}
+    />
+  )
+}
+
+const useUsedCount = () => {
+  const signals = useSignalStore((s) => s.signals)
+  const usage = useSignalUsage()
+  return { used: signals.filter((signal) => usage.has(signal.name)).length, total: signals.length }
+}
+
+const profileStripProps = (change: ReturnType<typeof useProfileChange>) => ({
+  change: change.change,
+  onApply: change.apply,
+  onDismiss: change.dismiss,
+})
+
+const SignalsRoute = () => {
+  const profile = useProfile()
+  const counts = useUsedCount()
   const [pane, setPane] = useState<Pane>('can')
   const [filter, setFilter] = useState('')
-  const [pollIntervalMs, setPollIntervalMs] = useState(OBD2_DEFAULT_INTERVAL_MS)
-
-  const profileLabel = ecuLabelForKey(selectedProfileKey, CATALOGUE_INDEX)
-  const groups = useMemo(
-    () => profileGroups(CATALOGUE_INDEX.entries, selectedProfileKey, profileLabel),
-    [selectedProfileKey, profileLabel]
-  )
-
-  const shown = useMemo(() => {
-    const query = filter.trim().toLowerCase()
-    if (query.length === 0) return signals
-    return signals.filter(
-      (signal) =>
-        signal.name.toLowerCase().includes(query) ||
-        signal.canFrameId.toLowerCase().includes(query) ||
-        signal.unit.toLowerCase().includes(query)
-    )
-  }, [signals, filter])
-
-  const bound = useMemo(
-    () => signals.filter((signal) => usage.has(signal.name)).length,
-    [signals, usage]
-  )
-
-  const scanning = scanner.status === 'running' || scanner.status === 'starting'
-  const canScan = connected && !simulationMode
-  const frames = [...scanner.snapshot.frames.values()].sort((a, b) => a.id - b.id)
-  const boundTo = new Map<number, string>()
-  for (const signal of signals) {
-    const id = parseHexFrameId(signal.canFrameId)
-    if (id >= 0 && !boundTo.has(id)) boundTo.set(id, signal.name)
-  }
-
-  const panes: Record<Pane, ReactNode> = {
-    can: (
-      <CanSignalTable
-        signals={shown}
-        values={values}
-        usage={usage}
-        units={units}
-        onPatch={updateSignal}
-      />
-    ),
-    obd2: (
-      <div className="flex min-h-0 flex-1 flex-col">
-        <Obd2Table
-          signals={signals}
-          values={values}
-          usage={usage}
-          units={units}
-          intervalMs={pollIntervalMs}
-          intervals={POLL_INTERVALS}
-          onInterval={setPollIntervalMs}
-          onTogglePolled={(name, polled) => {
-            const entry = OBD2_MODE01_PIDS.find((pid) => pid.signal === name)
-            if (!entry) return
-            updateSignal(name, {
-              polling: polled ? { mode: 1, pid: entry.pid, intervalMs: pollIntervalMs } : undefined,
-            })
-          }}
-        />
-        <div className="shrink-0 border-t-2 border-ui-rule">
-          <Suspense fallback={<RouteLoading />}>
-            <DtcPanel />
-          </Suspense>
-        </div>
-      </div>
-    ),
-    analysis: <CanBusRoute />,
-  }
-
-  const source: SignalSource = pane === 'obd2' ? 'obd2' : 'can'
+  const [hideUnused, setHideUnused] = useState(false)
 
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-ui-bg">
       <SignalsToolbar
-        source={source}
+        groups={profile.groups}
+        profileKey={profile.key}
+        onProfile={profile.profile.selectKey}
+        source={pane === 'obd2' ? 'obd2' : 'can'}
         onSource={setPane}
-        groups={groups}
-        profileKey={selectedProfileKey}
-        onProfile={profile.selectKey}
-        meta={`${String(bound)} of ${String(signals.length)} bound`}
+        usedCount={counts.used}
+        totalCount={counts.total}
+        hideUnused={hideUnused}
+        onHideUnused={setHideUnused}
         filter={filter}
         onFilter={setFilter}
-        actions={
-          <>
-            <SignalsAction
-              disabled={!canScan}
-              title={canScan ? undefined : 'Plug a dash in — simulation has no bus to listen to.'}
-              onClick={() => {
-                if (scanning) {
-                  void scanner.stop()
-                  return
-                }
-                setPane('can')
-                void scanner.start()
-              }}
-            >
-              {scanning ? 'STOP SCAN' : 'SCAN BUS'}
-            </SignalsAction>
-            <SignalsAction
-              onClick={() => {
-                setPane((current) => (current === 'analysis' ? 'can' : 'analysis'))
-              }}
-              title="Sort, byte histograms and learn mode — for mapping an unknown ECU"
-            >
-              {pane === 'analysis' ? 'Back to signals' : 'Analyse…'}
-            </SignalsAction>
-            <SignalsFileAction
-              accept={PROFILE_XML_ACCEPT}
-              onFile={(file) => {
-                void file.text().then((xml) => {
-                  profile.importXml(file.name, xml)
-                })
-              }}
-            >
-              Import<span className="hidden min-[1180px]:inline"> XML</span>
-            </SignalsFileAction>
-            <SignalsAction
-              onClick={() => {
-                downloadFile(
-                  profileXmlFilename(profileLabel),
-                  PROFILE_XML_MIME,
-                  serializeProfileXml(signals)
-                )
-              }}
-            >
-              Download<span className="hidden min-[1180px]:inline"> XML</span>
-            </SignalsAction>
-          </>
-        }
+        actions={<SignalsActionBar pane={pane} onPane={setPane} profile={profile} />}
       />
-      <ProfileStrip change={profile.change} onApply={profile.apply} onDismiss={profile.dismiss} />
+      <ProfileStrip {...profileStripProps(profile.profile)} />
       <div className="flex min-h-0 flex-1 flex-col">
-        {frames.length > 0 && pane === 'can' && (
-          <BusScanPanel
-            frames={frames}
-            totalFrames={scanner.snapshot.totalFrames}
-            signals={signals}
-            boundTo={boundTo}
-            onAssign={(frameId, signalName) => {
-              updateSignal(signalName, { canFrameId: formatFrameIdHex(frameId) })
-            }}
-            onClear={scanner.reset}
-          />
-        )}
-        <Suspense fallback={<RouteLoading />}>{panes[pane]}</Suspense>
+        <Suspense fallback={<RouteLoading />}>{PANE_BODIES[pane]({ filter, hideUnused })}</Suspense>
       </div>
     </div>
   )

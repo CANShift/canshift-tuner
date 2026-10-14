@@ -22,3 +22,13 @@ export const parseByteRange = (raw: string): ByteRange | null => {
   if (!SIGNAL_BYTE_LENGTHS.includes(length as SignalByteLength)) return null
   return { startByte: start, byteLength: length as SignalByteLength }
 }
+
+export interface ByteRangeLabel {
+  noun: 'byte' | 'bytes'
+  range: string
+}
+
+export const byteRangeLabel = (startByte: number, byteLength: number): ByteRangeLabel => {
+  if (byteLength <= 1) return { noun: 'byte', range: String(startByte) }
+  return { noun: 'bytes', range: `${String(startByte)}–${String(startByte + byteLength - 1)}` }
+}
