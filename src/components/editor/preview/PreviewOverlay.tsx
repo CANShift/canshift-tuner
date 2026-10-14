@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import type { PagePalette } from '@canshift/core'
 import { CutBand } from './CutBand'
 import { AlertTakeover, SplashTakeover } from './Takeover'
@@ -32,46 +33,32 @@ export interface PreviewOverlayProps {
   palette: PagePalette
 }
 
-export const PreviewOverlay = ({ mode, scale, bgColor, palette }: PreviewOverlayProps) => {
-  if (mode === 'normal') return null
-  const track = luminance(bgColor) < LUMINANCE_MID ? TRACK_DARK : TRACK_LIGHT
-
-  if (mode === 'cut') {
-    return (
-      <div className="absolute inset-x-0 top-0 z-[3]">
-        <CutBand
-          scale={scale}
-          dimColor={palette.textDim}
-          inkColor={palette.text}
-          name={SAMPLE_CUT.name}
-          detail={SAMPLE_CUT.detail}
-          elapsed={SAMPLE_CUT.elapsed}
-          protective={SAMPLE_CUT.protective}
-        />
-      </div>
-    )
-  }
-
-  if (mode === 'splash') {
-    return (
-      <SplashTakeover
-        scale={scale}
-        bgColor={bgColor}
-        dimColor={palette.textDim}
-        trackColor={track}
-        name={SAMPLE_SPLASH.name}
-        state={SAMPLE_SPLASH.state}
-        detail={SAMPLE_SPLASH.detail}
-      />
-    )
-  }
-
-  return (
-    <AlertTakeover
-      scale={scale}
-      name={SAMPLE_ALERT.name}
-      value={SAMPLE_ALERT.value}
-      rule={SAMPLE_ALERT.rule}
-    />
-  )
+interface OverlayContext {
+  scale: number
+  bgColor: string
+  palette: PagePalette
 }
+
+const trackFor = (bgColor: string): string =>
+  luminance(bgColor) < LUMINANCE_MID ? TRACK_DARK : TRACK_LIGHT
+
+const OVERLAYS: Record<PreviewMode, (ctx: OverlayContext) => ReactNode> = {
+  normal: () => null,
+  cut: ({ scale, palette }) => (
+    <div className="absolute inset-x-0 top-0 z-[3]">
+      <CutBand scale={scale} dimColor={palette.textDim} inkColor={palette.text} {...SAMPLE_CUT} />
+    </div>
+  ),
+  splash: ({ scale, bgColor, palette }) => (
+    <SplashTakeover
+      scale={scale}
+      bgColor={bgColor}
+      dimColor={palette.textDim}
+      trackColor={trackFor(bgColor)}
+      {...SAMPLE_SPLASH}
+    />
+  ),
+  alert: ({ scale }) => <AlertTakeover scale={scale} {...SAMPLE_ALERT} />,
+}
+
+export const PreviewOverlay = ({ mode, ...ctx }: PreviewOverlayProps) => OVERLAYS[mode](ctx)
