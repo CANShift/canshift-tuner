@@ -1,10 +1,17 @@
 import { CAN_CONTROLLERS, type CanController, type CanProfile } from '@canshift/core'
-import { NumberField, Section, SelectField } from '@/components/ui/form-field'
+import { Section, SelectField } from '@/components/ui/form-field'
+import { SectionFields, type FieldSpec } from './section-fields'
 
 export interface CanSectionProps {
   can: CanProfile
   onPatch: (partial: Partial<CanProfile>) => void
 }
+
+const CAN_FIELDS: readonly FieldSpec<CanProfile>[] = [
+  { kind: 'number', key: 'pinTx', label: 'TX pin' },
+  { kind: 'number', key: 'pinRx', label: 'RX pin' },
+  { kind: 'number', key: 'defaultSpeedKbps', label: 'Default speed (kbps)' },
+]
 
 export const CanSection = ({ can, onPatch }: CanSectionProps) => (
   <Section title="CAN">
@@ -16,26 +23,6 @@ export const CanSection = ({ can, onPatch }: CanSectionProps) => (
         onPatch({ controller: v as CanController })
       }}
     />
-    <NumberField
-      label="TX pin"
-      value={can.pinTx}
-      onChange={(v) => {
-        onPatch({ pinTx: v })
-      }}
-    />
-    <NumberField
-      label="RX pin"
-      value={can.pinRx}
-      onChange={(v) => {
-        onPatch({ pinRx: v })
-      }}
-    />
-    <NumberField
-      label="Default speed (kbps)"
-      value={can.defaultSpeedKbps}
-      onChange={(v) => {
-        onPatch({ defaultSpeedKbps: v })
-      }}
-    />
+    <SectionFields value={can} fields={CAN_FIELDS} onPatch={onPatch} />
   </Section>
 )

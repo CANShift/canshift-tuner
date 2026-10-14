@@ -1,47 +1,22 @@
 import type { BacklightProfile } from '@canshift/core'
-import { BoolField, NumberField, Section } from '@/components/ui/form-field'
+import { Section } from '@/components/ui/form-field'
+import { SectionFields, type FieldSpec } from './section-fields'
 
 export interface BacklightSectionProps {
   backlight: BacklightProfile
   onPatch: (partial: Partial<BacklightProfile>) => void
 }
 
+const BACKLIGHT_FIELDS: readonly FieldSpec<BacklightProfile>[] = [
+  { kind: 'bool', key: 'present', label: 'Present' },
+  { kind: 'bool', key: 'invert', label: 'Invert' },
+  { kind: 'number', key: 'pwmChannel', label: 'PWM channel' },
+  { kind: 'number', key: 'pwmFreqHz', label: 'PWM freq (Hz)' },
+  { kind: 'number', key: 'defaultDuty', label: 'Default duty' },
+]
+
 export const BacklightSection = ({ backlight, onPatch }: BacklightSectionProps) => (
   <Section title="Backlight">
-    <BoolField
-      label="Present"
-      value={backlight.present}
-      onChange={(v) => {
-        onPatch({ present: v })
-      }}
-    />
-    <BoolField
-      label="Invert"
-      value={backlight.invert}
-      onChange={(v) => {
-        onPatch({ invert: v })
-      }}
-    />
-    <NumberField
-      label="PWM channel"
-      value={backlight.pwmChannel}
-      onChange={(v) => {
-        onPatch({ pwmChannel: v })
-      }}
-    />
-    <NumberField
-      label="PWM freq (Hz)"
-      value={backlight.pwmFreqHz}
-      onChange={(v) => {
-        onPatch({ pwmFreqHz: v })
-      }}
-    />
-    <NumberField
-      label="Default duty"
-      value={backlight.defaultDuty}
-      onChange={(v) => {
-        onPatch({ defaultDuty: v })
-      }}
-    />
+    <SectionFields value={backlight} fields={BACKLIGHT_FIELDS} onPatch={onPatch} />
   </Section>
 )

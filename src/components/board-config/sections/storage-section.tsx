@@ -1,40 +1,21 @@
 import type { StorageProfile } from '@canshift/core'
-import { BoolField, NumberField, Section } from '@/components/ui/form-field'
+import { Section } from '@/components/ui/form-field'
+import { SectionFields, type FieldSpec } from './section-fields'
 
 export interface StorageSectionProps {
   storage: StorageProfile
   onPatch: (partial: Partial<StorageProfile>) => void
 }
 
+const STORAGE_FIELDS: readonly FieldSpec<StorageProfile>[] = [
+  { kind: 'bool', key: 'spiffsPresent', label: 'SPIFFS present' },
+  { kind: 'number', key: 'spiffsSizeKb', label: 'SPIFFS size (KB)' },
+  { kind: 'bool', key: 'sdPresent', label: 'SD present' },
+  { kind: 'number', key: 'sdPinCs', label: 'SD CS pin' },
+]
+
 export const StorageSection = ({ storage, onPatch }: StorageSectionProps) => (
   <Section title="Storage">
-    <BoolField
-      label="SPIFFS present"
-      value={storage.spiffsPresent}
-      onChange={(v) => {
-        onPatch({ spiffsPresent: v })
-      }}
-    />
-    <NumberField
-      label="SPIFFS size (KB)"
-      value={storage.spiffsSizeKb}
-      onChange={(v) => {
-        onPatch({ spiffsSizeKb: v })
-      }}
-    />
-    <BoolField
-      label="SD present"
-      value={storage.sdPresent}
-      onChange={(v) => {
-        onPatch({ sdPresent: v })
-      }}
-    />
-    <NumberField
-      label="SD CS pin"
-      value={storage.sdPinCs}
-      onChange={(v) => {
-        onPatch({ sdPinCs: v })
-      }}
-    />
+    <SectionFields value={storage} fields={STORAGE_FIELDS} onPatch={onPatch} />
   </Section>
 )
