@@ -15,7 +15,7 @@ const runtimeFiles = (dir: string): string[] =>
     return RUNTIME_SOURCE.test(name) && !TEST_SOURCE.test(name) ? [path] : []
   })
 
-describe('the studio runs offline', () => {
+describe('the tuner runs offline', () => {
   it('names no remote origin in runtime code', () => {
     const offenders = runtimeFiles(SRC).flatMap((file) =>
       (readFileSync(file, 'utf8').match(REMOTE_ORIGIN) ?? []).map((url) => `${file}: ${url}`)
