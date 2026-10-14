@@ -10,11 +10,11 @@ const makeConfig = (id: string): DashboardConfig =>
     pages: [{ id, backgroundColor: '#000000', showTopBar: true, visible: true, widgets: [] }],
   }) as unknown as DashboardConfig
 
-describe('loadFromDeviceOrDemo conflict handling (#1741)', () => {
-  beforeEach(() => {
-    useDashboardStore.setState({ config: null, isDirty: false, pendingDeviceConfig: null })
-  })
+beforeEach(() => {
+  useDashboardStore.setState({ config: null, isDirty: false, pendingDeviceConfig: null })
+})
 
+describe('loadFromDeviceOrDemo conflict handling (#1741)', () => {
   it('stages the device config instead of overwriting dirty edits', () => {
     const store = useDashboardStore.getState()
     store.setConfig(makeConfig('local'))
@@ -46,7 +46,9 @@ describe('loadFromDeviceOrDemo conflict handling (#1741)', () => {
     expect(state.past).toHaveLength(0)
     expect(state.future).toHaveLength(0)
   })
+})
 
+describe('staged device config (#1741)', () => {
   it('dismissing the staged config keeps local edits dirty', () => {
     const store = useDashboardStore.getState()
     store.setConfig(makeConfig('local'))
@@ -72,7 +74,9 @@ describe('loadFromDeviceOrDemo conflict handling (#1741)', () => {
     expect(state.config?.defaultPageId).toBe('local')
     expect(state.isDirty).toBe(true)
   })
+})
 
+describe('loading without a conflict (#1741)', () => {
   it('loads the device config directly when local edits are clean', () => {
     useDashboardStore.getState().setConfig(makeConfig('local'))
 
@@ -92,7 +96,9 @@ describe('loadFromDeviceOrDemo conflict handling (#1741)', () => {
     expect(useDashboardStore.getState().config).not.toBeNull()
     expect(useDashboardStore.getState().isDirty).toBe(false)
   })
+})
 
+describe('keeping or replacing local config (#1741)', () => {
   it('keeps the existing config when device has none', () => {
     useDashboardStore.getState().setConfig(makeConfig('local'))
     useDashboardStore.getState().markDirty()

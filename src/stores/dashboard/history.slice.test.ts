@@ -34,11 +34,16 @@ const makeConfig = (): DashboardConfig =>
     ],
   }) as unknown as DashboardConfig
 
-describe('undo/redo (#1742)', () => {
-  beforeEach(() => {
-    useDashboardStore.getState().setConfig(makeConfig())
-  })
+beforeEach(() => {
+  useDashboardStore.getState().setConfig(makeConfig())
+})
 
+const lastLabel = () => {
+  const past = useDashboardStore.getState().past
+  return past[past.length - 1]?.label
+}
+
+describe('undo/redo (#1742)', () => {
   it('starts with empty history after setConfig', () => {
     expect(useDashboardStore.getState().past).toHaveLength(0)
     expect(useDashboardStore.getState().future).toHaveLength(0)
@@ -69,7 +74,9 @@ describe('undo/redo (#1742)', () => {
     useDashboardStore.getState().redo()
     expect(useDashboardStore.getState().config?.pages[0]?.widgets).toHaveLength(1)
   })
+})
 
+describe('undo/redo edges (#1742)', () => {
   it('re-points selection when the selected page no longer exists after undo', () => {
     useDashboardStore.getState().selectPage('p2')
     useDashboardStore.getState().removePage('p2')
@@ -86,15 +93,6 @@ describe('undo/redo (#1742)', () => {
 })
 
 describe('labelled undo stack (#1847)', () => {
-  beforeEach(() => {
-    useDashboardStore.getState().setConfig(makeConfig())
-  })
-
-  const lastLabel = () => {
-    const past = useDashboardStore.getState().past
-    return past[past.length - 1]?.label
-  }
-
   it('labels a widget deletion with the widget reference', () => {
     useDashboardStore.getState().removeWidget('p1', 'gauge_a')
     expect(lastLabel()).toBe('Deleted gauge')
@@ -109,7 +107,9 @@ describe('labelled undo stack (#1847)', () => {
     useDashboardStore.getState().removePage('p2')
     expect(lastLabel()).toBe('Deleted page 02')
   })
+})
 
+describe('labelled undo stack: settings (#1847)', () => {
   it('labels a target-screen change and round-trips it', () => {
     const before = useDashboardStore.getState().config?.targetProfile
     useDashboardStore.getState().setTargetProfile('crowpanel-28' as ScreenProfileId)
@@ -131,7 +131,9 @@ describe('labelled undo stack (#1847)', () => {
     expect(useDashboardStore.getState().config?.theme?.night.bgColor).toBe('#101010')
     expect(useDashboardStore.getState().config?.theme?.day.bgColor).toBe('#EFEFEF')
   })
+})
 
+describe('labelled undo stack: replay (#1847)', () => {
   it('keeps the label across undo and redo', () => {
     useDashboardStore.getState().removePage('p2')
     useDashboardStore.getState().undo()
@@ -152,7 +154,9 @@ describe('labelled undo stack (#1847)', () => {
     const w2 = useDashboardStore.getState().config?.pages[0]?.widgets[0]
     expect([w2?.layout.col, w2?.layout.row]).toEqual([6, 7])
   })
+})
 
+describe('labelled undo stack: layout and cap (#1847)', () => {
   it('nudge and align are labelled and revert', () => {
     useDashboardStore.getState().nudgeWidgets('p1', ['gauge_a'], 1, 0)
     expect(lastLabel()).toBe('Nudged gauge')

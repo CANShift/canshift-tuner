@@ -41,7 +41,9 @@ describe('autosave (#1849)', () => {
     expect(restored?.selectedWidgetId).toBeNull()
     expect(restored?.selectedWidgetIds).toEqual([])
   })
+})
 
+describe('autosave edges (#1849)', () => {
   it('returns null when there is no config to save', () => {
     expect(serializeAutosave({ ...source(), config: null }, 1)).toBeNull()
   })
