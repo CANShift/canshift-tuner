@@ -9,18 +9,35 @@ export interface CarouselScale {
   scale: number
 }
 
-export const useCarouselScale = (screenHeight: number, chromeHeight: number): CarouselScale => {
+export interface ScreenSize {
+  width: number
+  height: number
+}
+
+const innerWidth = (strip: HTMLElement): number => {
+  const style = window.getComputedStyle(strip)
+  return strip.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight)
+}
+
+export const fitScale = (available: ScreenSize, screen: ScreenSize): number | null => {
+  if (available.width <= 0 || available.height <= 0) return null
+  const fit = Math.min(available.width / screen.width, available.height / screen.height)
+  return Math.min(MAX_SCALE, Math.max(MIN_SCALE, fit))
+}
+
+export const useCarouselScale = (screen: ScreenSize, chromeHeight: number): CarouselScale => {
   const stripRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
+  const { width, height } = screen
 
   useEffect(() => {
     const strip = stripRef.current
     if (strip === null) return
 
     const measure = () => {
-      const available = strip.clientHeight - chromeHeight
-      if (available <= 0) return
-      const next = Math.min(MAX_SCALE, Math.max(MIN_SCALE, available / screenHeight))
+      const available = { width: innerWidth(strip), height: strip.clientHeight - chromeHeight }
+      const next = fitScale(available, { width, height })
+      if (next === null) return
       setScale((current) => (Math.abs(current - next) < SETTLE_EPSILON ? current : next))
     }
 
@@ -30,7 +47,7 @@ export const useCarouselScale = (screenHeight: number, chromeHeight: number): Ca
     return () => {
       observer.disconnect()
     }
-  }, [screenHeight, chromeHeight])
+  }, [width, height, chromeHeight])
 
   return { stripRef, scale }
 }

@@ -34,7 +34,10 @@ const VehicleRoute = () => {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-ui-bg">
-      <nav aria-label="Vehicle" className="flex shrink-0 gap-2 border-b border-ui-line px-6 py-2">
+      <nav
+        aria-label="Vehicle"
+        className="flex shrink-0 flex-wrap gap-2 border-b border-ui-line px-3 py-2 md:px-6"
+      >
         {SECTIONS.map((value) => (
           <TogglePill
             key={value}

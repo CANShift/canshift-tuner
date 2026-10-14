@@ -23,10 +23,6 @@ import { useDocumentMeta } from './hooks/useDocumentMeta'
 import { DeviceConfigConflictNotice } from './components/shell/DeviceConfigConflictNotice'
 import { ConnectGate } from './components/shell/ConnectGate'
 import { CliPanel } from './components/cli/CliPanel'
-import { CapabilityScreen } from './components/shell/CapabilityScreen'
-import { capabilityReason } from './lib/capability'
-import { useBelowFloor } from './hooks/useBelowFloor'
-import { isWebSerialAvailable } from './lib/web-serial'
 import { useUiStore } from './stores/ui.store'
 import { HOME_PATH, LEGACY_REDIRECTS, ROUTE_PATHS, type RoutePath } from './constants/routes'
 
@@ -47,12 +43,6 @@ const ROUTE_ELEMENTS: Record<RoutePath, ReactNode> = {
 const LEGACY_PATHS = Object.keys(LEGACY_REDIRECTS)
 
 const App = () => {
-  const reason = capabilityReason(useBelowFloor(), isWebSerialAvailable())
-  if (reason !== null) return <CapabilityScreen reason={reason} />
-  return <TunerShell />
-}
-
-const TunerShell = () => {
   useAutoReconnect()
   useSimulationBootstrap()
   useVersionHandshake()
@@ -108,7 +98,7 @@ const DashCli = () => {
   return <CliPanel />
 }
 
-const SHELL = 'flex h-screen min-w-[900px] flex-col bg-ui-bg font-sans text-ui-ink'
+const SHELL = 'flex h-dvh flex-col bg-ui-bg font-sans text-ui-ink'
 
 const MAIN = 'flex min-h-0 flex-1 flex-col overflow-hidden'
 

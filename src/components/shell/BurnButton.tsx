@@ -42,12 +42,15 @@ export const BurnSuccessPill = () => (
 const OUTCOME_PILL =
   'inline-flex max-w-[320px] items-center gap-1.5 border px-2 py-[3px] text-[11px] font-semibold'
 
-const burnFace = cva('h-full border-none px-6 text-[12px] font-extrabold tracking-[0.09em]', {
-  variants: {
-    disabled: {
-      true: 'cursor-not-allowed bg-transparent text-ui-faint',
-      false: 'cursor-pointer bg-ui-accent text-white hover:bg-ui-accent-hover',
+const burnFace = cva(
+  'h-full border-none px-3 text-[12px] font-extrabold tracking-[0.09em] sm:px-6',
+  {
+    variants: {
+      disabled: {
+        true: 'cursor-not-allowed bg-transparent text-ui-faint',
+        false: 'cursor-pointer bg-ui-accent text-white hover:bg-ui-accent-hover',
+      },
     },
-  },
-  defaultVariants: { disabled: false },
-})
+    defaultVariants: { disabled: false },
+  }
+)

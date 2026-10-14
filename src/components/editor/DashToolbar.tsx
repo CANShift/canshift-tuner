@@ -80,8 +80,10 @@ export const DashToolbar = ({
   onExport,
   extras,
 }: DashToolbarProps) => (
-  <div className="flex h-[54px] shrink-0 items-center gap-3.5 border-b-2 border-ui-rule bg-ui-bg px-5">
-    <span className="font-mono text-[11px] tracking-[0.18em] text-ui-muted">PAGE</span>
+  <div className="flex shrink-0 flex-wrap items-center gap-x-3.5 gap-y-2 border-b-2 border-ui-rule bg-ui-bg px-3 py-2 md:h-[54px] md:flex-nowrap md:px-5 md:py-0">
+    <span className="hidden font-mono text-[11px] tracking-[0.18em] text-ui-muted md:inline">
+      PAGE
+    </span>
 
     <select
       value={selectedPageId}

@@ -6,7 +6,7 @@ The **Live values** section of the **Vehicle** tab (`canshift-tuner/src/routes/L
 
 A badge next to the signal count tells you the source (`components/live-data/SourceBadge.tsx`):
 
-- **live** — a device is connected over Web Serial and streaming real frames,
+- **live** — a dash is connected over Wi-Fi or USB and streaming real frames,
 - **sim** — the built-in simulator is driving the values,
 - **none** — nothing is connected, so the values hold at their last state.
 

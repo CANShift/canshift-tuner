@@ -5,7 +5,7 @@ import type { DisplayUnits } from '../../hooks/useDisplayUnits'
 import type { SignalUsage } from '../../hooks/useSignalUsage'
 
 const GRID = [
-  'grid grid-cols-[100px_minmax(140px,1fr)_120px_100px_minmax(120px,260px)] gap-5',
+  'grid min-w-[720px] grid-cols-[100px_minmax(140px,1fr)_120px_100px_minmax(120px,260px)] gap-5',
   'min-[1180px]:grid-cols-[120px_minmax(180px,1fr)_140px_120px_minmax(150px,260px)]',
   'min-[1180px]:gap-10',
 ].join(' ')
@@ -44,7 +44,7 @@ export const Obd2Table = ({
   onInterval,
   onTogglePolled,
 }: Obd2TableProps) => (
-  <div className="min-h-0 flex-1 overflow-y-auto">
+  <div className="min-h-0 flex-1 overflow-auto">
     <div className="max-w-[620px] px-6 pt-5">
       <p className="mb-[18px] text-pretty text-[14.5px] leading-[1.6] text-ui-muted">{CONTEXT}</p>
       <div className="flex items-center gap-4 pb-[18px]">

@@ -7,11 +7,12 @@ export const SimulationStrip = () => {
   return (
     <div
       role="status"
-      className="flex shrink-0 items-center gap-3.5 bg-ui-accent px-5 py-2.5 font-mono text-[11.5px] tracking-[0.14em] text-white"
+      className="flex shrink-0 items-center gap-3.5 bg-ui-accent px-4 py-2 sm:px-5 sm:py-2.5 font-mono text-[11.5px] tracking-[0.14em] text-white"
     >
       <span aria-hidden="true" className="block size-[7px] bg-white" />
-      <span>MODE SIMULATION ACTIVATED</span>
-      <span className="tracking-[0.06em] opacity-75">
+      <span className="md:hidden">SIMULATION</span>
+      <span className="hidden md:inline">MODE SIMULATION ACTIVATED</span>
+      <span className="hidden tracking-[0.06em] opacity-75 md:inline">
         editing a config without a board · burning is disabled
       </span>
       <button

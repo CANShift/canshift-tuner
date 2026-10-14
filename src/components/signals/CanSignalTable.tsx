@@ -8,7 +8,7 @@ import { UNIT_SYSTEM_OPTIONS } from '../../constants/units'
 import type { SignalUsage } from '../../hooks/useSignalUsage'
 
 const GRID = [
-  'grid-cols-[minmax(140px,1fr)_132px_104px_128px_116px_minmax(120px,260px)] gap-5',
+  'min-w-[900px] grid-cols-[minmax(140px,1fr)_132px_104px_128px_116px_minmax(120px,260px)] gap-5',
   'min-[1180px]:grid-cols-[minmax(180px,1fr)_132px_104px_128px_116px_minmax(150px,260px)]',
   'min-[1180px]:gap-10',
 ].join(' ')
@@ -29,7 +29,7 @@ const formatValue = (value: number | undefined): string => {
 }
 
 export const CanSignalTable = ({ signals, values, usage, units, onPatch }: CanSignalTableProps) => (
-  <div className="min-h-0 flex-1 overflow-y-auto">
+  <div className="min-h-0 flex-1 overflow-auto">
     <div
       className={cn(
         'sticky top-0 z-[2] grid border-b-2 border-ui-rule bg-ui-panel px-7 py-3',

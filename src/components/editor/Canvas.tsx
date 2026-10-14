@@ -70,7 +70,7 @@ const Canvas = ({
   const nudgeWidgets = useDashboardStore((s) => s.nudgeWidgets)
   const selectPage = useDashboardStore((s) => s.selectPage)
 
-  const { stripRef, scale } = useCarouselScale(screenProfile.height, STRIP_CHROME_PX)
+  const { stripRef, scale } = useCarouselScale(screenProfile, STRIP_CHROME_PX)
   const currentRef = useRef<HTMLDivElement>(null)
   const surfaceRef = useRef<HTMLDivElement>(null)
   const scaleRef = useRef(scale)
@@ -219,8 +219,8 @@ const Canvas = ({
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       {toolbar}
-      <div className="flex min-h-0 flex-1">
-        <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto md:flex-row md:overflow-hidden">
+        <div className="flex min-w-0 flex-col max-md:h-[calc(75vw+120px)] max-md:shrink-0 md:flex-1">
           <BurnFailureNotice />
           <ImportNoticeBand />
           <BurnVerdictBand />
@@ -338,7 +338,8 @@ const PageWrapper = ({ current, onSelect, onContextMenu, children }: PageWrapper
   )
 }
 
-const STRIP = 'flex min-h-0 flex-1 items-center gap-[26px] overflow-auto bg-ui-panel px-6 py-5'
+const STRIP =
+  'flex min-h-0 flex-1 items-center gap-[26px] overflow-auto bg-ui-panel px-3 py-5 md:px-6'
 
 const LABEL = 'flex items-baseline justify-between gap-3 font-mono text-[10px] tracking-[0.18em]'
 
