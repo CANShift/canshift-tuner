@@ -10,6 +10,22 @@ interface SpanWidget {
   rowSpan: number
 }
 
+const PALETTE = {
+  textColor: '#FFFFFF',
+  accentColor: '#FF0000',
+  warningColor: '#FFAA00',
+  dangerColor: '#FF0000',
+  dimColor: '#888888',
+}
+
+const labelWidget = (w: SpanWidget) => ({
+  id: w.id,
+  type: 'label',
+  layout: { col: w.col, colSpan: w.colSpan, row: w.row, rowSpan: w.rowSpan, zOrder: 0 },
+  style: {},
+  config: { text: '' },
+})
+
 const makeConfig = (
   widgets: SpanWidget[],
   targetProfile: DashboardConfig['targetProfile'] = 'crowpanel-28'
@@ -20,36 +36,20 @@ const makeConfig = (
     revLimitRpm: 7000,
     targetProfile,
     defaultPageId: 'p1',
-    topBar: {
-      height: 24,
-      backgroundColor: '#000000',
-      items: [],
-    },
+    topBar: { height: 24, backgroundColor: '#000000', items: [] },
     pages: [
       {
         id: 'p1',
         backgroundColor: '#000000',
-        widgets: widgets.map((w) => ({
-          id: w.id,
-          type: 'label',
-          layout: { col: w.col, colSpan: w.colSpan, row: w.row, rowSpan: w.rowSpan, zOrder: 0 },
-          style: {},
-          config: { text: '' },
-        })),
-        palette: {
-          textColor: '#FFFFFF',
-          accentColor: '#FF0000',
-          warningColor: '#FFAA00',
-          dangerColor: '#FF0000',
-          dimColor: '#888888',
-        },
+        widgets: widgets.map(labelWidget),
+        palette: PALETTE,
         showTopBar: true,
         visible: true,
       },
     ],
   }) as unknown as DashboardConfig
 
-describe('detectOverflow', () => {
+describe('detectOverflow: returns empty for widgets inside', () => {
   it('returns empty for widgets inside the 12-column grid', () => {
     const cfg = makeConfig([{ id: 'w1', col: 0, colSpan: 6, row: 0, rowSpan: 6 }])
     expect(detectOverflow(cfg)).toHaveLength(0)
@@ -71,7 +71,9 @@ describe('detectOverflow', () => {
     const cfg = makeConfig([{ id: 'w1', col: -1, colSpan: 2, row: 0, rowSpan: 2 }])
     expect(detectOverflow(cfg)).toHaveLength(1)
   })
+})
 
+describe('detectOverflow: reports multiple offenders', () => {
   it('reports multiple offenders', () => {
     const cfg = makeConfig([
       { id: 'ok', col: 0, colSpan: 2, row: 0, rowSpan: 2 },

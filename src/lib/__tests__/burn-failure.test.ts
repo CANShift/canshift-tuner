@@ -3,7 +3,7 @@ import { describeBurnFailure } from '../burn-failure'
 
 const REASSURANCE = 'The dash kept its previous config and is still running.'
 
-describe('describeBurnFailure', () => {
+describe('describeBurnFailure: builds the planche kicker', () => {
   it('builds the planche kicker and copy for a rejected chunk', () => {
     const failure = describeBurnFailure({
       stage: 'push',
@@ -24,7 +24,9 @@ describe('describeBurnFailure', () => {
     })
     expect(failure.body).toBe(`The dash rejected a chunk. ${REASSURANCE}`)
   })
+})
 
+describe('describeBurnFailure: does not promise', () => {
   it('does not promise an untouched dash when the verify step failed', () => {
     const failure = describeBurnFailure({
       stage: 'verify',
@@ -46,7 +48,9 @@ describe('describeBurnFailure', () => {
     expect(failure.title).toBe('The burn never left the tuner')
     expect(failure.body).toBe('No dash was connected. Nothing was written to any dash.')
   })
+})
 
+describe('describeBurnFailure: does not claim the dash', () => {
   it.each(['invalid_config', 'empty_config', 'send_failed'])(
     'keeps %s off the wire and off the dash',
     (code) => {
@@ -70,7 +74,9 @@ describe('describeBurnFailure', () => {
       'The dash disconnected mid-write on chunk 3 of 9. The write stopped part-way — read the dash back before you trust the editor.'
     )
   })
+})
 
+describe('describeBurnFailure: humanises an unknown code', () => {
   it('humanises an unknown code instead of leaking the wire string', () => {
     const failure = describeBurnFailure({
       stage: 'push',
@@ -90,7 +96,9 @@ describe('describeBurnFailure', () => {
     })
     expect(failure.body).toContain('It stopped on chunk 4 of 21.')
   })
+})
 
+describe('describeBurnFailure: keeps the chunk position', () => {
   it('keeps the chunk position on a code with no humanised message at all', () => {
     const failure = describeBurnFailure({
       stage: 'push',

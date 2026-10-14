@@ -30,7 +30,7 @@ const gearSignal = baseSignal({
   max: 6,
 })
 
-describe('defaultWidgetForSignal', () => {
+describe('defaultWidgetForSignal: creates a gear widget', () => {
   it('creates a gear widget for an enum-like signal', () => {
     const widget = defaultWidgetForSignal(gearSignal)
     expect(widget.type).toBe('gear')
@@ -47,7 +47,9 @@ describe('defaultWidgetForSignal', () => {
   it('falls back to warningLevel when no dangerLevel exists', () => {
     expect(signalThreshold(baseSignal({ warningLevel: 110 }))).toBe(110)
   })
+})
 
+describe('defaultWidgetForSignal: creates a numeric gauge', () => {
   it('creates a numeric gauge for a plain scalar, bound and unit-suffixed', () => {
     const widget = defaultWidgetForSignal(baseSignal({ name: 'speed_kph', unit: 'km/h', max: 300 }))
     expect(widget.type).toBe('gauge')
@@ -68,7 +70,9 @@ describe('defaultWidgetForSignal', () => {
     )
     expect(widget.config).toMatchObject({ decimalPlaces: 1 })
   })
+})
 
+describe('defaultWidgetForSignal: produces schema-valid widgets', () => {
   it('produces schema-valid widgets for all three shapes', () => {
     const shapes = [
       gearSignal,
@@ -86,30 +90,30 @@ describe('defaultWidgetForSignal', () => {
   })
 })
 
-describe('signal drop through addWidget', () => {
-  const pageConfig = (): DashboardConfig =>
-    ({
-      version: '1.26.0',
-      defaultPageId: 'p1',
-      topBar: { height: 16, bgColor: '#000000', textColor: '#FFFFFF' },
-      pages: [
-        {
-          id: 'p1',
-          backgroundColor: '#000000',
-          showTopBar: true,
-          visible: true,
-          widgets: [
-            {
-              id: 'existing',
-              type: 'gauge',
-              signal: 'rpm',
-              layout: { col: 0, colSpan: 6, row: 0, rowSpan: 6, zOrder: 0 },
-            },
-          ],
-        },
-      ],
-    }) as unknown as DashboardConfig
+const EXISTING_GAUGE = {
+  id: 'existing',
+  type: 'gauge',
+  signal: 'rpm',
+  layout: { col: 0, colSpan: 6, row: 0, rowSpan: 6, zOrder: 0 },
+}
 
+const pageConfig = (): DashboardConfig =>
+  ({
+    version: '1.26.0',
+    defaultPageId: 'p1',
+    topBar: { height: 16, bgColor: '#000000', textColor: '#FFFFFF' },
+    pages: [
+      {
+        id: 'p1',
+        backgroundColor: '#000000',
+        showTopBar: true,
+        visible: true,
+        widgets: [EXISTING_GAUGE],
+      },
+    ],
+  }) as unknown as DashboardConfig
+
+describe('signal drop through addWidget', () => {
   it('places the dropped widget on a free slot and labels the history entry', () => {
     useDashboardStore.getState().setConfig(pageConfig())
     const widget = defaultWidgetForSignal(baseSignal({ name: 'speed_kph', unit: 'km/h' }))

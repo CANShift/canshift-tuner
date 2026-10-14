@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { BOARD_PROFILES, parseBoardProfile } from '@canshift/core'
 import { blankBoardDraft, validateBoardProfile } from './board-profile'
 
-describe('board-profile', () => {
+describe('board-profile: exposes a non-empty core catalog', () => {
   it('exposes a non-empty core catalog', () => {
     expect(BOARD_PROFILES.length).toBeGreaterThan(0)
   })
@@ -29,7 +29,9 @@ describe('board-profile', () => {
     const result = validateBoardProfile(draft)
     expect(result.ok).toBe(true)
   })
+})
 
+describe('board-profile: reports issues for an invalid', () => {
   it('reports issues for an invalid profile (empty id, bad enum, out-of-range pin)', () => {
     const draft = blankBoardDraft()
     draft.lcd = { ...draft.lcd, driver: 'nonsense' as typeof draft.lcd.driver }

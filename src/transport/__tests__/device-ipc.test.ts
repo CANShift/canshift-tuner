@@ -26,7 +26,7 @@ beforeEach(() => {
   >)
 })
 
-describe('deviceIpc.getConfig (#1703)', () => {
+describe('deviceIpc.getConfig (#1703): passes a current-version valid config', () => {
   it('passes a current-version valid config through unchanged', async () => {
     respondWith({ ok: true, data: { config: structuredClone(DEFAULT_SIM_CONFIG) } })
 
@@ -51,7 +51,9 @@ describe('deviceIpc.getConfig (#1703)', () => {
     expect(result.migrationsApplied.length).toBeGreaterThan(0)
     expect(result.migrationsApplied[0]).toContain('1.22.0')
   })
+})
 
+describe('deviceIpc.getConfig (#1703): returns an error', () => {
   it('returns an error when the config has no usable version', async () => {
     respondWith({ ok: true, data: { config: { pages: [] } } })
 
@@ -71,7 +73,9 @@ describe('deviceIpc.getConfig (#1703)', () => {
     if (result.kind !== 'error') return
     expect(result.error).toContain('config_migration_failed')
   })
+})
 
+describe('deviceIpc.getConfig (#1703): returns an error', () => {
   it('returns an error when a current-version config fails schema validation', async () => {
     respondWith({
       ok: true,
@@ -92,7 +96,9 @@ describe('deviceIpc.getConfig (#1703)', () => {
 
     expect(result).toEqual({ kind: 'none' })
   })
+})
 
+describe('deviceIpc.getConfig (#1703): returns none when the response', () => {
   it('returns none when the response carries no config object', async () => {
     respondWith({ ok: true, data: {} })
 

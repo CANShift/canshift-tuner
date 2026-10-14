@@ -34,7 +34,7 @@ const inputs = (overrides: Partial<BurnInputs> = {}): BurnInputs => ({
   ...overrides,
 })
 
-describe('burnVerdict', () => {
+describe('burnVerdict: is ready when a board', () => {
   it('is ready when a board is attached, the layout fits and everything is bound', () => {
     const verdict = burnVerdict(inputs())
     expect(verdict.kind).toBe('ready')
@@ -53,7 +53,9 @@ describe('burnVerdict', () => {
     )
     expect(verdict.kind).toBe('no-device')
   })
+})
 
+describe('burnVerdict: counts the widgets that would', () => {
   it('counts the widgets that would render nothing on the device', () => {
     const verdict = burnVerdict(
       inputs({
@@ -79,7 +81,9 @@ describe('burnVerdict', () => {
     expect(burnLabel(verdict)).toBe('BURN')
     expect(burnBlocks(verdict)).toBe(true)
   })
+})
 
+describe('burnVerdict: refuses a firmware mismatch', () => {
   it('refuses a firmware mismatch before it looks at the layout', () => {
     const verdict = burnVerdict(inputs({ firmwareMismatch: true }))
     expect(verdict.kind).toBe('firmware-mismatch')

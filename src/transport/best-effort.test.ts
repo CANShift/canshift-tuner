@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { bestEffort } from './best-effort'
 
-describe('bestEffort', () => {
+describe('bestEffort: runs the operation and reports', () => {
   it('runs the operation and reports nothing when it succeeds', async () => {
     const report = vi.fn()
     const op = vi.fn(() => Promise.resolve('done'))
@@ -22,7 +22,9 @@ describe('bestEffort', () => {
 
     expect(report).toHaveBeenCalledWith('transport.disconnect failed — continuing', boom)
   })
+})
 
+describe('bestEffort: catches a synchronous throw too', () => {
   it('catches a synchronous throw too', async () => {
     const report = vi.fn()
 

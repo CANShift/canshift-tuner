@@ -42,7 +42,7 @@ const makeConfig = (pages: TestWidget[][]): DashboardConfig =>
     })),
   }) as unknown as DashboardConfig
 
-describe('describeLayoutOverflow', () => {
+describe('describeLayoutOverflow: returns null when every widget', () => {
   it('returns null when every widget fits', () => {
     expect(
       describeLayoutOverflow(makeConfig([[{ id: 'w1', col: 0, colSpan: 6, row: 0, rowSpan: 6 }]]))
@@ -67,7 +67,9 @@ describe('describeLayoutOverflow', () => {
       'Bottom edge at 266 px, 26 px over. Burn stays disabled until it fits — the dash never scales a layout to make it work.'
     )
   })
+})
 
+describe('describeLayoutOverflow: measures the right edge', () => {
   it('measures the right edge when the column span is the offender', () => {
     const overflow = describeLayoutOverflow(
       makeConfig([[{ id: 'w1', col: 8, colSpan: 6, row: 0, rowSpan: 2 }]])
