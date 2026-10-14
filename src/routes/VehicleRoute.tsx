@@ -17,41 +17,47 @@ const SECTION_LABELS: Record<VehicleSection, string> = {
 
 const SECTIONS = Object.keys(SECTION_LABELS) as VehicleSection[]
 
+const SECTION_BODIES: Record<VehicleSection, (showSignals: () => void) => ReactNode> = {
+  signals: () => <SignalsRoute />,
+  live: (showSignals) => <LiveDataRoute onShowSignals={showSignals} />,
+  bus: () => <CanBusPanel />,
+}
+
+interface VehicleNavProps {
+  section: VehicleSection
+  onSection: (section: VehicleSection) => void
+}
+
+const VehicleNav = ({ section, onSection }: VehicleNavProps) => (
+  <nav
+    aria-label="Vehicle"
+    className="flex shrink-0 flex-wrap gap-2 border-b border-ui-line px-3 py-2 md:px-6"
+  >
+    {SECTIONS.map((value) => (
+      <TogglePill
+        key={value}
+        tone="neutral"
+        active={value === section}
+        onClick={() => {
+          onSection(value)
+        }}
+      >
+        {SECTION_LABELS[value]}
+      </TogglePill>
+    ))}
+  </nav>
+)
+
 const VehicleRoute = () => {
   const [section, setSection] = useState<VehicleSection>('signals')
-
-  const bodies: Record<VehicleSection, ReactNode> = {
-    signals: <SignalsRoute />,
-    live: (
-      <LiveDataRoute
-        onShowSignals={() => {
-          setSection('signals')
-        }}
-      />
-    ),
-    bus: <CanBusPanel />,
+  const showSignals = () => {
+    setSection('signals')
   }
 
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-ui-bg">
-      <nav
-        aria-label="Vehicle"
-        className="flex shrink-0 flex-wrap gap-2 border-b border-ui-line px-3 py-2 md:px-6"
-      >
-        {SECTIONS.map((value) => (
-          <TogglePill
-            key={value}
-            tone="neutral"
-            active={value === section}
-            onClick={() => {
-              setSection(value)
-            }}
-          >
-            {SECTION_LABELS[value]}
-          </TogglePill>
-        ))}
-      </nav>
-      <Suspense fallback={<RouteLoading />}>{bodies[section]}</Suspense>
+      <VehicleNav section={section} onSection={setSection} />
+      <Suspense fallback={<RouteLoading />}>{SECTION_BODIES[section](showSignals)}</Suspense>
     </div>
   )
 }

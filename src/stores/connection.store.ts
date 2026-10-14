@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { getDeviceLink } from '../transport/link'
+import type { DeviceLink } from '../transport/device-link'
 import type { SerialStatus } from '../transport/serial-events'
 import { useDeviceStore } from './device.store'
 import { errorMessage } from '../lib/error-message'
@@ -18,51 +19,49 @@ interface ConnectionState {
   tryAutoReconnect: () => Promise<void>
 }
 
-export const useConnectionStore = create<ConnectionState>()((set) => {
-  const client = getDeviceLink()
+type DeviceStatusSync = (link: DeviceLink, reportable: string | null) => void
 
-  const unsubscribeStatus = client.onStatus((status, error) => {
+const syncDeviceStore: Partial<Record<SerialStatus, DeviceStatusSync>> = {
+  connected: (link) => {
+    useDeviceStore.getState().setConnected(link.kind)
+  },
+  disconnected: (_link, reportable) => {
+    const device = useDeviceStore.getState()
+    if (device.connected || reportable !== null) device.setDisconnected(reportable)
+  },
+}
+
+const followLinkStatus = (link: DeviceLink, set: (state: Partial<ConnectionState>) => void) => {
+  const unsubscribe = link.onStatus((status, error) => {
     const reportable = toReportableError(error)
     set({ status, lastError: reportable })
-    if (status === 'connected') {
-      useDeviceStore.getState().setConnected(client.kind)
-    } else if (status === 'disconnected') {
-      const device = useDeviceStore.getState()
-      if (device.connected || reportable) {
-        device.setDisconnected(reportable)
-      }
-    }
+    syncDeviceStore[status]?.(link, reportable)
   })
+  import.meta.hot?.dispose(unsubscribe)
+}
 
-  if (import.meta.hot) {
-    import.meta.hot.dispose(() => {
-      unsubscribeStatus()
-    })
-  }
+export const useConnectionStore = create<ConnectionState>()((set) => {
+  const link = getDeviceLink()
+  followLinkStatus(link, set)
 
   return {
-    status: client.getStatus(),
+    status: link.getStatus(),
     lastError: null,
-
     connect: async () => {
       try {
-        await client.connect()
+        await link.connect()
       } catch (err) {
-        const msg = errorMessage(err, 'connect_failed')
-        set({ lastError: toReportableError(msg) })
+        set({ lastError: toReportableError(errorMessage(err, 'connect_failed')) })
       }
     },
-
     disconnect: () => {
-      client.disconnect()
+      link.disconnect()
     },
-
     tryAutoReconnect: async () => {
       try {
-        await client.autoConnect()
+        await link.autoConnect()
       } catch (err) {
-        const msg = errorMessage(err, 'auto_reconnect_failed')
-        set({ lastError: msg })
+        set({ lastError: errorMessage(err, 'auto_reconnect_failed') })
       }
     },
   }
