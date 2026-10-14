@@ -144,43 +144,33 @@ const useResolvedSignalUnit = (widget: Widget): ResolvedUnit => {
   return useMemo(() => ({ symbol, toDisplay }), [symbol, toDisplay])
 }
 
-const WidgetPreviewImpl = ({
-  widget,
-  displayW: rawW,
-  displayH: rawH,
-  scale = 1,
-  palette,
-  revLimiting = false,
-  buttonState = 'off',
-  cycleStateIndex,
-  noAnimate = false,
-  testValue = null,
-}: WidgetPreviewProps) => {
-  const w = Math.max(0, rawW)
-  const h = Math.max(0, rawH)
-
-  const resolved = palette ? applyPalette(widget, palette) : widget
-  const danger = noAnimate ? false : isDangerState(resolved, testValue)
-  const { symbol: signalUnit, toDisplay } = useResolvedSignalUnit(resolved)
-  const unbound = isUnboundWidget(resolved)
-
-  const ctx: RenderContext = {
-    w,
-    h,
-    revLimiting: noAnimate ? false : revLimiting,
-    buttonState,
-    cycleStateIndex,
+const liveFlags = (props: WidgetPreviewProps, resolved: Widget) => {
+  const noAnimate = props.noAnimate ?? false
+  const testValue = props.testValue ?? null
+  return {
     noAnimate,
     testValue,
-    danger,
+    danger: noAnimate ? false : isDangerState(resolved, testValue),
+    revLimiting: noAnimate ? false : (props.revLimiting ?? false),
+  }
+}
+
+const WidgetPreviewImpl = (props: WidgetPreviewProps) => {
+  const { widget, palette, scale = 1, buttonState = 'off', cycleStateIndex } = props
+  const resolved = palette ? applyPalette(widget, palette) : widget
+  const { symbol: signalUnit, toDisplay } = useResolvedSignalUnit(resolved)
+  const ctx: RenderContext = {
+    w: Math.max(0, props.displayW),
+    h: Math.max(0, props.displayH),
+    buttonState,
+    cycleStateIndex,
     signalUnit,
     toDisplay,
-    unbound,
+    unbound: isUnboundWidget(resolved),
     scale,
+    ...liveFlags(props, resolved),
   }
-
-  const render = RENDERERS[resolved.config.type]
-  return render(resolved, ctx)
+  return RENDERERS[resolved.config.type](resolved, ctx)
 }
 
 export const WidgetPreview = memo(WidgetPreviewImpl)

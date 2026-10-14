@@ -1,14 +1,8 @@
 import { memo } from 'react'
-import {
-  STALE_PLACEHOLDER,
-  WIDGET_TOP_RULE,
-  deviceValueFontPx,
-  gearFontSize,
-  widgetTopRulePx,
-} from '@canshift/core'
-import { cn } from '@/lib/utils'
+import { STALE_PLACEHOLDER, deviceValueFontPx, gearFontSize } from '@canshift/core'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
-import { WIDGET_KICKER, ruleTier, widgetTopRule } from '../widget-preview.styles'
+import { WIDGET_KICKER } from '../widget-preview.styles'
+import { TopRule } from './TopRule'
 
 const FRAME = 'relative box-border flex flex-col items-center justify-center overflow-hidden'
 
@@ -32,18 +26,11 @@ export const GearPreview = memo(function GearPreview({
   const cfg = widget.config
   const st = widget.style
   const fontSize = cfg.big !== undefined ? deviceValueFontPx(cfg.big) * scale : gearFontSize(w, h)
-  const rulePx = widgetTopRulePx(Math.round(fontSize))
-  const ruleColor = rulePx === WIDGET_TOP_RULE.primaryPx ? st.textColor : WIDGET_TOP_RULE.trackColor
 
   return (
     // eslint-disable-next-line no-inline-style/no-inline-style
     <div className={FRAME} style={{ width: w, height: h }}>
-      <span
-        aria-hidden="true"
-        className={cn(widgetTopRule({ tier: ruleTier(rulePx) }))}
-        // eslint-disable-next-line no-inline-style/no-inline-style
-        style={{ background: ruleColor }}
-      />
+      <TopRule fontSize={fontSize} inkColor={st.textColor} />
       <span className={WIDGET_KICKER}>{formatSignalLabel(widget.signal)}</span>
       <div className={VALUE_ROW}>
         <span
