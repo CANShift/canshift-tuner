@@ -40,7 +40,7 @@ describe('deviceIpc.getConfig (#1703): passes a current-version valid config', (
   })
 
   it('migrates an old-version config to the current schema', async () => {
-    const oldConfig = { ...structuredClone(DEFAULT_SIM_CONFIG), version: '1.22.0' }
+    const oldConfig = { ...structuredClone(DEFAULT_SIM_CONFIG), version: '1.24.0' }
     respondWith({ ok: true, data: { config: oldConfig } })
 
     const result = await deviceIpc.getConfig()
@@ -49,13 +49,24 @@ describe('deviceIpc.getConfig (#1703): passes a current-version valid config', (
     if (result.kind !== 'ok') return
     expect(result.config.version).toBe(CURRENT_SCHEMA_VERSION)
     expect(result.migrationsApplied.length).toBeGreaterThan(0)
-    expect(result.migrationsApplied[0]).toContain('1.22.0')
+    expect(result.migrationsApplied[0]).toContain('1.24.0')
   })
 })
 
 describe('deviceIpc.getConfig (#1703): returns an error', () => {
   it('returns an error when the config has no usable version', async () => {
     respondWith({ ok: true, data: { config: { pages: [] } } })
+
+    const result = await deviceIpc.getConfig()
+
+    expect(result.kind).toBe('error')
+    if (result.kind !== 'error') return
+    expect(result.error).toContain('config_migration_failed')
+  })
+
+  it('refuses a config older than the migration floor', async () => {
+    const tooOld = { ...structuredClone(DEFAULT_SIM_CONFIG), version: '1.22.0' }
+    respondWith({ ok: true, data: { config: tooOld } })
 
     const result = await deviceIpc.getConfig()
 
