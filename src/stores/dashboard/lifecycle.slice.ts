@@ -1,4 +1,4 @@
-import type { DashboardConfig } from '@canshift/core'
+import type { CriticalAlert, DashboardConfig } from '@canshift/core'
 import { DEFAULT_UNIT_SYSTEM, defaultThemePreset } from '@canshift/core'
 import type { ScreenProfileId, UnitSystem } from '@canshift/core'
 import { DEFAULT_SIM_CONFIG } from '../../config/default-sim-config'
@@ -56,6 +56,14 @@ const setUnitsIn = (s: DashboardState, units: UnitSystem): void => {
   s.isDirty = true
 }
 
+const setCriticalAlertIn = (s: DashboardState, alert: CriticalAlert | null): void => {
+  if (!s.config) return
+  pushHistory(s, alert === null ? 'Cleared critical alert' : 'Changed critical alert')
+  if (alert === null) delete s.config.criticalAlert
+  else s.config.criticalAlert = alert
+  s.isDirty = true
+}
+
 const acceptPendingIn = (s: DashboardState): void => {
   if (s.pendingDeviceConfig) applyLoadedConfig(s, s.pendingDeviceConfig)
 }
@@ -69,6 +77,7 @@ export const createLifecycleSlice: SliceCreator<LifecycleSlice> = (set) => ({
     set((s) => applyLoadedConfig(s, { ...config, theme: config.theme ?? defaultThemePreset() })),
   setTargetProfile: (id) => set((s) => setTargetProfileIn(s, id)),
   setUnits: (units) => set((s) => setUnitsIn(s, units)),
+  setCriticalAlert: (alert) => set((s) => setCriticalAlertIn(s, alert)),
   loadFromDeviceOrDemo: (deviceConfig) => {
     let outcome: LoadOutcome = 'kept-edits'
     set((s) => {

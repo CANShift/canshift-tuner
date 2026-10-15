@@ -1,6 +1,7 @@
 import { memo } from 'react'
 import { STALE_PLACEHOLDER, deviceValueFontPx, gearFontSize } from '@canshift/core'
-import { type BaseRendererProps, formatSignalLabel } from './shared'
+import { type BaseRendererProps } from './shared'
+import { shownKicker } from '../../../lib/widget-kicker'
 import { WIDGET_KICKER } from '../widget-preview.styles'
 import { TopRule } from './TopRule'
 
@@ -31,7 +32,7 @@ export const GearPreview = memo(function GearPreview({
     // eslint-disable-next-line no-inline-style/no-inline-style
     <div className={FRAME} style={{ width: w, height: h }}>
       <TopRule fontSize={fontSize} inkColor={st.textColor} />
-      <span className={WIDGET_KICKER}>{formatSignalLabel(widget.signal)}</span>
+      <span className={WIDGET_KICKER}>{shownKicker(widget)}</span>
       <div className={VALUE_ROW}>
         <span
           className={VALUE}

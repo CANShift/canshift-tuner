@@ -157,7 +157,17 @@ describe('config and device commands', () => {
     expect(ctx.actions.scan).not.toHaveBeenCalled()
   })
 
-  it('says the critical alert has nowhere to go rather than pretending it worked', () => {
-    expect(run('/alert', context())[0]?.tone).toBe('error')
+  it('reports the critical alert the config carries', () => {
+    const criticalAlert = {
+      signal: 'oil_press_bar',
+      firesAt: 1,
+      direction: 'below',
+      acknowledgeOn: 'dash',
+    } as const
+    const ctx = context({ config: { ...config(), criticalAlert } })
+    expect(run('/alert', ctx)[0]?.text).toBe(
+      'oil_press_bar below 1 takes the screen until acknowledged on the dash.'
+    )
+    expect(run('/alert', context())[0]?.text).toBe('No critical alert. Set one under DEVICE.')
   })
 })

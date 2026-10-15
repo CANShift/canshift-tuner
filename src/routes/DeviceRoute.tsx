@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState } from 'react'
 import { RouteLoading } from '../components/shell/RouteLoading'
 import { ConfigBackupPanel } from '../components/device/ConfigBackupPanel'
+import { CriticalAlertSection } from '../components/device/CriticalAlertSection'
 import { DeviceFactsBand } from '../components/device/DeviceFactsBand'
 import { DeviceSection } from '../components/device/DeviceSection'
 import { DeviceSettingsSection } from '../components/device/DeviceSettingsSection'
@@ -55,6 +56,9 @@ const DeviceRoute = () => {
             }}
           />
           <ConfigBackupPanel />
+        </div>
+        <div className="min-[1100px]:col-span-2">
+          <CriticalAlertSection />
         </div>
         {definitionOpen && <BoardDefinition />}
       </div>

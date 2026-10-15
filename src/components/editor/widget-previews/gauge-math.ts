@@ -1,5 +1,5 @@
-import type { GaugeWidgetConfig, Widget } from '@canshift/core'
-import { GAUGE_ARC, gaugeArcPath, isValueInDanger } from '@canshift/core'
+import type { GaugeSeverity, GaugeWidgetConfig, SignalWarnLevels, Widget } from '@canshift/core'
+import { GAUGE_ARC, WIDGET_ZONE_COLORS, gaugeArcPath, gaugeSeverity } from '@canshift/core'
 
 export const DEMO_PCT = 0.65
 
@@ -26,16 +26,27 @@ export const shownValue = (
   return effectiveValue(shown, toDisplay(min), toDisplay(max))
 }
 
-export const isGaugeInDanger = (
+export const gaugePreviewSeverity = (
   cfg: GaugeWidgetConfig,
-  testValue: number | null | undefined
-): boolean => {
+  testValue: number | null | undefined,
+  signal?: SignalWarnLevels
+): GaugeSeverity => {
   const { raw } = effectiveValue(testValue, cfg.minValue, cfg.maxValue)
-  return isValueInDanger(raw, cfg.dangerLevel, cfg.dangerBelow)
+  return gaugeSeverity(raw, cfg, signal)
 }
 
-export const isDangerState = (widget: Widget, testValue: number | null | undefined): boolean =>
-  widget.config.type === 'gauge' && isGaugeInDanger(widget.config, testValue)
+export const widgetSeverity = (
+  widget: Widget,
+  testValue: number | null | undefined,
+  signal?: SignalWarnLevels
+): GaugeSeverity =>
+  widget.config.type === 'gauge' ? gaugePreviewSeverity(widget.config, testValue, signal) : 'normal'
+
+export const severityInk = (
+  severity: GaugeSeverity,
+  normalInk: string,
+  dangerInk: string
+): string => ({ normal: normalInk, warn: WIDGET_ZONE_COLORS.warning, danger: dangerInk })[severity]
 
 export const gaugeArcD = (
   cx: number,
