@@ -4,13 +4,16 @@ import {
   GAUGE_TRACK_COLORS,
   STALE_PLACEHOLDER,
   gaugeValueFontSize,
+  type GaugeSeverity,
   type GaugeWidgetConfig,
+  type SignalWarnLevels,
   type Widget,
 } from '@canshift/core'
 import { cn } from '@/lib/utils'
 import { WIDGET_DIM_COLOR } from '../widget-preview.styles'
-import { gaugeArcD, isGaugeInDanger, shownValue } from './gauge-math'
-import { type BaseRendererProps, formatSignalLabel } from './shared'
+import { gaugeArcD, gaugePreviewSeverity, severityInk, shownValue } from './gauge-math'
+import { type BaseRendererProps } from './shared'
+import { shownKicker } from '../../../lib/widget-kicker'
 import { MONO_FONT, UI_FONT, UI_LABEL_TRACKING, UI_LABEL_WEIGHT } from '../../../lib/typography'
 
 export interface GaugeArcRendererProps extends BaseRendererProps {
@@ -20,6 +23,7 @@ export interface GaugeArcRendererProps extends BaseRendererProps {
   testValue?: number | null
   toDisplay: (value: number) => number
   unbound?: boolean
+  signalWarn?: SignalWarnLevels | undefined
 }
 
 const SIGNAL_LABEL_FONT_SIZE = 9
@@ -45,6 +49,7 @@ interface ArcReading {
   valuePct: number
   valueStr: string
   inkColor: string
+  severity: GaugeSeverity
 }
 
 const arcReading = (
@@ -55,11 +60,12 @@ const arcReading = (
   const unbound = props.unbound ?? false
   const bound = shownValue(props.testValue, cfg.minValue, cfg.maxValue, props.toDisplay)
   const valuePct = unbound ? 0 : bound.pct
-  const inDanger = !unbound && isGaugeInDanger(cfg, props.testValue)
+  const severity = unbound ? 'normal' : gaugePreviewSeverity(cfg, props.testValue, props.signalWarn)
   return {
     valuePct,
     valueStr: unbound ? STALE_PLACEHOLDER : bound.raw.toFixed(cfg.decimalPlaces),
-    inkColor: inDanger ? widget.style.criticalColor : widget.style.textColor,
+    inkColor: severityInk(severity, widget.style.textColor, widget.style.criticalColor),
+    severity,
   }
 }
 
@@ -143,20 +149,20 @@ const ArcValue = ({ geometry, reading, fontSize, danger }: ArcValueProps) => (
   </text>
 )
 
-const SignalLabel = ({ signal }: { signal: string }) => (
+const SignalLabel = ({ widget, reading }: { widget: Widget; reading: ArcReading }) => (
   <text
     x={4}
     y={SIGNAL_LABEL_FONT_SIZE + 4}
     textAnchor="start"
     dominantBaseline="auto"
-    fill={WIDGET_DIM_COLOR}
+    fill={reading.severity === 'normal' ? WIDGET_DIM_COLOR : reading.inkColor}
     fontSize={SIGNAL_LABEL_FONT_SIZE}
     fontFamily={UI_FONT}
     fontWeight={UI_LABEL_WEIGHT}
     letterSpacing={UI_LABEL_TRACKING}
     className="uppercase"
   >
-    {formatSignalLabel(signal).toUpperCase()}
+    {shownKicker(widget)}
   </text>
 )
 
@@ -172,7 +178,7 @@ export const GaugeArcPreview = memo(function GaugeArcPreview(props: GaugeArcRend
       {cfg.revFlash === true && <RevFlash geometry={geometry} w={w} h={h} active={revLimiting} />}
       <ArcTracks geometry={geometry} reading={reading} danger={danger} />
       <ArcValue geometry={geometry} reading={reading} fontSize={fontSize} danger={danger} />
-      <SignalLabel signal={widget.signal} />
+      <SignalLabel widget={widget} reading={reading} />
     </svg>
   )
 })

@@ -35,10 +35,16 @@ export const THEME: CliCommand = {
 
 export const ALERT: CliCommand = {
   name: 'alert',
-  hint: 'alert — the critical alert (not in the schema yet)',
-  run: () => [
-    err('The critical alert has no home in the config yet — CANShift/canshift-core#127.'),
-  ],
+  hint: 'alert — show the critical alert (set it under DEVICE)',
+  run: (context) => {
+    const alert = context.config?.criticalAlert
+    if (alert === undefined) return [out('No critical alert. Set one under DEVICE.')]
+    return [
+      out(
+        `${alert.signal} ${alert.direction} ${String(alert.firesAt)} takes the screen until acknowledged on the ${alert.acknowledgeOn}.`
+      ),
+    ]
+  },
 }
 
 const actionCommand = (

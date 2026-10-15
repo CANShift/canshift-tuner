@@ -18,6 +18,27 @@ describe('widgetLabel', () => {
       widgetLabel(widget({ signal: 'coolant_temp_c', config: { type: 'gauge' } } as never))
     ).toBe('WATER')
   })
+})
+
+describe('widgetLabel — authored kickers', () => {
+  it('prefers an authored gauge or gear kicker over the signal label', () => {
+    expect(
+      widgetLabel(
+        widget({ signal: 'coolant_temp_c', config: { type: 'gauge', kicker: 'H2O' } } as never)
+      )
+    ).toBe('H2O')
+    expect(
+      widgetLabel(widget({ signal: 'gear', config: { type: 'gear', kicker: 'BOX' } } as never))
+    ).toBe('BOX')
+  })
+
+  it('ignores an empty authored kicker', () => {
+    expect(
+      widgetLabel(
+        widget({ signal: 'coolant_temp_c', config: { type: 'gauge', kicker: '' } } as never)
+      )
+    ).toBe('WATER')
+  })
 
   it('falls back to the widget type', () => {
     expect(widgetLabel(widget({ config: { type: 'gear' } } as never))).toBe('GEAR')

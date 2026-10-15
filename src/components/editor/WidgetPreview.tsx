@@ -1,7 +1,14 @@
 import * as React from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import type { ComponentType } from 'react'
-import type { ControlState, SignalDef, Widget, WidgetConfig, PagePalette } from '@canshift/core'
+import type {
+  ControlState,
+  SignalDef,
+  SignalWarnLevels,
+  Widget,
+  WidgetConfig,
+  PagePalette,
+} from '@canshift/core'
 import { MAXXECU_SIGNAL_UNITS } from '@canshift/core'
 import { useSignalStore } from '../../stores/signal.store'
 import { ButtonPreview } from './widget-previews/Button'
@@ -12,7 +19,7 @@ import { ShiftLightPreview } from './widget-previews/ShiftLight'
 import { ImagePreview } from './widget-previews/Image'
 import { TimerPreview } from './widget-previews/Timer'
 import { WarningPreview } from './widget-previews/Warning'
-import { isDangerState } from './widget-previews/gauge-math'
+import { widgetSeverity } from './widget-previews/gauge-math'
 import { isUnboundWidget } from '../../utils/unbound-widgets'
 import { useDisplayUnits } from '../../hooks/useDisplayUnits'
 import { convertibleUnitFor, displayUnitFor } from '../../lib/unit-display'
@@ -39,6 +46,7 @@ interface RenderContext {
   noAnimate: boolean
   testValue: number | null
   danger: boolean
+  signalWarn: SignalWarnLevels | undefined
   signalUnit: string
   toDisplay: (value: number) => number
   unbound: boolean
@@ -73,6 +81,7 @@ const RENDERERS: RendererDispatch = {
         h={ctx.h}
         revLimiting={ctx.revLimiting}
         danger={ctx.danger}
+        signalWarn={ctx.signalWarn}
         testValue={ctx.testValue}
         signalUnit={ctx.signalUnit}
         toDisplay={ctx.toDisplay}
@@ -144,13 +153,21 @@ const useResolvedSignalUnit = (widget: Widget): ResolvedUnit => {
   return useMemo(() => ({ symbol, toDisplay }), [symbol, toDisplay])
 }
 
-const liveFlags = (props: WidgetPreviewProps, resolved: Widget) => {
+const useSignalWarn = (widget: Widget): SignalWarnLevels | undefined =>
+  useSignalStore((s) => s.signals.find((candidate) => candidate.name === widget.signal))
+
+const liveFlags = (
+  props: WidgetPreviewProps,
+  resolved: Widget,
+  signalWarn: SignalWarnLevels | undefined
+) => {
   const noAnimate = props.noAnimate ?? false
   const testValue = props.testValue ?? null
   return {
     noAnimate,
     testValue,
-    danger: noAnimate ? false : isDangerState(resolved, testValue),
+    signalWarn,
+    danger: noAnimate ? false : widgetSeverity(resolved, testValue, signalWarn) === 'danger',
     revLimiting: noAnimate ? false : (props.revLimiting ?? false),
   }
 }
@@ -159,6 +176,7 @@ const WidgetPreviewImpl = (props: WidgetPreviewProps) => {
   const { widget, palette, scale = 1, buttonState = 'off', cycleStateIndex } = props
   const resolved = palette ? applyPalette(widget, palette) : widget
   const { symbol: signalUnit, toDisplay } = useResolvedSignalUnit(resolved)
+  const signalWarn = useSignalWarn(resolved)
   const ctx: RenderContext = {
     w: Math.max(0, props.displayW),
     h: Math.max(0, props.displayH),
@@ -168,7 +186,7 @@ const WidgetPreviewImpl = (props: WidgetPreviewProps) => {
     toDisplay,
     unbound: isUnboundWidget(resolved),
     scale,
-    ...liveFlags(props, resolved),
+    ...liveFlags(props, resolved, signalWarn),
   }
   return RENDERERS[resolved.config.type](resolved, ctx)
 }

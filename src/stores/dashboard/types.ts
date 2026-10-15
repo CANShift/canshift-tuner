@@ -1,6 +1,7 @@
 import type { HistoryEntry } from './helpers'
 import type { StateCreator } from 'zustand'
 import type {
+  CriticalAlert,
   DashboardConfig,
   PageConfig,
   PageTemplate,
@@ -24,6 +25,7 @@ export interface LifecycleSlice {
   setConfig: (config: DashboardConfig) => void
   setTargetProfile: (id: ScreenProfileId) => void
   setUnits: (units: UnitSystem) => void
+  setCriticalAlert: (alert: CriticalAlert | null) => void
   loadFromDeviceOrDemo: (deviceConfig: DashboardConfig | null) => LoadFromDeviceOrDemoResult
   acceptPendingDeviceConfig: () => void
   dismissPendingDeviceConfig: () => void

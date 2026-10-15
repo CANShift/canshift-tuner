@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import type { GaugeWidgetConfig, Widget } from '@canshift/core'
+import { WIDGET_ZONE_COLORS, type GaugeWidgetConfig, type Widget } from '@canshift/core'
 import { GaugeArcPreview } from './GaugeArc'
 
 const TEXT_COLOR = '#FFFFFF'
@@ -20,10 +20,10 @@ const oilPressure: Widget = {
   } as GaugeWidgetConfig,
 } as Widget
 
-const valueInk = (testValue: number, unbound = false): string | undefined => {
+const valueInk = (testValue: number, unbound = false, widget = oilPressure): string | undefined => {
   const markup = renderToStaticMarkup(
     <GaugeArcPreview
-      widget={oilPressure}
+      widget={widget}
       w={200}
       h={200}
       scale={1}
@@ -44,6 +44,11 @@ describe('the arc gauge value ink', () => {
 
   it('stays plain while a low-side gauge sits above its level', () => {
     expect(valueInk(5.2)).toBe(TEXT_COLOR)
+  })
+
+  it('turns amber between a widget warn level and danger', () => {
+    const warned = { ...oilPressure, config: { ...oilPressure.config, warnLevel: 2.5 } } as Widget
+    expect(valueInk(2.0, false, warned)).toBe(WIDGET_ZONE_COLORS.warning)
   })
 
   it('stays plain on an unbound gauge', () => {

@@ -1,15 +1,13 @@
 import type { Widget } from '@canshift/core'
 import { cn } from '@/lib/utils'
+import type { GaugeThresholds } from './sidebar/useGaugeThresholds'
 
 const FIELD =
   'w-full border border-ui-line-strong bg-transparent px-[7px] py-[5px] font-mono text-[13px] text-ui-ink outline-none'
 const LABEL = 'mb-[5px] block font-mono text-[10px] tracking-[0.16em]'
 
-const NAME_UNAVAILABLE =
-  'Only a button carries its own label today — every other type reads it from the signal. CANShift/canshift-core#125.'
-const WARN_UNAVAILABLE =
-  'No widget carries a warn threshold, and the dash draws no amber tier. CANShift/canshift-firmware#266.'
-const DANGER_UNAVAILABLE = 'Only a gauge carries a danger threshold today.'
+const NAME_UNAVAILABLE = 'This widget draws no label on the dash.'
+const THRESHOLD_UNAVAILABLE = 'Only a gauge colours itself by threshold.'
 
 export interface SelectedWidgetEditorProps {
   widget: Widget
@@ -19,11 +17,7 @@ export interface SelectedWidgetEditorProps {
   onMove: (direction: 1 | -1) => void
   canMoveUp: boolean
   canMoveDown: boolean
-  dangerAt: number | null
-  dangerBelow: boolean
-  dangerEditable: boolean
-  onDangerAt: (value: number | null) => void
-  onDangerBelow: (below: boolean) => void
+  thresholds: GaugeThresholds
 }
 
 export const parseThreshold = (raw: string): number | null => {
@@ -59,50 +53,39 @@ const NameRow = ({ name, nameEditable, onName, onMove, canMoveUp, canMoveDown }:
   </div>
 )
 
-const WarnField = () => (
-  <label className="block">
-    <span className={cn(LABEL, 'text-ui-warning')}>WARN AT</span>
-    <input
-      readOnly
-      value=""
-      placeholder="—"
-      title={WARN_UNAVAILABLE}
-      aria-label="Warn threshold"
-      className={cn(FIELD, 'cursor-not-allowed text-ui-faint')}
-    />
-  </label>
-)
+interface ThresholdFieldProps {
+  label: string
+  tone: string
+  value: number | null
+  editable: boolean
+  onValue: (value: number | null) => void
+}
 
-type DangerProps = Pick<
-  SelectedWidgetEditorProps,
-  'dangerAt' | 'dangerBelow' | 'dangerEditable' | 'onDangerAt' | 'onDangerBelow'
->
-
-const DangerField = ({ dangerAt, dangerEditable, onDangerAt }: DangerProps) => (
+const ThresholdField = ({ label, tone, value, editable, onValue }: ThresholdFieldProps) => (
   <label className="block">
-    <span className={cn(LABEL, 'text-ui-danger')}>DANGER AT</span>
+    <span className={cn(LABEL, tone)}>{label}</span>
     <input
-      value={dangerAt === null ? '' : String(dangerAt)}
-      readOnly={!dangerEditable}
+      value={value === null ? '' : String(value)}
+      readOnly={!editable}
       placeholder="—"
-      title={dangerEditable ? undefined : DANGER_UNAVAILABLE}
-      aria-label="Danger threshold"
+      title={editable ? undefined : THRESHOLD_UNAVAILABLE}
+      aria-label={`${label.toLowerCase()} threshold`}
       spellCheck={false}
       onChange={(e) => {
-        onDangerAt(parseThreshold(e.target.value))
+        onValue(parseThreshold(e.target.value))
       }}
-      className={cn(FIELD, !dangerEditable && 'cursor-not-allowed text-ui-faint')}
+      className={cn(FIELD, !editable && 'cursor-not-allowed text-ui-faint')}
     />
   </label>
 )
 
-const DangerDirection = ({ dangerBelow, dangerEditable, onDangerBelow }: DangerProps) => (
+const ThresholdDirection = ({ thresholds }: { thresholds: GaugeThresholds }) => (
   <select
-    value={dangerBelow ? 'below' : 'above'}
-    disabled={!dangerEditable}
-    aria-label="Danger direction"
+    value={thresholds.below ? 'below' : 'above'}
+    disabled={!thresholds.editable}
+    aria-label="Threshold direction"
     onChange={(e) => {
-      onDangerBelow(e.target.value === 'below')
+      thresholds.setBelow(e.target.value === 'below')
     }}
     className="border border-ui-line-strong bg-transparent px-1 py-1.5 font-mono text-[12.5px] text-ui-ink disabled:cursor-not-allowed disabled:text-ui-faint"
   >
@@ -111,18 +94,37 @@ const DangerDirection = ({ dangerBelow, dangerEditable, onDangerBelow }: DangerP
   </select>
 )
 
-export const SelectedWidgetEditor = ({ widget, ...props }: SelectedWidgetEditorProps) => (
-  <div className="shrink-0 border-t-2 border-ui-rule bg-ui-panel px-4 pb-[15px] pt-[13px]">
-    <NameRow {...props} />
-    <div className="grid grid-cols-[1fr_1fr_84px] items-end gap-2">
-      <WarnField />
-      <DangerField {...props} />
-      <DangerDirection {...props} />
-    </div>
-    <p className="mt-2 font-mono text-[10.5px] text-ui-faint">{widget.type}</p>
+const ThresholdRow = ({ thresholds }: { thresholds: GaugeThresholds }) => (
+  <div className="grid grid-cols-[1fr_1fr_84px] items-end gap-2">
+    <ThresholdField
+      label="WARN AT"
+      tone="text-ui-warning"
+      value={thresholds.warnAt}
+      editable={thresholds.editable}
+      onValue={thresholds.setWarnAt}
+    />
+    <ThresholdField
+      label="DANGER AT"
+      tone="text-ui-danger"
+      value={thresholds.dangerAt}
+      editable={thresholds.editable}
+      onValue={thresholds.setDangerAt}
+    />
+    <ThresholdDirection thresholds={thresholds} />
   </div>
 )
 
+export const SelectedWidgetEditor = ({
+  widget,
+  thresholds,
+  ...props
+}: SelectedWidgetEditorProps) => (
+  <div className="shrink-0 border-t-2 border-ui-rule bg-ui-panel px-4 pb-[15px] pt-[13px]">
+    <NameRow {...props} />
+    <ThresholdRow thresholds={thresholds} />
+    <p className="mt-2 font-mono text-[10.5px] text-ui-faint">{widget.type}</p>
+  </div>
+)
 interface MoveButtonProps {
   label: string
   disabled: boolean

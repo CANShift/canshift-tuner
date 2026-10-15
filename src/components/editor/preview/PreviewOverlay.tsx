@@ -4,6 +4,8 @@ import { CutBand } from './CutBand'
 import { trackColorFor } from '../../../lib/track-color'
 import { AlertTakeover, SplashTakeover } from './Takeover'
 import type { PreviewMode } from './preview-modes'
+import { useCriticalAlert } from '../../device/useCriticalAlert'
+import { takeoverTextFor } from '../../../lib/critical-alert'
 
 const SAMPLE_CUT = {
   name: 'OVERBOOST',
@@ -15,6 +17,15 @@ const SAMPLE_CUT = {
 const SAMPLE_SPLASH = { name: 'ANTI-LAG', state: 'ARMED', detail: 'EGT 780 °C · 12 s' }
 
 const SAMPLE_ALERT = { name: 'OIL PRESS', value: '1.1', rule: 'below 1.5 bar' }
+
+const ConfiguredAlertTakeover = ({ scale }: { scale: number }) => {
+  const { alert, shownFiresAt, unit } = useCriticalAlert()
+  const text =
+    alert === undefined || shownFiresAt === null
+      ? SAMPLE_ALERT
+      : takeoverTextFor(alert, shownFiresAt, unit)
+  return <AlertTakeover scale={scale} {...text} />
+}
 
 export interface PreviewOverlayProps {
   mode: PreviewMode
@@ -45,7 +56,7 @@ const OVERLAYS: Record<PreviewMode, (ctx: OverlayContext) => ReactNode> = {
       {...SAMPLE_SPLASH}
     />
   ),
-  alert: ({ scale }) => <AlertTakeover scale={scale} {...SAMPLE_ALERT} />,
+  alert: ({ scale }) => <ConfiguredAlertTakeover scale={scale} />,
 }
 
 export const PreviewOverlay = ({ mode, ...ctx }: PreviewOverlayProps) => OVERLAYS[mode](ctx)

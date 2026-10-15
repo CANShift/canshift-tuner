@@ -121,3 +121,34 @@ describe('keeping or replacing local config (#1741)', () => {
     expect(useDashboardStore.getState().isDirty).toBe(false)
   })
 })
+
+describe('setCriticalAlert', () => {
+  const alert = {
+    signal: 'oil_press_bar',
+    firesAt: 1,
+    direction: 'below',
+    acknowledgeOn: 'dash',
+  } as const
+
+  it('writes the alert onto the config and marks it dirty', () => {
+    useDashboardStore.getState().setConfig(makeConfig('p1'))
+    useDashboardStore.getState().setCriticalAlert(alert)
+    const state = useDashboardStore.getState()
+    expect(state.config?.criticalAlert).toEqual(alert)
+    expect(state.isDirty).toBe(true)
+  })
+
+  it('removes the key entirely when cleared, so the config validates without it', () => {
+    useDashboardStore.getState().setConfig(makeConfig('p1'))
+    useDashboardStore.getState().setCriticalAlert(alert)
+    useDashboardStore.getState().setCriticalAlert(null)
+    expect(useDashboardStore.getState().config).not.toHaveProperty('criticalAlert')
+  })
+
+  it('can be undone', () => {
+    useDashboardStore.getState().setConfig(makeConfig('p1'))
+    useDashboardStore.getState().setCriticalAlert(alert)
+    useDashboardStore.getState().undo()
+    expect(useDashboardStore.getState().config).not.toHaveProperty('criticalAlert')
+  })
+})
