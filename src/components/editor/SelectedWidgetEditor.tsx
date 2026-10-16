@@ -1,6 +1,6 @@
 import type { Widget } from '@canshift/core'
 import { cn } from '@/lib/utils'
-import type { GaugeThresholds } from './sidebar/useGaugeThresholds'
+import type { GaugeThresholds } from '../../hooks/useGaugeThresholds'
 
 const FIELD =
   'w-full border border-ui-line-strong bg-transparent px-[7px] py-[5px] font-mono text-[13px] text-ui-ink outline-none'

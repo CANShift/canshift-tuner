@@ -1,7 +1,7 @@
 import type { GaugeWidgetConfig, Widget } from '@canshift/core'
-import { useDashboardStore } from '../../../stores/dashboard.store'
-import { useSignalStore } from '../../../stores/signal.store'
-import { useDisplayUnits } from '../../../hooks/useDisplayUnits'
+import { useDashboardStore } from '../stores/dashboard.store'
+import { useSignalStore } from '../stores/signal.store'
+import { useDisplayUnits } from './useDisplayUnits'
 
 const ENTRY_DECIMALS = 2
 
@@ -13,6 +13,7 @@ export interface GaugeThresholds {
   dangerAt: number | null
   below: boolean
   editable: boolean
+  unit: string
   setWarnAt: (value: number | null) => void
   setDangerAt: (value: number | null) => void
   setBelow: (below: boolean) => void
@@ -42,6 +43,7 @@ export const useGaugeThresholds = (pageId: string, widget: Widget): GaugeThresho
     dangerAt: shown(gauge?.dangerLevel),
     below: gauge?.dangerBelow === true,
     editable: gauge !== null,
+    unit: units.unitOf(unit),
     setWarnAt: (value) => {
       if (gauge === null) return
       write(withWarnLevel(gauge, value === null ? null : units.storedValueOf(value, unit)))

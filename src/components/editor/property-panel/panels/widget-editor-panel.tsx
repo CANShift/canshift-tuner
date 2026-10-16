@@ -21,7 +21,7 @@ const DELETE_BUTTON = [
 
 const DANGER_FG = 'hsl(var(--status-danger))'
 
-const CONFIG_FIELDS: Partial<
+export const CONFIG_FIELDS: Partial<
   Record<WidgetType, (props: ConfigFieldsProps) => React.JSX.Element | null>
 > = {
   gauge: GaugeFields,
@@ -30,7 +30,7 @@ const CONFIG_FIELDS: Partial<
   timer: TimerFields,
 }
 
-const SIGNAL_HIDDEN_TYPES = new Set<WidgetType>(['button', 'timer', 'image'])
+export const SIGNAL_HIDDEN_TYPES = new Set<WidgetType>(['button', 'timer', 'image'])
 const SIZE_HIDDEN_TYPES = new Set<WidgetType>(['gauge'])
 
 interface WidgetEditorPanelProps {
@@ -64,7 +64,7 @@ export const dayModeStyle = (style: Widget['style'], follow: boolean): Widget['s
   return follow ? rest : { ...rest, respectDayMode: false }
 }
 
-const useHexParser = () => {
+export const useHexParser = () => {
   const pushLog = useLogStore((s) => s.push)
   const [colorError, setColorError] = useState<string | null>(null)
   const safeParseHex = useCallback(
@@ -124,7 +124,7 @@ const SignalField = ({ widget, signals, patch }: FieldProps) => (
   </PanelField>
 )
 
-const DayModeField = ({ widget, patch }: Omit<FieldProps, 'signals'>) => (
+export const DayModeField = ({ widget, patch }: Omit<FieldProps, 'signals'>) => (
   <PanelField label="Follow day-mode text colour">
     <label className="flex cursor-pointer items-center gap-1.5 text-[12px] text-brand-neutral-600">
       <Checkbox
