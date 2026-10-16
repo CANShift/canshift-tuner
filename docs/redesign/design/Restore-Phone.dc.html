@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Restore confirm, phone</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+          a {
+            color: #ff6b6b;
+          }
+          a:hover {
+            color: #ff8f8f;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 390px;
+          height: 844px;
+          position: relative;
+          overflow: hidden;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        "
+      >
+        <header
+          style="
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            height: 56px;
+            box-sizing: border-box;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #2b2f35;
+          "
+        >
+          <span
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              font-size: 15px;
+              font-weight: 600;
+            "
+            ><span style="width: 8px; height: 8px; border-radius: 4px; background: #3dd68c"></span
+            >Connected</span
+          >
+          <span
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+              height: 44px;
+              padding: 0 14px;
+              border-radius: 22px;
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              font-size: 14px;
+            "
+            ><svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#3DD68C"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M5 12l5 5L20 7"></path></svg
+            >On the dash</span
+          >
+        </header>
+        <div style="position: absolute; left: 16px; top: 68px; font-size: 24px; font-weight: 700">
+          Dash
+        </div>
+        <div
+          aria-hidden="true"
+          style="position: absolute; inset: 0; background: rgba(0, 0, 0, 0.7)"
+        ></div>
+
+        <section
+          role="alertdialog"
+          aria-labelledby="rt"
+          style="
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            bottom: 24px;
+            background: #16181b;
+            border: 1px solid #2b2f35;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+          "
+        >
+          <h2 id="rt" style="margin: 0; font-size: 21px; line-height: 1.25">
+            Replace everything with this backup?
+          </h2>
+          <div
+            style="
+              background: #0e0f11;
+              border: 1px solid #2b2f35;
+              border-radius: 10px;
+              padding: 12px;
+              display: flex;
+              gap: 12px;
+              align-items: flex-start;
+            "
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#A0A6AD"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              style="flex: none"
+            >
+              <path d="M6 2h8l5 5v15H6z"></path>
+              <path d="M14 2v5h5"></path>
+            </svg>
+            <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+              <span style="font-size: 15px; font-weight: 600; overflow-wrap: anywhere"
+                >canshift-backup-2026-10-02.json</span
+              >
+              <span style="font-size: 13px; color: #a0a6ad"
+                >Saved 2 Oct 2026 · Haltech Elite 2500 · 3 pages</span
+              >
+            </div>
+          </div>
+          <div style="font-size: 15px; line-height: 1.5; color: #c9cdd2">
+            Your pages, gauges, car and settings on the dash will be replaced. Save a backup first
+            if you might want them back.
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <button
+              style="
+                height: 52px;
+                border-radius: 10px;
+                background: #d63333;
+                color: #ffffff;
+                border: 0;
+                font: inherit;
+                font-size: 16px;
+                font-weight: 600;
+              "
+            >
+              Replace and send to dash
+            </button>
+            <button
+              style="
+                height: 48px;
+                border-radius: 10px;
+                background: #1e2125;
+                color: #f2f3f5;
+                border: 1px solid #2b2f35;
+                font: inherit;
+                font-size: 15px;
+              "
+            >
+              Save current setup first
+            </button>
+            <button
+              style="
+                height: 48px;
+                border-radius: 10px;
+                background: transparent;
+                color: #f2f3f5;
+                border: 0;
+                font: inherit;
+                font-size: 15px;
+              "
+            >
+              Cancel
+            </button>
+          </div>
+        </section>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+      class Component extends DCLogic {
+        renderVals() {
+          return {};
+        }
+      }
+    </script>
+  </body>
+</html>

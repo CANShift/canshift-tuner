@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dash settings, phone</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+          a {
+            color: #ff6b6b;
+          }
+          a:hover {
+            color: #ff8f8f;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 390px;
+          height: 844px;
+          position: relative;
+          overflow: hidden;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        "
+      >
+        <header
+          style="
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            height: 56px;
+            box-sizing: border-box;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #2b2f35;
+          "
+        >
+          <span
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              font-size: 15px;
+              font-weight: 600;
+            "
+            ><span style="width: 8px; height: 8px; border-radius: 4px; background: #3dd68c"></span
+            >Connected</span
+          >
+          <button
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+              height: 44px;
+              padding: 0 14px;
+              border-radius: 22px;
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              color: #f2f3f5;
+              font: inherit;
+              font-size: 14px;
+            "
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#3DD68C"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M5 12l5 5L20 7"></path></svg
+            >On the dash
+          </button>
+        </header>
+
+        <main
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 56px;
+            bottom: 84px;
+            overflow: hidden;
+            box-sizing: border-box;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+          "
+        >
+          <h1 style="margin: 0; font-size: 24px; line-height: 28px">Dash</h1>
+
+          <section
+            style="
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 14px;
+              padding: 4px 14px;
+              display: flex;
+              flex-direction: column;
+            "
+          >
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                height: 56px;
+                border-bottom: 1px solid #23262b;
+              "
+            >
+              <span style="flex: 1; font-size: 15px">Units</span>
+              <div
+                role="group"
+                aria-label="Units"
+                style="
+                  display: flex;
+                  background: #0e0f11;
+                  border: 1px solid #2b2f35;
+                  border-radius: 10px;
+                  padding: 2px;
+                "
+              >
+                <button
+                  aria-pressed="true"
+                  style="
+                    height: 40px;
+                    padding: 0 14px;
+                    border-radius: 8px;
+                    background: #f2f3f5;
+                    color: #0e0f11;
+                    border: 0;
+                    font: inherit;
+                    font-size: 14px;
+                    font-weight: 600;
+                  "
+                >
+                  Metric
+                </button>
+                <button
+                  aria-pressed="false"
+                  style="
+                    height: 40px;
+                    padding: 0 14px;
+                    border-radius: 8px;
+                    background: transparent;
+                    color: #c9cdd2;
+                    border: 0;
+                    font: inherit;
+                    font-size: 14px;
+                  "
+                >
+                  Imperial
+                </button>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; height: 56px">
+              <label for="bright" style="font-size: 15px; width: 84px">Brightness</label>
+              <input
+                id="bright"
+                type="range"
+                min="10"
+                max="100"
+                value="80"
+                style="flex: 1; accent-color: #ff4747; height: 44px"
+              />
+              <span
+                style="
+                  width: 40px;
+                  text-align: right;
+                  font-size: 14px;
+                  color: #c9cdd2;
+                  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+                "
+                >80%</span
+              >
+            </div>
+          </section>
+
+          <section
+            aria-label="Full-screen alert"
+            style="
+              border: 2px solid #d63333;
+              border-radius: 14px;
+              overflow: hidden;
+              display: flex;
+              flex-direction: column;
+              background: #16181b;
+            "
+          >
+            <div
+              style="
+                background: #d63333;
+                color: #ffffff;
+                height: 44px;
+                padding: 0 14px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+              "
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#FFFFFF"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"></path>
+              </svg>
+              <span style="font-size: 16px; font-weight: 700">Full-screen alert</span>
+            </div>
+            <div style="padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 8px">
+              <div style="font-size: 13px; color: #c9cdd2">Takes over the whole dash screen.</div>
+              <div style="display: flex; align-items: center; gap: 12px">
+                <span style="width: 92px; font-size: 15px">Signal</span>
+                <button
+                  style="
+                    flex: 1;
+                    height: 48px;
+                    padding: 0 12px;
+                    border-radius: 10px;
+                    background: #0e0f11;
+                    border: 1px solid #2b2f35;
+                    color: #f2f3f5;
+                    font: inherit;
+                    font-size: 15px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                  "
+                >
+                  Oil pressure<svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#A0A6AD"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M6 9l6 6 6-6"></path>
+                  </svg>
+                </button>
+              </div>
+              <div style="display: flex; align-items: center; gap: 12px">
+                <span style="width: 92px; font-size: 15px">When it goes</span>
+                <div
+                  role="group"
+                  aria-label="Direction"
+                  style="
+                    flex: 1;
+                    display: grid;
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                    background: #0e0f11;
+                    border: 1px solid #2b2f35;
+                    border-radius: 10px;
+                    padding: 2px;
+                  "
+                >
+                  <button
+                    aria-pressed="true"
+                    style="
+                      height: 44px;
+                      border-radius: 8px;
+                      background: #f2f3f5;
+                      color: #0e0f11;
+                      border: 0;
+                      font: inherit;
+                      font-size: 15px;
+                      font-weight: 600;
+                    "
+                  >
+                    Below
+                  </button>
+                  <button
+                    aria-pressed="false"
+                    style="
+                      height: 44px;
+                      border-radius: 8px;
+                      background: transparent;
+                      color: #c9cdd2;
+                      border: 0;
+                      font: inherit;
+                      font-size: 15px;
+                    "
+                  >
+                    Above
+                  </button>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 12px">
+                <label for="alertv" style="width: 92px; font-size: 15px">Value</label>
+                <input
+                  id="alertv"
+                  value="1.0"
+                  inputmode="decimal"
+                  style="
+                    flex: 1;
+                    min-width: 0;
+                    height: 48px;
+                    box-sizing: border-box;
+                    padding: 0 12px;
+                    border-radius: 10px;
+                    background: #0e0f11;
+                    border: 1px solid #2b2f35;
+                    color: #f2f3f5;
+                    font-size: 16px;
+                    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+                  "
+                />
+                <span style="width: 28px; font-size: 14px; color: #a0a6ad">bar</span>
+              </div>
+            </div>
+          </section>
+
+          <section
+            style="
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 14px;
+              padding: 8px 14px;
+              display: flex;
+              align-items: center;
+              gap: 12px;
+            "
+          >
+            <div style="flex: 1; display: flex; flex-direction: column">
+              <span style="font-size: 15px">CAN bus speed</span
+              ><span style="font-size: 12px; color: #a0a6ad"
+                >Must match your car. Usually 500.</span
+              >
+            </div>
+            <button
+              style="
+                height: 48px;
+                padding: 0 12px;
+                border-radius: 10px;
+                background: #0e0f11;
+                border: 1px solid #2b2f35;
+                color: #f2f3f5;
+                font: inherit;
+                font-size: 15px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              "
+            >
+              500 kbit/s<svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#A0A6AD"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M6 9l6 6 6-6"></path>
+              </svg>
+            </button>
+          </section>
+
+          <section
+            style="
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 14px;
+              padding: 0 14px;
+              display: flex;
+              flex-direction: column;
+            "
+          >
+            <a
+              href="#"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                height: 48px;
+                border-bottom: 1px solid #23262b;
+                color: #f2f3f5;
+                text-decoration: none;
+                font-size: 15px;
+              "
+              ><svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#A0A6AD"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 4v12M7 11l5 5 5-5M4 20h16"></path></svg
+              ><span style="flex: 1">Save backup file</span></a
+            >
+            <a
+              href="#"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                height: 48px;
+                border-bottom: 1px solid #23262b;
+                color: #f2f3f5;
+                text-decoration: none;
+                font-size: 15px;
+              "
+              ><svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#A0A6AD"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 16V4M7 9l5-5 5 5M4 20h16"></path></svg
+              ><span style="flex: 1">Restore from file…</span></a
+            >
+            <a
+              href="#"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                height: 48px;
+                color: #f2f3f5;
+                text-decoration: none;
+                font-size: 15px;
+              "
+              ><svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#A0A6AD"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="5" y="5" width="14" height="14" rx="2"></rect>
+                <path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"></path></svg
+              ><span style="flex: 1">Update firmware</span
+              ><span style="font-size: 13px; color: #a0a6ad">2.4.1</span
+              ><svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#6B7178"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M9 6l6 6-6 6"></path></svg
+            ></a>
+          </section>
+        </main>
+
+        <nav
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 84px;
+            box-sizing: border-box;
+            padding-bottom: 20px;
+            background: #16181b;
+            border-top: 1px solid #2b2f35;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+          "
+        >
+          <a
+            href="#"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 4px;
+              color: #a0a6ad;
+              text-decoration: none;
+              font-size: 12px;
+            "
+            ><svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="1"></rect></svg
+            >Gauges</a
+          >
+          <a
+            href="#"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 4px;
+              color: #a0a6ad;
+              text-decoration: none;
+              font-size: 12px;
+            "
+            ><svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M3 13l2-6h14l2 6v5H3z"></path>
+              <circle cx="7.5" cy="15.5" r="1.5"></circle>
+              <circle cx="16.5" cy="15.5" r="1.5"></circle></svg
+            >Car</a
+          >
+          <a
+            href="#"
+            aria-current="page"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 4px;
+              color: #f2f3f5;
+              text-decoration: none;
+              font-size: 12px;
+              font-weight: 600;
+            "
+            ><svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#FF4747"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+              <path d="M8 15a4 4 0 0 1 8 0"></path>
+              <path d="M12 15l2-3"></path></svg
+            >Dash</a
+          >
+        </nav>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+      class Component extends DCLogic {
+        renderVals() {
+          return {};
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -96,7 +96,7 @@ const PreviewFrame = ({ widget, state, cycleIndex }: PreviewFrameProps) => {
   const box = usePreviewBox(widget)
   return (
     <div
-      className="inline-block shrink-0 overflow-hidden border border-solid"
+      className="inline-block shrink-0 font-sans overflow-hidden border border-solid"
       // eslint-disable-next-line no-inline-style/no-inline-style
       style={{
         borderColor: state === 'off' ? 'hsl(var(--brand-neutral-300))' : widget.style.primaryColor,

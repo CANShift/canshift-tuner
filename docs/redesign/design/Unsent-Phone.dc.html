@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Unsent changes</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+          a {
+            color: #ff6b6b;
+          }
+          a:hover {
+            color: #ff8f8f;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 390px;
+          height: 844px;
+          position: relative;
+          overflow: hidden;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        "
+      >
+        <header
+          style="
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            height: 56px;
+            box-sizing: border-box;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #2b2f35;
+          "
+        >
+          <span
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              font-size: 15px;
+              font-weight: 600;
+            "
+            ><span style="width: 8px; height: 8px; border-radius: 4px; background: #3dd68c"></span
+            >Connected</span
+          >
+          <span
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              height: 44px;
+              padding: 0 14px;
+              border-radius: 22px;
+              background: #1e2125;
+              border: 1px solid #f2f3f5;
+              font-size: 14px;
+            "
+            ><span style="width: 8px; height: 8px; border-radius: 4px; background: #ff8800"></span>3
+            changes not sent</span
+          >
+        </header>
+        <div
+          style="
+            position: absolute;
+            left: 35px;
+            top: 128px;
+            width: 320px;
+            height: 240px;
+            border-radius: 6px;
+            overflow: hidden;
+          "
+        >
+          <dc-import name="DashPreview" label2="WATER" hint-size="320px,240px"></dc-import>
+        </div>
+        <div
+          aria-hidden="true"
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 56px;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.65);
+          "
+        ></div>
+
+        <section
+          aria-label="Changes not sent"
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #16181b;
+            border-top: 1px solid #2b2f35;
+            border-radius: 16px 16px 0 0;
+            box-sizing: border-box;
+            padding: 8px 16px 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+          "
+        >
+          <div
+            aria-hidden="true"
+            style="
+              align-self: center;
+              width: 36px;
+              height: 4px;
+              border-radius: 2px;
+              background: #3a3f46;
+            "
+          ></div>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <h2 style="margin: 0; font-size: 21px">3 changes not sent</h2>
+            <span style="font-size: 14px; color: #a0a6ad"
+              >Kept in this browser. The dash still shows the old setup.</span
+            >
+          </div>
+
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              background: #0e0f11;
+              border: 1px solid #2b2f35;
+              border-radius: 12px;
+            "
+          >
+            <sc-for list="{{changes}}" as="c" hint-placeholder-count="3">
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  min-height: 64px;
+                  padding: 8px 12px 8px 14px;
+                  box-sizing: border-box;
+                  border-bottom: 1px solid #23262b;
+                "
+              >
+                <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+                  <span style="font-size: 12px; color: #a0a6ad">{{c.where}}</span>
+                  <span style="font-size: 15px">{{c.what}}</span>
+                  <span style="font-size: 13px; color: #a0a6ad">{{c.was}}</span>
+                </div>
+                <button
+                  style="
+                    height: 44px;
+                    padding: 0 12px;
+                    border-radius: 10px;
+                    background: transparent;
+                    border: 1px solid #2b2f35;
+                    color: #f2f3f5;
+                    font: inherit;
+                    font-size: 14px;
+                  "
+                >
+                  Undo
+                </button>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display: flex; gap: 8px">
+            <button
+              style="
+                height: 52px;
+                padding: 0 18px;
+                border-radius: 10px;
+                background: transparent;
+                border: 1px solid #2b2f35;
+                color: #f2f3f5;
+                font: inherit;
+                font-size: 15px;
+              "
+            >
+              Undo all
+            </button>
+            <button
+              style="
+                flex: 1;
+                height: 52px;
+                border-radius: 10px;
+                background: #d63333;
+                color: #ffffff;
+                border: 0;
+                font: inherit;
+                font-size: 16px;
+                font-weight: 600;
+              "
+            >
+              Send to dash
+            </button>
+          </div>
+        </section>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+      class Component extends DCLogic {
+        renderVals() {
+          return {
+            changes: [
+              { where: 'Gauges · Race', what: 'Renamed gauge to Water', was: 'Was Coolant' },
+              { where: 'Gauges · Race · Oil temp', what: 'Warning above 110 °C', was: 'Was 105 °C' },
+              { where: 'Dash', what: 'Brightness 60%', was: 'Was 80%' }
+            ]
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -23,7 +23,7 @@ const STRIP_CHROME_PX = 66
 const EMPTY_PAGES: readonly PageConfig[] = []
 
 const STRIP =
-  'flex min-h-0 flex-1 items-center gap-[26px] overflow-auto bg-ui-panel px-3 py-5 md:px-6'
+  'flex min-h-0 flex-1 items-center gap-[26px] overflow-auto bg-ui-panel px-3 py-5 font-sans md:px-6'
 
 interface CanvasProps {
   page: PageConfig

@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Firmware update, uploading</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 390px;
+          height: 844px;
+          position: relative;
+          overflow: hidden;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        "
+      >
+        <header
+          style="
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            height: 56px;
+            box-sizing: border-box;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #2b2f35;
+          "
+        >
+          <span
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              font-size: 15px;
+              font-weight: 600;
+            "
+            ><span style="width: 8px; height: 8px; border-radius: 4px; background: #3dd68c"></span
+            >Connected</span
+          >
+        </header>
+
+        <main
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 56px;
+            bottom: 0;
+            box-sizing: border-box;
+            padding: 48px 24px 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+          "
+        >
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <div style="font-size: 15px; color: #a0a6ad">Updating to 2.5.0</div>
+            <div
+              style="
+                font-size: 56px;
+                font-weight: 700;
+                font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+                line-height: 1;
+              "
+            >
+              64%
+            </div>
+          </div>
+          <div
+            role="progressbar"
+            aria-valuenow="64"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-label="Update progress"
+            style="height: 10px; border-radius: 5px; background: #23262b; overflow: hidden"
+          >
+            <div style="width: 64%; height: 10px; background: #f2f3f5; border-radius: 5px"></div>
+          </div>
+
+          <ol
+            style="
+              margin: 0;
+              padding: 0;
+              list-style: none;
+              display: flex;
+              flex-direction: column;
+              gap: 16px;
+              font-size: 16px;
+            "
+          >
+            <li style="display: flex; align-items: center; gap: 12px">
+              <span
+                style="
+                  width: 24px;
+                  height: 24px;
+                  border-radius: 12px;
+                  background: #f2f3f5;
+                  display: inline-flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+                ><svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#0E0F11"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 6v6l4 2"></path></svg></span
+              ><span style="font-weight: 600">Uploading</span
+              ><span style="margin-left: auto; font-size: 14px; color: #a0a6ad">1.2 of 1.8 MB</span>
+            </li>
+            <li style="display: flex; align-items: center; gap: 12px; color: #a0a6ad">
+              <span
+                style="
+                  width: 24px;
+                  height: 24px;
+                  border-radius: 12px;
+                  border: 2px solid #3a3f46;
+                  box-sizing: border-box;
+                "
+              ></span
+              >Checking the signature
+            </li>
+            <li style="display: flex; align-items: center; gap: 12px; color: #a0a6ad">
+              <span
+                style="
+                  width: 24px;
+                  height: 24px;
+                  border-radius: 12px;
+                  border: 2px solid #3a3f46;
+                  box-sizing: border-box;
+                "
+              ></span
+              >Installing
+            </li>
+            <li style="display: flex; align-items: center; gap: 12px; color: #a0a6ad">
+              <span
+                style="
+                  width: 24px;
+                  height: 24px;
+                  border-radius: 12px;
+                  border: 2px solid #3a3f46;
+                  box-sizing: border-box;
+                "
+              ></span
+              >Restarting the dash
+            </li>
+          </ol>
+
+          <div
+            style="
+              display: flex;
+              gap: 12px;
+              align-items: flex-start;
+              padding: 14px;
+              border-radius: 12px;
+              background: #2a1c0a;
+              color: #ffc27a;
+              font-size: 15px;
+              line-height: 1.45;
+            "
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#FF8800"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              style="flex: none"
+            >
+              <path d="M12 3l10 18H2z"></path>
+              <path d="M12 10v5M12 18v.5"></path>
+            </svg>
+            <span>Don’t close this page or turn off the power.</span>
+          </div>
+
+          <div
+            style="
+              margin-top: auto;
+              display: flex;
+              flex-direction: column;
+              gap: 6px;
+              align-items: center;
+            "
+          >
+            <button
+              style="
+                width: 100%;
+                height: 48px;
+                border-radius: 10px;
+                background: transparent;
+                color: #f2f3f5;
+                border: 1px solid #2b2f35;
+                font: inherit;
+                font-size: 15px;
+              "
+            >
+              Cancel upload
+            </button>
+            <span style="font-size: 13px; color: #a0a6ad"
+              >Possible until the upload finishes. Nothing is installed yet.</span
+            >
+          </div>
+        </main>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+      class Component extends DCLogic {
+        renderVals() {
+          return {};
+        }
+      }
+    </script>
+  </body>
+</html>

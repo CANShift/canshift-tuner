@@ -12,7 +12,7 @@ export const samePreset = (a: ThemePreset | undefined, b: ThemePreset): boolean 
   a !== undefined && JSON.stringify(a) === JSON.stringify(b)
 
 export const ThemePresetGrid = ({ activeTheme, face, onSelect }: ThemePresetGridProps) => (
-  <div className="mt-3 grid gap-px [grid-template-columns:repeat(auto-fit,minmax(150px,1fr))]">
+  <div className="mt-3 grid font-sans gap-px [grid-template-columns:repeat(auto-fit,minmax(150px,1fr))]">
     {THEME_PRESETS.map((entry) => (
       <ThemeSampleCard
         key={entry.id}

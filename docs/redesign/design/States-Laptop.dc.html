@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Refused and unsent, laptop</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+          a {
+            color: #ff6b6b;
+          }
+          a:hover {
+            color: #ff8f8f;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          min-height: 800px;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+          display: flex;
+          flex-direction: column;
+        "
+      >
+        <header
+          style="
+            min-height: 64px;
+            box-sizing: border-box;
+            padding: 10px 24px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #2b2f35;
+          "
+        >
+          <div style="display: flex; align-items: center; gap: 20px">
+            <span style="font-size: 17px; font-weight: 700">CANShift Tuner</span>
+            <span
+              style="
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                height: 32px;
+                padding: 0 12px;
+                border-radius: 16px;
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                font-size: 14px;
+                font-weight: 600;
+              "
+              ><span style="width: 8px; height: 8px; border-radius: 4px; background: #3dd68c"></span
+              >Connected</span
+            >
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px">
+            <button
+              style="
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                height: 44px;
+                padding: 0 12px;
+                border-radius: 10px;
+                background: transparent;
+                border: 0;
+                color: #f2f3f5;
+                font: inherit;
+                font-size: 14px;
+              "
+            >
+              <span style="width: 8px; height: 8px; border-radius: 4px; background: #ff8800"></span
+              >3 changes not sent
+            </button>
+            <button
+              style="
+                height: 44px;
+                padding: 0 20px;
+                border-radius: 10px;
+                background: #d63333;
+                color: #ffffff;
+                border: 0;
+                font: inherit;
+                font-size: 15px;
+                font-weight: 600;
+              "
+            >
+              Send to dash
+            </button>
+          </div>
+        </header>
+
+        <div style="display: flex; flex-wrap: wrap; flex: 1">
+          <nav
+            style="
+              flex: 1 1 200px;
+              max-width: 100%;
+              box-sizing: border-box;
+              padding: 16px;
+              border-right: 1px solid #2b2f35;
+              display: flex;
+              flex-direction: column;
+              gap: 4px;
+            "
+          >
+            <a
+              href="#"
+              aria-current="page"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                height: 48px;
+                padding: 0 14px;
+                border-radius: 10px;
+                background: #1e2125;
+                color: #f2f3f5;
+                text-decoration: none;
+                font-size: 15px;
+                font-weight: 600;
+              "
+              >Gauges<span
+                style="
+                  margin-left: auto;
+                  width: 8px;
+                  height: 8px;
+                  border-radius: 4px;
+                  background: #ff8800;
+                "
+              ></span
+            ></a>
+            <a
+              href="#"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                height: 48px;
+                padding: 0 14px;
+                border-radius: 10px;
+                color: #c9cdd2;
+                text-decoration: none;
+                font-size: 15px;
+              "
+              >Car</a
+            >
+            <a
+              href="#"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                height: 48px;
+                padding: 0 14px;
+                border-radius: 10px;
+                color: #c9cdd2;
+                text-decoration: none;
+                font-size: 15px;
+              "
+              >Dash</a
+            >
+          </nav>
+
+          <main
+            style="
+              flex: 999 1 560px;
+              min-width: 0;
+              box-sizing: border-box;
+              padding: 24px 32px;
+              display: flex;
+              flex-direction: column;
+              gap: 20px;
+            "
+          >
+            <div
+              role="alert"
+              style="
+                display: flex;
+                flex-wrap: wrap;
+                gap: 16px;
+                align-items: center;
+                padding: 16px 20px;
+                border-radius: 12px;
+                background: #2a1c0a;
+                border: 1px solid #5a3a12;
+              "
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#FF8800"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+                style="flex: none"
+              >
+                <path d="M12 3l10 18H2z"></path>
+                <path d="M12 10v5M12 18v.5"></path>
+              </svg>
+              <div style="flex: 1 1 360px; display: flex; flex-direction: column; gap: 4px">
+                <span style="font-size: 16px; font-weight: 700"
+                  >The dash didn’t accept these changes</span
+                >
+                <span style="font-size: 15px; color: #ffd9a8; line-height: 1.45"
+                  ><b>Boost</b> on page Street uses a signal your car doesn’t send. Choose another
+                  signal or remove the gauge. Nothing changed on the dash.</span
+                >
+              </div>
+              <div style="display: flex; gap: 8px">
+                <button
+                  style="
+                    height: 44px;
+                    padding: 0 16px;
+                    border-radius: 10px;
+                    background: #f2f3f5;
+                    color: #0e0f11;
+                    border: 0;
+                    font: inherit;
+                    font-size: 15px;
+                    font-weight: 600;
+                  "
+                >
+                  Show me
+                </button>
+                <button
+                  style="
+                    height: 44px;
+                    padding: 0 16px;
+                    border-radius: 10px;
+                    background: transparent;
+                    color: #f2f3f5;
+                    border: 1px solid #5a3a12;
+                    font: inherit;
+                    font-size: 15px;
+                  "
+                >
+                  Not now
+                </button>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start">
+              <div style="display: flex; flex-direction: column; gap: 12px; max-width: 100%">
+                <div style="display: flex; gap: 8px; flex-wrap: wrap">
+                  <button
+                    style="
+                      height: 44px;
+                      padding: 0 16px;
+                      border-radius: 10px;
+                      background: #f2f3f5;
+                      color: #0e0f11;
+                      border: 0;
+                      font: inherit;
+                      font-size: 15px;
+                      font-weight: 600;
+                    "
+                  >
+                    Race
+                  </button>
+                  <button
+                    style="
+                      display: inline-flex;
+                      align-items: center;
+                      gap: 8px;
+                      height: 44px;
+                      padding: 0 16px;
+                      border-radius: 10px;
+                      background: #16181b;
+                      color: #f2f3f5;
+                      border: 1.5px solid #ff8800;
+                      font: inherit;
+                      font-size: 15px;
+                    "
+                  >
+                    Street<span
+                      style="width: 8px; height: 8px; border-radius: 4px; background: #ff8800"
+                    ></span>
+                  </button>
+                </div>
+                <div
+                  style="
+                    width: 640px;
+                    height: 480px;
+                    max-width: 100%;
+                    overflow: hidden;
+                    border-radius: 8px;
+                    outline: 1px solid #2b2f35;
+                  "
+                >
+                  <div
+                    style="width: 320px; height: 240px; transform: scale(2); transform-origin: 0 0"
+                  >
+                    <dc-import
+                      name="DashPreview"
+                      label2="WATER"
+                      hint-size="320px,240px"
+                    ></dc-import>
+                  </div>
+                </div>
+              </div>
+
+              <section
+                aria-label="Changes not sent"
+                style="
+                  flex: 1 1 300px;
+                  min-width: 0;
+                  background: #16181b;
+                  border: 1px solid #2b2f35;
+                  border-radius: 14px;
+                  padding: 20px;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 12px;
+                "
+              >
+                <div style="display: flex; justify-content: space-between; align-items: baseline">
+                  <h2 style="margin: 0; font-size: 18px">3 changes not sent</h2>
+                  <button
+                    style="
+                      height: 36px;
+                      padding: 0 10px;
+                      border-radius: 8px;
+                      background: transparent;
+                      border: 0;
+                      color: #c9cdd2;
+                      font: inherit;
+                      font-size: 14px;
+                    "
+                  >
+                    Undo all
+                  </button>
+                </div>
+                <span style="font-size: 14px; color: #a0a6ad"
+                  >Kept in this browser. The dash still shows the old setup.</span
+                >
+                <sc-for list="{{changes}}" as="c" hint-placeholder-count="3">
+                  <div
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 12px;
+                      padding: 10px 0;
+                      border-top: 1px solid #23262b;
+                    "
+                  >
+                    <div
+                      style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"
+                    >
+                      <span style="font-size: 12px; color: #a0a6ad">{{c.where}}</span>
+                      <span style="font-size: 15px; color: {{c.color}}">{{c.what}}</span>
+                      <span style="font-size: 13px; color: #a0a6ad">{{c.was}}</span>
+                    </div>
+                    <button
+                      style="
+                        height: 36px;
+                        padding: 0 12px;
+                        border-radius: 8px;
+                        background: transparent;
+                        border: 1px solid #2b2f35;
+                        color: #f2f3f5;
+                        font: inherit;
+                        font-size: 14px;
+                      "
+                    >
+                      Undo
+                    </button>
+                  </div>
+                </sc-for>
+              </section>
+            </div>
+          </main>
+        </div>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+      class Component extends DCLogic {
+        renderVals() {
+          return {
+            changes: [
+              { where: 'Gauges · Street', what: 'Added gauge Boost — not accepted', was: 'New', color: '#FF8800' },
+              { where: 'Gauges · Race', what: 'Renamed gauge to Water', was: 'Was Coolant', color: '#F2F3F5' },
+              { where: 'Dash', what: 'Brightness 60%', was: 'Was 80%', color: '#F2F3F5' }
+            ]
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

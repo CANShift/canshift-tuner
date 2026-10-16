@@ -86,7 +86,7 @@ const TakeoverPreview = ({ editor }: { editor: CriticalAlertEditor }) => {
   }
   return (
     <div
-      className="relative overflow-hidden"
+      className="relative overflow-hidden font-sans"
       // eslint-disable-next-line no-inline-style/no-inline-style
       style={{ width: CANVAS.WIDTH * PREVIEW_SCALE, height: CANVAS.HEIGHT * PREVIEW_SCALE }}
     >
