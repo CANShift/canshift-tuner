@@ -16,7 +16,7 @@ const DropdownMenuContent = forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        'z-50 min-w-[13rem] overflow-hidden rounded-card border border-app-border bg-app-surface p-1 text-app-text',
+        'z-50 min-w-[13rem] overflow-hidden rounded-card border border-app-border bg-app-surface p-1 text-app-text shadow-overlay',
         'data-[state=open]:animate-in data-[state=closed]:animate-out',
         className
       )}
