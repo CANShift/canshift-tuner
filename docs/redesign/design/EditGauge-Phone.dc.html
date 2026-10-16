@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Edit a gauge, phone</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+          a {
+            color: #ff6b6b;
+          }
+          a:hover {
+            color: #ff8f8f;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 390px;
+          height: 844px;
+          position: relative;
+          overflow: hidden;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        "
+      >
+        <header
+          style="
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            height: 56px;
+            box-sizing: border-box;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #2b2f35;
+          "
+        >
+          <span
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              font-size: 15px;
+              font-weight: 600;
+            "
+            ><span style="width: 8px; height: 8px; border-radius: 4px; background: #3dd68c"></span
+            >Connected</span
+          >
+          <button
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              height: 44px;
+              padding: 0 14px;
+              border-radius: 22px;
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              color: #f2f3f5;
+              font: inherit;
+              font-size: 14px;
+            "
+          >
+            <span style="width: 8px; height: 8px; border-radius: 4px; background: #ff8800"></span>1
+            change not sent
+          </button>
+        </header>
+
+        <div
+          style="
+            position: absolute;
+            left: 35px;
+            top: 68px;
+            width: 320px;
+            height: 240px;
+            border-radius: 6px;
+            overflow: hidden;
+            outline: 1px solid #2b2f35;
+          "
+        >
+          <dc-import name="DashPreview" label2="WATER" hint-size="320px,240px"></dc-import>
+        </div>
+        <div
+          aria-hidden="true"
+          style="
+            position: absolute;
+            left: 141px;
+            top: 114px;
+            width: 108px;
+            height: 98px;
+            box-sizing: border-box;
+            border: 2px solid #f2f3f5;
+            border-radius: 4px;
+          "
+        ></div>
+
+        <section
+          aria-label="Edit gauge"
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 320px;
+            bottom: 0;
+            background: #16181b;
+            border-top: 1px solid #2b2f35;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            flex-direction: column;
+          "
+        >
+          <div
+            style="
+              flex: 1;
+              overflow: hidden;
+              box-sizing: border-box;
+              padding: 8px 16px 12px;
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+            "
+          >
+            <div
+              aria-hidden="true"
+              style="
+                align-self: center;
+                width: 36px;
+                height: 4px;
+                border-radius: 2px;
+                background: #3a3f46;
+              "
+            ></div>
+            <div style="display: flex; align-items: center; gap: 8px">
+              <div style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+                <span style="font-size: 20px; font-weight: 700">Water</span>
+                <span style="font-size: 13px; color: #a0a6ad">Gauge 2 of 6 · Race page</span>
+              </div>
+              <button
+                aria-label="Move gauge"
+                style="
+                  width: 44px;
+                  height: 44px;
+                  border-radius: 10px;
+                  background: #1e2125;
+                  border: 1px solid #2b2f35;
+                  color: #f2f3f5;
+                  display: inline-flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M8 7l-4 5 4 5M16 7l4 5-4 5M4 12h16"></path>
+                </svg>
+              </button>
+              <button
+                aria-label="Remove gauge"
+                style="
+                  width: 44px;
+                  height: 44px;
+                  border-radius: 10px;
+                  background: #1e2125;
+                  border: 1px solid #2b2f35;
+                  color: #ff6b6b;
+                  display: inline-flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"></path>
+                </svg>
+              </button>
+              <button
+                style="
+                  height: 44px;
+                  padding: 0 16px;
+                  border-radius: 10px;
+                  background: #f2f3f5;
+                  color: #0e0f11;
+                  border: 0;
+                  font: inherit;
+                  font-size: 15px;
+                  font-weight: 600;
+                "
+              >
+                Done
+              </button>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <span style="font-size: 13px; color: #a0a6ad">Shows</span>
+              <button
+                style="
+                  height: 48px;
+                  padding: 0 14px;
+                  border-radius: 10px;
+                  background: #0e0f11;
+                  border: 1px solid #2b2f35;
+                  color: #f2f3f5;
+                  font: inherit;
+                  font-size: 15px;
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                  text-align: left;
+                "
+              >
+                <span style="flex: 1">Coolant temperature</span>
+                <span
+                  style="
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+                    font-size: 14px;
+                    color: #c9cdd2;
+                  "
+                  ><span
+                    style="width: 6px; height: 6px; border-radius: 3px; background: #3dd68c"
+                  ></span
+                  >92 °C</span
+                >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#A0A6AD"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M9 6l6 6-6 6"></path>
+                </svg>
+              </button>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <label
+                for="gname"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  font-size: 13px;
+                  color: #a0a6ad;
+                "
+                ><span>Name on dash</span><span>Up to 8 letters</span></label
+              >
+              <input
+                id="gname"
+                value="WATER"
+                style="
+                  height: 48px;
+                  box-sizing: border-box;
+                  padding: 0 14px;
+                  border-radius: 10px;
+                  background: #0e0f11;
+                  border: 2px solid #f2f3f5;
+                  color: #f2f3f5;
+                  font: inherit;
+                  font-size: 16px;
+                  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+                "
+              />
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  font-size: 13px;
+                  color: #a0a6ad;
+                "
+              >
+                <span>Limits</span><span>Colour this gauge only</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px; height: 48px">
+                <span
+                  aria-hidden="true"
+                  style="
+                    width: 14px;
+                    height: 14px;
+                    border-radius: 4px;
+                    border: 2px solid #ff8800;
+                    box-sizing: border-box;
+                  "
+                ></span>
+                <label for="warn" style="flex: 1; font-size: 15px">Warning above</label>
+                <input
+                  id="warn"
+                  value="105"
+                  inputmode="decimal"
+                  style="
+                    width: 84px;
+                    height: 48px;
+                    box-sizing: border-box;
+                    padding: 0 12px;
+                    border-radius: 10px;
+                    background: #0e0f11;
+                    border: 1.5px solid #ff8800;
+                    color: #f2f3f5;
+                    font: inherit;
+                    font-size: 16px;
+                    text-align: right;
+                  "
+                />
+                <span style="width: 24px; font-size: 14px; color: #a0a6ad">°C</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px; height: 48px">
+                <span
+                  aria-hidden="true"
+                  style="
+                    width: 14px;
+                    height: 14px;
+                    border-radius: 4px;
+                    border: 2px solid #ff4747;
+                    box-sizing: border-box;
+                  "
+                ></span>
+                <label for="danger" style="flex: 1; font-size: 15px">Danger above</label>
+                <input
+                  id="danger"
+                  value="115"
+                  inputmode="decimal"
+                  style="
+                    width: 84px;
+                    height: 48px;
+                    box-sizing: border-box;
+                    padding: 0 12px;
+                    border-radius: 10px;
+                    background: #0e0f11;
+                    border: 1.5px solid #ff4747;
+                    color: #f2f3f5;
+                    font: inherit;
+                    font-size: 16px;
+                    text-align: right;
+                  "
+                />
+                <span style="width: 24px; font-size: 14px; color: #a0a6ad">°C</span>
+              </div>
+            </div>
+
+            <a
+              href="#"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                min-height: 48px;
+                padding: 8px 12px;
+                box-sizing: border-box;
+                border-radius: 10px;
+                background: #d63333;
+                color: #ffffff;
+                text-decoration: none;
+                font-size: 14px;
+                line-height: 1.3;
+              "
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#FFFFFF"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+                style="flex: none"
+              >
+                <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"></path>
+              </svg>
+              <span style="flex: 1">Also triggers the full-screen alert above 120 °C</span>
+              <span style="font-weight: 600; white-space: nowrap">Dash ›</span>
+            </a>
+          </div>
+
+          <div
+            style="
+              height: 72px;
+              flex: none;
+              box-sizing: border-box;
+              padding: 12px 16px 12px;
+              border-top: 1px solid #2b2f35;
+              background: #0e0f11;
+              display: flex;
+              align-items: center;
+              gap: 12px;
+            "
+          >
+            <span style="flex: 1; font-size: 14px; color: #c9cdd2">Only in this browser</span>
+            <button
+              style="
+                height: 48px;
+                padding: 0 22px;
+                border-radius: 10px;
+                background: #d63333;
+                color: #ffffff;
+                border: 0;
+                font: inherit;
+                font-size: 16px;
+                font-weight: 600;
+              "
+            >
+              Send to dash
+            </button>
+          </div>
+        </section>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+      class Component extends DCLogic {
+        renderVals() {
+          return {};
+        }
+      }
+    </script>
+  </body>
+</html>

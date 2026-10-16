@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dash preview</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+        </style>
+      </helmet>
+      <div
+        style="width: 320px; height: 240px; position: relative; overflow: hidden; background: #000000; color: #FFFFFF; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; opacity: {{opacity}}"
+      >
+        <div
+          style="
+            position: absolute;
+            left: 5px;
+            top: 4px;
+            width: 310px;
+            height: 6px;
+            display: flex;
+            gap: 3px;
+          "
+        >
+          <div style="flex: 1; background: #1fcb6a"></div>
+          <div style="flex: 1; background: #1fcb6a"></div>
+          <div style="flex: 1; background: #1fcb6a"></div>
+          <div style="flex: 1; background: #1a1a1a"></div>
+          <div style="flex: 1; background: #1a1a1a"></div>
+          <div style="flex: 1; background: #1a1a1a"></div>
+          <div style="flex: 1; background: #1a1a1a"></div>
+          <div style="flex: 1; background: #1a1a1a"></div>
+          <div style="flex: 1; background: #1a1a1a"></div>
+          <div style="flex: 1; background: #1a1a1a"></div>
+        </div>
+        <div
+          style="
+            position: absolute;
+            left: 5px;
+            top: 14px;
+            width: 310px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          "
+        >
+          <div style="display: flex; align-items: baseline; gap: 6px">
+            <span style="font-size: 10px; font-weight: 700; color: #ff4747">RPM</span
+            ><span style="font-size: 24px; font-weight: 700">3450</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px">
+            <span style="font-size: 22px; font-weight: 700; color: #ff4747">3</span
+            ><span style="font-size: 10px; color: #8a8a8a">P1</span>
+          </div>
+        </div>
+        <div
+          style="
+            position: absolute;
+            left: 5px;
+            top: 50px;
+            width: 310px;
+            height: 185px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-rows: 90px 90px;
+            gap: 5px;
+          "
+        >
+          <div
+            style="
+              border: 1px solid #262626;
+              background: #0a0a0a;
+              padding: 6px;
+              box-sizing: border-box;
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+            "
+          >
+            <span style="font-size: 10px; font-weight: 700; color: #ff4747">SPEED</span
+            ><span style="font-size: 30px; font-weight: 700; line-height: 1">84</span
+            ><span style="font-size: 10px; color: #8a8a8a">km/h</span>
+          </div>
+          <div
+            style="
+              border: 1px solid #262626;
+              background: #0a0a0a;
+              padding: 6px;
+              box-sizing: border-box;
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+            "
+          >
+            <span style="font-size: 10px; font-weight: 700; color: #ff4747">{{label2}}</span
+            ><span style="font-size: 30px; font-weight: 700; line-height: 1">92</span
+            ><span style="font-size: 10px; color: #8a8a8a">°C</span>
+          </div>
+          <div
+            style="
+              border: 1px solid #262626;
+              background: #0a0a0a;
+              padding: 6px;
+              box-sizing: border-box;
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+            "
+          >
+            <span style="font-size: 10px; font-weight: 700; color: #ff4747">OIL P</span
+            ><span style="font-size: 30px; font-weight: 700; line-height: 1">3.8</span
+            ><span style="font-size: 10px; color: #8a8a8a">bar</span>
+          </div>
+          <div
+            style="
+              border: 1px solid #ff8800;
+              background: #1f1100;
+              padding: 6px;
+              box-sizing: border-box;
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+            "
+          >
+            <span style="font-size: 10px; font-weight: 700; color: #ff8800">OIL T</span
+            ><span style="font-size: 30px; font-weight: 700; line-height: 1; color: #ff8800"
+              >108</span
+            ><span style="font-size: 10px; color: #8a8a8a">°C</span>
+          </div>
+          <div
+            style="
+              border: 1px solid #262626;
+              background: #0a0a0a;
+              padding: 6px;
+              box-sizing: border-box;
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+            "
+          >
+            <span style="font-size: 10px; font-weight: 700; color: #ff4747">AFR</span
+            ><span style="font-size: 30px; font-weight: 700; line-height: 1">14.2</span
+            ><span style="font-size: 10px; color: #8a8a8a">λ 0.97</span>
+          </div>
+          <div
+            style="
+              border: 1px solid #262626;
+              background: #0a0a0a;
+              padding: 6px;
+              box-sizing: border-box;
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+            "
+          >
+            <span style="font-size: 10px; font-weight: 700; color: #ff4747">BATT</span
+            ><span style="font-size: 30px; font-weight: 700; line-height: 1">13.8</span
+            ><span style="font-size: 10px; color: #8a8a8a">V</span>
+          </div>
+        </div>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"label2":{"editor":"text","default":"COOLANT"},"dim":{"editor":"boolean","default":false},"$preview":{"width":320,"height":240}}'
+    >
+      class Component extends DCLogic {
+        renderVals() {
+          return {
+            label2: this.props.label2 ?? 'COOLANT',
+            opacity: this.props.dim ? 0.4 : 1
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

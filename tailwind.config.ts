@@ -53,6 +53,17 @@ const brandColorsFromTokens = (): Record<string, string> => {
 
 const UI_TOKEN_NAMES = [
   'bg',
+  'surface',
+  'surface-2',
+  'border',
+  'divider',
+  'text',
+  'secondary',
+  'primary',
+  'warning-bg',
+  'warning-ink',
+  'success',
+  'success-bg',
   'panel',
   'ink',
   'muted',
@@ -100,6 +111,16 @@ const config: Config = {
       fontFamily: {
         sans: `var(${FONT_UI_CSS_VAR})`,
         mono: `var(${FONT_MONO_CSS_VAR})`,
+        ui: 'var(--ui-font)',
+        num: 'var(--ui-font-num)',
+      },
+      borderRadius: {
+        control: '10px',
+        card: '14px',
+        sheet: '16px',
+      },
+      spacing: {
+        'safe-bottom': 'env(safe-area-inset-bottom)',
       },
       colors: {
         ...colorsFromTokens(),

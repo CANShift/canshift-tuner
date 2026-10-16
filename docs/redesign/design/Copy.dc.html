@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Tuner copy deck</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+          a {
+            color: #ff6b6b;
+          }
+          a:hover {
+            color: #ff8f8f;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 1440px;
+          min-height: 1180px;
+          box-sizing: border-box;
+          padding: 64px;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+          display: flex;
+          flex-direction: column;
+          gap: 32px;
+        "
+      >
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <div
+            style="
+              font-size: 14px;
+              font-weight: 600;
+              letter-spacing: 0.08em;
+              text-transform: uppercase;
+              color: #ff4747;
+            "
+          >
+            Copy deck · English
+          </div>
+          <h1 style="margin: 0; font-size: 40px">Labels, buttons and key messages</h1>
+          <div style="font-size: 16px; color: #a0a6ad">
+            Rule: say what happened, then what to do. Never a raw code. Values in {braces} are
+            filled in.
+          </div>
+        </div>
+
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 24px;
+            align-items: start;
+          "
+        >
+          <div style="display: flex; flex-direction: column; gap: 24px">
+            <section
+              style="
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                border-radius: 14px;
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                font-size: 14px;
+                line-height: 1.45;
+              "
+            >
+              <h2 style="margin: 0 0 4px; font-size: 18px; color: #ff4747">Everywhere</h2>
+              <div><b>Tabs</b> · Gauges · Car · Dash</div>
+              <div><b>Connection</b> · Connected · Reconnecting… · Not connected</div>
+              <div><b>Status</b> · On the dash · {n} change(s) not sent</div>
+              <div><b>Main button</b> · Send to dash · Sending… · Send when connected</div>
+              <div><b>After sending</b> · “Sent. The dash is showing your changes.”</div>
+              <div><b>Not-sent list</b> · “{n} changes not sent” · Undo · Undo all</div>
+              <div>
+                <b>Reconnecting banner</b> · “Lost the dash’s Wi-Fi. Reconnecting… Your changes are
+                safe in this browser.”
+              </div>
+              <div>
+                <b>Send dropped</b> · “Couldn’t finish sending — the Wi-Fi dropped. Nothing changed
+                on the dash. Send again once you’re reconnected.”
+              </div>
+            </section>
+
+            <section
+              style="
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                border-radius: 14px;
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                font-size: 14px;
+                line-height: 1.45;
+              "
+            >
+              <h2 style="margin: 0 0 4px; font-size: 18px; color: #ff4747">Not connected</h2>
+              <div><b>Title</b> · Not connected to your dash</div>
+              <div>
+                <b>Steps</b> · 1. On the dash, tap Workshop mode. · 2. Join the Wi-Fi it shows
+                ({CANShift-4F2A}), or scan its QR code. · 3. Come back to this page.
+              </div>
+              <div><b>Button</b> · Try again</div>
+              <div>
+                <b>Reassurance</b> · “Your {2} changes are safe in this browser. You can keep
+                editing.”
+              </div>
+              <div><b>Secondary</b> · Keep editing</div>
+            </section>
+
+            <section
+              style="
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                border-radius: 14px;
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                font-size: 14px;
+                line-height: 1.45;
+              "
+            >
+              <h2 style="margin: 0 0 4px; font-size: 18px; color: #ff4747">
+                Dash refused the changes
+              </h2>
+              <div><b>Title</b> · The dash didn’t accept these changes</div>
+              <div><b>Body</b> · “Nothing changed on the dash. Your changes are still here.”</div>
+              <div>
+                <b>Reasons</b> · “{Boost} on page {Race} uses a signal your car doesn’t send. Choose
+                another signal or remove the gauge.” · “Page {Track} has more gauges than fit.
+                Remove one.” · “The dash is out of space. Remove a page.” · “This setup was made for
+                newer firmware. Update the dash first.”
+              </div>
+              <div><b>Buttons</b> · Show me · Not now</div>
+            </section>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 24px">
+            <section
+              style="
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                border-radius: 14px;
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                font-size: 14px;
+                line-height: 1.45;
+              "
+            >
+              <h2 style="margin: 0 0 4px; font-size: 18px; color: #ff4747">First open</h2>
+              <div><b>Title</b> · Connected to your dash</div>
+              <div><b>Sub</b> · “This is what your dash shows right now.”</div>
+              <div>
+                <b>Setup card</b> · Set up in 3 steps · 1. Choose your car · 2. Check the signals
+                come in · 3. Arrange your gauges (or keep this layout)
+              </div>
+              <div><b>Button</b> · Choose your car</div>
+              <div><b>Hint</b> · “Changes stay in this browser until you tap Send to dash.”</div>
+            </section>
+
+            <section
+              style="
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                border-radius: 14px;
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                font-size: 14px;
+                line-height: 1.45;
+              "
+            >
+              <h2 style="margin: 0 0 4px; font-size: 18px; color: #ff4747">Gauges</h2>
+              <div><b>Hint</b> · Tap a gauge to change it</div>
+              <div><b>Pages</b> · Add page · Rename · Move · Remove page</div>
+              <div><b>Add page</b> · Start from a layout · Blank page</div>
+              <div><b>Editor</b> · Shows · Name on dash (“Up to 8 letters”) · Limits</div>
+              <div>
+                <b>Limits</b> · Warning above · Danger above · Warning below · Danger below ·
+                “Colours this gauge orange” · “Colours this gauge red” · No limit
+              </div>
+              <div>
+                <b>Link to alert</b> · “This signal also triggers the full-screen alert at {120
+                °C}.” · Change in Dash
+              </div>
+              <div><b>Actions</b> · Move left · Move right · Remove gauge · Add gauge · Done</div>
+              <div>
+                <b>Remove confirm</b> · “Remove {Water}? You can undo until you send.” · Remove ·
+                Cancel
+              </div>
+            </section>
+
+            <section
+              style="
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                border-radius: 14px;
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                font-size: 14px;
+                line-height: 1.45;
+              "
+            >
+              <h2 style="margin: 0 0 4px; font-size: 18px; color: #ff4747">Car</h2>
+              <div><b>Section</b> · Your car · Change · Choose your car · Search make or ECU</div>
+              <div><b>Signals</b> · Signals · Live · “{14} of {15} coming in”</div>
+              <div>
+                <b>No data</b> · “No data. Check the wiring and the CAN bus speed (Dash tab).”
+              </div>
+              <div>
+                <b>Fix</b> · Looks wrong? · Adjust reading · From the car · Shown on dash · Multiply
+                by · Then add · Unit · Reset to catalogue value · Done
+              </div>
+              <div>
+                <b>Rare</b> · Raw CAN frames · “For mapping signals the catalogue doesn’t know.”
+              </div>
+            </section>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 24px">
+            <section
+              style="
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                border-radius: 14px;
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                font-size: 14px;
+                line-height: 1.45;
+              "
+            >
+              <h2 style="margin: 0 0 4px; font-size: 18px; color: #ff4747">Dash</h2>
+              <div><b>Display</b> · Units: Metric · Imperial · Brightness</div>
+              <div>
+                <b>Alert</b> · Full-screen alert · “Takes over the whole dash screen. Use it for the
+                one thing that must stop you.” · Signal · When it goes Below · Above · Value · Off
+              </div>
+              <div>
+                <b>CAN</b> · CAN bus speed · “Must match your car. Most cars use 500 kbit/s.”
+              </div>
+              <div><b>Backup</b> · Backup and restore · Save backup file · Restore from file…</div>
+              <div>
+                <b>Restore confirm</b> · “Replace everything with this backup?” · “Your pages,
+                gauges, car and settings on the dash will be replaced. Save a backup first if you
+                might want them back.” · Save current setup first · Replace and send to dash ·
+                Cancel
+              </div>
+              <div>
+                <b>About</b> · Firmware {2.4.1} · Hardware {CANShift S3} · Keyboard shortcuts
+                (laptop)
+              </div>
+            </section>
+
+            <section
+              style="
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                border-radius: 14px;
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                font-size: 14px;
+                line-height: 1.45;
+              "
+            >
+              <h2 style="margin: 0 0 4px; font-size: 18px; color: #ff4747">Firmware update</h2>
+              <div>
+                <b>Idle</b> · Update firmware · “Your dash runs version {2.4.1}.” · “Download the
+                update beforehand: you need two files, a .bin and a .sig.” · Firmware file (.bin) ·
+                Signature file (.sig) · Choose file · Install update · “Choose both files to
+                continue.”
+              </div>
+              <div>
+                <b>Confirm</b> · “Install version {2.5.0}?” · “The dash restarts and can’t be used
+                for about 2 minutes. Keep the car’s power on and stay near the dash. Your settings
+                are kept.” · Install and restart · Cancel
+              </div>
+              <div>
+                <b>Running</b> · Updating… {64}% · Uploading · Checking the signature · Installing ·
+                Restarting · “Don’t close this page or turn off the power.”
+              </div>
+              <div>
+                <b>Success</b> · Updated to {2.5.0} · “The dash restarted and is connected again.
+                Your settings were kept.” · Done
+              </div>
+              <div>
+                <b>Failure</b> · Update didn’t install · “The signature file doesn’t match the
+                firmware file. Nothing was changed — your dash still runs {2.4.1}.” · “Download both
+                files again from the same release, then try again.” · Choose files again · Back to
+                Dash
+              </div>
+              <div>
+                <b>Other failures</b> · “The Wi-Fi dropped during the upload. Nothing was installed.
+                Reconnect and try again.” · “This file is for a different dash ({CANShift S2}).”
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
+      class Component extends DCLogic {
+        renderVals() {
+          return {};
+        }
+      }
+    </script>
+  </body>
+</html>

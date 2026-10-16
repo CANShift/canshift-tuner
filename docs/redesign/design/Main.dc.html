@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Tuner structure</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+          a {
+            color: #ff6b6b;
+          }
+          a:hover {
+            color: #ff8f8f;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 1440px;
+          min-height: 1180px;
+          box-sizing: border-box;
+          padding: 64px;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+          display: flex;
+          flex-direction: column;
+          gap: 40px;
+        "
+      >
+        <div
+          style="display: flex; justify-content: space-between; align-items: flex-end; gap: 40px"
+        >
+          <div style="display: flex; flex-direction: column; gap: 10px">
+            <div
+              style="
+                font-size: 14px;
+                font-weight: 600;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: #ff4747;
+              "
+            >
+              CANShift Tuner · redesign
+            </div>
+            <h1 style="margin: 0; font-size: 44px; line-height: 1.1; font-weight: 700">
+              Three tabs. One button to send.<br />Always know what is on the dash.
+            </h1>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-end">
+            <div style="font-size: 13px; color: #a0a6ad">On every screen</div>
+            <div style="display: flex; gap: 12px; align-items: center">
+              <span
+                style="
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 8px;
+                  height: 36px;
+                  padding: 0 14px;
+                  border-radius: 18px;
+                  background: #16181b;
+                  border: 1px solid #2b2f35;
+                  font-size: 14px;
+                  font-weight: 600;
+                "
+                ><span
+                  style="width: 8px; height: 8px; border-radius: 4px; background: #3dd68c"
+                ></span
+                >Connected</span
+              >
+              <span
+                style="
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 8px;
+                  height: 36px;
+                  padding: 0 14px;
+                  border-radius: 18px;
+                  background: #16181b;
+                  border: 1px solid #2b2f35;
+                  font-size: 14px;
+                "
+                ><span
+                  style="width: 8px; height: 8px; border-radius: 4px; background: #ff8800"
+                ></span
+                >2 changes not sent</span
+              >
+              <span
+                style="
+                  display: inline-flex;
+                  align-items: center;
+                  height: 44px;
+                  padding: 0 20px;
+                  border-radius: 10px;
+                  background: #d63333;
+                  color: #ffffff;
+                  font-size: 15px;
+                  font-weight: 600;
+                "
+                >Send to dash</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
+          <section
+            style="
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 14px;
+              padding: 28px;
+              display: flex;
+              flex-direction: column;
+              gap: 16px;
+            "
+          >
+            <div style="display: flex; align-items: center; gap: 12px">
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#FF4747"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+              </svg>
+              <h2 style="margin: 0; font-size: 26px">1 · Gauges</h2>
+            </div>
+            <div style="font-size: 16px; color: #a0a6ad">
+              What the dash shows. Opens by default.
+            </div>
+            <ul
+              style="
+                margin: 0;
+                padding-left: 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                font-size: 16px;
+                line-height: 1.45;
+              "
+            >
+              <li>Live preview of the selected page — tap a gauge to edit it</li>
+              <li>Gauge: signal it shows, name, warning and danger limits</li>
+              <li>Add, remove, move gauges</li>
+              <li>Pages: add, rename, reorder, remove</li>
+              <li>“Start from a layout” when adding a page (was Templates)</li>
+            </ul>
+            <div
+              style="
+                margin-top: auto;
+                font-size: 14px;
+                color: #a0a6ad;
+                border-top: 1px solid #2b2f35;
+                padding-top: 14px;
+              "
+            >
+              Why first: it is the job people come back for.
+            </div>
+          </section>
+
+          <section
+            style="
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 14px;
+              padding: 28px;
+              display: flex;
+              flex-direction: column;
+              gap: 16px;
+            "
+          >
+            <div style="display: flex; align-items: center; gap: 12px">
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#FF4747"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M3 13l2-6h14l2 6v5H3z"></path>
+                <circle cx="7.5" cy="15.5" r="1.5"></circle>
+                <circle cx="16.5" cy="15.5" r="1.5"></circle>
+              </svg>
+              <h2 style="margin: 0; font-size: 26px">2 · Car</h2>
+            </div>
+            <div style="font-size: 16px; color: #a0a6ad">
+              What the car sends. Set once, checked now and then.
+            </div>
+            <ul
+              style="
+                margin: 0;
+                padding-left: 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                font-size: 16px;
+                line-height: 1.45;
+              "
+            >
+              <li>Your car: pick the ECU from the catalogue</li>
+              <li>Signals with live values and a clear “No data”</li>
+              <li>Adjust a reading that looks wrong</li>
+              <li>Raw CAN frames — last row, “for mapping unknown signals”</li>
+            </ul>
+            <div
+              style="
+                margin-top: auto;
+                font-size: 14px;
+                color: #a0a6ad;
+                border-top: 1px solid #2b2f35;
+                padding-top: 14px;
+              "
+            >
+              Why together: picking the car and checking signals is one task.
+            </div>
+          </section>
+
+          <section
+            style="
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 14px;
+              padding: 28px;
+              display: flex;
+              flex-direction: column;
+              gap: 16px;
+            "
+          >
+            <div style="display: flex; align-items: center; gap: 12px">
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#FF4747"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                <path d="M8 15a4 4 0 0 1 8 0"></path>
+                <path d="M12 15l2-3"></path>
+              </svg>
+              <h2 style="margin: 0; font-size: 26px">3 · Dash</h2>
+            </div>
+            <div style="font-size: 16px; color: #a0a6ad">The device itself. Rarely touched.</div>
+            <ul
+              style="
+                margin: 0;
+                padding-left: 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                font-size: 16px;
+                line-height: 1.45;
+              "
+            >
+              <li>Units, brightness</li>
+              <li>Full-screen alert: signal, above / below, value</li>
+              <li>CAN bus speed</li>
+              <li>Backup and restore (file)</li>
+              <li>Update firmware — its own screen, two files, confirm</li>
+              <li>Keyboard shortcuts — laptop only, behind “?”</li>
+            </ul>
+            <div
+              style="
+                margin-top: auto;
+                font-size: 14px;
+                color: #a0a6ad;
+                border-top: 1px solid #2b2f35;
+                padding-top: 14px;
+              "
+            >
+              Why last: risky or rare things live away from the daily loop.
+            </div>
+          </section>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px">
+          <section
+            style="
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 14px;
+              padding: 28px;
+              display: flex;
+              flex-direction: column;
+              gap: 14px;
+            "
+          >
+            <h2 style="margin: 0; font-size: 22px">Removed or hidden</h2>
+            <div
+              style="
+                display: grid;
+                grid-template-columns: 220px minmax(0, 1fr);
+                gap: 10px 20px;
+                font-size: 15px;
+                line-height: 1.45;
+              "
+            >
+              <div style="font-weight: 600">“Burn”</div>
+              <div style="color: #c9cdd2">
+                Renamed <b style="color: #f2f3f5">Send to dash</b> — says what happens.
+              </div>
+              <div style="font-weight: 600">Toolbars, side menus</div>
+              <div style="color: #c9cdd2">
+                Replaced by 3 tabs + one Send button: one obvious place per job.
+              </div>
+              <div style="font-weight: 600">Profiles</div>
+              <div style="color: #c9cdd2">
+                Cut. One dash, one car; a backup file covers “keep this setup”.
+              </div>
+              <div style="font-weight: 600">Templates</div>
+              <div style="color: #c9cdd2">
+                Moved into Add page › Start from a layout — the only moment you need one.
+              </div>
+              <div style="font-weight: 600">Diagnostics panel</div>
+              <div style="color: #c9cdd2">
+                Cut. Live values in Car + the connection pill answer “is it working?”.
+              </div>
+              <div style="font-weight: 600">CLI panel</div>
+              <div style="color: #c9cdd2">
+                Cut from the UI. Drivers never need it; support can use a hidden URL.
+              </div>
+              <div style="font-weight: 600">“Board” setting</div>
+              <div style="color: #c9cdd2">
+                Cut. The dash knows its hardware; shown read-only under Dash › About.
+              </div>
+              <div style="font-weight: 600">Raw CAN view</div>
+              <div style="color: #c9cdd2">
+                Kept, last row of Car — only for mapping unknown signals.
+              </div>
+              <div style="font-weight: 600">Keyboard shortcuts</div>
+              <div style="color: #c9cdd2">Laptop only, behind “?”. Nothing depends on them.</div>
+            </div>
+          </section>
+
+          <div style="display: flex; flex-direction: column; gap: 24px">
+            <section
+              style="
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                border-radius: 14px;
+                padding: 28px;
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+              "
+            >
+              <h2 style="margin: 0; font-size: 22px">How saving works — two states, never more</h2>
+              <div style="display: flex; gap: 12px; flex-wrap: wrap">
+                <span
+                  style="
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    height: 36px;
+                    padding: 0 14px;
+                    border-radius: 18px;
+                    background: #0e0f11;
+                    border: 1px solid #2b2f35;
+                    font-size: 14px;
+                  "
+                  ><svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#3DD68C"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M5 12l5 5L20 7"></path></svg
+                  >On the dash</span
+                >
+                <span
+                  style="
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    height: 36px;
+                    padding: 0 14px;
+                    border-radius: 18px;
+                    background: #0e0f11;
+                    border: 1px solid #2b2f35;
+                    font-size: 14px;
+                  "
+                  ><span
+                    style="width: 8px; height: 8px; border-radius: 4px; background: #ff8800"
+                  ></span
+                  >2 changes not sent</span
+                >
+              </div>
+              <div style="font-size: 15px; line-height: 1.5; color: #c9cdd2">
+                Every edit is kept in this browser the moment you make it, so a Wi-Fi drop loses
+                nothing. It reaches the dash only when you tap
+                <b style="color: #f2f3f5">Send to dash</b>. The chip opens the list of what is not
+                sent, with Undo.
+              </div>
+            </section>
+
+            <section
+              style="
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                border-radius: 14px;
+                padding: 28px;
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+              "
+            >
+              <h2 style="margin: 0; font-size: 22px">Safety cues</h2>
+              <div style="display: flex; flex-direction: column; gap: 12px">
+                <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap">
+                  <span
+                    style="
+                      display: inline-flex;
+                      align-items: center;
+                      height: 32px;
+                      padding: 0 12px;
+                      border-radius: 8px;
+                      border: 1.5px solid #ff8800;
+                      color: #ff8800;
+                      font-size: 14px;
+                      font-weight: 600;
+                    "
+                    >Warning 105 °C</span
+                  >
+                  <span
+                    style="
+                      display: inline-flex;
+                      align-items: center;
+                      height: 32px;
+                      padding: 0 12px;
+                      border-radius: 8px;
+                      border: 1.5px solid #ff4747;
+                      color: #ff4747;
+                      font-size: 14px;
+                      font-weight: 600;
+                    "
+                    >Danger 115 °C</span
+                  >
+                  <span style="font-size: 14px; color: #a0a6ad">Outlined = colours one gauge</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap">
+                  <span
+                    style="
+                      display: inline-flex;
+                      align-items: center;
+                      gap: 8px;
+                      height: 32px;
+                      padding: 0 12px;
+                      border-radius: 8px;
+                      background: #d63333;
+                      color: #ffffff;
+                      font-size: 14px;
+                      font-weight: 600;
+                    "
+                    ><svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#FFFFFF"
+                      stroke-width="2.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"></path></svg
+                    >Full-screen alert · Oil pressure below 1.0 bar</span
+                  >
+                  <span style="font-size: 14px; color: #a0a6ad"
+                    >Solid red + frame icon = takes over the dash</span
+                  >
+                </div>
+                <div style="font-size: 14px; color: #a0a6ad">
+                  Firmware update and restore always ask first, and name what will happen.
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
+      class Component extends DCLogic {
+        renderVals() {
+          return {};
+        }
+      }
+    </script>
+  </body>
+</html>

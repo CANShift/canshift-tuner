@@ -48,6 +48,7 @@ the whole folder has to stay together.
 | [Dash design system](design/DASH_DESIGN_SYSTEM.md) | The dash's own grammar — binding on the canvas preview, not reinterpretable here |
 | [Dash pages](design/DASH_PAGES.json)               | The six reference pages as data, in device pixels                                |
 | [Tuner tokens](design/tokens.md)                   | The app's design language and colour vocabulary — token, CSS variable, Tailwind  |
+| [Redesign handoff](redesign/HANDOFF.md)            | The three-section app (Gauges · Car · Dash), its state model, screens and copy   |
 
 ## Elsewhere
 

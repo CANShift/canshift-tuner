@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Adjust a signal, phone</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+          a {
+            color: #ff6b6b;
+          }
+          a:hover {
+            color: #ff8f8f;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 390px;
+          height: 844px;
+          position: relative;
+          overflow: hidden;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        "
+      >
+        <header
+          style="
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            height: 56px;
+            box-sizing: border-box;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #2b2f35;
+          "
+        >
+          <span
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              font-size: 15px;
+              font-weight: 600;
+            "
+            ><span style="width: 8px; height: 8px; border-radius: 4px; background: #3dd68c"></span
+            >Connected</span
+          >
+          <span
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              height: 44px;
+              padding: 0 14px;
+              border-radius: 22px;
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              font-size: 14px;
+            "
+            ><span style="width: 8px; height: 8px; border-radius: 4px; background: #ff8800"></span>1
+            change not sent</span
+          >
+        </header>
+        <div
+          style="
+            position: absolute;
+            left: 16px;
+            top: 72px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #f2f3f5;
+          "
+        >
+          Your car
+        </div>
+        <div
+          aria-hidden="true"
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 56px;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+          "
+        ></div>
+
+        <section
+          aria-label="Adjust reading"
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 168px;
+            bottom: 0;
+            background: #16181b;
+            border-top: 1px solid #2b2f35;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            flex-direction: column;
+          "
+        >
+          <div
+            style="
+              flex: 1;
+              overflow: hidden;
+              box-sizing: border-box;
+              padding: 8px 16px 16px;
+              display: flex;
+              flex-direction: column;
+              gap: 16px;
+            "
+          >
+            <div
+              aria-hidden="true"
+              style="
+                align-self: center;
+                width: 36px;
+                height: 4px;
+                border-radius: 2px;
+                background: #3a3f46;
+              "
+            ></div>
+            <div style="display: flex; align-items: center; gap: 8px">
+              <div style="flex: 1; display: flex; flex-direction: column">
+                <span style="font-size: 20px; font-weight: 700">Oil pressure</span>
+                <span style="font-size: 13px; color: #a0a6ad">Adjust reading</span>
+              </div>
+              <button
+                style="
+                  height: 44px;
+                  padding: 0 16px;
+                  border-radius: 10px;
+                  background: #f2f3f5;
+                  color: #0e0f11;
+                  border: 0;
+                  font: inherit;
+                  font-size: 15px;
+                  font-weight: 600;
+                "
+              >
+                Done
+              </button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+              <div
+                style="
+                  background: #0e0f11;
+                  border: 1px solid #2b2f35;
+                  border-radius: 12px;
+                  padding: 12px;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 4px;
+                "
+              >
+                <span style="font-size: 13px; color: #a0a6ad">From the car</span>
+                <span
+                  style="
+                    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+                    font-size: 26px;
+                    font-weight: 700;
+                  "
+                  >380</span
+                >
+                <span
+                  style="
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-size: 12px;
+                    color: #a0a6ad;
+                  "
+                  ><span
+                    style="width: 6px; height: 6px; border-radius: 3px; background: #3dd68c"
+                  ></span
+                  >Live</span
+                >
+              </div>
+              <div
+                style="
+                  background: #0e0f11;
+                  border: 1.5px solid #f2f3f5;
+                  border-radius: 12px;
+                  padding: 12px;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 4px;
+                "
+              >
+                <span style="font-size: 13px; color: #a0a6ad">Shown on dash</span>
+                <span
+                  style="
+                    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+                    font-size: 26px;
+                    font-weight: 700;
+                  "
+                  >3.8 bar</span
+                >
+                <span style="font-size: 12px; color: #a0a6ad">Was 38.0 bar</span>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 12px">
+              <label for="mul" style="flex: 1; font-size: 15px">Multiply by</label>
+              <input
+                id="mul"
+                value="0.01"
+                inputmode="decimal"
+                style="
+                  width: 120px;
+                  height: 48px;
+                  box-sizing: border-box;
+                  padding: 0 12px;
+                  border-radius: 10px;
+                  background: #0e0f11;
+                  border: 2px solid #f2f3f5;
+                  color: #f2f3f5;
+                  font-size: 16px;
+                  text-align: right;
+                  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+                "
+              />
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px">
+              <label for="add" style="flex: 1; font-size: 15px">Then add</label>
+              <input
+                id="add"
+                value="0"
+                inputmode="decimal"
+                style="
+                  width: 120px;
+                  height: 48px;
+                  box-sizing: border-box;
+                  padding: 0 12px;
+                  border-radius: 10px;
+                  background: #0e0f11;
+                  border: 1px solid #2b2f35;
+                  color: #f2f3f5;
+                  font-size: 16px;
+                  text-align: right;
+                  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+                "
+              />
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px">
+              <span style="flex: 1; font-size: 15px">Unit</span>
+              <button
+                style="
+                  width: 120px;
+                  height: 48px;
+                  box-sizing: border-box;
+                  padding: 0 12px;
+                  border-radius: 10px;
+                  background: #0e0f11;
+                  border: 1px solid #2b2f35;
+                  color: #f2f3f5;
+                  font: inherit;
+                  font-size: 16px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                "
+              >
+                bar<svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#A0A6AD"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M6 9l6 6 6-6"></path>
+                </svg>
+              </button>
+            </div>
+
+            <div
+              style="
+                font-size: 14px;
+                line-height: 1.45;
+                color: #c9cdd2;
+                background: #1e2125;
+                border-radius: 10px;
+                padding: 12px;
+              "
+            >
+              Compare with a gauge you trust, with the engine running. Change one number at a time.
+            </div>
+            <button
+              style="
+                align-self: flex-start;
+                height: 44px;
+                padding: 0;
+                background: transparent;
+                border: 0;
+                color: #ff6b6b;
+                font: inherit;
+                font-size: 15px;
+              "
+            >
+              Reset to catalogue value
+            </button>
+          </div>
+
+          <div
+            style="
+              height: 72px;
+              flex: none;
+              box-sizing: border-box;
+              padding: 12px 16px;
+              border-top: 1px solid #2b2f35;
+              background: #0e0f11;
+              display: flex;
+              align-items: center;
+              gap: 12px;
+            "
+          >
+            <span style="flex: 1; font-size: 14px; color: #c9cdd2">Only in this browser</span>
+            <button
+              style="
+                height: 48px;
+                padding: 0 22px;
+                border-radius: 10px;
+                background: #d63333;
+                color: #ffffff;
+                border: 0;
+                font: inherit;
+                font-size: 16px;
+                font-weight: 600;
+              "
+            >
+              Send to dash
+            </button>
+          </div>
+        </section>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+      class Component extends DCLogic {
+        renderVals() {
+          return {};
+        }
+      }
+    </script>
+  </body>
+</html>

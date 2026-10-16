@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>First open, phone</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+          a {
+            color: #ff6b6b;
+          }
+          a:hover {
+            color: #ff8f8f;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 390px;
+          height: 844px;
+          position: relative;
+          overflow: hidden;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        "
+      >
+        <header
+          style="
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            height: 56px;
+            box-sizing: border-box;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #2b2f35;
+          "
+        >
+          <span
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              font-size: 15px;
+              font-weight: 600;
+            "
+            ><span style="width: 8px; height: 8px; border-radius: 4px; background: #3dd68c"></span
+            >Connected</span
+          >
+          <button
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+              height: 44px;
+              padding: 0 14px;
+              border-radius: 22px;
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              color: #f2f3f5;
+              font: inherit;
+              font-size: 14px;
+            "
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#3DD68C"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M5 12l5 5L20 7"></path></svg
+            >On the dash
+          </button>
+        </header>
+
+        <main
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 56px;
+            bottom: 84px;
+            overflow: hidden;
+            box-sizing: border-box;
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+          "
+        >
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <h1 style="margin: 0; font-size: 24px; font-weight: 700">Connected to your dash</h1>
+            <div style="font-size: 15px; color: #a0a6ad">
+              This is what your dash shows right now.
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 8px">
+            <button
+              style="
+                height: 44px;
+                padding: 0 16px;
+                border-radius: 10px;
+                background: #f2f3f5;
+                color: #0e0f11;
+                border: 0;
+                font: inherit;
+                font-size: 15px;
+                font-weight: 600;
+              "
+            >
+              Race
+            </button>
+            <button
+              style="
+                height: 44px;
+                padding: 0 16px;
+                border-radius: 10px;
+                background: #16181b;
+                color: #f2f3f5;
+                border: 1px solid #2b2f35;
+                font: inherit;
+                font-size: 15px;
+              "
+            >
+              Street
+            </button>
+            <button
+              aria-label="Add page"
+              style="
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 44px;
+                height: 44px;
+                border-radius: 10px;
+                background: transparent;
+                color: #f2f3f5;
+                border: 1px dashed #3a3f46;
+                font: inherit;
+              "
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 5v14M5 12h14"></path>
+              </svg>
+            </button>
+          </div>
+
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+            <div
+              style="
+                width: 320px;
+                height: 240px;
+                border-radius: 6px;
+                overflow: hidden;
+                outline: 1px solid #2b2f35;
+              "
+            >
+              <dc-import name="DashPreview" hint-size="320px,240px"></dc-import>
+            </div>
+            <div style="font-size: 13px; color: #a0a6ad">Tap a gauge to change it</div>
+          </div>
+
+          <section
+            style="
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 14px;
+              padding: 16px;
+              display: flex;
+              flex-direction: column;
+              gap: 14px;
+            "
+          >
+            <div style="font-size: 17px; font-weight: 600">Set up in 3 steps</div>
+            <ol
+              style="
+                margin: 0;
+                padding: 0;
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+              "
+            >
+              <li style="display: flex; align-items: center; gap: 12px">
+                <span
+                  style="
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 14px;
+                    background: #ff4747;
+                    color: #0e0f11;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 14px;
+                    font-weight: 700;
+                    flex: none;
+                  "
+                  >1</span
+                >
+                <div style="display: flex; flex-direction: column">
+                  <span style="font-size: 15px; font-weight: 600">Choose your car</span
+                  ><span style="font-size: 13px; color: #ff8800">Not chosen yet</span>
+                </div>
+              </li>
+              <li style="display: flex; align-items: center; gap: 12px">
+                <span
+                  style="
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 14px;
+                    border: 1.5px solid #3a3f46;
+                    color: #a0a6ad;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 14px;
+                    font-weight: 700;
+                    flex: none;
+                    box-sizing: border-box;
+                  "
+                  >2</span
+                ><span style="font-size: 15px; color: #c9cdd2">Check the signals come in</span>
+              </li>
+              <li style="display: flex; align-items: center; gap: 12px">
+                <span
+                  style="
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 14px;
+                    border: 1.5px solid #3a3f46;
+                    color: #a0a6ad;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 14px;
+                    font-weight: 700;
+                    flex: none;
+                    box-sizing: border-box;
+                  "
+                  >3</span
+                ><span style="font-size: 15px; color: #c9cdd2"
+                  >Arrange your gauges — or keep this layout</span
+                >
+              </li>
+            </ol>
+            <button
+              style="
+                height: 48px;
+                border-radius: 10px;
+                background: #d63333;
+                color: #ffffff;
+                border: 0;
+                font: inherit;
+                font-size: 16px;
+                font-weight: 600;
+              "
+            >
+              Choose your car
+            </button>
+          </section>
+        </main>
+
+        <nav
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 84px;
+            box-sizing: border-box;
+            padding-bottom: 20px;
+            background: #16181b;
+            border-top: 1px solid #2b2f35;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+          "
+        >
+          <a
+            href="#"
+            aria-current="page"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 4px;
+              color: #f2f3f5;
+              text-decoration: none;
+              font-size: 12px;
+              font-weight: 600;
+            "
+            ><svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#FF4747"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="1"></rect></svg
+            >Gauges</a
+          >
+          <a
+            href="#"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 4px;
+              color: #a0a6ad;
+              text-decoration: none;
+              font-size: 12px;
+            "
+            ><svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M3 13l2-6h14l2 6v5H3z"></path>
+              <circle cx="7.5" cy="15.5" r="1.5"></circle>
+              <circle cx="16.5" cy="15.5" r="1.5"></circle></svg
+            >Car</a
+          >
+          <a
+            href="#"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 4px;
+              color: #a0a6ad;
+              text-decoration: none;
+              font-size: 12px;
+            "
+            ><svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+              <path d="M8 15a4 4 0 0 1 8 0"></path>
+              <path d="M12 15l2-3"></path></svg
+            >Dash</a
+          >
+        </nav>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+      class Component extends DCLogic {
+        renderVals() {
+          return {};
+        }
+      }
+    </script>
+  </body>
+</html>

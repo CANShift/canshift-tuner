@@ -1,68 +1,72 @@
 # Tuner tokens
 
 The app's colour vocabulary, and the authority for it: this page maps each token name to the name the
-code uses.
+code uses. The values come from the [redesign handoff](../redesign/HANDOFF.md#4-design-tokens).
 
 ## Design language
 
-Black, white, red. Everything flush left, radius 0, no shadow, no gradient. Rules organise the page:
-2 px for major separations (header, section heads, table heads), 1 px between rows. **Archivo** for
-anything that speaks (labels, buttons, titles), **JetBrains Mono** for anything that measures (values,
-IDs, bytes, versions), tabular numerals on every readout. Everything outside the dash canvas is plain
-forms; the canvas follows [the dash design system](DASH_DESIGN_SYSTEM.md).
+Dark, calm and phone-first. Cards and sheets on a near-black ground, rounded controls, plain language.
+The **system font stack** speaks (labels, buttons, titles) and the **system monospace** measures (live
+values, versions). Nothing is downloaded: the tuner is served by the dash and runs offline. Everything
+outside the dash preview follows this page; the preview follows [the dash design system](DASH_DESIGN_SYSTEM.md)
+and keeps the dash's own fonts.
 
 Defined in [`src/styles/ui-tokens.css`](../../src/styles/ui-tokens.css), exposed to Tailwind as the `ui`
 colour family in `tailwind.config.ts`. Never hard-code these values in a component.
 
-## Surfaces
+## Colours
 
 The tuner is dark only: one value per token, on `:root`. Day and night belong to the dash's own
 themes, previewed on the canvas, not to the app.
 
-| Mockup         | CSS variable       | Tailwind         | Value                    | Use                                |
-| -------------- | ------------------ | ---------------- | ------------------------ | ---------------------------------- |
-| `--t-bg`       | `--ui-bg`          | `ui-bg`          | `#17161a`                | page ground                        |
-| `--t-panel`    | `--ui-panel`       | `ui-panel`       | `#201f24`                | hover, inset panels, canvas ground |
-| `--t-ink`      | `--ui-ink`         | `ui-ink`         | `#f3f2f2`                | text, borders, 2 px rules          |
-| `--t-muted`    | `--ui-muted`       | `ui-muted`       | `#a09da3`                | labels, secondary text             |
-| `--t-faint`    | `--ui-faint`       | `ui-faint`       | `#7a777d`                | tertiary, disabled text            |
-| `--t-line`     | `--ui-line`        | `ui-line`        | `rgb(243 242 242 / .16)` | 1 px separators                    |
-| `--t-line2`    | `--ui-line-strong` | `ui-line-strong` | `rgb(243 242 242 / .32)` | input borders                      |
-| `--t-rule`     | `--ui-rule`        | `ui-rule`        | `#f3f2f2`                | 2 px rules                         |
-| `--t-hdr-bg`   | `--ui-header-bg`   | `ui-header-bg`   | `#0d0d0f`                | header + footer ground             |
-| `--t-hdr-ink`  | `--ui-header-ink`  | `ui-header-ink`  | `#f3f2f2`                | header text                        |
-| `--t-hdr-dim`  | `--ui-header-dim`  | `ui-header-dim`  | `#86838a`                | header idle text                   |
-| `--t-hdr-line` | `--ui-header-line` | `ui-header-line` | `#2b2a30`                | header separators                  |
+| CSS variable       | Tailwind         | Value     | Use                                                         |
+| ------------------ | ---------------- | --------- | ----------------------------------------------------------- |
+| `--ui-bg`          | `ui-bg`          | `#0e0f11` | app background, inputs                                      |
+| `--ui-surface`     | `ui-surface`     | `#16181b` | cards, sheets, header, tab bar                              |
+| `--ui-surface-2`   | `ui-surface-2`   | `#1e2125` | secondary buttons, active nav item                          |
+| `--ui-border`      | `ui-border`      | `#2b2f35` | borders                                                     |
+| `--ui-divider`     | `ui-divider`     | `#23262b` | divider rows inside a card                                  |
+| `--ui-text`        | `ui-text`        | `#f2f3f5` | primary text, the selected segment fill (with `ui-bg` text) |
+| `--ui-secondary`   | `ui-secondary`   | `#c9cdd2` | secondary body text                                         |
+| `--ui-muted`       | `ui-muted`       | `#a0a6ad` | captions                                                    |
+| `--ui-accent`      | `ui-accent`      | `#ff4747` | dash red: icons, active tab icon, accents on dark           |
+| `--ui-primary`     | `ui-primary`     | `#d63333` | filled red buttons with white text (≥ 4.5:1)                |
+| `--ui-warning`     | `ui-warning`     | `#ff8800` | warning limits, the unsent dot, reconnecting                |
+| `--ui-warning-bg`  | `ui-warning-bg`  | `#2a1c0a` | warning banner ground                                       |
+| `--ui-warning-ink` | `ui-warning-ink` | `#ffc27a` | text on the warning ground                                  |
+| `--ui-success`     | `ui-success`     | `#3dd68c` | connected, live, success                                    |
+| `--ui-success-bg`  | `ui-success-bg`  | `#123826` | success ground                                              |
 
-## Fixed
+The older names (`ui-panel`, `ui-ink`, `ui-line`, `ui-header-*`, `ui-ok`…) are aliases of the colours
+above while the surfaces that use them are rebuilt; they go when the last of those surfaces does.
 
-Accents and states. There is no thirteenth colour.
+## Type, radius, size
 
-| CSS variable        | Tailwind          | Value     | Use                                              |
-| ------------------- | ----------------- | --------- | ------------------------------------------------ |
-| `--ui-accent`       | `ui-accent`       | `#ec3013` | primary action, active tab, current-page outline |
-| `--ui-accent-hover` | `ui-accent-hover` | `#c62810` | hover on a primary action                        |
-| `--ui-warning`      | `ui-warning`      | `#ff8800` | out of range, keep driving; `DO NOT UNPLUG`      |
-| `--ui-danger`       | `ui-danger`       | `#ff4444` | danger or failure                                |
-| `--ui-engaged`      | `ui-engaged`      | `#ff4747` | this function is on — dash buttons only          |
-| `--ui-ok`           | `ui-ok`           | `#00cc2a` | connected, success                               |
-| `--ui-console`      | `ui-console`      | `#0d0d0d` | CLI ground, in both themes                       |
-| `--ui-console-ink`  | `ui-console-ink`  | `#e8e6e3` | CLI text                                         |
+| Token           | Tailwind                          | Value                                                      |
+| --------------- | --------------------------------- | ---------------------------------------------------------- |
+| `--ui-font`     | `font-ui` (also the body default) | `-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui` |
+| `--ui-font-num` | `font-num`                        | `ui-monospace, "SF Mono", Menlo, Consolas, monospace`      |
+| control radius  | `rounded-control`                 | 10 px — buttons, inputs, segmented controls                |
+| card radius     | `rounded-card`                    | 14 px — cards                                              |
+| sheet radius    | `rounded-sheet`                   | 16 px — sheets and dialogs                                 |
+| safe area       | `pb-safe-bottom`                  | `env(safe-area-inset-bottom)`, under the phone tab bar     |
+
+Controls are 44–52 px high, list rows 48–52 px, the phone header 56 px and the tab bar 84 px including
+the safe area. Every touch target is at least 44 px.
 
 ## Relation to `@canshift/core`
 
 Core owns the dash's tokens and the brand mark, and publishes them through
 `scripts/generate-tokens.css.ts` into `src/styles/tokens.generated.css`. That file stays: the canvas
-preview renders the dash and must read the dash's tokens, not the app's.
+preview renders the dash and must read the dash's tokens and fonts (`font-sans` is the dash's
+Archivo, `font-mono` its JetBrains Mono), not the app's.
 
-The `ui` family above is the app's chrome, which core has no consumer for. Where the two agree they agree
-by value, not by reference — `--ui-accent` and core's `--brand-accent` are both `#ec3013`.
+The `ui` family above is the app's chrome, which core has no consumer for.
 
 ## Rules
 
-- Radius 0 and no shadow. `src/index.css` zeroes `border-radius` on `*`, which catches the browser
-  defaults on `input` and `button`; a `rounded-*` utility still wins on specificity, so a deliberate
-  radius has to be typed and will be caught in review.
+- `src/index.css` zeroes `border-radius` on `*`; a radius is always a deliberate `rounded-*` class.
 - Focus is `outline: 2px solid var(--ui-accent)` with a 2 px offset, on every interactive element. The
   browser default ring is never acceptable.
-- Opacity below 100 % is for the canvas carousel's inactive pages, nothing else.
+- Two safety cues never look alike: a gauge limit is an **outlined** orange or red swatch, the
+  full-screen alert is a **solid** `ui-primary` block with the full-screen corners icon.

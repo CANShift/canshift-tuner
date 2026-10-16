@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Your car, phone</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+          a {
+            color: #ff6b6b;
+          }
+          a:hover {
+            color: #ff8f8f;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 390px;
+          height: 844px;
+          position: relative;
+          overflow: hidden;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        "
+      >
+        <header
+          style="
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            height: 56px;
+            box-sizing: border-box;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #2b2f35;
+          "
+        >
+          <span
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              font-size: 15px;
+              font-weight: 600;
+            "
+            ><span style="width: 8px; height: 8px; border-radius: 4px; background: #3dd68c"></span
+            >Connected</span
+          >
+          <button
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+              height: 44px;
+              padding: 0 14px;
+              border-radius: 22px;
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              color: #f2f3f5;
+              font: inherit;
+              font-size: 14px;
+            "
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#3DD68C"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M5 12l5 5L20 7"></path></svg
+            >On the dash
+          </button>
+        </header>
+
+        <main
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 56px;
+            bottom: 84px;
+            overflow: hidden;
+            box-sizing: border-box;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+          "
+        >
+          <h1 style="margin: 0; font-size: 24px">Your car</h1>
+          <section
+            style="
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 14px;
+              padding: 14px 16px;
+              display: flex;
+              align-items: center;
+              gap: 12px;
+            "
+          >
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+              <span style="font-size: 13px; color: #a0a6ad">ECU</span>
+              <span style="font-size: 17px; font-weight: 600">Haltech Elite 2500</span>
+            </div>
+            <button
+              style="
+                height: 44px;
+                padding: 0 16px;
+                border-radius: 10px;
+                background: #1e2125;
+                border: 1px solid #2b2f35;
+                color: #f2f3f5;
+                font: inherit;
+                font-size: 15px;
+              "
+            >
+              Change
+            </button>
+          </section>
+
+          <div style="display: flex; align-items: baseline; justify-content: space-between">
+            <h2 style="margin: 0; font-size: 18px">Signals</h2>
+            <span style="font-size: 14px; color: #a0a6ad">14 of 15 coming in · tap to adjust</span>
+          </div>
+
+          <div
+            style="
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 14px;
+              overflow: hidden;
+              display: flex;
+              flex-direction: column;
+            "
+          >
+            <sc-for list="{{signals}}" as="s" hint-placeholder-count="8">
+              <a
+                href="#"
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  min-height: 52px;
+                  padding: 0 14px;
+                  border-bottom: 1px solid #23262b;
+                  color: #f2f3f5;
+                  text-decoration: none;
+                "
+              >
+                <span
+                  style="width: 8px; height: 8px; border-radius: 4px; flex: none; background: {{s.dot}}"
+                ></span>
+                <span style="flex: 1; font-size: 15px">{{s.name}}</span>
+                <span
+                  style="font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 15px; color: {{s.color}}"
+                  >{{s.value}}</span
+                >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#6B7178"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M9 6l6 6-6 6"></path>
+                </svg>
+              </a>
+            </sc-for>
+          </div>
+          <a
+            href="#"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              min-height: 52px;
+              padding: 0 14px;
+              border-radius: 12px;
+              border: 1px solid #2b2f35;
+              color: #c9cdd2;
+              text-decoration: none;
+            "
+          >
+            <div style="flex: 1; display: flex; flex-direction: column">
+              <span style="font-size: 15px">Raw CAN frames</span
+              ><span style="font-size: 12px; color: #a0a6ad"
+                >For mapping signals the catalogue doesn’t know</span
+              >
+            </div>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#6B7178"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M9 6l6 6-6 6"></path>
+            </svg>
+          </a>
+        </main>
+
+        <nav
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 84px;
+            box-sizing: border-box;
+            padding-bottom: 20px;
+            background: #16181b;
+            border-top: 1px solid #2b2f35;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+          "
+        >
+          <a
+            href="#"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 4px;
+              color: #a0a6ad;
+              text-decoration: none;
+              font-size: 12px;
+            "
+            ><svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="1"></rect></svg
+            >Gauges</a
+          >
+          <a
+            href="#"
+            aria-current="page"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 4px;
+              color: #f2f3f5;
+              text-decoration: none;
+              font-size: 12px;
+              font-weight: 600;
+            "
+            ><svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#FF4747"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M3 13l2-6h14l2 6v5H3z"></path>
+              <circle cx="7.5" cy="15.5" r="1.5"></circle>
+              <circle cx="16.5" cy="15.5" r="1.5"></circle></svg
+            >Car</a
+          >
+          <a
+            href="#"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 4px;
+              color: #a0a6ad;
+              text-decoration: none;
+              font-size: 12px;
+            "
+            ><svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+              <path d="M8 15a4 4 0 0 1 8 0"></path>
+              <path d="M12 15l2-3"></path></svg
+            >Dash</a
+          >
+        </nav>
+      </div>
+    </x-dc>
+    <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+      class Component extends DCLogic {
+        renderVals() {
+          const rows = [
+            ['Fuel pressure', 'No data', false],
+            ['Engine speed', '3 450 rpm', true],
+            ['Vehicle speed', '84 km/h', true],
+            ['Coolant temperature', '92 °C', true],
+            ['Oil pressure', '3.8 bar', true],
+            ['Oil temperature', '108 °C', true],
+            ['Air/fuel ratio', '14.2', true],
+            ['Battery voltage', '13.8 V', true]
+          ];
+          return {
+            signals: rows.map(([name, value, ok]) => ({
+              name, value,
+              dot: ok ? '#3DD68C' : '#FF8800',
+              color: ok ? '#F2F3F5' : '#FF8800'
+            }))
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -1,25 +1,39 @@
 :root {
-  --ui-bg: #17161a;
-  --ui-panel: #201f24;
-  --ui-ink: #f3f2f2;
-  --ui-muted: #a09da3;
-  --ui-faint: #7a777d;
-  --ui-line: rgba(243, 242, 242, 0.16);
-  --ui-line-strong: rgba(243, 242, 242, 0.32);
-  --ui-rule: #f3f2f2;
-  --ui-header-bg: #0d0d0f;
-  --ui-header-ink: #f3f2f2;
-  --ui-header-dim: #86838a;
-  --ui-header-line: #2b2a30;
+  --ui-bg: #0e0f11;
+  --ui-surface: #16181b;
+  --ui-surface-2: #1e2125;
+  --ui-border: #2b2f35;
+  --ui-divider: #23262b;
+  --ui-text: #f2f3f5;
+  --ui-secondary: #c9cdd2;
+  --ui-muted: #a0a6ad;
+  --ui-accent: #ff4747;
+  --ui-primary: #d63333;
+  --ui-warning: #ff8800;
+  --ui-warning-bg: #2a1c0a;
+  --ui-warning-ink: #ffc27a;
+  --ui-success: #3dd68c;
+  --ui-success-bg: #123826;
+
+  --ui-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --ui-font-num: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 }
 
 :root {
-  --ui-accent: #ec3013;
-  --ui-accent-hover: #c62810;
-  --ui-warning: #ff8800;
-  --ui-danger: #ff4444;
-  --ui-engaged: #ff4747;
-  --ui-ok: #00cc2a;
+  --ui-panel: var(--ui-surface);
+  --ui-ink: var(--ui-text);
+  --ui-faint: var(--ui-muted);
+  --ui-line: var(--ui-divider);
+  --ui-line-strong: var(--ui-border);
+  --ui-rule: var(--ui-border);
+  --ui-header-bg: var(--ui-surface);
+  --ui-header-ink: var(--ui-text);
+  --ui-header-dim: var(--ui-muted);
+  --ui-header-line: var(--ui-border);
+  --ui-accent-hover: var(--ui-primary);
+  --ui-danger: var(--ui-accent);
+  --ui-engaged: var(--ui-accent);
+  --ui-ok: var(--ui-success);
   --ui-console: #0d0d0d;
   --ui-console-ink: #e8e6e3;
 }
