@@ -129,6 +129,9 @@ const config: Config = {
         card: '14px',
         sheet: '16px',
       },
+      boxShadow: {
+        overlay: '0 16px 48px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(0, 0, 0, 0.4)',
+      },
       spacing: {
         'safe-bottom': 'env(safe-area-inset-bottom)',
       },

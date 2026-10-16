@@ -9,7 +9,7 @@ const SheetClose = DialogPrimitive.Close
 
 const SHEET = [
   'fixed inset-x-0 bottom-0 z-50 flex max-h-[85dvh] flex-col gap-3.5 overflow-y-auto',
-  'rounded-t-sheet border-t border-app-border bg-app-surface px-4 pt-2 text-app-text',
+  'isolate rounded-t-sheet border-t border-app-border bg-app-surface px-4 pt-2 text-app-text shadow-overlay',
   'pb-[max(env(safe-area-inset-bottom),28px)] focus:outline-none',
   'lg:inset-x-auto lg:bottom-auto lg:right-6 lg:top-20 lg:w-[400px] lg:rounded-card lg:border lg:p-5',
 ].join(' ')
