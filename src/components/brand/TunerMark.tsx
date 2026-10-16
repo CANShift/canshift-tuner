@@ -1,4 +1,5 @@
 import { BRAND_ACCENT } from '@canshift/core'
+import { STRINGS } from '../../strings'
 
 const FRAME_PATH = 'M22 18 H98 V86 H22 Z'
 const FRAME_STROKE = 7
@@ -19,7 +20,7 @@ export interface TunerMarkProps {
   label?: string
 }
 
-export const TunerMark = ({ height, label = 'CANShift Tuner' }: TunerMarkProps) => (
+export const TunerMark = ({ height, label = STRINGS.appName }: TunerMarkProps) => (
   <svg
     viewBox={VIEW_BOX}
     height={height}

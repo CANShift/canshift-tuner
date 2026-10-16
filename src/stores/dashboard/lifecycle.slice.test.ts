@@ -11,114 +11,16 @@ const makeConfig = (id: string): DashboardConfig =>
   }) as unknown as DashboardConfig
 
 beforeEach(() => {
-  useDashboardStore.setState({ config: null, isDirty: false, pendingDeviceConfig: null })
+  useDashboardStore.setState({ config: null, past: [], future: [] })
 })
 
-describe('loadFromDeviceOrDemo conflict handling (#1741)', () => {
-  it('stages the device config instead of overwriting dirty edits', () => {
-    const store = useDashboardStore.getState()
-    store.setConfig(makeConfig('local'))
-    store.markDirty()
-
-    const deviceConfig = makeConfig('device')
-    const outcome = useDashboardStore.getState().loadFromDeviceOrDemo(deviceConfig)
-
-    const state = useDashboardStore.getState()
-    expect(outcome).toBe('staged')
-    expect(state.config?.defaultPageId).toBe('local')
-    expect(state.isDirty).toBe(true)
-    expect(state.pendingDeviceConfig?.defaultPageId).toBe('device')
-  })
-
-  it('accepting the staged config replaces edits and clears dirty state', () => {
-    const store = useDashboardStore.getState()
-    store.setConfig(makeConfig('local'))
-    store.markDirty()
-    useDashboardStore.getState().loadFromDeviceOrDemo(makeConfig('device'))
-
-    useDashboardStore.getState().acceptPendingDeviceConfig()
-
-    const state = useDashboardStore.getState()
-    expect(state.config?.defaultPageId).toBe('device')
-    expect(state.isDirty).toBe(false)
-    expect(state.pendingDeviceConfig).toBeNull()
-    expect(state.selectedPageId).toBe('device')
-    expect(state.past).toHaveLength(0)
-    expect(state.future).toHaveLength(0)
-  })
-})
-
-describe('staged device config (#1741)', () => {
-  it('dismissing the staged config keeps local edits dirty', () => {
-    const store = useDashboardStore.getState()
-    store.setConfig(makeConfig('local'))
-    store.markDirty()
-    useDashboardStore.getState().loadFromDeviceOrDemo(makeConfig('device'))
-
-    useDashboardStore.getState().dismissPendingDeviceConfig()
-
-    const state = useDashboardStore.getState()
-    expect(state.config?.defaultPageId).toBe('local')
-    expect(state.isDirty).toBe(true)
-    expect(state.pendingDeviceConfig).toBeNull()
-  })
-
-  it('accept is a no-op when nothing is staged', () => {
-    const store = useDashboardStore.getState()
-    store.setConfig(makeConfig('local'))
-    store.markDirty()
-
-    useDashboardStore.getState().acceptPendingDeviceConfig()
-
-    const state = useDashboardStore.getState()
-    expect(state.config?.defaultPageId).toBe('local')
-    expect(state.isDirty).toBe(true)
-  })
-})
-
-describe('loading without a conflict (#1741)', () => {
-  it('loads the device config directly when local edits are clean', () => {
-    useDashboardStore.getState().setConfig(makeConfig('local'))
-
-    const outcome = useDashboardStore.getState().loadFromDeviceOrDemo(makeConfig('device'))
-
-    const state = useDashboardStore.getState()
-    expect(outcome).toBe('device')
-    expect(state.config?.defaultPageId).toBe('device')
-    expect(state.isDirty).toBe(false)
-    expect(state.pendingDeviceConfig).toBeNull()
-  })
-
-  it('loads the demo config when no config exists and device has none', () => {
-    const outcome = useDashboardStore.getState().loadFromDeviceOrDemo(null)
-
-    expect(outcome).toBe('demo')
-    expect(useDashboardStore.getState().config).not.toBeNull()
-    expect(useDashboardStore.getState().isDirty).toBe(false)
-  })
-})
-
-describe('keeping or replacing local config (#1741)', () => {
-  it('keeps the existing config when device has none', () => {
-    useDashboardStore.getState().setConfig(makeConfig('local'))
-    useDashboardStore.getState().markDirty()
-
-    const outcome = useDashboardStore.getState().loadFromDeviceOrDemo(null)
-
-    expect(outcome).toBe('kept-edits')
-    expect(useDashboardStore.getState().config?.defaultPageId).toBe('local')
-    expect(useDashboardStore.getState().isDirty).toBe(true)
-  })
-
-  it('setConfig clears a previously staged device config', () => {
-    useDashboardStore.getState().setConfig(makeConfig('local'))
-    useDashboardStore.getState().markDirty()
-    useDashboardStore.getState().loadFromDeviceOrDemo(makeConfig('device'))
-
-    useDashboardStore.getState().setConfig(makeConfig('fresh'))
-
-    expect(useDashboardStore.getState().pendingDeviceConfig).toBeNull()
-    expect(useDashboardStore.getState().isDirty).toBe(false)
+describe('replaceConfig', () => {
+  it('swaps the draft and keeps the previous one on the undo stack', () => {
+    useDashboardStore.getState().setConfig(makeConfig('p1'))
+    useDashboardStore.getState().replaceConfig(makeConfig('p2'), 'Undo a change')
+    expect(useDashboardStore.getState().selectedPageId).toBe('p2')
+    useDashboardStore.getState().undo()
+    expect(useDashboardStore.getState().config?.defaultPageId).toBe('p1')
   })
 })
 
@@ -130,12 +32,11 @@ describe('setCriticalAlert', () => {
     acknowledgeOn: 'dash',
   } as const
 
-  it('writes the alert onto the config and marks it dirty', () => {
+  it('writes the alert onto the config', () => {
     useDashboardStore.getState().setConfig(makeConfig('p1'))
     useDashboardStore.getState().setCriticalAlert(alert)
     const state = useDashboardStore.getState()
     expect(state.config?.criticalAlert).toEqual(alert)
-    expect(state.isDirty).toBe(true)
   })
 
   it('removes the key entirely when cleared, so the config validates without it', () => {

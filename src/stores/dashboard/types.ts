@@ -13,26 +13,18 @@ import type {
   WidgetLayout,
 } from '@canshift/core'
 
-export type LoadFromDeviceOrDemoResult = 'device' | 'demo' | 'kept-edits' | 'staged'
-
 export type AlignDirection = 'left' | 'right' | 'top' | 'bottom' | 'center-h' | 'center-v'
 
 export interface LifecycleSlice {
   config: DashboardConfig | null
-  isDirty: boolean
-  pendingDeviceConfig: DashboardConfig | null
+  lastSavedAt: number | null
 
   setConfig: (config: DashboardConfig) => void
+  replaceConfig: (config: DashboardConfig, label: string) => void
   setTargetProfile: (id: ScreenProfileId) => void
   setUnits: (units: UnitSystem) => void
   setCriticalAlert: (alert: CriticalAlert | null) => void
-  loadFromDeviceOrDemo: (deviceConfig: DashboardConfig | null) => LoadFromDeviceOrDemoResult
-  acceptPendingDeviceConfig: () => void
-  dismissPendingDeviceConfig: () => void
-  markPushed: () => void
-  lastSavedAt: number | null
   markAutosaved: (ts: number) => void
-  markDirty: () => void
 }
 
 export interface HistorySlice {

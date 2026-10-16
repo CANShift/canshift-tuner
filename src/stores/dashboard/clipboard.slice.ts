@@ -43,7 +43,6 @@ const removeFrom = (s: DashboardDraft, pageId: string, widgetIds: string[]): voi
   page.widgets = page.widgets.filter((w) => !removed.has(w.id))
   if (s.selectedWidgetId !== null && removed.has(s.selectedWidgetId)) s.selectedWidgetId = null
   s.selectedWidgetIds = s.selectedWidgetIds.filter((id) => !removed.has(id))
-  s.isDirty = true
 }
 
 const nudgeIn = (
@@ -62,7 +61,6 @@ const nudgeIn = (
     const clamped = clampGridPlacement(moved, tracks)
     Object.assign(w.layout, { col: clamped.col, row: clamped.row })
   }
-  s.isDirty = true
 }
 
 export const createClipboardSlice: SliceCreator<ClipboardSlice> = (set) => ({

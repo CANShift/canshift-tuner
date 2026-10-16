@@ -5,20 +5,18 @@ import { DEFAULT_SIM_CONFIG } from '../../config/default-sim-config'
 
 const source = () => ({
   config: structuredClone(DEFAULT_SIM_CONFIG),
-  isDirty: true,
   selectedPageId: DEFAULT_SIM_CONFIG.pages[1]?.id ?? null,
   selectedWidgetId: DEFAULT_SIM_CONFIG.pages[1]?.widgets[0]?.id ?? null,
   selectedWidgetIds: [DEFAULT_SIM_CONFIG.pages[1]?.widgets[0]?.id ?? ''],
 })
 
 describe('autosave (#1849)', () => {
-  it('round-trips config, dirtiness and selection byte-identically', () => {
+  it('round-trips the draft and its selection byte-identically', () => {
     const raw = serializeAutosave(source(), 1234)
     expect(raw).not.toBeNull()
     const restored = parseAutosave(raw ?? '')
     expect(restored).not.toBeNull()
     expect(restored?.savedAt).toBe(1234)
-    expect(restored?.isDirty).toBe(true)
     expect(restored?.selectedPageId).toBe(source().selectedPageId)
     expect(restored?.selectedWidgetId).toBe(source().selectedWidgetId)
     expect(JSON.stringify(restored?.config)).toBe(JSON.stringify(DEFAULT_SIM_CONFIG))
@@ -53,14 +51,8 @@ describe('autosave edges (#1849)', () => {
     expect(restored?.config.version).toBe(CURRENT_SCHEMA_VERSION)
   })
 
-  it('only restores a snapshot that holds unsaved work', () => {
-    const dirty = parseAutosave(serializeAutosave(source(), 1) ?? '')
-    expect(isRestorable(dirty)).toBe(true)
-
-    const clean = parseAutosave(serializeAutosave({ ...source(), isDirty: false }, 1) ?? '')
-    expect(clean).not.toBeNull()
-    expect(isRestorable(clean)).toBe(false)
-
+  it('restores every valid draft, sent or not', () => {
+    expect(isRestorable(parseAutosave(serializeAutosave(source(), 1) ?? ''))).toBe(true)
     expect(isRestorable(null)).toBe(false)
   })
 })

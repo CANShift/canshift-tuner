@@ -70,13 +70,41 @@ const streamTelemetry = (socket: WebSocket, dash: MockDashState): (() => void) =
 
 const server = new WebSocketServer({ port, path: SOCKET_PATH })
 
+const OWNERSHIP_MS = 5_000
+const CLOSE_BUSY = 4001
+
+let current: WebSocket | null = null
+let lastHeardAt = 0
+
+const currentIsActive = (): boolean => current !== null && Date.now() - lastHeardAt < OWNERSHIP_MS
+
+const adopt = (socket: WebSocket): boolean => {
+  if (currentIsActive()) {
+    console.log('[mock-dash] another tuner holds the dash — refusing the newcomer')
+    socket.close(CLOSE_BUSY, 'busy')
+    return false
+  }
+  if (current !== null) {
+    console.log('[mock-dash] the previous tuner went quiet — replacing it')
+    current.terminate()
+  }
+  current = socket
+  lastHeardAt = Date.now()
+  return true
+}
+
 server.on('connection', (socket) => {
   console.log('[mock-dash] tuner connected')
+  if (!adopt(socket)) return
   const stopTelemetry = streamTelemetry(socket, state)
   socket.on('message', (data) => {
+    lastHeardAt = Date.now()
     answer(socket, data.toString())
   })
-  socket.on('close', stopTelemetry)
+  socket.on('close', () => {
+    stopTelemetry()
+    if (current === socket) current = null
+  })
 })
 
 console.log(`[mock-dash] listening on ws://localhost:${String(port)}${SOCKET_PATH}`)

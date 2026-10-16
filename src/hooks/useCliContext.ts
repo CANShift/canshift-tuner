@@ -8,7 +8,7 @@ import { useCanScanStore } from '../stores/can-scan/can-scan.store'
 import { usbService, KNOWN_OPCODES } from '../transport'
 import { transportErrorText } from '../transport/humanize-transport-error'
 import { useProjectFileActions } from './useProjectFileActions'
-import { useBurnDashboard } from './useBurnDashboard'
+import { sendToDash } from '../stores/sync/send-actions'
 import type { CliContext, RawResult } from '../lib/cli/commands'
 
 export interface CliPanelContext extends CliContext {
@@ -21,6 +21,10 @@ const sendRaw: CliActions['raw'] = async (opcode, fields) => {
   const result = await usbService.sendRaw(opcode, fields)
   if (result.kind === 'ok') return { ok: true, text: JSON.stringify(result.data ?? {}) }
   return { ok: false, text: transportErrorText(result.error) }
+}
+
+const sendBurn = (): void => {
+  void sendToDash()
 }
 
 const usePageActions = () => {
@@ -66,11 +70,10 @@ const useCliActions = (): CliActions => {
   const pages = usePageActions()
   const widgets = useWidgetActions()
   const project = useProjectActions()
-  const { requestBurn } = useBurnDashboard()
   const scan = useCanScanStore((s) => s.start)
   return useMemo(
-    () => ({ raw: sendRaw, ...pages, ...widgets, ...project, burn: requestBurn, scan }),
-    [pages, widgets, project, requestBurn, scan]
+    () => ({ raw: sendRaw, ...pages, ...widgets, ...project, burn: sendBurn, scan }),
+    [pages, widgets, project, scan]
   )
 }
 

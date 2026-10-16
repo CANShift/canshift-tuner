@@ -1,7 +1,7 @@
 import { SCREEN_PROFILES, resolveScreenProfile } from '@canshift/core'
 import type { ScreenProfileId, UnitSystem } from '@canshift/core'
 import { useDashboardStore } from '../../stores/dashboard.store'
-import { useScreenSettingsStore } from '../../stores/screen-settings.store'
+import { useBrightnessDraft } from '../../hooks/useSettingsDraft'
 import { useDisplayUnits } from '../../hooks/useDisplayUnits'
 import { UNIT_SYSTEM_OPTIONS } from '../../constants/units'
 import { DeviceSection } from './DeviceSection'
@@ -49,16 +49,15 @@ const UnitsSetting = () => {
 }
 
 const BrightnessSetting = () => {
-  const brightness = useScreenSettingsStore((s) => s.brightness)
-  const updateScreen = useScreenSettingsStore((s) => s.update)
+  const brightness = useBrightnessDraft()
   return (
     <SettingRow
       label="BRIGHTNESS"
       note="Backlight level the dash boots at."
-      value={String(brightness)}
+      value={String(brightness.value)}
       options={BRIGHTNESS_OPTIONS}
       onChange={(value) => {
-        updateScreen({ brightness: Number(value) })
+        brightness.set(Number(value))
       }}
     />
   )

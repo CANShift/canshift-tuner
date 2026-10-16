@@ -21,7 +21,6 @@ interface HistoryHost {
   config: DashboardConfig | null
   past: HistoryEntry[]
   future: HistoryEntry[]
-  isDirty: boolean
 }
 
 export const pushHistory = (s: HistoryHost, label: string): void => {
@@ -35,3 +34,16 @@ export const widgetRef = (w: Pick<Widget, 'signal' | 'type'>): string =>
   w.signal ? w.signal : w.type
 
 export const pageRef = (index: number): string => `page ${String(index + 1).padStart(2, '0')}`
+
+export const fixupSelection = (s: {
+  config: { pages: { id: string }[] } | null
+  selectedPageId: string | null
+  selectedWidgetId: string | null
+  selectedWidgetIds: string[]
+}): void => {
+  if (!s.config) return
+  s.selectedWidgetId = null
+  s.selectedWidgetIds = []
+  const pageStillExists = s.config.pages.some((p) => p.id === s.selectedPageId)
+  if (!pageStillExists) s.selectedPageId = s.config.pages[0]?.id ?? null
+}

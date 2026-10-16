@@ -2,7 +2,7 @@ import type { Widget } from '@canshift/core'
 import { cn } from '@/lib/utils'
 import { useDashboardStore } from '../../../stores/dashboard.store'
 import { useSignalStore } from '../../../stores/signal.store'
-import { configVerdict } from '../../../lib/burn-verdict'
+import { preflightRefusals } from '../../../lib/sync/preflight'
 
 const FITS = 'layout fits'
 
@@ -14,11 +14,11 @@ const REMOVE =
 const VerdictLabel = () => {
   const config = useDashboardStore((s) => s.config)
   const signals = useSignalStore((s) => s.signals)
-  const verdict = configVerdict(config, signals)
-  const fits = verdict.kind === 'ok'
+  const issues =
+    config === null ? 0 : preflightRefusals({ config, signals, firmwareMismatch: false }).length
   return (
-    <span className={cn(fits ? 'text-ui-muted' : 'text-ui-warning')}>
-      {fits ? FITS : verdict.kind.replace(/-/g, ' ')}
+    <span className={cn(issues === 0 ? 'text-ui-muted' : 'text-ui-warning')}>
+      {issues === 0 ? FITS : `${String(issues)} to fix`}
     </span>
   )
 }

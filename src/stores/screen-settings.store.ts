@@ -1,14 +1,13 @@
 import { create } from 'zustand'
 import type { ScreenSettings } from '@canshift/core'
 
-export type StoredScreenSettings = Required<ScreenSettings>
+export type StoredScreenSettings = Required<Omit<ScreenSettings, 'brightness'>>
 
 interface ScreenSettingsState extends StoredScreenSettings {
   update: (patch: Partial<StoredScreenSettings>) => void
 }
 
 const DEFAULTS: StoredScreenSettings = {
-  brightness: 80,
   rotation: 0,
 }
 

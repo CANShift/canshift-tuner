@@ -3,6 +3,7 @@ import {
   humanizeTransportError,
   transportErrorText,
   TRANSPORT_ERROR_MESSAGES,
+  UNKNOWN_TRANSPORT_ERROR,
 } from '../humanize-transport-error'
 
 const KNOWN_CODES = [
@@ -26,6 +27,7 @@ const KNOWN_CODES = [
   'fetch_failed',
   'invalid_board_profile',
   'invalid_device_config',
+  'replaced',
 ]
 
 describe('humanizeTransportError', () => {
@@ -50,8 +52,10 @@ describe('humanizeTransportError', () => {
     expect(humanizeTransportError(raw)).toMatch(expected)
   })
 
-  it('passes unknown strings through unchanged', () => {
-    expect(humanizeTransportError('something exotic happened')).toBe('something exotic happened')
+  it('never shows an unknown code, only a plain sentence', () => {
+    expect(humanizeTransportError('config_migration_failed: downgrade')).toBe(
+      UNKNOWN_TRANSPORT_ERROR
+    )
   })
 })
 

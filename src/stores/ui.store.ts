@@ -26,6 +26,8 @@ interface UiState {
   setImportNotice: (notice: string | null) => void
   savedAt: number | null
   markSaved: () => void
+  notSentOpen: boolean
+  setNotSentOpen: (open: boolean) => void
 }
 
 export const useUiStore = create<UiState>((set) => ({
@@ -36,6 +38,10 @@ export const useUiStore = create<UiState>((set) => ({
   savedAt: null,
   markSaved: () => {
     set({ savedAt: Date.now() })
+  },
+  notSentOpen: false,
+  setNotSentOpen: (notSentOpen) => {
+    set({ notSentOpen })
   },
   cliOpen: readCollapsed(CLI_OPEN_KEY),
   toggleCli: () => {

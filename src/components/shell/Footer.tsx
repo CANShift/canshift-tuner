@@ -7,6 +7,6 @@ export const Footer = () => {
   const toggleCli = useUiStore((s) => s.toggleCli)
   const location = useLocation()
 
-  if (location.pathname !== '/dash') return null
+  if (location.pathname !== '/gauges') return null
   return <FooterView cliOpen={cliOpen} onToggleCli={toggleCli} />
 }

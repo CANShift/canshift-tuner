@@ -44,7 +44,6 @@ export const moveWidgetsIn = (
     const widget = page.widgets.find((w) => w.id === move.id)
     if (widget) Object.assign(widget.layout, { col: move.col, row: move.row })
   }
-  s.isDirty = true
 }
 
 const applyPositions = (
@@ -68,7 +67,6 @@ export const resolveCollisionsIn = (s: DashboardDraft, pageId: string, widgetId:
   const stillOverlaps = finalOthers.some((other) => placementsOverlap(toPlacement(widget), other))
   const fallback = stillOverlaps ? autoPlace(sizeOf(widget), finalOthers) : null
   if (fallback) Object.assign(widget.layout, { col: fallback.col, row: fallback.row })
-  s.isDirty = true
 }
 
 export const beginDragIn = (s: DashboardDraft, pageId: string, widgetIds: string[]): void => {

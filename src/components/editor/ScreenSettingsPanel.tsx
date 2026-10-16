@@ -1,7 +1,7 @@
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 import { SCREEN_SETTINGS_BOUNDS } from '@canshift/core'
-import { useScreenSettingsStore } from '../../stores/screen-settings.store'
+import { useBrightnessDraft } from '../../hooks/useSettingsDraft'
 import { useActiveDayMode } from '../../hooks/useActiveDayMode'
 import { SegmentedPair, SettingRow } from './screen-settings-controls'
 import { ConfirmDialog } from './screen-settings/ConfirmDialog'
@@ -43,22 +43,18 @@ interface ScreenSettingsPanelProps {
   scale: number
 }
 
-const BrightnessRow = ({ scale, onCommit }: { scale: number; onCommit: () => void }) => {
-  const brightness = useScreenSettingsStore((s) => s.brightness)
-  const update = useScreenSettingsStore((s) => s.update)
+const BrightnessRow = ({ scale }: { scale: number }) => {
+  const brightness = useBrightnessDraft()
   return (
-    <SettingRow label="BRIGHTNESS" value={`${String(brightness)}%`} scale={scale}>
+    <SettingRow label="BRIGHTNESS" value={`${String(brightness.value)}%`} scale={scale}>
       <input
         type="range"
         min={SCREEN_SETTINGS_BOUNDS.brightnessMinPct}
         max={SCREEN_SETTINGS_BOUNDS.brightnessMaxPct}
-        value={brightness}
+        value={brightness.value}
         onChange={(e) => {
-          update({ brightness: Number(e.target.value) })
+          brightness.set(Number(e.target.value))
         }}
-        onMouseUp={onCommit}
-        onTouchEnd={onCommit}
-        onKeyUp={onCommit}
         className="w-full cursor-pointer accent-[#CC3333]"
         // eslint-disable-next-line no-inline-style/no-inline-style
         style={{ height: Math.round(scale * 3) }}
@@ -177,7 +173,7 @@ const ScreenSettingsPanel = ({ scale }: ScreenSettingsPanelProps) => {
         }}
       >
         <Heading scale={scale} />
-        <BrightnessRow scale={scale} onCommit={rotation.commitBrightness} />
+        <BrightnessRow scale={scale} />
         <ThemeRow scale={scale} />
         <MountingRow scale={scale} rotation={rotation} />
         <TouchRow scale={scale} calibration={calibration} />

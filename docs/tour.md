@@ -1,22 +1,29 @@
 # Tuner tour
 
-The Tuner is a browser app that talks to the dash over its Wi-Fi (a WebSocket) or over USB (Web Serial). It has three tabs (`src/constants/routes.ts`); this page is the map, with links to the guides that go deeper.
+The Tuner is a browser app that talks to the dash over its Wi-Fi (a WebSocket) or over USB (Web Serial). It has three sections (`src/constants/routes.ts`): a bottom tab bar on a phone, a left rail on a laptop. This page is the map, with links to the guides that go deeper.
 
-Until a dash is connected, the Tuner shows a connect panel. Served by the dash, it connects on its own; on a desktop over USB, **Connect** opens the browser's serial port picker. **Edit offline** opens a config in the simulator with burning disabled.
+## Sending to the dash
 
-## The tabs
+Every edit stays in this browser until you tap **Send to dash**, and is saved there the moment you make it, so a Wi-Fi drop or a reload loses nothing.
 
-- **Dash** (`/dash`) — the page strip, the canvas and the selected widget's properties. The canvas renders each page as the dash does. See [Layout editor](layout-editor.md) and, for the workflow, [Widgets & pages](configure/widgets.md). The dash theme (presets and the day/night preview) folds out under the widget list, and a CLI console for the wire protocol from the bottom of the tab.
-- **Vehicle** (`/vehicle`) — two sections:
-  - **Signals** — pick an ECU profile, edit CAN signals (grouped by CAN frame, with their live value and the pages that use them; **Hide unused** trims the list) or OBD-II polling, scan the bus, and analyse unknown frames. Ticked signals draw on the live plot beside the table; pause, record and the time window sit at the end of the toolbar. Profile XML imports and downloads from the **XML** menu. See [ECU profiles](configure/ecu-profiles.md) and [Live data](configure/live-data.md).
-  - **CAN bus** — the bus speed the dash listens at (125, 250, 500 or 1000 kbit/s), read from the dash and written back to it. Writing it reboots the dash.
-- **Device** (`/device`) — settings (panel model, units, brightness) and the firmware update on one side, the board profile and its definition, and config backup and restore on the other.
+- The chip at the top right says **On the dash** when the dash holds exactly what you see, or **{n} changes not sent**. It opens the list of what is not sent, each with **Undo**, plus **Undo all**.
+- **Send to dash** sends the whole setup: the dashboard, then the brightness, then the CAN bus speed (which restarts the dash). The dash keeps its old setup if anything fails.
+- If the dash refuses, the tuner says why in plain words and **Show me** jumps to the gauge or page at fault. If the Wi-Fi drops mid-send, nothing changed on the dash; send again once reconnected.
+- The connection indicator at the top left reads **Connected**, **Reconnecting…** or **Not connected**. The dash talks to one device at a time: when another phone or laptop keeps taking it over, the tuner stops reconnecting and says so.
 
-Old links (`/signals`, `/live`, `/dashboard`, `/themes` and the rest) redirect to the tab that now holds them.
+The state model is in [the redesign handoff](redesign/HANDOFF.md#3-state-model-the-part-that-matters-most); the code is `src/lib/sync/` (diff, undo, send) and `src/stores/sync/`.
+
+## The sections
+
+- **Gauges** (`/gauges`) — the page strip, the canvas and the selected widget's properties. The canvas renders each page as the dash does. See [Layout editor](layout-editor.md) and, for the workflow, [Widgets & pages](configure/widgets.md).
+- **Car** (`/car`) — pick an ECU profile, edit CAN signals or OBD-II polling, scan the bus and watch live values. See [ECU profiles](configure/ecu-profiles.md) and [Live data](configure/live-data.md). The CAN bus speed is set here for now.
+- **Dash** (`/dash`) — units, brightness, the full-screen alert, backup and restore, and the firmware update.
+
+Old links (`/dash`'s previous editor, `/vehicle`, `/device`, `/signals` and the rest) redirect to the section that now holds them.
 
 > [!NOTE]
 > Served by the dash, the Tuner works in any browser on the dash's Wi-Fi. Over USB it needs a desktop Chromium-based browser. Bluetooth is the mobile app's job; see [Pairing over BLE](https://github.com/CANShift/canshift-mobile/blob/main/docs/pairing.md).
 
 ## No car? Use the simulator
 
-Every tab works against the built-in simulator, so you can lay out a dashboard and watch signals move without a device connected. The simulation strip under the header says when the values are simulated.
+Every tab works against the built-in simulator, so you can lay out a dashboard and watch signals move without a device connected. The connection indicator reads **Not connected** while you edit against it; tap it to connect a dash.

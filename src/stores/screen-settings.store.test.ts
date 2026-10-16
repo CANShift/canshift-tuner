@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useScreenSettingsStore, type StoredScreenSettings } from './screen-settings.store'
 
-const DEFAULTS: StoredScreenSettings = { brightness: 80, rotation: 0 }
+const DEFAULTS: StoredScreenSettings = { rotation: 0 }
 
 describe('screen-settings.store (#1705)', () => {
   beforeEach(() => {
@@ -9,23 +9,11 @@ describe('screen-settings.store (#1705)', () => {
   })
 
   it('exposes core-shaped defaults', () => {
-    const s = useScreenSettingsStore.getState()
-    expect(s.brightness).toBe(80)
-    expect(s.rotation).toBe(0)
+    expect(useScreenSettingsStore.getState().rotation).toBe(0)
   })
 
-  it('updates a single field without touching the others', () => {
-    useScreenSettingsStore.getState().update({ brightness: 40 })
-    const s = useScreenSettingsStore.getState()
-    expect(s.brightness).toBe(40)
-    expect(s.rotation).toBe(0)
-  })
-
-  it('accumulates sequential single-field updates', () => {
-    useScreenSettingsStore.getState().update({ brightness: 60 })
+  it('updates the rotation', () => {
     useScreenSettingsStore.getState().update({ rotation: 180 })
-    const s = useScreenSettingsStore.getState()
-    expect(s.brightness).toBe(60)
-    expect(s.rotation).toBe(180)
+    expect(useScreenSettingsStore.getState().rotation).toBe(180)
   })
 })

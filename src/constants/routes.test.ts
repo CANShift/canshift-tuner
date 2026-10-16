@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { HOME_PATH, LEGACY_REDIRECTS, ROUTE_META, ROUTE_PATHS } from './routes'
-import { HEADER_TABS } from '../components/shell/HeaderView'
+import { SECTIONS } from '../components/chrome/sections'
 
 const RETIRED_PATHS = [
   '/',
+  '/vehicle',
+  '/device',
   '/dashboard',
   '/can',
   '/ecu',
@@ -21,10 +23,10 @@ const RETIRED_PATHS = [
 
 describe('the route map', () => {
   it('exposes exactly the three tabs', () => {
-    expect([...ROUTE_PATHS]).toEqual(['/dash', '/vehicle', '/device'])
+    expect([...ROUTE_PATHS]).toEqual(['/gauges', '/car', '/dash'])
   })
 
-  it('opens on the dash', () => {
+  it('opens on the gauges', () => {
     expect(ROUTE_PATHS).toContain(HOME_PATH)
     expect(LEGACY_REDIRECTS['/']).toBe(HOME_PATH)
   })
@@ -37,12 +39,12 @@ describe('the route map', () => {
     }
   })
 
-  it('sends signals to the vehicle tab', () => {
-    expect(LEGACY_REDIRECTS['/signals']).toBe('/vehicle')
+  it('sends signals to the car section', () => {
+    expect(LEGACY_REDIRECTS['/signals']).toBe('/car')
   })
 
-  it('keeps the header tabs and the route map in agreement', () => {
-    expect(HEADER_TABS.map((tab) => tab.to)).toEqual([...ROUTE_PATHS])
+  it('keeps the section nav and the route map in agreement', () => {
+    expect(SECTIONS.map((section) => section.path)).toEqual([...ROUTE_PATHS])
   })
 
   it('titles and describes every reachable view', () => {
