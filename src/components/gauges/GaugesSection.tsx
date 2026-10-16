@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { PageConfig, TopBarConfig } from '@canshift/core'
+import type { PageConfig, TopBarConfig, Widget } from '@canshift/core'
 import { STRINGS } from '../../strings'
 import { useConnection } from '../../hooks/useConnection'
 import { useGaugeKeys } from '../../hooks/useGaugeKeys'
@@ -13,6 +13,8 @@ import { GaugePreview } from './GaugePreview'
 import { PreviewModeRow } from './PreviewModeRow'
 import type { PreviewMode } from '../editor/preview/preview-modes'
 import { PageChips } from './PageChips'
+import { FirstOpenHeading, SetupCard } from './SetupCard'
+import { useSignalStore } from '../../stores/signal.store'
 
 const PreviewHint = ({ selected }: { selected: boolean }) => {
   const { connection } = useConnection()
@@ -60,6 +62,27 @@ const EmptyGauges = ({ onAddPage }: { onAddPage: () => void }) => (
   </div>
 )
 
+const SidePanel = ({ page, selected }: { page: PageConfig; selected: Widget | null }) => {
+  const carChosen = useSignalStore((s) => s.carChosen)
+  if (selected !== null) return <GaugeEditor page={page} widget={selected} />
+  if (carChosen) return null
+  return (
+    <div className="px-4 lg:contents">
+      <SetupCard />
+    </div>
+  )
+}
+
+const FirstOpenTop = () => {
+  const carChosen = useSignalStore((s) => s.carChosen)
+  if (carChosen) return null
+  return (
+    <div className="px-4 lg:px-0">
+      <FirstOpenHeading />
+    </div>
+  )
+}
+
 const GaugesSection = () => {
   const { pages, page, selected } = useGaugesPage()
   const topBar = useDashboardStore((s) => s.config?.topBar)
@@ -76,12 +99,13 @@ const GaugesSection = () => {
     )
   return (
     <div className="flex flex-1 flex-col gap-4 overflow-y-auto pt-4 lg:px-8 lg:py-6">
+      <FirstOpenTop />
       <div className="px-4 lg:px-0">
         <PageChips pages={pages} current={page} onAddPage={openAdd} />
       </div>
       <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-start lg:gap-8">
         <PreviewColumn page={page} topBar={topBar} selectedId={selected?.id ?? null} />
-        {selected !== null && <GaugeEditor page={page} widget={selected} />}
+        <SidePanel page={page} selected={selected} />
       </div>
       {sheet}
     </div>

@@ -28,10 +28,12 @@ import { useWidgetOverflowWarnings } from './hooks/useWidgetOverflowWarnings'
 import { useDocumentMeta } from './hooks/useDocumentMeta'
 import { CliPanel } from './components/cli/CliPanel'
 import { useUiStore } from './stores/ui.store'
+import { RAW_FRAMES_PATH } from './components/car/RawFramesLink'
 import { HOME_PATH, LEGACY_REDIRECTS, ROUTE_PATHS, type RoutePath } from './constants/routes'
 
 const GaugesSection = lazy(() => import('./components/gauges/GaugesSection'))
-const VehicleRoute = lazy(() => import('./routes/VehicleRoute'))
+const CarSection = lazy(() => import('./components/car/CarSection'))
+const RawFramesView = lazy(() => import('./components/car/RawFramesView'))
 const DeviceRoute = lazy(() => import('./routes/DeviceRoute'))
 
 const GAUGES_PATH: RoutePath = '/gauges'
@@ -42,7 +44,7 @@ const ROUTE_ELEMENTS: Record<RoutePath, ReactNode> = {
       <GaugesSection />
     </ErrorBoundary>
   ),
-  '/car': <VehicleRoute />,
+  '/car': <CarSection />,
   '/dash': <DeviceRoute />,
 }
 
@@ -73,6 +75,7 @@ const AppRoutes = () => (
     {ROUTE_PATHS.map((path) => (
       <Route key={path} path={path} element={ROUTE_ELEMENTS[path]} />
     ))}
+    <Route path={RAW_FRAMES_PATH} element={<RawFramesView />} />
     {LEGACY_PATHS.map((path) => (
       <Route
         key={path}

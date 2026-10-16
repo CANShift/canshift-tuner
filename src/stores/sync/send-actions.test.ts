@@ -21,6 +21,7 @@ const writer = (writeDashboard: DashWriter['writeDashboard']): DashWriter => ({
   writeDashboard,
   writeBrightness: () => Promise.resolve(OK),
   writeDeviceConfig: () => Promise.resolve(OK),
+  writeSignals: () => Promise.resolve(OK),
 })
 
 const editSpeedLimit = (value: number): void => {
@@ -49,7 +50,14 @@ beforeEach(() => {
   useSignalStore.setState({ signals: signalsForEveryGauge() })
   useDashboardStore.getState().setConfig(baseline)
   useSyncStore.setState({
-    device: { dashboard: baseline, settings: UNKNOWN_SETTINGS },
+    device: {
+      dashboard: baseline,
+      settings: UNKNOWN_SETTINGS,
+      car: {
+        profileKey: useSignalStore.getState().selectedProfileKey,
+        signals: useSignalStore.getState().signals,
+      },
+    },
     settingsDraft: UNKNOWN_SETTINGS,
     sendState: 'idle',
     refusals: [],

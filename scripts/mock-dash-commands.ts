@@ -13,6 +13,7 @@ import {
   CMD_PING,
   CMD_PUT_CONFIG_CHUNK,
   CMD_PUT_DEVICE_CONFIG,
+  CMD_PUT_FILE,
   CMD_PUT_INPUT_BINDINGS,
   CMD_QUERY_VERSION,
   CMD_REBOOT,
@@ -21,7 +22,7 @@ import {
   CMD_SET_DAY_NIGHT,
   CMD_TOGGLE_DAY_NIGHT,
 } from '../src/transport/opcodes'
-import { putConfigChunk } from './mock-dash-chunks'
+import { putConfigChunk, putFileChunk } from './mock-dash-chunks'
 import { otaBegin, otaEnd, otaWrite } from './mock-dash-ota'
 import { fail, ok, okThenReboot, type Command, type Outcome } from './mock-dash-replies'
 import type { MockDashState } from './mock-dash-state'
@@ -73,6 +74,7 @@ const acknowledge: CommandHandler = () => ok()
 export const COMMAND_HANDLERS: Record<number, CommandHandler> = {
   [CMD_GET_CONFIG]: getConfig,
   [CMD_PUT_CONFIG_CHUNK]: putConfigChunk,
+  [CMD_PUT_FILE]: putFileChunk,
   [CMD_GET_DEVICE_CONFIG]: getDeviceConfig,
   [CMD_PUT_DEVICE_CONFIG]: putDeviceConfig,
   [CMD_SCREEN_SETTINGS]: acknowledge,

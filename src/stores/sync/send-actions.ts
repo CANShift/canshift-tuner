@@ -1,7 +1,13 @@
 import { dashWriter } from '../../lib/sync/dash-writer'
 import { preflightRefusals } from '../../lib/sync/preflight'
 import { failureForCode } from '../../lib/sync/send-codes'
-import { sendSetup, type DashWriter, type SendResult } from '../../lib/sync/send-setup'
+import {
+  sendSetup,
+  type DashWriter,
+  type RestartReason,
+  type SendResult,
+} from '../../lib/sync/send-setup'
+import { waitForDash } from '../../lib/wait-for-dash'
 import type { DashSetup } from '../../lib/sync/setup'
 import { STRINGS } from '../../strings'
 import { useDeviceStore } from '../device.store'
@@ -35,11 +41,19 @@ const attempt = async (draft: DashSetup, device: DashSetup, writer: DashWriter) 
   }
 }
 
+const RESTART_MESSAGES: Record<RestartReason, string> = {
+  canSpeed: STRINGS.send.sentRestarting,
+  car: STRINGS.send.sentRestartingCar,
+}
+
 const REPORTERS: Record<SendResult['kind'], (result: SendResult) => void> = {
   sent: (result) => {
     useSyncStore.getState().setSendState('idle')
-    const restarting = result.kind === 'sent' && result.restarting
-    useToastStore.getState().show(restarting ? STRINGS.send.sentRestarting : STRINGS.send.sent)
+    const restart = result.kind === 'sent' ? result.restart : null
+    const more = result.kind === 'sent' && result.more
+    const message = restart === null ? STRINGS.send.sent : RESTART_MESSAGES[restart]
+    useToastStore.getState().show(more ? `${message} ${STRINGS.send.sendRest}` : message)
+    if (restart !== null) void waitForDash({ dropFirst: false })
   },
   refused: (result) => {
     useSyncStore.getState().setSendState('refused', result.kind === 'refused' ? result.reasons : [])
