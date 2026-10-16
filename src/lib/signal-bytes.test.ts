@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { byteRangeLabel, formatByteRange, parseByteRange } from './signal-bytes'
+import { formatByteRange, parseByteRange } from './signal-bytes'
 
 describe('formatByteRange', () => {
   it('shows a single byte as one number, not a range of itself', () => {
@@ -43,16 +43,5 @@ describe('parseByteRange', () => {
   it('refuses anything that is not a range', () => {
     expect(parseByteRange('')).toBeNull()
     expect(parseByteRange('0x1D0')).toBeNull()
-  })
-})
-
-describe('byteRangeLabel', () => {
-  it('reads one byte as "byte 2" and a range as "bytes 0–1"', () => {
-    expect(byteRangeLabel(2, 1)).toEqual({ noun: 'byte', range: '2' })
-    expect(byteRangeLabel(0, 2)).toEqual({ noun: 'bytes', range: '0–1' })
-  })
-
-  it('round-trips through the parser', () => {
-    expect(parseByteRange(byteRangeLabel(3, 2).range)).toEqual({ startByte: 3, byteLength: 2 })
   })
 })

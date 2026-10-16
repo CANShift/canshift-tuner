@@ -27,8 +27,3 @@ export const unreadableWidgets = (
       .map((widget) => ({ page, widget }))
   )
 }
-
-export const unreadableWidgetCount = (
-  config: DashboardConfig | null,
-  signals: readonly SignalDef[]
-): number => unreadableWidgets(config, signals).length

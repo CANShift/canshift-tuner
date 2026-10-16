@@ -1,12 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import {
-  migrateLegacyKeys,
-  projectStorageKey,
-  readItem,
-  removeItem,
-  STORAGE_KEYS,
-  writeItem,
-} from './local-storage'
+import { migrateLegacyKeys, readItem, removeItem, STORAGE_KEYS, writeItem } from './local-storage'
 
 const memoryStorage = (): Storage => {
   const map = new Map<string, string>()
@@ -49,10 +42,6 @@ describe('every key lives under one namespace', () => {
   it('has no key outside canshift.tuner.', () => {
     const strays = Object.values(STORAGE_KEYS).filter((k) => !k.startsWith('canshift.tuner.'))
     expect(strays).toEqual([])
-  })
-
-  it('namespaces project keys too', () => {
-    expect(projectStorageKey('abc')).toBe('canshift.tuner.project.abc')
   })
 
   it('has no duplicate key', () => {

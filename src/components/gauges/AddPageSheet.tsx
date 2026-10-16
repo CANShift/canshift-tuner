@@ -2,11 +2,11 @@ import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/
 import { STRINGS } from '../../strings'
 import {
   STARTING_LAYOUTS,
+  buildBlankPage,
   nextPageId,
   pageFromLayout,
   type StartingLayout,
 } from '../../lib/gauges/layouts'
-import { buildBlankPage } from '../../hooks/usePageOps'
 import { useDashboardStore } from '../../stores/dashboard.store'
 import { UiIcon } from '../icons/UiIcons'
 

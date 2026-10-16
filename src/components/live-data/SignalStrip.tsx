@@ -26,7 +26,7 @@ const StripTrace = ({ series }: { series: StripSeries | null }) => (
     <svg
       viewBox={`0 0 ${String(STRIP_VIEW_WIDTH)} ${String(STRIP_VIEW_HEIGHT)}`}
       preserveAspectRatio="none"
-      className="absolute inset-0 size-full overflow-visible text-ui-ink"
+      className="absolute inset-0 size-full overflow-visible text-app-text"
       fill="none"
       aria-hidden="true"
     >
@@ -47,17 +47,17 @@ export const SignalStrip = ({ name, unit, series, units }: SignalStripProps) => 
   return (
     <section
       aria-label={`${displayLabelForSignal(name)} trace`}
-      className="flex h-[72px] flex-none flex-col gap-1 border-b border-ui-line px-3 py-1.5 md:px-4 min-[1100px]:h-auto min-[1100px]:min-h-[96px] min-[1100px]:flex-1 min-[1100px]:py-2.5"
+      className="flex h-[72px] flex-none flex-col gap-1 border-b border-app-divider px-3 py-1.5 md:px-4 min-[1100px]:h-auto min-[1100px]:min-h-[96px] min-[1100px]:flex-1 min-[1100px]:py-2.5"
     >
       <header className="flex items-baseline gap-3">
-        <span className="text-[11px] font-extrabold tracking-[0.18em] text-ui-muted uppercase">
+        <span className="text-[11px] font-extrabold tracking-[0.18em] text-app-muted uppercase">
           {displayLabelForSignal(name)}
         </span>
-        <span className="font-mono text-[18px] leading-none tabular-nums text-ui-ink min-[1100px]:text-[26px]">
+        <span className="font-mono text-[18px] leading-none tabular-nums text-app-text min-[1100px]:text-[26px]">
           {readout.value}
-          <span className="ml-1 text-[12px] text-ui-muted">{units.unitOf(unit)}</span>
+          <span className="ml-1 text-[12px] text-app-muted">{units.unitOf(unit)}</span>
         </span>
-        <span className="ml-auto font-mono text-[11.5px] tabular-nums text-ui-muted">
+        <span className="ml-auto font-mono text-[11.5px] tabular-nums text-app-muted">
           {readout.range}
         </span>
       </header>

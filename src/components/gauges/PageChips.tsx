@@ -18,7 +18,7 @@ const AddPageButton = ({ pages, onAddPage }: Pick<PageChipsProps, 'pages' | 'onA
     type="button"
     disabled={!canAddPage(pages)}
     onClick={onAddPage}
-    className="inline-flex h-11 items-center gap-1.5 rounded-control border border-dashed border-[#3a3f46] px-3.5 text-[15px] text-app-text disabled:opacity-50"
+    className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-control border border-dashed border-[#3a3f46] px-3.5 text-[15px] text-app-text disabled:opacity-50"
   >
     <UiIcon name="plus" />
     <span className="max-lg:sr-only">{STRINGS.gauges.addPage}</span>

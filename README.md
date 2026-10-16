@@ -4,7 +4,7 @@ Web configurator for CANShift dashes. Served by the dash itself in workshop mode
 talking to it over a **WebSocket** on the dash's Wi-Fi; on a desktop Chromium browser it can
 also talk **WebSerial** over USB. There is no hosted copy: the dash is the only place it is served.
 
-📖 **[Documentation](docs/README.md)** — configuring, and a tour of every tab.
+📖 **[Documentation](docs/README.md)** — configuring, and a tour of every section.
 
 ## Why this package
 
@@ -14,20 +14,23 @@ also talk **WebSerial** over USB. There is no hosted copy: the dash is the only 
   dash's access point with no internet.
 - One protocol, two links — the same newline-delimited JSON commands go over a WebSocket
   (`ws://<dash>/ws`) or WebSerial; `src/lib/transport-choice.ts` picks the link.
-- Three tabs — Dash (canvas and widgets), Vehicle (ECU profile, signals, live values), Device (board, units, backup).
+- Three sections — Gauges (pages, cruise control pages, live preview with its preview modes, an
+  editor for every widget type), Car (your car, live signals and plot, adjust reading, OBD-II
+  polling and trouble codes, profile files, raw CAN frames), Dash (units, brightness, full-screen
+  alert, CAN bus speed, screen, dash colours, backup, firmware update).
 
-## Editor highlights
+## What using it looks like
 
-- Drag-to-bind: the Signals panel (inspector) is fed by the live CAN scan —
-  drag a signal onto the canvas to create a bound widget, onto an existing
-  widget to rebind it, or a Library widget onto a signal row.
-- 100-step undo/redo (`⌘Z` / `⇧⌘Z`) with a labelled History panel; autosave
-  to local storage restores the exact canvas (selection included) on reload.
-- One config at a time — pages + widgets + ECU profile + theme + target panel
-  back up and restore as one `.canshift` file; the CAN scan and Learn mode keep
-  running across tabs.
-- Burn gate — unbound widgets render the device's `--` placeholder, are
-  counted in the toolbar, and prompt once before burning.
+- Phone-first: a bottom tab bar on a phone, a left rail on a laptop; dark only.
+- Tap a widget on the dash preview to change what it shows, its name and its limits; **More
+  options** opens its type, size, colours and own settings. **Add** places a gauge, button, gear
+  indicator or shift light in free space.
+- The car's signals are part of the draft too: Send writes them to the dash as
+  `/config/signals.json`.
+- Every edit is kept in the browser at once; nothing reaches the dash until **Send to dash**.
+  The header reads **On the dash** or **{n} changes not sent**, with Undo per change.
+- A refused send is explained in plain words, with **Show me** jumping to the gauge or page at fault.
+- Backup and restore as one `.canshift` file; firmware update with a signed `.bin` + `.sig`.
 
 ## Dev
 
@@ -61,7 +64,7 @@ npm run mock-dash   # ws://localhost:8787/ws (MOCK_DASH_PORT to change it)
 npm run dev         # then open http://localhost:5173/?dash=localhost:8787
 ```
 
-The mock answers the version handshake, ping, config read and chunked burn, the device
+The mock answers the version handshake, ping, config read and chunked config write, the device
 config (CAN bus speed, which reboots it like the real dash), firmware updates (it checks the
 image, the offsets, the SHA-256 and the Ed25519 signature, then reboots reporting the new
 version), day/night and the other commands, and streams telemetry, heap and CAN-rate frames. It
@@ -89,4 +92,5 @@ firmware side before changing either.
 
 - Served by the dash: any current browser, phones included.
 - On localhost (`npm run dev`): WebSerial, so Chrome / Edge / Brave / Opera 89+ on a desktop.
-  Elsewhere the connect panel explains how to reach the dash and still offers Edit offline.
+  Elsewhere the Not connected screen explains how to reach the dash and offers Keep editing
+  against the built-in simulator.

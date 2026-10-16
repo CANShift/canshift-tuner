@@ -1,16 +1,9 @@
 import type { Draft } from 'immer'
-import type { GridTracks, PageConfig, Widget, WidgetLayout } from '@canshift/core'
-import type { IdentifiedPlacement } from '../../utils/layout'
+import type { PageConfig, Widget } from '@canshift/core'
 import { clampGridPlacement } from '@canshift/core'
 import { gridTracksForConfig } from '../../lib/grid-tracks'
 import { pushHistory, toPlacement, widgetRef } from './helpers'
-import {
-  firstFreeSpot,
-  sizeOf,
-  spotsAround,
-  spotsBelowOrRight,
-  type GridSpot,
-} from './widget-placement'
+import { firstFreeSpot, sizeOf, spotsAround } from './widget-placement'
 import type { DashboardState } from './types'
 
 export type DashboardDraft = Draft<DashboardState>
@@ -21,12 +14,6 @@ export const pageOf = (s: DashboardDraft, pageId: string): Draft<PageConfig> | u
 const selectOnly = (s: DashboardDraft, ids: string[]): void => {
   s.selectedWidgetId = ids[ids.length - 1] ?? null
   s.selectedWidgetIds = ids
-}
-
-export const countLabel = (verb: string, widgets: readonly Widget[]): string => {
-  const [first] = widgets
-  if (widgets.length === 1 && first) return `${verb} ${widgetRef(first)}`
-  return `${verb} ${String(widgets.length)} widgets`
 }
 
 export const addWidgetTo = (s: DashboardDraft, pageId: string, widget: Widget): void => {
@@ -48,79 +35,6 @@ export const addWidgetTo = (s: DashboardDraft, pageId: string, widget: Widget): 
   }
   page.widgets.push(widget)
   selectOnly(s, [widget.id])
-}
-
-const cloneAt = (source: Widget, spot: { col: number; row: number }): Widget => ({
-  ...source,
-  id: `${source.type}_${crypto.randomUUID()}`,
-  layout: { ...source.layout, ...spot },
-  style: { ...source.style },
-  config: { ...source.config },
-})
-
-export type CopySpotFinder = (
-  source: Widget,
-  others: IdentifiedPlacement[],
-  tracks: GridTracks
-) => GridSpot | null
-
-const besideSource: CopySpotFinder = (source, others, tracks) =>
-  firstFreeSpot(spotsBelowOrRight(source.layout), sizeOf(source), others, tracks)
-
-export const placeCopies = (
-  s: DashboardDraft,
-  page: Draft<PageConfig>,
-  sources: readonly Widget[],
-  spotFor: CopySpotFinder
-): string[] => {
-  const others = page.widgets.map(toPlacement)
-  const tracks = gridTracksForConfig(s.config)
-  return sources.flatMap((source) => {
-    const spot = spotFor(source, others, tracks)
-    if (!spot) return []
-    const clone = cloneAt(source, spot)
-    page.widgets.push(clone)
-    others.push(toPlacement(clone))
-    return [clone.id]
-  })
-}
-
-export const finishCopies = (s: DashboardDraft, newIds: string[]): void => {
-  if (newIds.length === 0) {
-    s.past.pop()
-    return
-  }
-  selectOnly(s, newIds)
-}
-
-export const duplicateWidgetsIn = (
-  s: DashboardDraft,
-  pageId: string,
-  widgetIds: string[]
-): void => {
-  const page = pageOf(s, pageId)
-  if (!page) return
-  const ordered = widgetIds.flatMap((id) => page.widgets.filter((w) => w.id === id))
-  if (ordered.length === 0) return
-  pushHistory(s, countLabel('Duplicated', ordered))
-  finishCopies(s, placeCopies(s, page, ordered, besideSource))
-}
-
-export const reorderWidgetIn = (
-  s: DashboardDraft,
-  pageId: string,
-  widgetId: string,
-  direction: 1 | -1
-): void => {
-  const page = pageOf(s, pageId)
-  if (!page) return
-  const from = page.widgets.findIndex((w) => w.id === widgetId)
-  const to = from + direction
-  const target = page.widgets[from]
-  if (from === -1 || to < 0 || to >= page.widgets.length || !target) return
-  pushHistory(s, `Moved ${widgetRef(target)} ${direction < 0 ? 'up' : 'down'}`)
-  page.widgets.splice(from, 1)
-  page.widgets.splice(to, 0, target)
 }
 
 export const removeWidgetFrom = (s: DashboardDraft, pageId: string, widgetId: string): void => {
@@ -171,12 +85,4 @@ export const updateWidgetIn = (
   const clamped = clampGridPlacement(merged.layout, gridTracksForConfig(s.config))
   merged.layout = { ...clamped, zOrder: merged.layout.zOrder }
   slot.page.widgets[slot.index] = merged
-}
-
-export const relayoutSlot = (
-  s: DashboardDraft,
-  slot: WidgetSlot,
-  layout: Partial<WidgetLayout>
-): void => {
-  slot.page.widgets[slot.index] = { ...slot.widget, layout: { ...slot.widget.layout, ...layout } }
 }

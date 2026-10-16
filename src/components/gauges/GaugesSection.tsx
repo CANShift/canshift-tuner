@@ -98,7 +98,7 @@ const GaugesSection = () => {
       </>
     )
   return (
-    <div className="flex flex-1 flex-col gap-4 overflow-y-auto pt-4 lg:px-8 lg:py-6">
+    <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden pt-4 lg:px-8 lg:py-6">
       <FirstOpenTop />
       <div className="px-4 lg:px-0">
         <PageChips pages={pages} current={page} onAddPage={openAdd} />

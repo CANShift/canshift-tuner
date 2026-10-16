@@ -22,12 +22,7 @@ export const PreviewModeRow = ({ mode, onMode }: PreviewModeRowProps) => (
       onValueChange={(value) => value.length > 0 && onMode(value as PreviewMode)}
     >
       {PREVIEW_MODES.map((candidate) => (
-        <ToggleGroupItem
-          key={candidate}
-          value={candidate}
-          title={PREVIEW_TITLES[candidate]}
-          className="h-9 px-3 text-sm"
-        >
+        <ToggleGroupItem key={candidate} value={candidate} title={PREVIEW_TITLES[candidate]}>
           {PREVIEW_LABELS[candidate]}
         </ToggleGroupItem>
       ))}

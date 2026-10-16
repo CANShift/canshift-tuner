@@ -1,8 +1,6 @@
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
-import { createClipboardSlice } from './dashboard/clipboard.slice'
 import { createHistorySlice } from './dashboard/history.slice'
-import { createLayoutOpsSlice } from './dashboard/layout-ops.slice'
 import { createLifecycleSlice } from './dashboard/lifecycle.slice'
 import { createPagesSlice } from './dashboard/pages.slice'
 import { createSelectionSlice } from './dashboard/selection.slice'
@@ -11,7 +9,7 @@ import { createWidgetsSlice } from './dashboard/widgets.slice'
 import { isRestorable, readAutosave, startAutosave } from './dashboard/autosave'
 import type { DashboardState } from './dashboard/types'
 
-export type { AlignDirection, DashboardState } from './dashboard/types'
+export type { DashboardState } from './dashboard/types'
 
 export const useDashboardStore = create<DashboardState>()(
   immer((...a) => ({
@@ -21,8 +19,6 @@ export const useDashboardStore = create<DashboardState>()(
     ...createThemeSlice(...a),
     ...createSelectionSlice(...a),
     ...createWidgetsSlice(...a),
-    ...createLayoutOpsSlice(...a),
-    ...createClipboardSlice(...a),
   }))
 )
 

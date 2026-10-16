@@ -55,48 +55,6 @@ describe('addWidget', () => {
   })
 })
 
-describe('duplicateWidgets', () => {
-  it('places each copy below its source and selects the copies', () => {
-    store().duplicateWidgets('p1', ['a'])
-    const copy = widgets().find((w) => w.id !== 'a' && w.id !== 'b')
-    expect(copy?.layout).toMatchObject({ col: 0, row: 3 })
-    expect(copy?.signal).toBe('rpm')
-    expect(store().selectedWidgetIds).toEqual([copy?.id])
-    expect(lastLabel()).toBe('Duplicated rpm')
-  })
-
-  it('names several copies by count', () => {
-    store().duplicateWidgets('p1', ['a', 'b'])
-    expect(widgets()).toHaveLength(4)
-    expect(lastLabel()).toBe('Duplicated 2 widgets')
-  })
-
-  it('does nothing for unknown ids', () => {
-    store().duplicateWidgets('p1', ['nope'])
-    expect(widgets()).toHaveLength(2)
-    expect(store().past).toHaveLength(0)
-  })
-})
-
-describe('reorder and remove', () => {
-  it('moves a widget one place and refuses to leave the list', () => {
-    store().reorderWidget('p1', 'a', 1)
-    expect(widgets().map((w) => w.id)).toEqual(['b', 'a'])
-    expect(lastLabel()).toBe('Moved rpm down')
-    store().reorderWidget('p1', 'a', 1)
-    expect(widgets().map((w) => w.id)).toEqual(['b', 'a'])
-  })
-
-  it('removes a widget and drops it from the selection', () => {
-    store().selectWidgets(['a', 'b'])
-    store().selectWidget('a')
-    store().removeWidget('p1', 'a')
-    expect(widgets().map((w) => w.id)).toEqual(['b'])
-    expect(store().selectedWidgetId).toBeNull()
-    expect(lastLabel()).toBe('Deleted rpm')
-  })
-})
-
 describe('updateWidget', () => {
   it('labels a rebind, a resize and an edit differently', () => {
     store().updateWidget('p1', 'a', { signal: 'speed_kph' })
@@ -115,49 +73,5 @@ describe('updateWidget', () => {
     })
     const layout = layoutOf('b')
     expect((layout?.col ?? 0) + (layout?.colSpan ?? 0)).toBeLessThanOrEqual(12)
-  })
-})
-
-describe('moving widgets', () => {
-  it('moves live without history, and records history on commit', () => {
-    store().moveWidget('p1', 'b', { col: 6 })
-    expect(layoutOf('b')?.col).toBe(6)
-    expect(store().past).toHaveLength(0)
-    store().commitWidgetMove('p1', 'b', { row: 3 })
-    expect(layoutOf('b')).toMatchObject({ col: 6, row: 3 })
-    expect(lastLabel()).toBe('Moved gauge')
-  })
-
-  it('moves several widgets at once', () => {
-    store().moveWidgets('p1', [
-      { id: 'a', col: 0, row: 6 },
-      { id: 'b', col: 8, row: 6 },
-    ])
-    expect(layoutOf('a')).toMatchObject({ col: 0, row: 6 })
-    expect(layoutOf('b')).toMatchObject({ col: 8, row: 6 })
-  })
-})
-
-describe('dropping and dragging widgets', () => {
-  it('pushes overlapping widgets aside after a drop', () => {
-    store().moveWidget('p1', 'b', { col: 0 })
-    store().resolveWidgetCollisions('p1', 'b')
-    const a = layoutOf('a')
-    const b = layoutOf('b')
-    const overlap =
-      a &&
-      b &&
-      a.row < b.row + b.rowSpan &&
-      b.row < a.row + a.rowSpan &&
-      a.col < b.col + b.colSpan &&
-      b.col < a.col + a.colSpan
-    expect(overlap).toBe(false)
-  })
-
-  it('labels a drag by its widget or by count', () => {
-    store().beginDrag('p1', ['a'])
-    expect(lastLabel()).toBe('Moved rpm')
-    store().beginDrag('p1', ['a', 'b'])
-    expect(lastLabel()).toBe('Moved 2 widgets')
   })
 })

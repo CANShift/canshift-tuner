@@ -1,10 +1,9 @@
 import { useCallback, useState } from 'react'
-import type { HexColor, SignalDef, Widget, WidgetType } from '@canshift/core'
+import type { HexColor, Widget, WidgetType } from '@canshift/core'
 import { HexColorSchema } from '@canshift/core'
 
 import { useLogStore } from '../../../../stores/log.store'
 import { Checkbox } from '@/components/ui/checkbox'
-import { IconTrash } from '../../../icons/Icon'
 import { ButtonFields } from '../button-fields'
 import { GaugeFields } from '../gauge-fields'
 import { ShiftLightFields } from '../shift-light-fields'
@@ -12,16 +11,7 @@ import { TimerFields } from '../timer-fields'
 import { WarningFields } from '../warning-fields'
 import { ImageFields } from '../image-fields'
 import { ConfigFieldsProps } from '../shared'
-import { CompactSelect, PanelField, SectionLabel } from '@/components/ui/form-field'
-import { ButtonColorsRow } from './button-colors-row'
-import { SizeTokenPicker } from './size-token-picker'
-
-const DELETE_BUTTON = [
-  'flex cursor-pointer items-center gap-1 border border-solid border-status-danger-dim',
-  'bg-transparent px-[7px] py-[3px] text-[11px] text-status-danger',
-].join(' ')
-
-const DANGER_FG = 'hsl(var(--status-danger))'
+import { PanelField } from '@/components/ui/form-field'
 
 export const CONFIG_FIELDS: Partial<
   Record<WidgetType, (props: ConfigFieldsProps) => React.JSX.Element | null>
@@ -35,32 +25,10 @@ export const CONFIG_FIELDS: Partial<
 }
 
 export const SIGNAL_HIDDEN_TYPES = new Set<WidgetType>(['button', 'timer', 'image'])
-const SIZE_HIDDEN_TYPES = new Set<WidgetType>(['gauge'])
 
-interface WidgetEditorPanelProps {
-  pageId: string
+interface DayModeFieldProps {
   widget: Widget
-  signals: SignalDef[]
   patch: (p: Partial<Widget>) => void
-  onRemove: (pageId: string, widgetId: string) => void
-}
-
-export const signalPatch = (
-  widget: Widget,
-  signalDef: SignalDef | undefined,
-  signal: string
-): Partial<Widget> => {
-  if (!signalDef || widget.config.type !== 'gauge') return { signal }
-  return {
-    signal,
-    config: {
-      ...widget.config,
-      suffix: signalDef.unit,
-      minValue: signalDef.min,
-      maxValue: signalDef.max,
-      ...(signalDef.dangerLevel !== undefined && { dangerLevel: signalDef.dangerLevel }),
-    },
-  }
 }
 
 export const dayModeStyle = (style: Widget['style'], follow: boolean): Widget['style'] => {
@@ -88,47 +56,7 @@ export const useHexParser = () => {
   return { colorError, safeParseHex }
 }
 
-const PanelHeader = ({ widget, onDelete }: { widget: Widget; onDelete: () => void }) => (
-  <div className="mb-3.5 flex items-center justify-between">
-    <div>
-      <div className="text-[10px] uppercase tracking-[0.08em] text-brand-neutral-600">
-        Properties
-      </div>
-      <div className="mt-0.5 text-[12px] font-semibold text-status-danger">{widget.type}</div>
-    </div>
-    <button type="button" onClick={onDelete} title="Delete widget (Del)" className={DELETE_BUTTON}>
-      <IconTrash size={11} color={DANGER_FG} />
-      Delete
-    </button>
-  </div>
-)
-
-type FieldProps = Pick<WidgetEditorPanelProps, 'widget' | 'signals' | 'patch'>
-
-const signalOptions = (signals: SignalDef[]) => [
-  { value: '', label: '— none —' },
-  ...signals.map((s) => ({ value: s.name, label: s.unit ? `${s.name} — ${s.unit}` : s.name })),
-]
-
-const SignalField = ({ widget, signals, patch }: FieldProps) => (
-  <PanelField label="Signal">
-    <CompactSelect
-      value={widget.signal || ''}
-      options={signalOptions(signals)}
-      onChange={(next) => {
-        patch(
-          signalPatch(
-            widget,
-            signals.find((s) => s.name === next),
-            next
-          )
-        )
-      }}
-    />
-  </PanelField>
-)
-
-export const DayModeField = ({ widget, patch }: Omit<FieldProps, 'signals'>) => (
+export const DayModeField = ({ widget, patch }: DayModeFieldProps) => (
   <PanelField label="Follow day-mode text colour">
     <label className="flex cursor-pointer items-center gap-1.5 text-[12px] text-brand-neutral-600">
       <Checkbox
@@ -141,50 +69,3 @@ export const DayModeField = ({ widget, patch }: Omit<FieldProps, 'signals'>) => 
     </label>
   </PanelField>
 )
-
-const ConfigSection = ({ widget, signals, patch }: FieldProps) => {
-  const ConfigFields = CONFIG_FIELDS[widget.type]
-  if (!ConfigFields) return null
-  return (
-    <>
-      <div className="mb-1.5 mt-1">
-        <SectionLabel>{widget.type} config</SectionLabel>
-      </div>
-      <ConfigFields
-        widget={widget}
-        onChange={patch}
-        signalDef={signals.find((s) => s.name === widget.signal)}
-      />
-    </>
-  )
-}
-
-export const WidgetEditorPanel = ({
-  pageId,
-  widget,
-  signals,
-  patch,
-  onRemove,
-}: WidgetEditorPanelProps) => {
-  const { colorError, safeParseHex } = useHexParser()
-  return (
-    <div className="flex-1 overflow-y-auto p-3">
-      <PanelHeader widget={widget} onDelete={() => onRemove(pageId, widget.id)} />
-      <PanelField label="ID">
-        <div className="py-[3px] font-mono text-[10px] text-brand-neutral-600">{widget.id}</div>
-      </PanelField>
-      {!SIZE_HIDDEN_TYPES.has(widget.type) && <SizeTokenPicker widget={widget} onChange={patch} />}
-      {!SIGNAL_HIDDEN_TYPES.has(widget.type) && (
-        <SignalField widget={widget} signals={signals} patch={patch} />
-      )}
-      <DayModeField widget={widget} patch={patch} />
-      <ButtonColorsRow
-        widget={widget}
-        colorError={colorError}
-        safeParseHex={safeParseHex}
-        onChange={patch}
-      />
-      <ConfigSection widget={widget} signals={signals} patch={patch} />
-    </div>
-  )
-}

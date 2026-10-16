@@ -1,4 +1,4 @@
-import { serializeBoardProfile, type BoardProfile, type BoardProfileBlob } from '@canshift/core'
+import type { BoardProfileBlob } from '@canshift/core'
 
 export const INVALID_BOARD_PROFILE = 'invalid_board_profile'
 export const UNKNOWN_BOARD_ID = 'unknown_board_id'
@@ -20,9 +20,6 @@ export const boardProvisionPayload = (
   provision: BoardProvision
 ): BoardProvisionWire | BoardProfileBlob =>
   provision.kind === 'catalog' ? { board_id: provision.boardId } : provision.blob
-
-export const boardProfileBlob = (profile: BoardProfile): BoardProfileBlob =>
-  JSON.parse(serializeBoardProfile(profile)) as BoardProfileBlob
 
 interface BoardProfileAck {
   ok: boolean

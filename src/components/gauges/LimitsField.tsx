@@ -32,12 +32,8 @@ const DirectionToggle = ({ direction, onChange }: DirectionToggleProps) => (
       if (value.length > 0) onChange(value === 'below')
     }}
   >
-    <ToggleGroupItem value="above" className="h-9 px-3 text-sm">
-      {STRINGS.dash.above}
-    </ToggleGroupItem>
-    <ToggleGroupItem value="below" className="h-9 px-3 text-sm">
-      {STRINGS.dash.below}
-    </ToggleGroupItem>
+    <ToggleGroupItem value="above">{STRINGS.dash.above}</ToggleGroupItem>
+    <ToggleGroupItem value="below">{STRINGS.dash.below}</ToggleGroupItem>
   </ToggleGroup>
 )
 

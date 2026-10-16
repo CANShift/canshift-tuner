@@ -149,5 +149,3 @@ export const buildWidget = (item: PaletteItem): Widget => ({
   style: { ...DEFAULT_WIDGET_STYLE, fontSize: WIDGET_FONT_SIZE },
   config: configFor(item),
 })
-
-export const DEFAULT_NEW_WIDGET = PALETTE_ITEMS[0] as PaletteItem

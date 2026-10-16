@@ -16,7 +16,7 @@ const Slider = forwardRef<ElementRef<typeof SliderPrimitive.Root>, SliderProps>(
       </SliderPrimitive.Track>
       <SliderPrimitive.Thumb
         aria-label={thumbLabel}
-        className="block size-6 rounded-full border-2 border-app-accent bg-app-text focus-visible:outline-2"
+        className="block size-7 rounded-full border-2 border-app-accent bg-app-text focus-visible:outline-2"
       />
     </SliderPrimitive.Root>
   )

@@ -36,8 +36,8 @@ bottom of the screen) surfaces problems. The codes you'll see most often:
 | Code                  | Meaning                                            | Fix                                                     |
 | --------------------- | -------------------------------------------------- | ------------------------------------------------------- |
 | `MOUNT_FAIL`          | SPIFFS mount failed                                | Re-flash; if persistent, the flash partition is corrupt |
-| `SCHEMA_MISMATCH`     | `dashboard.json` schema doesn't match the firmware | Re-burn from the tuner                                  |
-| `CONFIG_PARSE`        | JSON syntax error in a config file                 | Burn a known-good config                                |
+| `SCHEMA_MISMATCH`     | `dashboard.json` schema doesn't match the firmware | Send to dash again from the tuner                       |
+| `CONFIG_PARSE`        | JSON syntax error in a config file                 | Send to dash again, or restore a known-good backup      |
 | `BOOT_FAIL` (CAN)     | TWAI driver init failed                            | Check CAN wiring, ECU termination                       |
 | `FONT_PROVISION_FAIL` | A SPIFFS font file is missing or unreadable        | Re-flash filesystem partition                           |
 
