@@ -11,7 +11,7 @@ const IMAGE = new Uint8Array(OTA_CHUNK_BYTES * 2 + 100).fill(7)
 const SIGNATURE = new Uint8Array(64).fill(0xff)
 const VERSION = '0.21.0'
 const FIRMWARE = { bytes: IMAGE, signature: SIGNATURE, version: VERSION }
-const install = () => installFirmware(FIRMWARE, () => undefined)
+const install = () => installFirmware(FIRMWARE, { onProgress: () => undefined })
 
 beforeEach(() => {
   vi.mocked(otaIpc.begin).mockReset().mockResolvedValue(OK)
@@ -23,7 +23,7 @@ beforeEach(() => {
 describe('installFirmware', () => {
   it('declares the size, SHA-256, signature and version, streams ordered chunks, then commits', async () => {
     const progress: number[] = []
-    const result = await installFirmware(FIRMWARE, (sent) => progress.push(sent))
+    const result = await installFirmware(FIRMWARE, { onProgress: (sent) => progress.push(sent) })
     expect(result).toEqual({ kind: 'installed' })
     const [total, sha, sig, version] = vi.mocked(otaIpc.begin).mock.calls[0] ?? []
     expect(total).toBe(IMAGE.byteLength)
@@ -40,7 +40,7 @@ describe('installFirmware refused while streaming', () => {
   it('stops at a refused begin with a human message', async () => {
     vi.mocked(otaIpc.begin).mockResolvedValue({ ok: false, error: 'size_out_of_range' })
     const result = await install()
-    expect(result).toEqual({ kind: 'failed', message: expect.stringMatching(/does not fit/) })
+    expect(result).toMatchObject({ kind: 'failed', message: expect.stringMatching(/does not fit/) })
     expect(otaIpc.write).not.toHaveBeenCalled()
   })
 
@@ -59,14 +59,14 @@ describe('installFirmware refused for its signature or checksum', () => {
   it('reports the dash refusing an unsigned image before any write', async () => {
     vi.mocked(otaIpc.begin).mockResolvedValue({ ok: false, error: 'ota_unsigned' })
     const result = await install()
-    expect(result).toEqual({ kind: 'failed', message: expect.stringMatching(/unsigned/) })
+    expect(result).toMatchObject({ kind: 'failed', message: expect.stringMatching(/unsigned/) })
     expect(otaIpc.write).not.toHaveBeenCalled()
   })
 
   it('reports the dash refusing a signature that does not verify', async () => {
     vi.mocked(otaIpc.commit).mockResolvedValue({ ok: false, error: 'ota_bad_signature' })
     const result = await install()
-    expect(result).toEqual({ kind: 'failed', message: expect.stringMatching(/signature/) })
+    expect(result).toMatchObject({ kind: 'failed', code: 'ota_bad_signature' })
   })
 
   it('reports the dash refusing the finished image', async () => {
@@ -76,6 +76,19 @@ describe('installFirmware refused for its signature or checksum', () => {
       data: { detail: '0x0' },
     })
     const result = await install()
-    expect(result).toEqual({ kind: 'failed', message: expect.stringMatching(/checksum/) })
+    expect(result).toMatchObject({ kind: 'failed', message: expect.stringMatching(/checksum/) })
+  })
+})
+
+describe('installFirmware cancelled', () => {
+  it('stops sending, frees the slot and installs nothing', async () => {
+    let calls = 0
+    const result = await installFirmware(FIRMWARE, {
+      onProgress: () => undefined,
+      cancelled: () => (calls += 1) > 1,
+    })
+    expect(result).toEqual({ kind: 'cancelled' })
+    expect(otaIpc.abort).toHaveBeenCalledTimes(1)
+    expect(otaIpc.commit).not.toHaveBeenCalled()
   })
 })

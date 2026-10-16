@@ -3,6 +3,7 @@ import { deviceConfigIpc, usbService } from '../../transport'
 import { verifyBurnedConfig } from '../verify-burned-config'
 import { SIGNALS_FILE_PATH, putFile } from '../../transport/file-ipc'
 import type { DashWriter, WriteResult } from './send-setup'
+import type { ScreenRotation } from './setup'
 
 const OK: WriteResult = { ok: true }
 
@@ -22,6 +23,9 @@ export const dashWriter: DashWriter = {
     fromSuccess(await usbService.pushScreenSettings({ brightness })),
   writeDeviceConfig: async (config: DeviceConfig) =>
     fromSuccess(await deviceConfigIpc.write(config)),
+  writeDayMode: async (day: boolean) => fromSuccess(await usbService.setDayNight(day)),
+  writeRotation: async (rotation: ScreenRotation, brightness: number) =>
+    fromSuccess(await usbService.pushScreenSettings({ brightness, rotation })),
   writeSignals: async (file: string) => {
     const result = await putFile(SIGNALS_FILE_PATH, file)
     return result.kind === 'ok' ? OK : { ok: false, code: result.code }

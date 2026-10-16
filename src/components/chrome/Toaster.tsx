@@ -1,6 +1,11 @@
 import { useEffect } from 'react'
-import { TOAST_MS, useToastStore } from '../../stores/toast.store'
-import { UiIcon } from '../icons/UiIcons'
+import { TOAST_MS, useToastStore, type ToastTone } from '../../stores/toast.store'
+import { UiIcon, type UiIconProps } from '../icons/UiIcons'
+
+const TONE_ICONS: Record<ToastTone, UiIconProps> = {
+  success: { name: 'check', className: 'text-app-success' },
+  warning: { name: 'warning', className: 'text-app-warning' },
+}
 
 export const Toaster = () => {
   const toast = useToastStore((s) => s.toast)
@@ -20,7 +25,7 @@ export const Toaster = () => {
       role="status"
       className="fixed inset-x-4 bottom-[calc(170px+env(safe-area-inset-bottom))] z-50 mx-auto flex max-w-md items-center gap-3 rounded-[12px] border border-app-border bg-app-surface-2 px-4 py-3 text-[15px] shadow-lg lg:bottom-6"
     >
-      <UiIcon name="check" className="text-app-success" />
+      <UiIcon {...TONE_ICONS[toast.tone]} />
       <span>{toast.message}</span>
     </div>
   )

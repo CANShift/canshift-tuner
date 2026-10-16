@@ -1,8 +1,12 @@
 import type { DashboardConfig, DeviceConfig, SignalDef } from '@canshift/core'
 
+export type ScreenRotation = 0 | 180
+
 export interface DeviceSettings {
   deviceConfig: DeviceConfig | null
   brightness: number | null
+  rotation: ScreenRotation | null
+  dayMode: boolean | null
 }
 
 export interface CarSetup {
@@ -16,6 +20,11 @@ export interface DashSetup {
   car: CarSetup | null
 }
 
-export const UNKNOWN_SETTINGS: DeviceSettings = { deviceConfig: null, brightness: null }
+export const UNKNOWN_SETTINGS: DeviceSettings = {
+  deviceConfig: null,
+  brightness: null,
+  rotation: null,
+  dayMode: null,
+}
 
 export const EMPTY_SETUP: DashSetup = { dashboard: null, settings: UNKNOWN_SETTINGS, car: null }

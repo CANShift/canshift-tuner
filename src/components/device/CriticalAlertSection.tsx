@@ -4,7 +4,7 @@ import { parseThreshold } from '../editor/SelectedWidgetEditor'
 import { takeoverTextFor } from '../../lib/critical-alert'
 import { DeviceSection } from './DeviceSection'
 import { SettingRow } from './SettingRow'
-import { useCriticalAlert, type CriticalAlertEditor } from './useCriticalAlert'
+import { useCriticalAlert, type CriticalAlertEditor } from '../../hooks/useCriticalAlert'
 
 const PREVIEW_SCALE = 0.875
 const NO_SIGNAL = ''

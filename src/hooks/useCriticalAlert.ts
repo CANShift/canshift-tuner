@@ -1,8 +1,8 @@
 import type { CriticalAlert, CriticalAlertDirection, SignalDef } from '@canshift/core'
-import { useDashboardStore } from '../../stores/dashboard.store'
-import { useSignalStore } from '../../stores/signal.store'
-import { useDisplayUnits } from '../../hooks/useDisplayUnits'
-import { defaultCriticalAlert } from '../../lib/critical-alert'
+import { useDashboardStore } from '../stores/dashboard.store'
+import { useSignalStore } from '../stores/signal.store'
+import { useDisplayUnits } from './useDisplayUnits'
+import { defaultCriticalAlert } from '../lib/critical-alert'
 
 const ENTRY_DECIMALS = 2
 
@@ -17,6 +17,7 @@ export interface CriticalAlertEditor {
   setSignal: (name: string) => void
   setFiresAt: (shown: number | null) => void
   setDirection: (direction: CriticalAlertDirection) => void
+  turnOff: () => void
 }
 
 export const useCriticalAlert = (): CriticalAlertEditor => {
@@ -44,6 +45,9 @@ export const useCriticalAlert = (): CriticalAlertEditor => {
     },
     setDirection: (direction) => {
       update({ direction })
+    },
+    turnOff: () => {
+      setCriticalAlert(null)
     },
   }
 }

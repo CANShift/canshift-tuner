@@ -1,7 +1,7 @@
 import type { DashboardConfig, DeviceConfig } from '@canshift/core'
 import type { Refusal } from './refusal'
 import { failureForCode } from './send-codes'
-import type { DashSetup } from './setup'
+import type { DashSetup, ScreenRotation } from './setup'
 import { sameValue } from './setup-path'
 import { signalsFile } from './signals-file'
 
@@ -12,9 +12,11 @@ export interface DashWriter {
   writeBrightness: (brightness: number) => Promise<WriteResult>
   writeDeviceConfig: (config: DeviceConfig) => Promise<WriteResult>
   writeSignals: (file: string) => Promise<WriteResult>
+  writeDayMode: (day: boolean) => Promise<WriteResult>
+  writeRotation: (rotation: ScreenRotation, brightness: number) => Promise<WriteResult>
 }
 
-export type RestartReason = 'canSpeed' | 'car'
+export type RestartReason = 'canSpeed' | 'car' | 'rotation'
 
 export type SendResult =
   | { kind: 'sent'; confirmed: DashSetup; restart: RestartReason | null; more: boolean }
@@ -51,6 +53,34 @@ const brightnessStep = (snapshot: DashSetup, device: DashSetup): SendStep[] => {
   ]
 }
 
+const dayModeStep = (snapshot: DashSetup, device: DashSetup): SendStep[] => {
+  const dayMode = snapshot.settings.dayMode
+  if (dayMode === null || dayMode === device.settings.dayMode) return []
+  return [
+    {
+      write: (writer) => writer.writeDayMode(dayMode),
+      confirm: (confirmed) => ({ ...confirmed, settings: { ...confirmed.settings, dayMode } }),
+      restarts: null,
+    },
+  ]
+}
+
+const DEFAULT_BRIGHTNESS = 80
+
+const rotationStep = (snapshot: DashSetup, device: DashSetup): SendStep[] => {
+  const rotation = snapshot.settings.rotation
+  if (rotation === null || rotation === device.settings.rotation) return []
+  const brightness =
+    snapshot.settings.brightness ?? device.settings.brightness ?? DEFAULT_BRIGHTNESS
+  return [
+    {
+      write: (writer) => writer.writeRotation(rotation, brightness),
+      confirm: (confirmed) => ({ ...confirmed, settings: { ...confirmed.settings, rotation } }),
+      restarts: 'rotation',
+    },
+  ]
+}
+
 const deviceConfigStep = (snapshot: DashSetup, device: DashSetup): SendStep[] => {
   const deviceConfig = snapshot.settings.deviceConfig
   if (deviceConfig === null || sameValue(deviceConfig, device.settings.deviceConfig)) return []
@@ -82,8 +112,10 @@ const carStep = (snapshot: DashSetup, device: DashSetup): SendStep[] => {
 const allSteps = (snapshot: DashSetup, device: DashSetup): SendStep[] => [
   ...dashboardStep(snapshot, device),
   ...brightnessStep(snapshot, device),
+  ...dayModeStep(snapshot, device),
   ...deviceConfigStep(snapshot, device),
   ...carStep(snapshot, device),
+  ...rotationStep(snapshot, device),
 ]
 
 export const sendSteps = (snapshot: DashSetup, device: DashSetup): SendStep[] => {

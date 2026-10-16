@@ -98,27 +98,44 @@ const dashboardChanges = (device: DashSetup, draft: DashSetup): Change[] => {
   ]
 }
 
+type SettingValue = number | boolean
+
 interface SettingCopy {
   path: SetupPath
-  what: (value: number) => string
-  was: (value: number) => string
+  what: (value: SettingValue) => string
+  shown: (value: SettingValue) => string
 }
 
+const modeName = (value: SettingValue): string => (value === true ? C.day : C.night)
+
 const SETTINGS: readonly SettingCopy[] = [
-  { path: ['settings', 'brightness'], what: C.brightness, was: (v) => C.was(C.percent(v)) },
+  {
+    path: ['settings', 'brightness'],
+    what: (v) => C.brightness(Number(v)),
+    shown: (v) => C.percent(Number(v)),
+  },
   {
     path: ['settings', 'deviceConfig', 'canSpeedKbps'],
-    what: C.canSpeed,
-    was: (v) => C.was(C.kbps(v)),
+    what: (v) => C.canSpeed(Number(v)),
+    shown: (v) => C.kbps(Number(v)),
   },
+  {
+    path: ['settings', 'rotation'],
+    what: (v) => C.rotation(Number(v)),
+    shown: (v) => C.degrees(Number(v)),
+  },
+  { path: ['settings', 'dayMode'], what: (v) => C.dayMode(modeName(v)), shown: modeName },
 ]
 
-const settingChange = (copy: SettingCopy, before: unknown, after: number): Change => ({
+const isSetting = (value: unknown): value is SettingValue =>
+  typeof value === 'number' || typeof value === 'boolean'
+
+const settingChange = (copy: SettingCopy, before: unknown, after: SettingValue): Change => ({
   id: pathKey(copy.path),
   section: 'dash',
   where: C.dashWhere,
   what: copy.what(after),
-  was: typeof before === 'number' ? copy.was(before) : '',
+  was: isSetting(before) ? C.was(copy.shown(before)) : '',
   revert: { kind: 'path', path: copy.path },
   target: null,
 })
@@ -127,7 +144,7 @@ const settingsChanges = (device: DeviceSettings, draft: DeviceSettings): Change[
   SETTINGS.flatMap((copy) => {
     const before = readPath({ settings: device }, copy.path)
     const after = readPath({ settings: draft }, copy.path)
-    if (typeof after !== 'number' || sameValue(before, after)) return []
+    if (!isSetting(after) || sameValue(before, after)) return []
     return [settingChange(copy, before, after)]
   })
 

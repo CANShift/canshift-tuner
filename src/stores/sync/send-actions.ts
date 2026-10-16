@@ -44,6 +44,7 @@ const attempt = async (draft: DashSetup, device: DashSetup, writer: DashWriter) 
 const RESTART_MESSAGES: Record<RestartReason, string> = {
   canSpeed: STRINGS.send.sentRestarting,
   car: STRINGS.send.sentRestartingCar,
+  rotation: STRINGS.send.sentRestartingScreen,
 }
 
 const REPORTERS: Record<SendResult['kind'], (result: SendResult) => void> = {

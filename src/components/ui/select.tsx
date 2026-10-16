@@ -47,7 +47,7 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      'flex h-9 w-full items-center justify-between gap-2 border border-ui-ink bg-ui-bg px-3 py-1 text-sm text-ui-ink transition-colors hover:border-ui-accent active:brightness-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-ui-ink',
+      'flex h-11 w-full items-center justify-between gap-2 rounded-control border border-app-border bg-app-bg px-3 text-[15px] text-app-text transition-colors hover:border-app-muted active:brightness-95 disabled:cursor-not-allowed disabled:opacity-50',
       className
     )}
     {...props}
@@ -68,7 +68,7 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        'relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-control border border-app-border bg-app-surface text-app-text shadow-overlay',
+        'relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-card border border-app-border bg-app-surface text-app-text shadow-overlay',
         'data-[state=open]:animate-in data-[state=closed]:animate-out',
         position === 'popper' && 'data-[side=bottom]:translate-y-1 data-[side=top]:-translate-y-1',
         className
@@ -96,7 +96,7 @@ const SelectLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Label
     ref={ref}
-    className={cn('px-2 py-1.5 text-xs font-semibold text-ui-muted', className)}
+    className={cn('px-2 py-1.5 text-xs font-semibold text-app-muted', className)}
     {...props}
   />
 ))
@@ -109,7 +109,7 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex w-full cursor-default select-none items-center py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-app-surface-2 focus:text-app-text data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'relative flex min-h-11 w-full cursor-default select-none items-center rounded-control pl-8 pr-2 text-[15px] outline-none focus:bg-app-surface-2 focus:text-app-text data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className
     )}
     {...props}

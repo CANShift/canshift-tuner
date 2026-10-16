@@ -1,3 +1,5 @@
+import { plural } from './plural'
+
 export const DASH = {
   dash: {
     units: 'Units',
@@ -26,6 +28,35 @@ export const DASH = {
     firmware: (version: string): string => `Firmware ${version}`,
     hardware: (model: string): string => `Hardware ${model}`,
     shortcuts: 'Keyboard shortcuts',
+    title: 'Dash',
+    screen: 'Screen',
+    more: 'More',
+    rotation: 'Turn the screen',
+    rotationHint: 'Turning it restarts the dash when you send.',
+    mode: 'Day or night',
+    day: 'Day',
+    night: 'Night',
+    calibrate: 'Calibrate touch',
+    calibrateTitle: 'Calibrate the touch screen?',
+    calibrateBody:
+      'The dash shows targets to tap. Tap each one with a fingertip until it finishes.',
+    calibrateStart: 'Start on the dash',
+    calibrateFailed: 'The dash could not start the calibration. Try again.',
+    theme: 'Dash colours',
+    themeHint: 'The colour preset the dash uses by day and by night.',
+    shortcutSelect: 'Select the gauge before or after',
+    shortcutDeselect: 'Close the gauge editor',
+    backupHint: 'One file with your pages, gauges, car and settings.',
+    readsAs: (signal: string, direction: string, value: string): string =>
+      `Reads as: alert when ${signal} goes ${direction} ${value}.`,
+    alertNone: 'No full-screen alert is set. Choose a signal to set one.',
+    chooseSignal: 'Choose a signal',
+    hardwareLabel: 'Hardware',
+    version: (version: string): string => `Version ${version}`,
+    unknownVersion: 'unknown',
+    restoreSummary: (date: string, car: string, pages: number): string =>
+      `Saved ${date} · ${car} · ${plural(pages, 'page', 'pages')}`,
+    notABackup: 'This file isn’t a CANShift backup. Choose a .canshift file saved from the tuner.',
   },
   firmware: {
     title: 'Update firmware',
@@ -34,6 +65,29 @@ export const DASH = {
     binFile: 'Firmware file (.bin)',
     sigFile: 'Signature file (.sig)',
     chooseFile: 'Choose file',
+    binLabel: 'Firmware file',
+    sigLabel: 'Signature file',
+    notChosen: (extension: string): string => `${extension} · not chosen`,
+    downloadAhead:
+      'Download the update beforehand, on a network with internet. You need two files from the same release: a .bin and a .sig.',
+    megabytes: (sent: number, total: number): string =>
+      `${(sent / 1_000_000).toFixed(1)} of ${(total / 1_000_000).toFixed(1)} MB`,
+    fileSize: (bytes: number): string => `Firmware file · ${(bytes / 1_000_000).toFixed(1)} MB`,
+    keepPower: 'Keep the car’s power on',
+    stayNear: 'Stay near the dash and keep this page open',
+    updatingTo: (version: string): string => `Updating to ${version}`,
+    stepRestartDash: 'Restarting the dash',
+    cancelHint: 'Possible until the upload finishes. Nothing is installed yet.',
+    doneUpload: 'Uploaded',
+    doneSignature: 'Signature checked',
+    doneInstall: 'Installed',
+    doneRestart: 'Dash restarted',
+    whatToDo: 'What to do',
+    stillRuns: (version: string): string =>
+      `Nothing was installed — your dash still runs ${version}.`,
+    otherDashGeneric: 'This file is for a different dash.',
+    reconnectBody:
+      'The new firmware is installed and the dash restarted. It did not reconnect on its own.',
     install: 'Install update',
     chooseBoth: 'Choose both files to continue.',
     confirmTitle: (version: string): string => `Install version ${version}?`,
