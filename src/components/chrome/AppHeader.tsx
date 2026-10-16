@@ -1,5 +1,6 @@
 import { STRINGS } from '../../strings'
 import { useConnection } from '../../hooks/useConnection'
+import { useSignalStore } from '../../stores/signal.store'
 import { TunerMark } from '../brand/TunerMark'
 import { ConnectionIndicator } from './ConnectionIndicator'
 import { SendButton } from './SendButton'
@@ -9,9 +10,11 @@ const MARK_HEIGHT = 18
 
 const Brand = () => {
   const { connection } = useConnection()
+  const carChosen = useSignalStore((s) => s.carChosen)
+  const welcoming = connection === 'offline' || !carChosen
   return (
     <span className="flex items-center gap-2 text-app-text">
-      <span className={connection === 'offline' ? 'contents' : 'max-lg:hidden'}>
+      <span className={welcoming ? 'contents' : 'max-lg:hidden'}>
         <TunerMark height={MARK_HEIGHT} />
       </span>
       <span className="hidden text-[17px] font-bold lg:inline">{STRINGS.appName}</span>

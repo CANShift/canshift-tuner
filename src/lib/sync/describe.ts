@@ -35,11 +35,15 @@ const kickerOf = (widget: Widget): string | undefined => {
 const baseName = (widget: Widget): string =>
   widget.signal === '' ? widgetNoun(widget) : displayLabelForSignal(widget.signal)
 
-export const signalName = (signal: string): string =>
-  titleCase(displayLabelForSignal(signal).toLowerCase())
+const ACRONYM_MAX = 3
+
+const prettyLabel = (label: string): string =>
+  label.length <= ACRONYM_MAX ? label.toUpperCase() : titleCase(label.toLowerCase())
+
+export const signalName = (signal: string): string => prettyLabel(displayLabelForSignal(signal))
 
 export const widgetName = (widget: Widget): string =>
-  titleCase((kickerOf(widget) ?? baseName(widget)).toLowerCase())
+  prettyLabel(kickerOf(widget) ?? baseName(widget))
 
 export const formatValue = (value: unknown): string => {
   if (typeof value === 'number' || typeof value === 'string') return String(value)

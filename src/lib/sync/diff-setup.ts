@@ -2,6 +2,7 @@ import type { DashboardConfig, UnitSystem } from '@canshift/core'
 import { STRINGS } from '../../strings'
 import type { Change } from './change'
 import { pageName, settingName, wasText, type ChangeSection } from './describe'
+import { carChanges } from './diff-car'
 import { pageChanges } from './diff-pages'
 import type { DashSetup, DeviceSettings } from './setup'
 import { pathKey, readPath, sameValue, type SetupPath } from './setup-path'
@@ -133,4 +134,5 @@ const settingsChanges = (device: DeviceSettings, draft: DeviceSettings): Change[
 export const diffSetup = (device: DashSetup, draft: DashSetup): Change[] => [
   ...dashboardChanges(device, draft),
   ...settingsChanges(device.settings, draft.settings),
+  ...carChanges(device.car, draft.car),
 ]

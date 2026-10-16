@@ -1,7 +1,8 @@
 import { DEFAULT_SIM_CONFIG } from '../../config/default-sim-config'
 import { revertAll, revertChange } from '../../lib/sync/revert'
 import type { Change } from '../../lib/sync/change'
-import type { DashSetup } from '../../lib/sync/setup'
+import type { CarSetup, DashSetup } from '../../lib/sync/setup'
+import { useSignalStore } from '../signal.store'
 import { sameValue } from '../../lib/sync/setup-path'
 import { useDashboardStore } from '../dashboard.store'
 import { withDefaultTheme } from '../dashboard/lifecycle.slice'
@@ -9,9 +10,15 @@ import { useSyncStore } from './sync.store'
 import type { DashboardConfig, DeviceConfig } from '@canshift/core'
 import { STRINGS } from '../../strings'
 
+const readCar = (): CarSetup => {
+  const { selectedProfileKey, signals } = useSignalStore.getState()
+  return { profileKey: selectedProfileKey, signals }
+}
+
 export const readDraft = (): DashSetup => ({
   dashboard: useDashboardStore.getState().config,
   settings: useSyncStore.getState().settingsDraft,
+  car: readCar(),
 })
 
 const applyDraft = (next: DashSetup, label: string): void => {
@@ -20,6 +27,8 @@ const applyDraft = (next: DashSetup, label: string): void => {
     useDashboardStore.getState().replaceConfig(next.dashboard, label)
   }
   useSyncStore.getState().setSettingsDraft(next.settings)
+  if (next.car !== null && !sameValue(next.car, readCar()))
+    useSignalStore.getState().setCar(next.car)
 }
 
 export const undoChange = (change: Change): void => {

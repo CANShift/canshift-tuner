@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { produce } from 'immer'
 import type { DashboardConfig } from '@canshift/core'
 import { DEFAULT_SIM_CONFIG } from '../../config/default-sim-config'
+import { DEFAULT_SIM_SIGNALS } from '../../config/default-sim-signals'
 import { diffSetup } from './diff-setup'
 import { revertAll, revertChange } from './revert'
 import type { DashSetup } from './setup'
@@ -9,6 +10,7 @@ import type { DashSetup } from './setup'
 const device: DashSetup = {
   dashboard: DEFAULT_SIM_CONFIG,
   settings: { deviceConfig: { canSpeedKbps: 500 }, brightness: 80 },
+  car: { profileKey: 'demo:canshift', signals: DEFAULT_SIM_SIGNALS },
 }
 
 const edit = (recipe: (config: DashboardConfig) => void): DashSetup => ({
@@ -128,5 +130,36 @@ describe('revertAll', () => {
       c.pages.pop()
     })
     expect(diffSetup(device, revertAll(draft, device))).toEqual([])
+  })
+})
+
+describe('diffSetup for the car', () => {
+  const adjusted = (): DashSetup => ({
+    ...device,
+    car: {
+      profileKey: 'demo:canshift',
+      signals: DEFAULT_SIM_SIGNALS.map((signal) =>
+        signal.name === 'rpm' ? { ...signal, scale: 2 } : signal
+      ),
+    },
+  })
+
+  it('lists an adjusted reading in the Car section and undoes it', () => {
+    const [change] = diffSetup(device, adjusted())
+    expect(change).toMatchObject({ section: 'car', where: 'Car', what: 'Adjusted the RPM reading' })
+    if (!change) throw new Error('expected a change')
+    expect(diffSetup(device, revertChange(adjusted(), device, change))).toEqual([])
+  })
+
+  it('reads a new car as one change, back to the old car on undo', () => {
+    const draft: DashSetup = {
+      ...device,
+      car: { profileKey: 'builtin:maxxecu-street', signals: [] },
+    }
+    const changes = diffSetup(device, draft)
+    expect(changes).toHaveLength(1)
+    const [change] = changes
+    if (!change) throw new Error('expected a change')
+    expect(revertChange(draft, device, change).car).toEqual(device.car)
   })
 })

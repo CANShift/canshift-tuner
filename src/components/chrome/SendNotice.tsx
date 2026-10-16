@@ -22,7 +22,7 @@ const NoticeActions = ({ refusals }: NoticeProps) => {
       <Button
         className="h-[52px] bg-app-text text-base text-app-bg lg:h-11 lg:text-[15px]"
         onClick={() => {
-          showMe(refusals[0]?.target ?? null)
+          showMe(refusals[0])
         }}
       >
         {STRINGS.refused.showMe}

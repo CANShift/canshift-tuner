@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { STRINGS } from './strings'
+import { STRINGS } from '.'
 
 const leaves = (node: unknown): unknown[] =>
   typeof node === 'object' && node !== null ? Object.values(node).flatMap(leaves) : [node]

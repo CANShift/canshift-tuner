@@ -1,17 +1,18 @@
 import { useNavigate } from 'react-router-dom'
-import type { ChangeTarget } from '../lib/sync/change'
+import { SECTIONS } from '../components/chrome/sections'
+import type { Refusal } from '../lib/sync/refusal'
 import { useDashboardStore } from '../stores/dashboard.store'
 import { dismissSendOutcome } from '../stores/sync/send-actions'
 
-const GAUGES_PATH = '/gauges'
-
-export const useShowMe = (): ((target: ChangeTarget | null) => void) => {
+export const useShowMe = (): ((refusal: Refusal | undefined) => void) => {
   const navigate = useNavigate()
-  return (target) => {
+  return (refusal) => {
     dismissSendOutcome()
-    void navigate(GAUGES_PATH)
-    if (target === null) return
-    useDashboardStore.getState().selectPage(target.pageId)
-    useDashboardStore.getState().selectWidget(target.widgetId ?? null)
+    if (refusal === undefined) return
+    const section = SECTIONS.find((candidate) => candidate.id === refusal.section)
+    if (section !== undefined) void navigate(section.path)
+    if (refusal.target === null) return
+    useDashboardStore.getState().selectPage(refusal.target.pageId)
+    useDashboardStore.getState().selectWidget(refusal.target.widgetId ?? null)
   }
 }

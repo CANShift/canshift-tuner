@@ -16,12 +16,12 @@ export interface PreflightInputs {
 
 const firmwareReasons = ({ firmwareMismatch }: PreflightInputs): Refusal[] =>
   firmwareMismatch
-    ? [{ where: STRINGS.changes.dashWhere, text: R.newerFirmware, target: null }]
+    ? [{ where: STRINGS.changes.dashWhere, text: R.newerFirmware, target: null, section: 'dash' }]
     : []
 
 const spaceReasons = ({ config }: PreflightInputs): Refusal[] =>
   config.pages.length > FIRMWARE_CAPS.MAX_PAGES
-    ? [{ where: STRINGS.changes.gaugesWhere, text: R.outOfSpace, target: null }]
+    ? [{ where: STRINGS.changes.gaugesWhere, text: R.outOfSpace, target: null, section: 'gauges' }]
     : []
 
 const crowdedPages = ({ config }: PreflightInputs): Refusal[] =>
@@ -31,6 +31,7 @@ const crowdedPages = ({ config }: PreflightInputs): Refusal[] =>
       where: STRINGS.changes.pageWhere(pageName(page)),
       text: R.tooManyGauges(pageName(page)),
       target: { pageId: page.id },
+      section: 'gauges',
     }))
 
 const overflowReasons = ({ config }: PreflightInputs): Refusal[] => {
@@ -42,6 +43,7 @@ const overflowReasons = ({ config }: PreflightInputs): Refusal[] => {
       where: STRINGS.changes.pageWhere(page),
       text: R.tooManyGauges(page),
       target: { pageId: overflow.pageId, widgetId: overflow.widgetId },
+      section: 'gauges',
     },
   ]
 }
@@ -51,6 +53,7 @@ const signalReasons = ({ config, signals }: PreflightInputs): Refusal[] =>
     where: STRINGS.changes.pageWhere(pageName(page)),
     text: R.unknownSignal(widgetName(widget), pageName(page)),
     target: { pageId: page.id, widgetId: widget.id },
+    section: 'gauges',
   }))
 
 const CHECKS: readonly ((inputs: PreflightInputs) => Refusal[])[] = [

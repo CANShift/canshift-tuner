@@ -23,6 +23,7 @@ describe('preflightRefusals', () => {
         where: 'Gauges · Street',
         text: STRINGS.refused.unknownSignal('Not A Signal', 'Street'),
         target: { pageId: 'street', widgetId: 'street_speed' },
+        section: 'gauges',
       },
     ])
   })

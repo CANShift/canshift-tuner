@@ -3,6 +3,7 @@ export const CMD_PUSH_CONFIG = 0x02
 export const CMD_GET_DEVICE_CONFIG = 0x03
 export const CMD_PUT_DEVICE_CONFIG = 0x04
 export const CMD_SCREEN_SETTINGS = 0x05
+export const CMD_PUT_FILE = 0x06
 export const CMD_TOGGLE_DAY_NIGHT = 0x07
 export const CMD_CALIBRATE_TOUCH = 0x08
 export const CMD_SET_DAY_NIGHT = 0x09

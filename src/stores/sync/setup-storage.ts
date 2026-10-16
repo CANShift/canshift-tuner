@@ -1,9 +1,10 @@
-import { DeviceConfigSchema, SCREEN_SETTINGS_BOUNDS } from '@canshift/core'
-import type { DeviceConfig } from '@canshift/core'
+import * as z from 'zod'
+import { DeviceConfigSchema, SCREEN_SETTINGS_BOUNDS, SignalDefSchema } from '@canshift/core'
+import type { DeviceConfig, SignalDef } from '@canshift/core'
 import { isJsonRecord, parseJsonRecord, type JsonRecord } from '../../lib/json-record'
 import { readItem, removeItem, STORAGE_KEYS, writeItem } from '../../lib/local-storage'
 import { EMPTY_SETUP, UNKNOWN_SETTINGS } from '../../lib/sync/setup'
-import type { DashSetup, DeviceSettings } from '../../lib/sync/setup'
+import type { CarSetup, DashSetup, DeviceSettings } from '../../lib/sync/setup'
 import { validConfig } from '../dashboard/autosave'
 
 export interface StoredSetup {
@@ -33,9 +34,20 @@ const settingsOf = (value: unknown): DeviceSettings => {
   }
 }
 
+const SignalListSchema = z.array(SignalDefSchema)
+
+const carOf = (value: unknown): CarSetup | null => {
+  if (!isJsonRecord(value) || typeof value.profileKey !== 'string') return null
+  const signals = SignalListSchema.safeParse(value.signals)
+  return signals.success
+    ? { profileKey: value.profileKey, signals: signals.data as SignalDef[] }
+    : null
+}
+
 const deviceOf = (value: JsonRecord): DashSetup => ({
   dashboard: value.dashboard === null ? null : validConfig(value.dashboard),
   settings: settingsOf(value.settings),
+  car: carOf(value.car),
 })
 
 export const parseStoredSetup = (raw: string): StoredSetup => {

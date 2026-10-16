@@ -1,7 +1,7 @@
 import { STRINGS } from '../../strings'
 import type { Refusal, SendFailure } from './refusal'
 
-type CodeOutcome = 'dropped' | 'outOfSpace' | 'newerFirmware' | 'retry'
+type CodeOutcome = 'dropped' | 'outOfSpace' | 'newerFirmware' | 'carRefused' | 'retry'
 
 export const SEND_CODE_OUTCOMES: Record<string, CodeOutcome> = {
   connection_closed: 'dropped',
@@ -38,22 +38,40 @@ export const SEND_CODE_OUTCOMES: Record<string, CodeOutcome> = {
   unknown_error: 'retry',
   mismatch: 'retry',
   exception: 'retry',
+  invalid_signals: 'carRefused',
 }
 
-const dashReason = (text: string): Refusal => ({
-  where: STRINGS.changes.dashWhere,
-  text,
-  target: null,
-})
+type Refused = Exclude<CodeOutcome, 'dropped'>
 
-const REFUSED_TEXT: Record<Exclude<CodeOutcome, 'dropped'>, string> = {
-  outOfSpace: STRINGS.refused.outOfSpace,
-  newerFirmware: STRINGS.refused.newerFirmware,
-  retry: STRINGS.refused.fallback,
+const REASONS: Record<Refused, Refusal> = {
+  outOfSpace: {
+    where: STRINGS.changes.gaugesWhere,
+    text: STRINGS.refused.outOfSpace,
+    target: null,
+    section: 'gauges',
+  },
+  newerFirmware: {
+    where: STRINGS.changes.dashWhere,
+    text: STRINGS.refused.newerFirmware,
+    target: null,
+    section: 'dash',
+  },
+  carRefused: {
+    where: STRINGS.changes.carWhere,
+    text: STRINGS.refused.carSettings,
+    target: null,
+    section: 'car',
+  },
+  retry: {
+    where: STRINGS.changes.dashWhere,
+    text: STRINGS.refused.fallback,
+    target: null,
+    section: 'dash',
+  },
 }
 
 export const failureForCode = (code: string): SendFailure => {
   const outcome = SEND_CODE_OUTCOMES[code.toLowerCase()] ?? 'retry'
   if (outcome === 'dropped') return { kind: 'dropped' }
-  return { kind: 'refused', reasons: [dashReason(REFUSED_TEXT[outcome])] }
+  return { kind: 'refused', reasons: [REASONS[outcome]] }
 }

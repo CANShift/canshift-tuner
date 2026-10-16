@@ -9,8 +9,10 @@ type Container = Record<string, unknown> | unknown[]
 const isContainer = (value: unknown): value is Container =>
   typeof value === 'object' && value !== null
 
+const identityOf = (item: Record<string, unknown>): unknown => item.id ?? item.name
+
 const hasId = (item: unknown, id: string): boolean =>
-  isContainer(item) && !Array.isArray(item) && item.id === id
+  isContainer(item) && !Array.isArray(item) && identityOf(item) === id
 
 const indexById = (list: unknown[], id: string): number => list.findIndex((item) => hasId(item, id))
 
