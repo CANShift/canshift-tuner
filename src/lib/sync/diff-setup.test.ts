@@ -9,7 +9,7 @@ import type { DashSetup } from './setup'
 
 const device: DashSetup = {
   dashboard: DEFAULT_SIM_CONFIG,
-  settings: { deviceConfig: { canSpeedKbps: 500 }, brightness: 80 },
+  settings: { deviceConfig: { canSpeedKbps: 500 }, brightness: 80, rotation: null, dayMode: null },
   car: { profileKey: 'demo:canshift', signals: DEFAULT_SIM_SIGNALS },
 }
 
@@ -61,14 +61,21 @@ describe('diffSetup across pages and settings', () => {
   it('reports device settings in the Dash section', () => {
     const draft: DashSetup = {
       ...device,
-      settings: { deviceConfig: { canSpeedKbps: 250 }, brightness: 60 },
+      settings: {
+        deviceConfig: { canSpeedKbps: 250 },
+        brightness: 60,
+        rotation: null,
+        dayMode: null,
+      },
     }
     expect(diffSetup(device, draft).map((c) => [c.where, c.what, c.was])).toEqual([
       ['Dash', 'Brightness 60%', 'Was 80%'],
       ['Dash', 'CAN bus speed 250 kbit/s', 'Was 500 kbit/s'],
     ])
   })
+})
 
+describe('diffSetup for the whole setup', () => {
   it('counts the whole setup as one change while the dash has none', () => {
     expect(diffSetup({ ...device, dashboard: null }, device)).toHaveLength(1)
   })

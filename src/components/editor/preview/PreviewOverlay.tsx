@@ -4,7 +4,7 @@ import { CutBand } from './CutBand'
 import { trackColorFor } from '../../../lib/track-color'
 import { AlertTakeover, SplashTakeover } from './Takeover'
 import type { PreviewMode } from './preview-modes'
-import { useCriticalAlert } from '../../device/useCriticalAlert'
+import { useCriticalAlert } from '../../../hooks/useCriticalAlert'
 import { takeoverTextFor } from '../../../lib/critical-alert'
 
 const SAMPLE_CUT = {

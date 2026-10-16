@@ -9,7 +9,7 @@ import type { DashSetup } from './setup'
 
 const device: DashSetup = {
   dashboard: DEFAULT_SIM_CONFIG,
-  settings: { deviceConfig: { canSpeedKbps: 500 }, brightness: 80 },
+  settings: { deviceConfig: { canSpeedKbps: 500 }, brightness: 80, rotation: null, dayMode: null },
   car: { profileKey: 'demo:canshift', signals: DEFAULT_SIM_SIGNALS },
 }
 
@@ -17,7 +17,7 @@ const edited: DashSetup = {
   dashboard: produce(DEFAULT_SIM_CONFIG, (c) => {
     c.pages.pop()
   }),
-  settings: { deviceConfig: { canSpeedKbps: 250 }, brightness: 40 },
+  settings: { deviceConfig: { canSpeedKbps: 250 }, brightness: 40, rotation: null, dayMode: null },
   car: { profileKey: 'demo:canshift', signals: DEFAULT_SIM_SIGNALS },
 }
 
@@ -28,6 +28,8 @@ const writer = (overrides: Partial<DashWriter> = {}): DashWriter => ({
   writeBrightness: vi.fn(() => Promise.resolve(OK)),
   writeDeviceConfig: vi.fn(() => Promise.resolve(OK)),
   writeSignals: vi.fn(() => Promise.resolve(OK)),
+  writeDayMode: vi.fn(() => Promise.resolve(OK)),
+  writeRotation: vi.fn(() => Promise.resolve(OK)),
   ...overrides,
 })
 
@@ -153,5 +155,19 @@ describe('sendSetup for the car alone', () => {
       reasons: [{ section: 'car', text: STRINGS.refused.carSettings }],
     })
     expect(result.confirmed.car).toEqual(device.car)
+  })
+})
+
+describe('sendSetup for the screen', () => {
+  it('sets day mode live and turns the screen with a restart', async () => {
+    const dash = writer()
+    const draft: DashSetup = {
+      ...device,
+      settings: { ...device.settings, rotation: 180, dayMode: true },
+    }
+    const result = await sendSetup(draft, device, dash)
+    expect(dash.writeDayMode).toHaveBeenCalledWith(true)
+    expect(dash.writeRotation).toHaveBeenCalledWith(180, 80)
+    expect(result).toMatchObject({ kind: 'sent', restart: 'rotation', more: false })
   })
 })

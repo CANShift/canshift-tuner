@@ -29,12 +29,15 @@ import { useDocumentMeta } from './hooks/useDocumentMeta'
 import { CliPanel } from './components/cli/CliPanel'
 import { useUiStore } from './stores/ui.store'
 import { RAW_FRAMES_PATH } from './components/car/RawFramesLink'
+import { FIRMWARE_PATH } from './components/dash/AboutCard'
+import { FirmwareOverlay } from './components/firmware/FirmwareOverlay'
 import { HOME_PATH, LEGACY_REDIRECTS, ROUTE_PATHS, type RoutePath } from './constants/routes'
 
 const GaugesSection = lazy(() => import('./components/gauges/GaugesSection'))
 const CarSection = lazy(() => import('./components/car/CarSection'))
 const RawFramesView = lazy(() => import('./components/car/RawFramesView'))
-const DeviceRoute = lazy(() => import('./routes/DeviceRoute'))
+const DashSection = lazy(() => import('./components/dash/DashSection'))
+const FirmwareScreen = lazy(() => import('./components/firmware/FirmwareScreen'))
 
 const GAUGES_PATH: RoutePath = '/gauges'
 
@@ -45,7 +48,7 @@ const ROUTE_ELEMENTS: Record<RoutePath, ReactNode> = {
     </ErrorBoundary>
   ),
   '/car': <CarSection />,
-  '/dash': <DeviceRoute />,
+  '/dash': <DashSection />,
 }
 
 const LEGACY_PATHS = Object.keys(LEGACY_REDIRECTS)
@@ -76,6 +79,7 @@ const AppRoutes = () => (
       <Route key={path} path={path} element={ROUTE_ELEMENTS[path]} />
     ))}
     <Route path={RAW_FRAMES_PATH} element={<RawFramesView />} />
+    <Route path={FIRMWARE_PATH} element={<FirmwareScreen />} />
     {LEGACY_PATHS.map((path) => (
       <Route
         key={path}
@@ -117,6 +121,7 @@ const App = () => {
       <TabBar />
       <NotSentSheet />
       <Toaster />
+      <FirmwareOverlay />
     </div>
   )
 }

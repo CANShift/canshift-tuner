@@ -40,6 +40,8 @@ export const revertAll = (draft: DashSetup, device: DashSetup): DashSetup => ({
   settings: {
     deviceConfig: device.settings.deviceConfig ?? draft.settings.deviceConfig,
     brightness: device.settings.brightness ?? draft.settings.brightness,
+    rotation: device.settings.rotation ?? draft.settings.rotation,
+    dayMode: device.settings.dayMode ?? draft.settings.dayMode,
   },
   car: device.car === null ? draft.car : structuredClone(device.car),
 })

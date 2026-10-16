@@ -28,6 +28,7 @@ export const EVERYWHERE = {
     sent: 'Sent. The dash is showing your changes.',
     sentRestarting: 'Sent. The dash restarts to use the new CAN bus speed.',
     sentRestartingCar: 'Sent. The dash restarts to use your car settings.',
+    sentRestartingScreen: 'Sent. The dash restarts to turn its screen.',
     sendRest: 'Send again once it is back for the rest.',
     dropped:
       'Couldn’t finish sending — the Wi-Fi dropped. Nothing changed on the dash. Send again once you’re reconnected.',

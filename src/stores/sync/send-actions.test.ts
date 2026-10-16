@@ -22,6 +22,8 @@ const writer = (writeDashboard: DashWriter['writeDashboard']): DashWriter => ({
   writeBrightness: () => Promise.resolve(OK),
   writeDeviceConfig: () => Promise.resolve(OK),
   writeSignals: () => Promise.resolve(OK),
+  writeDayMode: () => Promise.resolve(OK),
+  writeRotation: () => Promise.resolve(OK),
 })
 
 const editSpeedLimit = (value: number): void => {

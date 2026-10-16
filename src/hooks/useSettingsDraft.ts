@@ -1,6 +1,7 @@
 import { DEFAULT_DEVICE_CONFIG } from '@canshift/core'
 import type { CanSpeedKbps } from '@canshift/core'
 import { useSyncStore } from '../stores/sync/sync.store'
+import type { ScreenRotation } from '../lib/sync/setup'
 
 export const DEFAULT_BRIGHTNESS = 80
 
@@ -30,6 +31,30 @@ export const useCanSpeedDraft = (): DraftValue<CanSpeedKbps> => {
     value: base.canSpeedKbps,
     set: (canSpeedKbps) => {
       setSettingsDraft({ deviceConfig: { ...base, canSpeedKbps } })
+    },
+  }
+}
+
+export const useRotationDraft = (): DraftValue<ScreenRotation> => {
+  const draft = useSyncStore((s) => s.settingsDraft.rotation)
+  const device = useSyncStore((s) => s.device.settings.rotation)
+  const setSettingsDraft = useSyncStore((s) => s.setSettingsDraft)
+  return {
+    value: draft ?? device ?? 0,
+    set: (rotation) => {
+      setSettingsDraft({ rotation })
+    },
+  }
+}
+
+export const useDayModeDraft = (): DraftValue<boolean> => {
+  const draft = useSyncStore((s) => s.settingsDraft.dayMode)
+  const device = useSyncStore((s) => s.device.settings.dayMode)
+  const setSettingsDraft = useSyncStore((s) => s.setSettingsDraft)
+  return {
+    value: draft ?? device ?? false,
+    set: (dayMode) => {
+      setSettingsDraft({ dayMode })
     },
   }
 }

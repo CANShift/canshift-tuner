@@ -31,6 +31,8 @@ const settingsOf = (value: unknown): DeviceSettings => {
   return {
     deviceConfig: deviceConfigOf(value.deviceConfig),
     brightness: brightnessOf(value.brightness),
+    rotation: value.rotation === 0 || value.rotation === 180 ? value.rotation : null,
+    dayMode: typeof value.dayMode === 'boolean' ? value.dayMode : null,
   }
 }
 

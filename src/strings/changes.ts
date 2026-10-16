@@ -42,6 +42,11 @@ export const CHANGES = {
     percent: (percent: number): string => `${String(percent)}%`,
     canSpeed: (kbps: number): string => `CAN bus speed ${String(kbps)} kbit/s`,
     kbps: (kbps: number): string => `${String(kbps)} kbit/s`,
+    rotation: (degrees: number): string => `Screen turned to ${String(degrees)}°`,
+    degrees: (degrees: number): string => `${String(degrees)}°`,
+    dayMode: (mode: string): string => `Dash in ${mode} mode`,
+    day: 'day',
+    night: 'night',
   },
   nouns: {
     gauge: 'gauge',

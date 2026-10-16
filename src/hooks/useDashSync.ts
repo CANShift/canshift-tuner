@@ -4,7 +4,7 @@ import type { DeviceConfigResult } from '../transport/types'
 import { transportErrorText } from '../transport/humanize-transport-error'
 import { useDeviceStore } from '../stores/device.store'
 import { useLogStore } from '../stores/log.store'
-import { adoptDeviceConfig, adoptDeviceDashboard } from '../stores/sync/draft'
+import { adoptDayMode, adoptDeviceConfig, adoptDeviceDashboard } from '../stores/sync/draft'
 
 type Log = ReturnType<typeof useLogStore.getState>['push']
 
@@ -45,7 +45,15 @@ const readDash = async (log: Log): Promise<void> => {
   }
 }
 
+const useDayModeBaseline = (): void => {
+  const isDayMode = useDeviceStore((s) => s.isDayMode)
+  useEffect(() => {
+    if (isDayMode !== null) adoptDayMode(isDayMode)
+  }, [isDayMode])
+}
+
 export const useDashSync = (): void => {
+  useDayModeBaseline()
   const connected = useDeviceStore((s) => s.connected)
   const transport = useDeviceStore((s) => s.transport)
   const simulation = useDeviceStore((s) => s.simulationMode)

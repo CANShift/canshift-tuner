@@ -61,3 +61,10 @@ export const adoptDeviceConfig = (config: DeviceConfig): void => {
   }
   sync.setDevice({ settings: { ...sync.device.settings, deviceConfig: config } })
 }
+
+export const adoptDayMode = (dayMode: boolean): void => {
+  const sync = useSyncStore.getState()
+  const draft = sync.settingsDraft.dayMode
+  if (draft === null || draft === sync.device.settings.dayMode) sync.setSettingsDraft({ dayMode })
+  sync.setDevice({ settings: { ...sync.device.settings, dayMode } })
+}

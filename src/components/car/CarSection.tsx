@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { STRINGS } from '../../strings'
-import { CanBusSection } from '../vehicle/CanBusSection'
 import { AdjustReadingSheet } from './AdjustReadingSheet'
 import { CarCard } from './CarCard'
 import { ChooseCarSheet } from './ChooseCarSheet'
@@ -45,7 +44,6 @@ const CarSection = () => {
           </Disclosure>
         </div>
         <CarMore />
-        <CanBusSection />
       </div>
       <ChooseCarSheet open={choosing} onOpenChange={setChoosing} />
       <AdjustReadingSheet signalName={adjusting} onClose={() => setAdjusting(null)} />
