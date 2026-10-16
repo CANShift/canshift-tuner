@@ -30,7 +30,7 @@ import { CliPanel } from './components/cli/CliPanel'
 import { useUiStore } from './stores/ui.store'
 import { HOME_PATH, LEGACY_REDIRECTS, ROUTE_PATHS, type RoutePath } from './constants/routes'
 
-const EditorRoute = lazy(() => import('./routes/EditorRoute'))
+const GaugesSection = lazy(() => import('./components/gauges/GaugesSection'))
 const VehicleRoute = lazy(() => import('./routes/VehicleRoute'))
 const DeviceRoute = lazy(() => import('./routes/DeviceRoute'))
 
@@ -39,7 +39,7 @@ const GAUGES_PATH: RoutePath = '/gauges'
 const ROUTE_ELEMENTS: Record<RoutePath, ReactNode> = {
   '/gauges': (
     <ErrorBoundary scope="editor">
-      <EditorRoute />
+      <GaugesSection />
     </ErrorBoundary>
   ),
   '/car': <VehicleRoute />,

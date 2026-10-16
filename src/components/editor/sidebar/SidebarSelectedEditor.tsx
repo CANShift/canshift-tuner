@@ -2,7 +2,7 @@ import type { Widget } from '@canshift/core'
 import { SelectedWidgetEditor } from '../SelectedWidgetEditor'
 import { useDashboardStore } from '../../../stores/dashboard.store'
 import { carriesKicker, withKicker } from '../../../lib/widget-kicker'
-import { useGaugeThresholds } from './useGaugeThresholds'
+import { useGaugeThresholds } from '../../../hooks/useGaugeThresholds'
 import { widgetLabel } from './widget-label'
 
 export interface SidebarSelectedEditorProps {

@@ -16,7 +16,7 @@ const DropdownMenuContent = forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        'z-50 min-w-[13rem] overflow-hidden border border-ui-line-strong bg-ui-bg p-1 text-ui-ink',
+        'z-50 min-w-[13rem] overflow-hidden rounded-card border border-app-border bg-app-surface p-1 text-app-text',
         'data-[state=open]:animate-in data-[state=closed]:animate-out',
         className
       )}
@@ -33,8 +33,8 @@ const DropdownMenuItem = forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex cursor-pointer select-none items-center gap-2 px-2 py-1.5 text-sm outline-none transition-colors',
-      'focus:bg-ui-panel focus:text-ui-ink active:brightness-95',
+      'relative flex min-h-11 cursor-pointer select-none items-center gap-2 rounded-control px-3 text-[15px] outline-none transition-colors',
+      'focus:bg-app-surface-2 focus:text-app-text active:brightness-95',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className
     )}
@@ -50,7 +50,7 @@ const DropdownMenuLabel = forwardRef<
   <DropdownMenuPrimitive.Label
     ref={ref}
     className={cn(
-      'px-2 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-ui-muted',
+      'px-2 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-app-muted',
       className
     )}
     {...props}
