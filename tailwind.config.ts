@@ -53,17 +53,6 @@ const brandColorsFromTokens = (): Record<string, string> => {
 
 const UI_TOKEN_NAMES = [
   'bg',
-  'surface',
-  'surface-2',
-  'border',
-  'divider',
-  'text',
-  'secondary',
-  'primary',
-  'warning-bg',
-  'warning-ink',
-  'success',
-  'success-bg',
   'panel',
   'ink',
   'muted',
@@ -88,6 +77,27 @@ const UI_TOKEN_NAMES = [
 const uiColors = (): Record<string, string> =>
   Object.fromEntries(UI_TOKEN_NAMES.map((name) => [name, `var(--ui-${name})`]))
 
+const APP_TOKEN_NAMES = [
+  'bg',
+  'surface',
+  'surface-2',
+  'border',
+  'divider',
+  'text',
+  'secondary',
+  'muted',
+  'accent',
+  'primary',
+  'warning',
+  'warning-bg',
+  'warning-ink',
+  'success',
+  'success-bg',
+] as const
+
+const appColors = (): Record<string, string> =>
+  Object.fromEntries(APP_TOKEN_NAMES.map((name) => [name, `var(--app-${name})`]))
+
 const TUNER_BRAND_CSS_VARS: Record<string, string> = {
   'brand-warning': '--brand-warning',
   'brand-accent-100': '--brand-accent-100',
@@ -111,8 +121,8 @@ const config: Config = {
       fontFamily: {
         sans: `var(${FONT_UI_CSS_VAR})`,
         mono: `var(${FONT_MONO_CSS_VAR})`,
-        ui: 'var(--ui-font)',
-        num: 'var(--ui-font-num)',
+        ui: 'var(--app-font)',
+        num: 'var(--app-font-num)',
       },
       borderRadius: {
         control: '10px',
@@ -128,6 +138,7 @@ const config: Config = {
         ...tunerBrandColors(),
         ...COLOR_ALIASES,
         ui: uiColors(),
+        app: appColors(),
       },
       keyframes: {
         'accordion-down': {

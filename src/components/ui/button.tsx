@@ -12,14 +12,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'rounded-control bg-ui-primary font-semibold text-white hover:brightness-110',
-        destructive: 'rounded-control bg-ui-primary font-semibold text-white hover:brightness-110',
+        default: 'rounded-control bg-app-primary font-semibold text-white hover:brightness-110',
+        destructive: 'rounded-control bg-app-primary font-semibold text-white hover:brightness-110',
         outline:
-          'rounded-control border border-ui-border bg-transparent text-ui-text hover:bg-ui-surface-2',
+          'rounded-control border border-app-border bg-transparent text-app-text hover:bg-app-surface-2',
         secondary:
-          'rounded-control border border-ui-border bg-ui-surface-2 text-ui-text hover:brightness-110',
-        ghost: 'rounded-control text-ui-text hover:bg-ui-surface-2',
-        link: 'text-ui-text underline-offset-4 hover:text-ui-accent hover:underline',
+          'rounded-control border border-app-border bg-app-surface-2 text-app-text hover:brightness-110',
+        ghost: 'rounded-control text-app-text hover:bg-app-surface-2',
+        link: 'text-app-text underline-offset-4 hover:text-app-accent hover:underline',
       },
       size: {
         default: 'h-11 px-4',
