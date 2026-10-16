@@ -4,6 +4,8 @@ import {
   type StoredScreenSettings,
 } from '../../../stores/screen-settings.store'
 import { useLogStore } from '../../../stores/log.store'
+import { DEFAULT_BRIGHTNESS } from '../../../hooks/useSettingsDraft'
+import { useSyncStore } from '../../../stores/sync/sync.store'
 import { useDeviceState } from '../../../hooks/useDeviceState'
 import { usePreviewTheme } from '../../../hooks/useDashboardConfig'
 import { usbService } from '../../../transport'
@@ -19,7 +21,7 @@ const useCanDeviceAction = (): boolean => {
 }
 
 const useScreenPush = () => {
-  const brightness = useScreenSettingsStore((s) => s.brightness)
+  const brightness = useSyncStore((s) => s.device.settings.brightness) ?? DEFAULT_BRIGHTNESS
   const rotation = useScreenSettingsStore((s) => s.rotation)
   const canDeviceAction = useCanDeviceAction()
   const log = useLogStore((s) => s.push)
@@ -58,7 +60,6 @@ export const useRotationChoice = () => {
     pending180,
     setPending180,
     confirm180,
-    commitBrightness: () => void push(),
   }
 }
 

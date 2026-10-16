@@ -19,7 +19,6 @@ export const createThemeSlice: SliceCreator<ThemeSlice> = (set) => ({
       } else {
         s.config.theme = theme
       }
-      s.isDirty = true
     })
   },
 })

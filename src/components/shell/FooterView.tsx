@@ -6,7 +6,13 @@ export interface FooterViewProps {
 }
 
 export const FooterView = ({ cliOpen, onToggleCli }: FooterViewProps) => (
-  <footer className={cn(FOOTER, !cliOpen && 'border-t-2 border-ui-accent bg-ui-console')}>
+  <footer
+    className={cn(
+      FOOTER,
+      'hidden lg:flex',
+      !cliOpen && 'border-t-2 border-ui-accent bg-ui-console'
+    )}
+  >
     <button
       type="button"
       onClick={onToggleCli}

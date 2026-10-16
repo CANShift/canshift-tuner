@@ -1,6 +1,6 @@
 # Burn errors
 
-When you click **Burn** in the tuner, the dash shows a "Saving config…" overlay
+When you tap **Send to dash** in the tuner, the dash shows a "Saving config…" overlay
 while it writes to SPIFFS. If the write fails, the overlay flips red and shows
 one of the messages below.
 

@@ -3,9 +3,7 @@ import type { ReactNode, RefObject } from 'react'
 import type { PageConfig, TopBarConfig } from '@canshift/core'
 import { resolveGridRect, resolveScreenProfile } from '@canshift/core'
 import { useDashboardStore } from '../../stores/dashboard.store'
-import { BurnVerdictBand } from './BurnVerdictBand'
 import { ImportNoticeBand } from './ImportNoticeBand'
-import { BurnFailureNotice } from './BurnFailureNotice'
 import { ShortcutsDialog } from './ShortcutsDialog'
 import { CanvasStatusBar } from './canvas/canvas-status-bar'
 import { CanvasOverlay } from './canvas/canvas-overlay'
@@ -72,14 +70,6 @@ const SelectionStatus = ({ page, screen, areaHeight }: SelectionStatusProps) => 
     : null
   return <CanvasStatusBar page={page} selectedWidget={selectedWidget} selectedRect={selectedRect} />
 }
-
-const CanvasNotices = () => (
-  <>
-    <BurnFailureNotice />
-    <ImportNoticeBand />
-    <BurnVerdictBand />
-  </>
-)
 
 interface StageInputs extends Pick<CanvasProps, 'page' | 'topBar' | 'onPageContextMenu'> {
   previewMode: PreviewMode
@@ -176,7 +166,7 @@ const CanvasStage = (inputs: StageInputs) => {
 
   return (
     <div className="flex min-w-0 flex-col max-md:h-[calc(75vw+120px)] max-md:shrink-0 md:flex-1">
-      <CanvasNotices />
+      <ImportNoticeBand />
       <StageStrip {...inputs} geometry={geometry} controls={controls} currentRef={currentRef} />
       <SelectionStatus
         page={inputs.page}

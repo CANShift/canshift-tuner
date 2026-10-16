@@ -15,6 +15,7 @@ vi.mock('../../transport', () => ({
 
 import { useCanScanStore } from './can-scan.store'
 import { useDeviceStore } from '../device.store'
+import { UNKNOWN_TRANSPORT_ERROR } from '../../transport/humanize-transport-error'
 
 const connectDevice = () => {
   useDeviceStore.setState({ connected: true, simulationMode: false })
@@ -64,14 +65,14 @@ describe('can-scan store stop race', () => {
     expect(useCanScanStore.getState().status).toBe('stopping')
   })
 
-  it('surfaces the start error in state', async () => {
+  it('surfaces the start error in plain words, never the raw code', async () => {
     connectDevice()
     startMock.mockResolvedValue({ success: false, error: 'port_busy' })
 
     await useCanScanStore.getState().start()
 
     expect(useCanScanStore.getState().status).toBe('error')
-    expect(useCanScanStore.getState().error).toBe('port_busy')
+    expect(useCanScanStore.getState().error).toBe(UNKNOWN_TRANSPORT_ERROR)
   })
 })
 

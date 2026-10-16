@@ -1,4 +1,6 @@
 import { AckQueue } from './ack-queue'
+import { createContentionWatch } from './contention'
+import { createKeepAlive } from './keep-alive'
 import { ReconnectScheduler } from './reconnect-scheduler'
 import { SerialEventHub } from './serial-events'
 import { parseFrame } from './frame-parse'
@@ -9,6 +11,7 @@ import type { SerialActivityDirection, SerialStatus, StatusListener } from './se
 export type SocketFactory = (url: string) => WebSocket
 
 const OPEN = 1
+export const CLOSE_BUSY = 4001
 
 const defaultFactory: SocketFactory = (url) => new WebSocket(url)
 
@@ -23,6 +26,8 @@ export class WebSocketClient implements DeviceLink {
   private readonly hub = new SerialEventHub()
   private readonly acks: AckQueue
   private readonly reconnect: ReconnectScheduler<string>
+  private readonly contention = createContentionWatch()
+  private readonly keepAlive = createKeepAlive()
 
   constructor(
     private readonly url: string,
@@ -63,6 +68,7 @@ export class WebSocketClient implements DeviceLink {
     if (this.opening !== null) return this.opening
     this.intentionalDisconnect = false
     this.reconnect.reset()
+    this.contention.reset()
     this.opening = this.open(this.url).finally(() => {
       this.opening = null
     })
@@ -72,6 +78,7 @@ export class WebSocketClient implements DeviceLink {
   autoConnect = (): Promise<void> => this.connect().catch(() => undefined)
 
   disconnect = (): void => {
+    this.keepAlive.stop()
     this.intentionalDisconnect = true
     this.reconnect.cancel()
     this.failAll('disconnected')
@@ -94,13 +101,14 @@ export class WebSocketClient implements DeviceLink {
       socket.onmessage = (event: MessageEvent) => {
         this.onMessage(event.data)
       }
-      socket.onclose = () => {
+      socket.onclose = (event?: CloseEvent) => {
+        if (event?.code === CLOSE_BUSY) {
+          this.refuseAsBusy(socket)
+          reject(new Error('replaced'))
+          return
+        }
         if (!opened) {
-          this.setStatus(
-            this.reconnect.isBackedOff() ? 'reconnecting' : 'disconnected',
-            'connect_failed'
-          )
-          reject(new Error('connect_failed'))
+          this.failToOpen(reject)
           return
         }
         this.handleClose(socket)
@@ -113,6 +121,9 @@ export class WebSocketClient implements DeviceLink {
     this.deviceHeard = false
     this.acks.clearStaleFlush()
     this.reconnect.noteOpened()
+    this.keepAlive.start(() => {
+      this.beat(socket)
+    })
     this.lastError = undefined
     this.setStatus('connected')
   }
@@ -139,12 +150,34 @@ export class WebSocketClient implements DeviceLink {
     this.hub.routeSubscription(parsed)
   }
 
+  private failToOpen(reject: (reason: Error) => void): void {
+    this.setStatus(this.reconnect.isBackedOff() ? 'reconnecting' : 'disconnected', 'connect_failed')
+    reject(new Error('connect_failed'))
+  }
+
+  private beat(socket: WebSocket): void {
+    if (socket.readyState === OPEN) socket.send('')
+  }
+
+  private refuseAsBusy(socket: WebSocket): void {
+    this.keepAlive.stop()
+    if (this.socket === socket) this.socket = null
+    this.failAll('connection_closed')
+    this.reconnect.cancel()
+    this.setStatus('disconnected', 'replaced')
+  }
+
   private handleClose(socket: WebSocket): void {
     if (this.socket !== socket) return
+    this.keepAlive.stop()
     this.socket = null
     this.failAll('connection_closed')
     if (this.intentionalDisconnect) {
       this.setStatus('disconnected')
+      return
+    }
+    if (this.contention.noteDrop(Date.now())) {
+      this.setStatus('disconnected', 'replaced')
       return
     }
     this.setStatus('disconnected', 'connection_closed')

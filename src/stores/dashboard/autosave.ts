@@ -1,13 +1,13 @@
 import { CURRENT_SCHEMA_VERSION, DashboardConfigSchema, migrateConfig } from '@canshift/core'
 import type { DashboardConfig } from '@canshift/core'
 import { readItem, writeItem, removeItem, STORAGE_KEYS } from '../../lib/local-storage'
+import { parseJsonRecord } from '../../lib/json-record'
 
 export const AUTOSAVE_KEY = STORAGE_KEYS.autosave
 export const AUTOSAVE_DEBOUNCE_MS = 500
 
 export interface AutosavePayload {
   config: DashboardConfig
-  isDirty: boolean
   selectedPageId: string | null
   selectedWidgetId: string | null
   selectedWidgetIds: string[]
@@ -16,7 +16,6 @@ export interface AutosavePayload {
 
 interface AutosaveSource {
   config: DashboardConfig | null
-  isDirty: boolean
   selectedPageId: string | null
   selectedWidgetId: string | null
   selectedWidgetIds: string[]
@@ -26,24 +25,12 @@ export const serializeAutosave = (state: AutosaveSource, savedAt: number): strin
   if (!state.config) return null
   const payload: AutosavePayload = {
     config: state.config,
-    isDirty: state.isDirty,
     selectedPageId: state.selectedPageId,
     selectedWidgetId: state.selectedWidgetId,
     selectedWidgetIds: state.selectedWidgetIds,
     savedAt,
   }
   return JSON.stringify(payload)
-}
-
-const parseRecord = (raw: string): Record<string, unknown> | null => {
-  try {
-    const parsed: unknown = JSON.parse(raw)
-    return typeof parsed === 'object' && parsed !== null
-      ? (parsed as Record<string, unknown>)
-      : null
-  } catch {
-    return null
-  }
 }
 
 const migrated = (config: unknown): Record<string, unknown> | null => {
@@ -54,7 +41,7 @@ const migrated = (config: unknown): Record<string, unknown> | null => {
   }
 }
 
-const validConfig = (config: unknown): DashboardConfig | null => {
+export const validConfig = (config: unknown): DashboardConfig | null => {
   const parsed = DashboardConfigSchema.safeParse(migrated(config))
   return parsed.success ? (parsed.data as DashboardConfig) : null
 }
@@ -86,13 +73,12 @@ const restoreSelection = (
 }
 
 export const parseAutosave = (raw: string): AutosavePayload | null => {
-  const candidate = parseRecord(raw)
+  const candidate = parseJsonRecord(raw)
   if (candidate === null || typeof candidate.savedAt !== 'number') return null
   const config = validConfig(candidate.config)
   if (config === null) return null
   return {
     config,
-    isDirty: candidate.isDirty === true,
     ...restoreSelection(candidate, config),
     savedAt: candidate.savedAt,
   }
@@ -108,7 +94,7 @@ export const readAutosave = (): AutosavePayload | null => {
 }
 
 export const isRestorable = (payload: AutosavePayload | null): payload is AutosavePayload =>
-  payload !== null && payload.isDirty
+  payload !== null
 
 interface AutosaveStore {
   getState: () => AutosaveSource & { markAutosaved: (ts: number) => void }
@@ -119,7 +105,6 @@ const snapshotOf = (store: AutosaveStore): AutosaveSource => {
   const s = store.getState()
   return {
     config: s.config,
-    isDirty: s.isDirty,
     selectedPageId: s.selectedPageId,
     selectedWidgetId: s.selectedWidgetId,
     selectedWidgetIds: s.selectedWidgetIds,

@@ -1,16 +1,10 @@
 import type { LinkKind } from '../transport/device-link'
 import { create, type StoreApi } from 'zustand'
 import { readItem, writeItem, STORAGE_KEYS } from '../lib/local-storage'
-import type { DashboardConfig } from '@canshift/core'
-import type { BurnFailure } from '../lib/burn-failure'
 
 export type ConnectionStatus = 'disconnected' | 'connected' | 'burning' | 'error'
 
 export type Transport = LinkKind
-
-export type BurnPhase = 'idle' | 'pushing' | 'verifying' | 'done'
-
-export type BurnResult = { kind: 'success' } | { kind: 'error'; failure: BurnFailure }
 
 export type FirmwareCompat =
   | { kind: 'unknown' }
@@ -47,9 +41,6 @@ interface DeviceData {
   firmwareLiveness: FirmwareLiveness
   heapStats: HeapStatsEntry[]
   isDayMode: boolean | null
-  lastPushedConfig: DashboardConfig | null
-  burnPhase: BurnPhase
-  lastBurnResult: BurnResult | null
 }
 
 interface DeviceState extends DeviceData {
@@ -68,9 +59,6 @@ interface DeviceState extends DeviceData {
   setIsDayMode: (isDay: boolean | null) => void
   enterSimulation: () => void
   exitSimulation: () => void
-  setLastPushedConfig: (config: DashboardConfig) => void
-  setBurnPhase: (phase: BurnPhase) => void
-  setLastBurnResult: (result: BurnResult | null) => void
 }
 
 type SetDevice = StoreApi<DeviceState>['setState']
@@ -96,9 +84,6 @@ const SESSION_RESET = {
   firmwareCompat: { kind: 'unknown' },
   firmwareLiveness: { kind: 'unknown' },
   heapStats: [],
-  lastPushedConfig: null,
-  burnPhase: 'idle',
-  lastBurnResult: null,
 } satisfies Partial<DeviceData>
 
 const initialData = (simulation: boolean): DeviceData => ({
@@ -163,16 +148,9 @@ const simulationActions = (set: SetDevice) => ({
   },
 })
 
-const burnActions = (set: SetDevice) => ({
-  setLastPushedConfig: (lastPushedConfig: DashboardConfig) => set({ lastPushedConfig }),
-  setBurnPhase: (burnPhase: BurnPhase) => set({ burnPhase }),
-  setLastBurnResult: (lastBurnResult: BurnResult | null) => set({ lastBurnResult }),
-})
-
 export const useDeviceStore = create<DeviceState>()((set) => ({
   ...initialData(readSimulationMode()),
   ...linkActions(set),
   ...firmwareActions(set),
   ...simulationActions(set),
-  ...burnActions(set),
 }))

@@ -48,7 +48,6 @@ export const addWidgetTo = (s: DashboardDraft, pageId: string, widget: Widget): 
   }
   page.widgets.push(widget)
   selectOnly(s, [widget.id])
-  s.isDirty = true
 }
 
 const cloneAt = (source: Widget, spot: { col: number; row: number }): Widget => ({
@@ -92,7 +91,6 @@ export const finishCopies = (s: DashboardDraft, newIds: string[]): void => {
     return
   }
   selectOnly(s, newIds)
-  s.isDirty = true
 }
 
 export const duplicateWidgetsIn = (
@@ -123,7 +121,6 @@ export const reorderWidgetIn = (
   pushHistory(s, `Moved ${widgetRef(target)} ${direction < 0 ? 'up' : 'down'}`)
   page.widgets.splice(from, 1)
   page.widgets.splice(to, 0, target)
-  s.isDirty = true
 }
 
 export const removeWidgetFrom = (s: DashboardDraft, pageId: string, widgetId: string): void => {
@@ -134,7 +131,6 @@ export const removeWidgetFrom = (s: DashboardDraft, pageId: string, widgetId: st
   page.widgets = page.widgets.filter((w) => w.id !== widgetId)
   if (s.selectedWidgetId === widgetId) s.selectedWidgetId = null
   s.selectedWidgetIds = s.selectedWidgetIds.filter((id) => id !== widgetId)
-  s.isDirty = true
 }
 
 const editLabel = (existing: Widget, patch: Partial<Widget>): string => {
@@ -175,7 +171,6 @@ export const updateWidgetIn = (
   const clamped = clampGridPlacement(merged.layout, gridTracksForConfig(s.config))
   merged.layout = { ...clamped, zOrder: merged.layout.zOrder }
   slot.page.widgets[slot.index] = merged
-  s.isDirty = true
 }
 
 export const relayoutSlot = (
@@ -184,5 +179,4 @@ export const relayoutSlot = (
   layout: Partial<WidgetLayout>
 ): void => {
   slot.page.widgets[slot.index] = { ...slot.widget, layout: { ...slot.widget.layout, ...layout } }
-  s.isDirty = true
 }

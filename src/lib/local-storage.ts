@@ -10,6 +10,7 @@ export const STORAGE_KEYS = {
   pageTemplates: key('page-templates'),
   projectIndex: key('projects'),
   selectedBoard: key('selected-board'),
+  setup: key('setup'),
   simulationMode: key('simulation-mode'),
   signals: key('signals'),
 } as const

@@ -11,7 +11,7 @@ import { createWidgetsSlice } from './dashboard/widgets.slice'
 import { isRestorable, readAutosave, startAutosave } from './dashboard/autosave'
 import type { DashboardState } from './dashboard/types'
 
-export type { AlignDirection, DashboardState, LoadFromDeviceOrDemoResult } from './dashboard/types'
+export type { AlignDirection, DashboardState } from './dashboard/types'
 
 export const useDashboardStore = create<DashboardState>()(
   immer((...a) => ({
@@ -30,7 +30,6 @@ const restored = readAutosave()
 if (isRestorable(restored)) {
   useDashboardStore.setState({
     config: restored.config,
-    isDirty: restored.isDirty,
     selectedPageId: restored.selectedPageId,
     selectedWidgetId: restored.selectedWidgetId,
     selectedWidgetIds: restored.selectedWidgetIds,

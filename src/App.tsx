@@ -1,16 +1,23 @@
 import { lazy, Suspense, useEffect } from 'react'
 import type { ReactNode } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
-import Header from './components/shell/Header'
 import { Footer } from './components/shell/Footer'
 import { RouteLoading } from './components/shell/RouteLoading'
 import { DeviceAlertBar } from './components/shell/DeviceAlertBar'
-import { SimulationStrip } from './components/shell/SimulationStrip'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import { AppHeader } from './components/chrome/AppHeader'
+import { ConnectionGate } from './components/chrome/ConnectionGate'
+import { NotSentSheet } from './components/chrome/NotSentSheet'
+import { ReconnectBanner } from './components/chrome/ReconnectBanner'
+import { SectionRail } from './components/chrome/SectionRail'
+import { SendBar } from './components/chrome/SendBar'
+import { SendNotice } from './components/chrome/SendNotice'
+import { TabBar } from './components/chrome/TabBar'
+import { Toaster } from './components/chrome/Toaster'
 import { useDashboardStore } from './stores/dashboard.store'
 import { useAutoReconnect } from './hooks/useAutoReconnect'
 import { useSimulationBootstrap } from './hooks/useSimulationBootstrap'
-import { useDeviceConfigBootstrap } from './hooks/useDeviceConfigBootstrap'
+import { useDashSync } from './hooks/useDashSync'
 import { useVersionHandshake } from './hooks/useVersionHandshake'
 import { useHeartbeat } from './hooks/useHeartbeat'
 import { useHeapStatsSubscription } from './hooks/useHeapStatsSubscription'
@@ -18,10 +25,7 @@ import { useFirmwareLogBridge } from './hooks/useFirmwareLogBridge'
 import { useSaveShortcut } from './hooks/useSaveShortcut'
 import { bootstrapProjects } from './stores/project/project.store'
 import { useWidgetOverflowWarnings } from './hooks/useWidgetOverflowWarnings'
-import { useUnsavedChangesGuard } from './hooks/useUnsavedChangesGuard'
 import { useDocumentMeta } from './hooks/useDocumentMeta'
-import { DeviceConfigConflictNotice } from './components/shell/DeviceConfigConflictNotice'
-import { ConnectGate } from './components/shell/ConnectGate'
 import { CliPanel } from './components/cli/CliPanel'
 import { useUiStore } from './stores/ui.store'
 import { HOME_PATH, LEGACY_REDIRECTS, ROUTE_PATHS, type RoutePath } from './constants/routes'
@@ -30,14 +34,16 @@ const EditorRoute = lazy(() => import('./routes/EditorRoute'))
 const VehicleRoute = lazy(() => import('./routes/VehicleRoute'))
 const DeviceRoute = lazy(() => import('./routes/DeviceRoute'))
 
+const GAUGES_PATH: RoutePath = '/gauges'
+
 const ROUTE_ELEMENTS: Record<RoutePath, ReactNode> = {
-  '/dash': (
+  '/gauges': (
     <ErrorBoundary scope="editor">
       <EditorRoute />
     </ErrorBoundary>
   ),
-  '/vehicle': <VehicleRoute />,
-  '/device': <DeviceRoute />,
+  '/car': <VehicleRoute />,
+  '/dash': <DeviceRoute />,
 }
 
 const LEGACY_PATHS = Object.keys(LEGACY_REDIRECTS)
@@ -49,13 +55,12 @@ const useDeviceSession = (): void => {
   useHeartbeat()
   useHeapStatsSubscription()
   useFirmwareLogBridge()
-  useDeviceConfigBootstrap()
+  useDashSync()
 }
 
 const useEditorSession = (): void => {
   useSaveShortcut()
   useWidgetOverflowWarnings()
-  useUnsavedChangesGuard()
   useDocumentMeta()
   const hasDashboardConfig = useDashboardStore((s) => s.config !== null)
   useEffect(() => {
@@ -79,25 +84,36 @@ const AppRoutes = () => (
   </Routes>
 )
 
+const SectionContent = () => (
+  <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+    <SendNotice />
+    <DeviceAlertBar />
+    <ConnectionGate>
+      <Suspense fallback={<RouteLoading />}>
+        <AppRoutes />
+      </Suspense>
+    </ConnectionGate>
+  </main>
+)
+
 const App = () => {
   useDeviceSession()
   useEditorSession()
 
   return (
-    <div className={SHELL}>
-      <Header />
-      <SimulationStrip />
-      <DeviceAlertBar />
-      <DeviceConfigConflictNotice />
-      <main className={MAIN}>
-        <ConnectGate>
-          <Suspense fallback={<RouteLoading />}>
-            <AppRoutes />
-          </Suspense>
-        </ConnectGate>
-      </main>
+    <div className="flex h-dvh flex-col bg-app-bg font-ui text-app-text">
+      <AppHeader />
+      <ReconnectBanner />
+      <div className="flex min-h-0 flex-1">
+        <SectionRail />
+        <SectionContent />
+      </div>
       <DashCli />
       <Footer />
+      <SendBar />
+      <TabBar />
+      <NotSentSheet />
+      <Toaster />
     </div>
   )
 }
@@ -105,12 +121,8 @@ const App = () => {
 const DashCli = () => {
   const cliOpen = useUiStore((s) => s.cliOpen)
   const location = useLocation()
-  if (!cliOpen || location.pathname !== '/dash') return null
+  if (!cliOpen || location.pathname !== GAUGES_PATH) return null
   return <CliPanel />
 }
-
-const SHELL = 'flex h-dvh flex-col bg-ui-bg font-sans text-ui-ink'
-
-const MAIN = 'flex min-h-0 flex-1 flex-col overflow-hidden'
 
 export default App

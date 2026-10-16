@@ -21,7 +21,6 @@ const addPageTo = (s: DashboardDraft, page: PageConfig): void => {
   pushHistory(s, `Added ${pageRef(s.config.pages.length)}`)
   s.config.pages.push(page)
   s.selectedPageId = page.id
-  s.isDirty = true
 }
 
 const insertClone = (s: DashboardDraft, index: number, clone: PageConfig): void => {
@@ -29,7 +28,6 @@ const insertClone = (s: DashboardDraft, index: number, clone: PageConfig): void 
   pushHistory(s, `Duplicated ${pageRef(index)}`)
   s.config.pages.splice(index + 1, 0, clone)
   s.selectedPageId = clone.id
-  s.isDirty = true
 }
 
 const removePageFrom = (s: DashboardDraft, pageId: string): void => {
@@ -37,14 +35,12 @@ const removePageFrom = (s: DashboardDraft, pageId: string): void => {
   pushHistory(s, `Deleted ${refOrPage(indexOf(s.config, pageId))}`)
   s.config.pages = s.config.pages.filter((page) => page.id !== pageId)
   if (s.selectedPageId === pageId) s.selectedPageId = s.config.pages[0]?.id ?? null
-  s.isDirty = true
 }
 
 const setDefaultPageIn = (s: DashboardDraft, pageId: string): void => {
   if (!s.config) return
   pushHistory(s, `Set ${refOrPage(indexOf(s.config, pageId))} as default`)
   s.config.defaultPageId = pageId
-  s.isDirty = true
 }
 
 const replacePage = (
@@ -58,7 +54,6 @@ const replacePage = (
   if (!s.config || !existing) return
   pushHistory(s, label(pageRef(index)))
   s.config.pages[index] = next(existing)
-  s.isDirty = true
 }
 
 const withTemplate = (page: PageConfig, template: PageTemplate): PageConfig => {
@@ -93,14 +88,12 @@ const movePageIn = (s: DashboardDraft, fromIndex: number, toIndex: number): void
   if (!inRange(fromIndex) || !inRange(toIndex)) return
   const [moved] = pages.splice(fromIndex, 1)
   if (moved) pages.splice(toIndex, 0, moved)
-  s.isDirty = true
 }
 
 const updateTopBarIn = (s: DashboardDraft, patch: Partial<TopBarConfig>): void => {
   if (!s.config) return
   pushHistory(s, 'Edited top bar')
   s.config.topBar = { ...s.config.topBar, ...patch }
-  s.isDirty = true
 }
 
 export const createPagesSlice: SliceCreator<PagesSlice> = (set, get) => ({

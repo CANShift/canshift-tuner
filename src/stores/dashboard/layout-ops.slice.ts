@@ -58,7 +58,6 @@ const alignIn = (
   const tracks = gridTracksForConfig(s.config)
   for (const w of targets)
     placeClamped(w, { ...w.layout, ...ALIGNED[direction](w.layout, bounds) }, tracks)
-  s.isDirty = true
 }
 
 interface Axis {
@@ -102,7 +101,6 @@ const distributeIn = (
   if (targets.length < MIN_TO_DISTRIBUTE) return
   pushHistory(s, `Distributed ${String(targets.length)} widgets`)
   distributeAlong(targets, AXES[axis], gridTracksForConfig(s.config))
-  s.isDirty = true
 }
 
 export const createLayoutOpsSlice: SliceCreator<LayoutOpsSlice> = (set) => ({

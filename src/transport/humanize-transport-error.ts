@@ -1,4 +1,7 @@
+export const UNKNOWN_TRANSPORT_ERROR = 'Something went wrong talking to the dash. Try again.'
+
 export const TRANSPORT_ERROR_MESSAGES: Record<string, string> = {
+  replaced: 'Another device is connected to the dash.',
   no_port_selected: 'No port selected — press Connect and pick your dash.',
   webserial_unavailable:
     'WebSerial is not available in this browser — use Chrome, Edge, Brave or Opera.',
@@ -9,15 +12,16 @@ export const TRANSPORT_ERROR_MESSAGES: Record<string, string> = {
   auto_reconnect_failed: 'Automatic reconnect failed — press Connect to try again.',
   connect_failed:
     'Could not connect to the dash — check the cable or the dash’s Wi-Fi and try again.',
-  open_failed: 'Could not open the port — unplug/replug the dash and try again.',
+  open_failed:
+    'Could not open the port or the file on the dash — unplug/replug the dash and try again.',
   ack_timeout: 'The dash did not respond in time — check the link and retry.',
   not_connected: 'No dash connected — connect the device first.',
   disconnected: 'The dash was disconnected before it could respond.',
   queue_full: 'The dash is busy with other commands — wait a moment and retry.',
   read_error: 'Lost the data stream while reading — check the link and reconnect.',
   send_failed: 'Sending to the dash failed — check the link and retry.',
-  device_error: 'The dash reported an error — open the CLI on the Dash tab for details.',
-  unknown_error: 'Something went wrong on the dash — open the CLI on the Dash tab for details.',
+  device_error: 'The dash reported an error. Try again.',
+  unknown_error: 'Something went wrong on the dash. Try again.',
   read_failed: 'Could not read the trouble codes from the dash — check the link and retry.',
   clear_failed: 'The dash refused to clear the trouble codes — check the link and retry.',
   fetch_failed: 'Could not fetch that from the dash — check the link and retry.',
@@ -39,7 +43,8 @@ export const humanizeTransportError = (code: string): string => {
   if (lower.includes('access denied') || lower.includes('permission')) {
     return 'Permission denied — press Connect and grant access again.'
   }
-  return code
+  console.warn(`[transport] no plain message for ${code}`)
+  return UNKNOWN_TRANSPORT_ERROR
 }
 
 export const transportErrorText = (code: string | undefined | null): string =>
