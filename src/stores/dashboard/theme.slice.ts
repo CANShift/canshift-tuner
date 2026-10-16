@@ -2,14 +2,6 @@ import { pushHistory } from './helpers'
 import type { SliceCreator, ThemeSlice } from './types'
 
 export const createThemeSlice: SliceCreator<ThemeSlice> = (set) => ({
-  isPreviewDayMode: false,
-
-  togglePreviewTheme: () => {
-    set((s) => {
-      s.isPreviewDayMode = !s.isPreviewDayMode
-    })
-  },
-
   setTheme: (theme) => {
     set((s) => {
       if (!s.config) return

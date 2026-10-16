@@ -1,22 +1,39 @@
-# ECU profiles
+# Your car
 
-A profile is the signal set the dash decodes: the CAN frame IDs, bit layouts, scales and units that turn raw bus traffic into `rpm`, `coolant_temp`, and the rest. The Tuner's **Vehicle** tab, in **Profile & signals** (`canshift-tuner/src/routes/SignalsRoute.tsx`), is where you pick one.
+**Car** (`/car`) holds what the car sends: your car or ECU, and the signals the dash decodes from its CAN bus.
 
-## Two ways in
+## Choose your car
 
-- **The catalogue.** The Tuner bundles a list of vendor definitions in the app itself (`src/assets/ecu-catalogue/`), so it works with no internet connection. Pick an entry from the profile list, grouped by vendor, to preview it.
-- **Your own XML.** Drop a CAN definition file onto the import zone (`components/ecu/XmlImportZone.tsx`). Both paths run the file through `parseCanXml` from `@canshift/core`, so a catalogue entry and a hand-rolled file are validated the same way.
+The tuner carries a catalogue of cars and ECUs in the app itself, so it works with no internet. **Choose your car** (or **Change** once one is set) opens the list; search by make or ECU and pick **Use this car**.
 
-## Preview before you apply
+Gauges pick signals by name. When you change car, a gauge whose signal the new car doesn't send has nothing to show; if you send it anyway, the dash refuses and **Show me** points at that gauge.
 
-Selecting a source shows its signals in a table (`components/ecu/SignalPreviewTable.tsx`) rather than applying them straight away. The table marks which signals are already **bound** to a widget on one of your pages, so you can see at a glance whether switching profiles will leave a gauge without its signal.
+## Signals and the live plot
 
-> [!NOTE]
-> Parsing surfaces warnings without blocking. A file with a few unreadable rows still loads the signals it could read, and the warnings show above the preview. A file that yields **zero** signals is rejected outright, with the first warning as the reason.
+The **Signals** list shows each signal with its live value. Signals with **No data** come first: check the wiring and the CAN bus speed (under **Dash**). See [Live data](live-data.md).
 
-## Applying
+The **Live plot** sits next to the list. Tap signals to draw them over time; **Pause** freezes the plot, **Record** captures the values until **Stop & save** downloads them as a CSV file, and the window buttons make the time span longer or shorter.
 
-**Apply** opens a confirmation (`components/ecu/ApplyConfirmDialog.tsx`) and then swaps the active signal set. Bindings are by signal name, so a widget bound to a signal the new profile doesn't define keeps its binding — the value simply reads stale until a matching signal arrives.
+## Adjust reading
 
-> [!WARNING]
-> Applying a profile changes what every widget decodes, not just what the CAN scan shows. If a gauge goes blank after a profile switch, the signal it was bound to is missing from the new set — rebind it in the [editor](../configure/widgets.md), or pick a profile that defines it. Confirm in **Vehicle → Signals** ([Live data](../configure/live-data.md)).
+Tap a signal whose value looks wrong to open **Adjust reading**:
+
+- **From the car** is the raw value arriving now; **Shown on dash** is the value after your adjustment, with what it was before.
+- **Multiply by**, then **Then add**, and the **Unit**.
+- **Reset to catalogue value** puts the catalogue's numbers back.
+
+Compare with a gauge you trust, engine running, and change one number at a time.
+
+## More
+
+The **More** row holds the tools most setups never need:
+
+| Tool                                 | What it does                                                                                             |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| **OBD-II polling and trouble codes** | For cars that answer OBD-II requests instead of broadcasting: choose what to poll, read and clear codes. |
+| **Profile file (XML)**               | **Import XML…** loads a CAN profile; **Download XML** saves this car as one.                             |
+| **Raw CAN frames**                   | Every frame on the bus (`/car/frames`). Use it to map a signal the catalogue doesn't know.               |
+
+## Sending the car to the dash
+
+The car's signals are part of the draft like any other edit: the catalogue choice, the adjusted readings and the OBD-II polling. **Send to dash** writes them to the dash as `/config/signals.json`, and the dash restarts to use them. If the dash can't use them, nothing changes on it and the tuner says so.

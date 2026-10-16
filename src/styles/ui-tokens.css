@@ -1,27 +1,27 @@
 :root {
-  --ui-bg: #17161a;
-  --ui-panel: #201f24;
-  --ui-ink: #f3f2f2;
-  --ui-muted: #a09da3;
-  --ui-faint: #7a777d;
-  --ui-line: rgba(243, 242, 242, 0.16);
-  --ui-line-strong: rgba(243, 242, 242, 0.32);
-  --ui-rule: #f3f2f2;
-  --ui-header-bg: #0d0d0f;
-  --ui-header-ink: #f3f2f2;
-  --ui-header-dim: #86838a;
-  --ui-header-line: #2b2a30;
+  --app-bg: #17161a;
+  --app-surface: #201f24;
+  --app-text: #f3f2f2;
+  --app-muted: #a09da3;
+  --app-muted: #7a777d;
+  --app-divider: rgba(243, 242, 242, 0.16);
+  --app-border: rgba(243, 242, 242, 0.32);
+  --app-border: #f3f2f2;
+  --app-surface: #0d0d0f;
+  --app-text: #f3f2f2;
+  --app-muted: #86838a;
+  --app-border: #2b2a30;
 }
 
 :root {
-  --ui-accent: #ec3013;
-  --ui-accent-hover: #c62810;
-  --ui-warning: #ff8800;
-  --ui-danger: #ff4444;
-  --ui-engaged: #ff4747;
-  --ui-ok: #00cc2a;
-  --ui-console: #0d0d0d;
-  --ui-console-ink: #e8e6e3;
+  --app-accent: #ec3013;
+  --app-primary: #c62810;
+  --app-warning: #ff8800;
+  --app-accent: #ff4444;
+  --app-accent: #ff4747;
+  --app-success: #00cc2a;
+  --app-bg: #0d0d0d;
+  --app-text: #e8e6e3;
 }
 
 :root {

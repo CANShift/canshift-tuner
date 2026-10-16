@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { DashboardConfig, SignalDef, Widget } from '@canshift/core'
-import { isUnboundWidget, unreadableWidgetCount } from './unbound-widgets'
+import { isUnboundWidget, unreadableWidgets } from './unbound-widgets'
 
 const widget = (type: string, signal: string): Widget => ({ type, signal }) as Widget
 
@@ -28,31 +28,31 @@ describe('isUnboundWidget', () => {
   })
 })
 
-describe('unreadableWidgetCount', () => {
+describe('unreadableWidgets', () => {
   it('counts an empty signal across all pages', () => {
     const config = configWith([
       [widget('gauge', ''), widget('gauge', 'rpm')],
       [widget('gear', ''), widget('button', '')],
     ])
-    expect(unreadableWidgetCount(config, [onCan('rpm')])).toBe(2)
+    expect(unreadableWidgets(config, [onCan('rpm')])).toHaveLength(2)
   })
 
   it('counts a widget bound to a signal the dash cannot read', () => {
     const config = configWith([[widget('gauge', 'ghost')]])
-    expect(unreadableWidgetCount(config, [orphan('ghost')])).toBe(1)
+    expect(unreadableWidgets(config, [orphan('ghost')])).toHaveLength(1)
   })
 
   it('accepts a polled PID as a binding, exactly as a CAN id is', () => {
     const config = configWith([[widget('gauge', 'coolant_temp_c')]])
-    expect(unreadableWidgetCount(config, [polled('coolant_temp_c')])).toBe(0)
+    expect(unreadableWidgets(config, [polled('coolant_temp_c')])).toHaveLength(0)
   })
 
   it('counts a widget bound to a signal that is not in the profile at all', () => {
     const config = configWith([[widget('gauge', 'nitrous')]])
-    expect(unreadableWidgetCount(config, [onCan('rpm')])).toBe(1)
+    expect(unreadableWidgets(config, [onCan('rpm')])).toHaveLength(1)
   })
 
   it('returns 0 for a null config', () => {
-    expect(unreadableWidgetCount(null, [])).toBe(0)
+    expect(unreadableWidgets(null, [])).toHaveLength(0)
   })
 })

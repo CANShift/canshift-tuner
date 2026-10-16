@@ -12,7 +12,8 @@ outside the dash preview follows this page; the preview follows [the dash design
 and keeps the dash's own fonts.
 
 Defined in [`src/styles/ui-tokens.css`](../../src/styles/ui-tokens.css), exposed to Tailwind as the `app`
-colour family in `tailwind.config.ts`. Never hard-code these values in a component.
+colour family in `tailwind.config.ts`. The `app` family is the only app colour family: there is no
+other set of app colours to reach for. Never hard-code these values in a component.
 
 ## Colours
 
@@ -37,8 +38,6 @@ themes, previewed on the canvas, not to the app.
 | `--app-success`     | `app-success`     | `#3dd68c` | connected, live, success                                     |
 | `--app-success-bg`  | `app-success-bg`  | `#123826` | success ground                                               |
 
-The older `ui` family (`ui-bg`, `ui-panel`, `ui-ink`, `ui-accent`…) keeps its original values: the screens being rebuilt and the dash preview's host still read it, and it goes when they do. New code uses `app` only, so restyling the app can never move the dash preview.
-
 ## Type, radius, size
 
 | Token            | Tailwind                          | Value                                                      |
@@ -57,15 +56,16 @@ the safe area. Every touch target is at least 44 px.
 
 Core owns the dash's tokens and the brand mark, and publishes them through
 `scripts/generate-tokens.css.ts` into `src/styles/tokens.generated.css`. That file stays: the canvas
-preview renders the dash and must read the dash's tokens and fonts (`font-sans` is the dash's
-Archivo, `font-mono` its JetBrains Mono), not the app's.
+preview renders the dash and reads only the dash's tokens and fonts (`font-sans` is the dash's
+Archivo, `font-mono` its JetBrains Mono), never the app's. Restyling the app can never move the
+preview.
 
 The `app` family above is the app's chrome, which core has no consumer for.
 
 ## Rules
 
 - `src/index.css` zeroes `border-radius` on `*`; a radius is always a deliberate `rounded-*` class.
-- Focus is `outline: 2px solid var(--ui-accent)` with a 2 px offset, on every interactive element. The
+- Focus is `outline: 2px solid var(--app-accent)` with a 2 px offset, on every interactive element. The
   browser default ring is never acceptable.
 - Two safety cues never look alike: a gauge limit is an **outlined** orange or red swatch, the
   full-screen alert is a **solid** `app-primary` block with the full-screen corners icon.

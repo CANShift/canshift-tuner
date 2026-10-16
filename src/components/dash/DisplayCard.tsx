@@ -23,10 +23,10 @@ const UnitsRow = () => {
           if (value.length > 0) units.setSystem(value as UnitSystem)
         }}
       >
-        <ToggleGroupItem value="metric" className="h-10 text-sm">
+        <ToggleGroupItem value="metric" className="text-sm">
           {D.metric}
         </ToggleGroupItem>
-        <ToggleGroupItem value="imperial" className="h-10 text-sm">
+        <ToggleGroupItem value="imperial" className="text-sm">
           {D.imperial}
         </ToggleGroupItem>
       </ToggleGroup>

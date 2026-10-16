@@ -4,7 +4,7 @@ import { dtcSystem } from '@canshift/core'
 import { useDtcStore } from '../../stores/dtc.store'
 import { useDeviceStore } from '../../stores/device.store'
 import { cn } from '@/lib/utils'
-import { Eyebrow } from '../ui/meta-text'
+import { Eyebrow } from '../ui/eyebrow'
 import { DtcClearConfirmDialog } from './DtcClearConfirmDialog'
 import { transportErrorText } from '../../transport/humanize-transport-error'
 

@@ -1,27 +1,50 @@
-# Widgets & pages
+# Gauges & pages
 
-The **Dash** tab (`canshift-tuner/src/routes/EditorRoute.tsx`) is the visual canvas: a strip of pages down one side, a widget canvas in the middle, and a property panel on the right.
+Everything here happens in **Gauges** (`/gauges`). The screen itself is described in [Gauges](../layout-editor.md).
 
 ## Pages
 
-The page strip (`components/editor/PageStrip.tsx`) manages the ordered set of dash pages. From it you can:
-
-- **Add** a blank page — it starts on a black background,
-- **Duplicate** a page, or **reorder** pages by dragging,
-- **Set the default** — the page the dash shows on boot,
-- **Delete** a page: select it and press **Delete** (or **Backspace**). A deletion raises an **Undo** toast, and the last remaining page can't be deleted.
+- **Add page** offers **Start from a layout**, a ready arrangement of gauges, or **Blank page**.
+- A page's menu moves it **earlier** or **later**, or removes it.
+- **Make it a cruise control page** turns the page into the dash's cruise control page; **Make it a gauges page** turns it back. See [Cruise control](https://github.com/CANShift/canshift-firmware/blob/main/docs/guide/cruise-control.md) for what the dash shows there.
+- The chip order is the order you swipe through on the dash.
 
 ## Widgets
 
-A widget binds a signal to a way of drawing it. The built-in types include a plain **label**, a **signal** readout, a **gauge**, a **gear** indicator, a **shift light**, a **warning**, a **timer**, and a **separator** for layout — the same set the firmware renders, all defined in `@canshift/core`. Select a widget to edit its binding, range and colours in the right-hand property panel.
+**Add** offers every widget type: a gauge, a button, a gear indicator or a shift light. The tuner places it in the page's free space while the page has room; the editor says how many places are used.
 
-> [!NOTE]
-> Pages, widgets and their layout are bounded by `FIRMWARE_CAPS` in `@canshift/core` — the same ceilings the dash enforces at runtime, so a layout that saves in the Tuner is one the dash can actually build. See [LVGL ownership](https://github.com/CANShift/canshift-firmware/blob/main/docs/architecture/lvgl-ownership.md) for why the ceiling exists.
+To set one up:
 
-## Binding to a signal
+1. Tap it on the preview.
+2. In **Shows**, pick the signal. The picker lists your [car's signals](ecu-profiles.md) with their live values, so you can see the one you want moving.
+3. Set **Name on dash** (up to 8 letters).
+4. Set **Limits** if it needs them.
+5. Open **More options** for the rest: the type, the size, the widget's own settings (a gauge's range, style and decimals; a button's actions and colours; shift-light and timer settings), its colours and its day-mode text colour.
 
-A widget draws nothing until it's bound to a signal from the active [ECU profile](../configure/ecu-profiles.md). Bindings are by signal **name**, so re-applying a profile that keeps the same names leaves your layout intact. Check what a widget is receiving in **Vehicle → Signals** ([Live data](../configure/live-data.md)).
+**Move left** and **Move right** change its position, **Remove gauge** takes it off after a confirmation.
 
-## Saving
+## Limits and the full-screen alert
 
-Changes live in the Tuner until you burn them to the dash. The config travels as newline-delimited JSON over the wire — see [Config contract](https://github.com/CANShift/canshift-core/blob/main/docs/config-contract.md) — and the dash reloads without a re-flash. If a burn fails, [Burn errors](../configure/burn-errors.md) walks through it.
+Two different cues, kept visually apart on purpose:
+
+| Cue                   | Where you set it             | What the dash does                      | Look in the tuner   |
+| --------------------- | ---------------------------- | --------------------------------------- | ------------------- |
+| **Limits**            | The gauge editor             | Colours that one gauge orange, then red | Outlined orange/red |
+| **Full-screen alert** | **Dash → Full-screen alert** | Takes over the whole screen             | Solid red           |
+
+Limits go **above** or **below** a value: a coolant temperature warns when high, an oil pressure when low. When a gauge shows the alert signal, the editor shows a solid red link to the alert under **Dash**.
+
+## Previewing the dash's states
+
+**Preview: Normal · Cut · Splash · Alert**, under the preview, shows how the page looks when the dash is not just showing values:
+
+| Mode       | What the preview shows                        |
+| ---------- | --------------------------------------------- |
+| **Normal** | The page as it renders                        |
+| **Cut**    | A protection cut, banded under the status row |
+| **Splash** | A driver-requested function taking the screen |
+| **Alert**  | The critical-alert takeover                   |
+
+## Sending
+
+Every edit is kept in this browser right away. Tap **Send to dash** to put it on the dash, which reloads without a restart. If the dash refuses, the reason shows in plain words with **Show me**; see [Send errors](burn-errors.md) for what the dash itself reports.

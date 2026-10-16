@@ -1,5 +1,5 @@
 import type { PageConfig } from '@canshift/core'
-import { FIRMWARE_CAPS } from '@canshift/core'
+import { DEFAULT_PAGE_PALETTE, FIRMWARE_CAPS, HexColorSchema } from '@canshift/core'
 import { DEFAULT_SIM_CONFIG } from '../../config/default-sim-config'
 import { createId } from '../../utils/id'
 import { autoPlace, type SpanSize } from '../../utils/layout'
@@ -67,3 +67,15 @@ export const freePlaceFor = (page: PageConfig, preferred?: SpanSize): FreePlace 
 
 export const canAddGauge = (page: PageConfig): boolean =>
   page.widgets.length < FIRMWARE_CAPS.MAX_WIDGETS_PER_PAGE && freePlaceFor(page) !== null
+
+const NEW_PAGE_BG = HexColorSchema.parse('#000000')
+
+export const buildBlankPage = (): PageConfig => ({
+  id: createId('page'),
+  backgroundImage: null,
+  backgroundColor: NEW_PAGE_BG,
+  palette: { ...DEFAULT_PAGE_PALETTE },
+  showTopBar: true,
+  visible: true,
+  widgets: [],
+})

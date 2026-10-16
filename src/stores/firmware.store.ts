@@ -130,5 +130,3 @@ export const useFirmwareStore = create<FirmwareState>()((set, get) => ({
   cancelUpload: () => set({ cancelRequested: true }),
   finish: () => set({ view: { kind: 'choosing' }, bin: null, sig: null, problem: null }),
 }))
-
-export const firmwareRunning = (view: FirmwareView): boolean => view.kind === 'running'

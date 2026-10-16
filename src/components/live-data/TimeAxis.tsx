@@ -12,7 +12,7 @@ const tickPosition = (offset: number): CSSProperties => {
 
 export const TimeAxis = ({ window }: TimeAxisProps) => (
   <div className="flex-none px-3 md:px-4" aria-hidden="true">
-    <div className="relative h-6 font-mono text-[11px] text-ui-muted tabular-nums">
+    <div className="relative h-6 font-mono text-[11px] text-app-muted tabular-nums">
       {timeTicks(window).map((tick) => (
         <span
           key={tick.label}

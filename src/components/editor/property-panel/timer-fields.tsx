@@ -58,7 +58,7 @@ export const TimerFields = ({ widget, onChange }: ConfigFieldsProps) => {
         {source === 'elapsed' && <FormatField cfg={cfg} onChange={onChange} />}
       </PanelRow>
       {!isTouchInteractive(source) && (
-        <p className="mt-1.5 text-[11px] leading-[1.5] text-ui-faint">{READOUT_NOTE}</p>
+        <p className="mt-1.5 text-[11px] leading-[1.5] text-app-muted">{READOUT_NOTE}</p>
       )}
     </>
   )

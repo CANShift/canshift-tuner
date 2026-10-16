@@ -11,14 +11,14 @@ const Switch = forwardRef<
     className={cn(
       'peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center border-2 border-transparent transition-colors active:brightness-95',
       'disabled:cursor-not-allowed disabled:opacity-50',
-      'data-[state=checked]:bg-ui-accent data-[state=unchecked]:bg-ui-line-strong',
+      'data-[state=checked]:bg-app-accent data-[state=unchecked]:bg-app-border',
       className
     )}
     {...props}
   >
     <SwitchPrimitive.Thumb
       className={cn(
-        'pointer-events-none block h-5 w-5 bg-ui-bg ring-0 transition-transform',
+        'pointer-events-none block h-5 w-5 bg-app-bg ring-0 transition-transform',
         'data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0'
       )}
     />

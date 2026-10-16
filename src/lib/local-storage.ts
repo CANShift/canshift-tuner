@@ -4,20 +4,12 @@ const key = (name: string): string => `${NAMESPACE}${name}`
 
 export const STORAGE_KEYS = {
   autosave: key('autosave'),
-  boardProfiles: key('board-profiles'),
   cliOpen: key('cli-open'),
   logVerbose: key('log-verbose'),
-  pageTemplates: key('page-templates'),
-  projectIndex: key('projects'),
-  selectedBoard: key('selected-board'),
   setup: key('setup'),
   simulationMode: key('simulation-mode'),
   signals: key('signals'),
 } as const
-
-export const PROJECT_KEY_PREFIX = key('project.')
-
-export const projectStorageKey = (id: string): string => `${PROJECT_KEY_PREFIX}${id}`
 
 const LEGACY_KEYS: Record<string, string> = {
   'canshift:signal-store-v1': STORAGE_KEYS.signals,

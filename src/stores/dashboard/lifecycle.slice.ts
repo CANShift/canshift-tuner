@@ -1,6 +1,6 @@
 import type { CriticalAlert, DashboardConfig } from '@canshift/core'
 import { DEFAULT_UNIT_SYSTEM, defaultThemePreset } from '@canshift/core'
-import type { ScreenProfileId, UnitSystem } from '@canshift/core'
+import type { UnitSystem } from '@canshift/core'
 import { fixupSelection, pushHistory } from './helpers'
 import type { DashboardState, LifecycleSlice, SliceCreator } from './types'
 
@@ -24,12 +24,6 @@ const replaceConfigIn = (s: DashboardState, config: DashboardConfig, label: stri
   fixupSelection(s)
 }
 
-const setTargetProfileIn = (s: DashboardState, id: ScreenProfileId): void => {
-  if (!s.config || s.config.targetProfile === id) return
-  pushHistory(s, 'Changed target screen')
-  s.config.targetProfile = id
-}
-
 const setUnitsIn = (s: DashboardState, units: UnitSystem): void => {
   if (!s.config || (s.config.units ?? DEFAULT_UNIT_SYSTEM) === units) return
   pushHistory(s, 'Changed units')
@@ -48,7 +42,6 @@ export const createLifecycleSlice: SliceCreator<LifecycleSlice> = (set) => ({
   lastSavedAt: null,
   setConfig: (config) => set((s) => applyLoadedConfig(s, withDefaultTheme(config))),
   replaceConfig: (config, label) => set((s) => replaceConfigIn(s, config, label)),
-  setTargetProfile: (id) => set((s) => setTargetProfileIn(s, id)),
   setUnits: (units) => set((s) => setUnitsIn(s, units)),
   setCriticalAlert: (alert) => set((s) => setCriticalAlertIn(s, alert)),
   markAutosaved: (ts) => set({ lastSavedAt: ts }),

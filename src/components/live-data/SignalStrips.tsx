@@ -31,7 +31,7 @@ export const SignalStrips = ({ selected, samples }: SignalStripsProps) => {
   const units = useDisplayUnits()
   if (selected.length === 0) {
     return (
-      <p className="py-6 text-center text-[12.5px] text-ui-muted">
+      <p className="py-6 text-center text-[12.5px] text-app-muted">
         Tick a signal in the table to plot it.
       </p>
     )

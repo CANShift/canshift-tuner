@@ -1,33 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { BOARD_PROFILES, parseBoardProfile } from '@canshift/core'
-import {
-  boardProfileBlob,
-  boardProvisionPayload,
-  interpretBoardProfileAck,
-} from './board-provision'
+import { BOARD_PROFILES, serializeBoardProfile, type BoardProfileBlob } from '@canshift/core'
+import { boardProvisionPayload, interpretBoardProfileAck } from './board-provision'
 
-const sampleProfile = () => {
+const sampleBlob = (): BoardProfileBlob => {
   const profile = BOARD_PROFILES[0]
   if (!profile) throw new Error('catalog is empty')
-  return profile
+  return JSON.parse(serializeBoardProfile(profile)) as BoardProfileBlob
 }
-
-describe('boardProfileBlob', () => {
-  it('assembles the versioned board-profile envelope from a profile', () => {
-    const blob = boardProfileBlob(sampleProfile())
-    expect(blob.magic).toBe('CANSHIFT_BOARD')
-    expect(blob.schema).toBe('board-profile')
-    expect(blob.formatVersion).toBe(1)
-    expect(blob.profile.board_id).toBe(sampleProfile().boardId)
-  })
-
-  it('produces a blob that core can parse back to the same board', () => {
-    const blob = boardProfileBlob(sampleProfile())
-    const parsed = parseBoardProfile(JSON.stringify(blob))
-    expect(parsed.kind).toBe('ok')
-    if (parsed.kind === 'ok') expect(parsed.profile.boardId).toBe(sampleProfile().boardId)
-  })
-})
 
 describe('interpretBoardProfileAck', () => {
   it('maps an ok+restart reply to a reboot result', () => {
@@ -69,7 +48,7 @@ describe('boardProvisionPayload', () => {
   })
 
   it('sends a custom board as the blob it has always sent', () => {
-    const blob = boardProfileBlob(sampleProfile())
+    const blob = sampleBlob()
     expect(boardProvisionPayload({ kind: 'custom', blob })).toBe(blob)
   })
 })

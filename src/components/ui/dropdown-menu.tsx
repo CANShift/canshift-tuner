@@ -64,7 +64,7 @@ const DropdownMenuSeparator = forwardRef<
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Separator
     ref={ref}
-    className={cn('-mx-1 my-1 h-px bg-ui-line', className)}
+    className={cn('-mx-1 my-1 h-px bg-app-divider', className)}
     {...props}
   />
 ))

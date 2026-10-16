@@ -41,7 +41,7 @@ export const Obd2Pane = () => {
         onInterval={setIntervalMs}
         onTogglePolled={togglePolled}
       />
-      <div className="shrink-0 border-t-2 border-ui-rule">
+      <div className="shrink-0 border-t-2 border-app-border">
         <Suspense fallback={<RouteLoading />}>
           <DtcPanel />
         </Suspense>

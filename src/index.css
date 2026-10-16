@@ -47,8 +47,8 @@ html,
 body,
 #root {
   height: 100%;
-  background: var(--ui-bg);
-  color: var(--ui-ink);
+  background: var(--app-bg);
+  color: var(--app-text);
 }
 
 body {
@@ -76,7 +76,7 @@ samp {
 }
 
 :focus-visible {
-  outline: 2px solid var(--ui-accent);
+  outline: 2px solid var(--app-accent);
   outline-offset: 2px;
 }
 
@@ -85,47 +85,36 @@ samp {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--ui-bg);
+  background: var(--app-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--ui-line-strong);
+  background: var(--app-border);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--ui-muted);
-}
-
-@keyframes canshift-tuner-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.shell-nav-item:hover {
-  background: var(--ui-panel);
-  color: var(--ui-ink);
+  background: var(--app-muted);
 }
 
 .shell-burn-button:not(:disabled):hover {
-  background: var(--ui-accent-hover) !important;
+  background: var(--app-primary) !important;
 }
 
 .editor-ghost-accent:not(:disabled):hover {
-  background: color-mix(in srgb, var(--ui-accent) 14%, transparent) !important;
+  background: color-mix(in srgb, var(--app-accent) 14%, transparent) !important;
 }
 
 .shell-link-button:not(:disabled):hover {
-  border-color: var(--ui-accent) !important;
+  border-color: var(--app-accent) !important;
 }
 
 @keyframes canshift-rebind-flash {
   from {
     box-shadow:
-      0 0 0 3px var(--ui-accent),
-      0 0 12px var(--ui-accent);
+      0 0 0 3px var(--app-accent),
+      0 0 12px var(--app-accent);
   }
   to {
     box-shadow:
-      0 0 0 2px var(--ui-accent),
+      0 0 0 2px var(--app-accent),
       0 0 0 transparent;
   }
 }

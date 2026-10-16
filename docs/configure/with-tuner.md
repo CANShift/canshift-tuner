@@ -1,79 +1,64 @@
 # Configure with the Tuner
 
-The Tuner is a single-page web app that talks to the dash over its Wi-Fi or over USB. You move widgets, bind signals, pick an ECU profile — then click **Burn** and the dash reloads the new config in place. No re-flash, no reboot.
+The Tuner is a web app served by the dash. You choose your car, arrange your gauges and set up the dash, then tap **Send to dash** and the dash reloads the new setup in place. No re-flash.
 
 ## Connecting
 
 Over the dash's Wi-Fi (workshop mode), from any browser:
 
-1. On the dash, open **Settings → Workshop mode**.
-2. Join the Wi-Fi network the dash shows, with its password (or scan its QR code).
+1. On the dash, tap **Workshop mode**.
+2. Join the Wi-Fi it shows, or scan its QR code.
 3. Open the address on the dash's screen. The Tuner connects on its own.
 
 Over USB, from a desktop Chromium browser (recovery and development):
 
 1. Plug the dash in over USB-C.
 2. Run the tuner locally: `npm install && npm run dev` in this repo, then open the printed `localhost` address.
-3. Click **Connect** and pick the serial port.
+3. Press **Try again** on the **Not connected** screen and pick the serial port.
 
-The header switches from a red _Disconnected_ dot to a green _Connected_ one, with the device's `vendor:product` next to it. The firmware version slot fills in once the handshake completes (~50 ms).
+The indicator at the top left turns to **Connected**. While connected, the tuner sends an empty frame every 3.5 s so the dash keeps it. If the link drops, it reads **Reconnecting…** and the tuner reconnects on its own.
+
+The dash talks to one device at a time. A second phone or laptop is turned away (WebSocket close code `4001`) and sees **Another device is connected to the dash**: close the tuner on the other device, then **Try again**.
 
 > [!TIP]
-> **Simulation mode**
->
-> No dash on hand? Click **Edit offline** and the Tuner runs in simulation — pages and widgets are
-> interactive, the signal store fakes values. Useful for laying out a dashboard the night before
-> fitting.
+> **No dash on hand?** Press **Keep editing** on the **Not connected** screen and the Tuner runs against the built-in simulator. Useful for laying out pages the night before fitting.
 
-## Edit the dashboard
+## The order to work in
 
-The **Dash** tab is the visual editor. Page thumbnails on the left (up to `CONFIG_MAX_PAGES = 5`), the canvas in the middle, the inspector on the right. Click a widget to bind it to a signal, drop a new widget from the palette to add it, drag to reorder.
+1. **Car** — choose your car from the catalogue and check its signals come in. See [Your car](ecu-profiles.md) and [Live data](live-data.md).
+2. **Gauges** — add pages and widgets, pick what each one shows, set its limits. See [Gauges & pages](widgets.md).
+3. **Dash** — units, brightness, the full-screen alert, the CAN bus speed, and under **More** the screen and the dash colours. Save a backup.
 
-Changes are local until you burn. The canvas previews exactly what the dash will render — same fonts, same tokens, same units.
+## Send to dash
 
-## Pick an ECU profile
+Every edit is kept in this browser immediately; the dash keeps its current setup until you tap **Send to dash**. The chip at the top right reads **On the dash** or **{n} changes not sent**, and opens the list with **Undo** per change and **Undo all**.
 
-Open the **Vehicle** tab. CANShift ships presets for the common aftermarket and stock setups:
+Send carries everything: pages and widgets, the car's signals (written as `/config/signals.json`), and the dash's settings.
 
-- **Aftermarket**: Haltech, Ecumaster EmuBlack, Adaptronic, AEM, Link, MaxxECU, MoTeC, Flagtronics.
-- **OEM-style**: stock OBD-II PIDs (works with most road cars supporting the standard).
+Some changes restart the dash: the **CAN bus speed**, the car's signals, and turning the screen. One send restarts the dash at most once. When a send holds more than one change that needs a restart, the tuner sends one of them and keeps the others for the next send, saying **Send again once it is back for the rest.**
 
-Pick a preset, preview the signals it would import, click _Apply_. The signal map writes to `signals.json` on the dash.
+When you send, the dash shows a "Saving config…" overlay while it writes, then rebuilds its pages. If the dash refuses, the tuner names the reason and **Show me** jumps to the gauge or page at fault. If the Wi-Fi drops mid-send, nothing changed on the dash. If the dash's own overlay turns red, see [Send errors](burn-errors.md).
 
-Custom map? Drop a **CAN XML** export onto the page. The parser lives in `@tmbk/canshift-core/parseCanXml` and validates against the same schema the firmware enforces at boot.
+## The dash's own settings
 
-## Style with themes
+**Dash** holds units, brightness, the full-screen alert, the CAN bus speed, backup and restore, the firmware update and the hardware. Its **More** row holds the rest:
 
-The **Dash theme** panel under the widget list on the **Dash** tab swaps the dash's colour palette — day vs night, accent colours, gauge backgrounds. The Tuner reads the active mode from the device on connect and exposes three actions: toggle, force _Day_, force _Night_. The commands hit the dash as `CMD_TOGGLE_DAY_NIGHT` / `CMD_SET_DAY_NIGHT` over USB.
+| Setting             | What it does                                           | How it applies                       |
+| ------------------- | ------------------------------------------------------ | ------------------------------------ |
+| **Screen**          | **Day or night**, and **Turn the screen** 0° or 180°   | With Send; turning restarts the dash |
+| **Calibrate touch** | Shows targets on the dash to tap, after a confirmation | At once, not through Send            |
+| **Dash colours**    | The theme preset the dash uses by day and by night     | With Send                            |
 
-## Burn = write the config
+## Backup and restore
 
-Click **Burn** (top-right) and the Tuner ships the full JSON envelope to the dash. The dash:
-
-1. Shows the "Saving config…" overlay.
-2. Writes the new file to SPIFFS atomically (the previous one is renamed `.bak`).
-3. Reloads the config in memory.
-4. Rebuilds the pages on the next frame.
-
-End-to-end takes ~150–250 ms. The overlay vanishes when the burn completes; the new layout appears on the next page swipe (or immediately if you're on the page that changed).
-
-If the overlay flips red, see [Burn errors](../configure/burn-errors.md).
-
-> [!WARNING]
-> **Don't burn during a CAN scan**
->
-> The dash's USB RX buffer doubles as the PUT_CONFIG receive buffer. A live CAN scan keeps that
-> buffer busy, and a burn that lands in the middle of a scan can time out. Stop the scan in the
-> **Vehicle** tab first, then burn.
+**Dash → Backup and restore** saves everything (pages, gauges, car, settings) as one `.canshift` file. **Restore from file…** reads a backup, names its file, date, car and number of pages, and asks before replacing your setup and sending it to the dash.
 
 ## Schema vs firmware version
 
-The firmware validates `dashboard.json` against the schema it was compiled with. If you re-flash a newer firmware but SPIFFS still holds an older config, the dash boots into the built-in default and the ErrorBar shows `SCHEMA_MISMATCH`.
-
-The fix is always the same: re-burn from the Tuner. The Tuner always reads the current schema from `canshift-core`, so a fresh burn matches the running firmware by construction.
+The firmware checks `dashboard.json` against the schema it was built with. After a firmware update, a stored config from an older schema makes the dash boot its built-in default and show `SCHEMA_MISMATCH`. Send to dash again: the tuner always writes the current schema. If the dash answers that the setup was made for newer firmware, [update the dash](firmware-update.md) first.
 
 ## Next
 
-- [Burn errors](../configure/burn-errors.md) — what each red overlay message means and how to recover.
-- [Navigating pages](https://github.com/CANShift/canshift-firmware/blob/main/docs/guide/navigating-pages.md) — gestures, default page, the 5-page cap.
+- [Send errors](burn-errors.md) — what each red overlay message means and how to recover.
+- [Navigating pages](https://github.com/CANShift/canshift-firmware/blob/main/docs/guide/navigating-pages.md) — gestures and the page cap on the dash.
 - [Cruise control](https://github.com/CANShift/canshift-firmware/blob/main/docs/guide/cruise-control.md) — how the cruise page binds to your ECU's `cruise_setpoint`.

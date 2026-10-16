@@ -7,76 +7,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
-
-export interface SectionProps {
-  title: string
-  children: ReactNode
-}
-
-export const Section = ({ title, children }: SectionProps) => (
-  <fieldset className="grid gap-2 border border-ui-line-strong p-3">
-    <legend className="px-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-ui-muted">
-      {title}
-    </legend>
-    <div className="grid grid-cols-2 gap-x-4 gap-y-2">{children}</div>
-  </fieldset>
-)
-
-export interface NumberFieldProps {
-  label: string
-  value: number
-  onChange: (value: number) => void
-}
-
-export const NumberField = ({ label, value, onChange }: NumberFieldProps) => (
-  <label className="grid gap-1 text-xs">
-    <span className="text-ui-muted">{label}</span>
-    <Input
-      type="number"
-      value={String(value)}
-      onChange={(e) => {
-        const next = Number(e.target.value)
-        onChange(Number.isNaN(next) ? 0 : next)
-      }}
-    />
-  </label>
-)
-
-export interface TextFieldProps {
-  label: string
-  value: string
-  maxLength?: number
-  onChange: (value: string) => void
-}
-
-export const TextField = ({ label, value, maxLength, onChange }: TextFieldProps) => (
-  <label className="grid gap-1 text-xs">
-    <span className="text-ui-muted">{label}</span>
-    <Input
-      value={value}
-      {...(maxLength !== undefined ? { maxLength } : {})}
-      onChange={(e) => {
-        onChange(e.target.value)
-      }}
-    />
-  </label>
-)
-
-export interface BoolFieldProps {
-  label: string
-  value: boolean
-  onChange: (value: boolean) => void
-}
-
-export const BoolField = ({ label, value, onChange }: BoolFieldProps) => (
-  <label className="flex items-center justify-between gap-3 text-xs">
-    <span className="text-ui-muted">{label}</span>
-    <Switch checked={value} onCheckedChange={onChange} />
-  </label>
-)
 
 export interface PanelFieldProps {
   label: string
@@ -87,14 +19,16 @@ export interface PanelFieldProps {
 export const PanelField = ({ label, children, onReset }: PanelFieldProps) => (
   <div className="mb-2.5">
     <div className="mb-[3px] flex items-center gap-1">
-      <label className="block text-[10px] uppercase tracking-[0.06em] text-ui-faint">{label}</label>
+      <label className="block text-[10px] uppercase tracking-[0.06em] text-app-muted">
+        {label}
+      </label>
       {onReset && (
         <button
           type="button"
           onClick={onReset}
           title="Reset to default"
           aria-label={`Reset ${label} to default`}
-          className="h-[14px] w-[14px] cursor-pointer border-none bg-transparent p-0 text-[11px] leading-[14px] text-ui-faint"
+          className="h-[14px] w-[14px] cursor-pointer border-none bg-transparent p-0 text-[11px] leading-[14px] text-app-muted"
         >
           <span aria-hidden="true">↺</span>
         </button>
@@ -109,11 +43,7 @@ export const PanelRow = ({ children }: { children: ReactNode }) => (
 )
 
 export const FieldLabel = ({ children }: { children: ReactNode }) => (
-  <div className="mb-0.5 text-[9px] text-ui-muted">{children}</div>
-)
-
-export const SectionLabel = ({ children }: { children: ReactNode }) => (
-  <div className="text-[10px] uppercase tracking-[0.06em] text-ui-muted">{children}</div>
+  <div className="mb-0.5 text-[9px] text-app-muted">{children}</div>
 )
 
 export const segmentPill = cva('flex-1 cursor-pointer border border-solid py-[3px] text-[10px]', {
@@ -121,7 +51,7 @@ export const segmentPill = cva('flex-1 cursor-pointer border border-solid py-[3p
     tone: { blue: '', green: '' },
     active: {
       true: '',
-      false: 'border-ui-line bg-ui-panel text-ui-muted',
+      false: 'border-app-divider bg-app-surface text-app-muted',
     },
   },
   compoundVariants: [
@@ -145,7 +75,10 @@ export type PanelInputProps = InputHTMLAttributes<HTMLInputElement>
 
 export const PanelInput = ({ className, ...props }: PanelInputProps) => (
   <Input
-    className={cn('h-auto border-ui-line bg-ui-panel px-[7px] py-1 text-xs text-ui-ink', className)}
+    className={cn(
+      'h-auto border-app-divider bg-app-surface px-[7px] py-1 text-xs text-app-text',
+      className
+    )}
     {...props}
   />
 )
@@ -189,29 +122,4 @@ export const CompactSelect = ({ value, options, onChange, ariaLabel }: CompactSe
       ))}
     </SelectContent>
   </Select>
-)
-
-export interface SelectFieldProps {
-  label: string
-  value: string
-  options: readonly string[]
-  onChange: (value: string) => void
-}
-
-export const SelectField = ({ label, value, options, onChange }: SelectFieldProps) => (
-  <label className="grid gap-1 text-xs">
-    <span className="text-ui-muted">{label}</span>
-    <Select value={value} onValueChange={onChange}>
-      <SelectTrigger>
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        {options.map((option) => (
-          <SelectItem key={option} value={option}>
-            {option}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  </label>
 )

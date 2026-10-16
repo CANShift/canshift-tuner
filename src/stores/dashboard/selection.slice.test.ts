@@ -14,22 +14,4 @@ describe('selection', () => {
     store().selectWidget(null)
     expect([store().selectedWidgetId, store().selectedWidgetIds]).toEqual([null, []])
   })
-
-  it('toggles widgets in and out, keeping the last as primary', () => {
-    store().toggleWidgetSelection('a')
-    store().toggleWidgetSelection('b')
-    expect([store().selectedWidgetId, store().selectedWidgetIds]).toEqual(['b', ['a', 'b']])
-    store().toggleWidgetSelection('b')
-    expect([store().selectedWidgetId, store().selectedWidgetIds]).toEqual(['a', ['a']])
-  })
-
-  it('clears the widget selection when the page changes', () => {
-    store().selectWidgets(['a', 'b'])
-    store().selectPage('p2')
-    expect([store().selectedPageId, store().selectedWidgetId, store().selectedWidgetIds]).toEqual([
-      'p2',
-      null,
-      [],
-    ])
-  })
 })

@@ -1,5 +1,6 @@
 import { STRINGS } from '../strings'
 import { sendToDash } from '../stores/sync/send-actions'
+import { useUiStore } from '../stores/ui.store'
 import { useSyncStore } from '../stores/sync/sync.store'
 import { useFirmwareStore } from '../stores/firmware.store'
 import { useChanges } from './useChanges'
@@ -28,6 +29,7 @@ export const useSendButton = (): SendButtonState => {
     disabled: busy || updating || !connected || count === 0,
     busy,
     send: () => {
+      useUiStore.getState().setNotSentOpen(false)
       void sendToDash()
     },
   }

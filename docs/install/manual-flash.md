@@ -145,8 +145,8 @@ Followed by app-level logs.
   WiFi AP password, OTA HMAC, persisted brightness. First boot after
   recovery will prompt for touch calibration; pair BLE again from the
   mobile app.
-- **Persisted dashboard config** is wiped. Push the config from the tuner
-  on next connect.
+- **Persisted dashboard config** is wiped. Send to dash from the tuner on
+  next connect, or restore a `.canshift` backup.
 
 The ROM bootloader (factory-burned, separate from `bootloader.bin`) is
 never touched by this procedure — the chip is physically un-brickable

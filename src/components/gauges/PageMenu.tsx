@@ -59,7 +59,7 @@ export const PageMenu = (props: PageMenuProps) => (
   <DropdownMenu>
     <DropdownMenuTrigger
       aria-label={STRINGS.gauges.pageOptions}
-      className="grid size-11 place-items-center rounded-control border border-app-border bg-app-surface text-app-text"
+      className="grid size-11 shrink-0 place-items-center rounded-control border border-app-border bg-app-surface text-app-text"
     >
       <UiIcon name="chevronDown" />
     </DropdownMenuTrigger>

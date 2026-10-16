@@ -21,21 +21,21 @@ Docs for the other repos: [firmware](https://github.com/CANShift/canshift-firmwa
 
 ## Configure
 
-| Doc                                                 | What it covers                                                         |
-| --------------------------------------------------- | ---------------------------------------------------------------------- |
-| [Configure with the Tuner](configure/with-tuner.md) | Live editing over Wi-Fi or USB — pages, signals, ECU profiles, themes  |
-| [ECU profiles](configure/ecu-profiles.md)           | Load a signal set for your car, from the catalogue or your own CAN XML |
-| [Widgets & pages](configure/widgets.md)             | Building the dashboard within the firmware's limits                    |
-| [Live data](configure/live-data.md)                 | Watching decoded signals in real time — car, simulator, or neither     |
-| [Burn errors](configure/burn-errors.md)             | When the burn overlay turns red, and how to recover                    |
-| [Firmware update](configure/firmware-update.md)     | Installing a new firmware from the Device tab                          |
+| Doc                                                 | What it covers                                                                                                  |
+| --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| [Configure with the Tuner](configure/with-tuner.md) | Connecting, the order to work in, Send to dash and restarts, the dash's own settings                            |
+| [Your car](configure/ecu-profiles.md)               | Your car from the catalogue, the live plot, adjusting a reading, OBD-II, XML profiles, raw frames, signals.json |
+| [Gauges & pages](configure/widgets.md)              | Pages and cruise pages, every widget type, More options, limits vs full-screen alert, preview modes             |
+| [Live data](configure/live-data.md)                 | Live values and the live plot — car or simulator — and what No data means                                       |
+| [Send errors](configure/burn-errors.md)             | When the dash's saving overlay turns red, and how to recover                                                    |
+| [Firmware update](configure/firmware-update.md)     | Installing a new firmware from Dash → Update firmware                                                           |
 
 ## The app itself
 
-| Doc                               | What it covers                     |
-| --------------------------------- | ---------------------------------- |
-| [Tuner tour](tour.md)             | The three tabs and what each holds |
-| [Layout editor](layout-editor.md) | Canvas, page strip, property panel |
+| Doc                        | What it covers                                                                                   |
+| -------------------------- | ------------------------------------------------------------------------------------------------ |
+| [Tuner tour](tour.md)      | The three sections (Gauges · Car · Dash), Send to dash, the connection, what is not in the tuner |
+| [Gauges](layout-editor.md) | Page chips, the dash preview and its modes, Add, the gauge editor and More options               |
 
 ## Design
 

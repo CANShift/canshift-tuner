@@ -1,6 +1,15 @@
 import { ECU_PROFILES } from '@canshift/core'
-import type { ProfileGroup } from '../components/signals/SignalsToolbar'
 import type { CatalogueEntry } from './ecu-catalogue'
+
+interface ProfileOption {
+  key: string
+  label: string
+}
+
+export interface ProfileGroup {
+  label: string
+  options: readonly ProfileOption[]
+}
 
 const BUILT_IN = 'Built-in'
 const CUSTOM = 'Custom'
