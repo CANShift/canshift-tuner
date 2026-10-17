@@ -4,7 +4,7 @@ import type { ComponentType } from 'react'
 import type {
   ControlState,
   SignalDef,
-  SignalWarnLevels,
+  SignalLimits,
   Widget,
   WidgetConfig,
   PagePalette,
@@ -46,7 +46,7 @@ interface RenderContext {
   noAnimate: boolean
   testValue: number | null
   danger: boolean
-  signalWarn: SignalWarnLevels | undefined
+  signalLimits: SignalLimits | undefined
   signalUnit: string
   toDisplay: (value: number) => number
   unbound: boolean
@@ -81,7 +81,7 @@ const RENDERERS: RendererDispatch = {
         h={ctx.h}
         revLimiting={ctx.revLimiting}
         danger={ctx.danger}
-        signalWarn={ctx.signalWarn}
+        signalLimits={ctx.signalLimits}
         testValue={ctx.testValue}
         signalUnit={ctx.signalUnit}
         toDisplay={ctx.toDisplay}
@@ -153,21 +153,21 @@ const useResolvedSignalUnit = (widget: Widget): ResolvedUnit => {
   return useMemo(() => ({ symbol, toDisplay }), [symbol, toDisplay])
 }
 
-const useSignalWarn = (widget: Widget): SignalWarnLevels | undefined =>
+const useSignalLimits = (widget: Widget): SignalLimits | undefined =>
   useSignalStore((s) => s.signals.find((candidate) => candidate.name === widget.signal))
 
 const liveFlags = (
   props: WidgetPreviewProps,
   resolved: Widget,
-  signalWarn: SignalWarnLevels | undefined
+  signalLimits: SignalLimits | undefined
 ) => {
   const noAnimate = props.noAnimate ?? false
   const testValue = props.testValue ?? null
   return {
     noAnimate,
     testValue,
-    signalWarn,
-    danger: noAnimate ? false : widgetSeverity(resolved, testValue, signalWarn) === 'danger',
+    signalLimits,
+    danger: noAnimate ? false : widgetSeverity(resolved, testValue, signalLimits) === 'danger',
     revLimiting: noAnimate ? false : (props.revLimiting ?? false),
   }
 }
@@ -176,7 +176,7 @@ const WidgetPreviewImpl = (props: WidgetPreviewProps) => {
   const { widget, palette, scale = 1, buttonState = 'off', cycleStateIndex } = props
   const resolved = palette ? applyPalette(widget, palette) : widget
   const { symbol: signalUnit, toDisplay } = useResolvedSignalUnit(resolved)
-  const signalWarn = useSignalWarn(resolved)
+  const signalLimits = useSignalLimits(resolved)
   const ctx: RenderContext = {
     w: Math.max(0, props.displayW),
     h: Math.max(0, props.displayH),
@@ -186,7 +186,7 @@ const WidgetPreviewImpl = (props: WidgetPreviewProps) => {
     toDisplay,
     unbound: isUnboundWidget(resolved),
     scale,
-    ...liveFlags(props, resolved, signalWarn),
+    ...liveFlags(props, resolved, signalLimits),
   }
   return RENDERERS[resolved.config.type](resolved, ctx)
 }

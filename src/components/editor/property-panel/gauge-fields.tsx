@@ -144,36 +144,9 @@ const RangeFields = (props: GaugeFieldProps) => (
   </PanelRow>
 )
 
-const DangerField = ({ cfg, onChange, signalDef }: GaugeFieldProps) => {
-  const defaultDanger = signalDef?.dangerLevel
-  return (
-    <PanelRow>
-      <PanelField
-        label="Danger"
-        onReset={resetAction(
-          defaultDanger !== undefined && cfg.dangerLevel !== defaultDanger,
-          () => {
-            if (defaultDanger !== undefined)
-              onChange({ config: { ...cfg, dangerLevel: defaultDanger } })
-          }
-        )}
-      >
-        <PanelInput
-          type="number"
-          value={cfg.dangerLevel}
-          onChange={(e) => {
-            onChange({ config: { ...cfg, dangerLevel: Number(e.target.value) } })
-          }}
-        />
-      </PanelField>
-    </PanelRow>
-  )
-}
-
 const ArcFields = (props: GaugeFieldProps) => (
   <>
     <RangeFields {...props} />
-    <DangerField {...props} />
     <PanelField label="Rev flash">
       <Checkbox
         checked={props.cfg.revFlash ?? false}

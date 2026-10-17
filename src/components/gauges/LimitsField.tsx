@@ -1,8 +1,9 @@
 import type { Widget } from '@canshift/core'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { STRINGS } from '../../strings'
-import { useGaugeThresholds } from '../../hooks/useGaugeThresholds'
+import { useGaugeThresholds, type GaugeThresholds } from '../../hooks/useGaugeThresholds'
 import { LimitInput } from './LimitInput'
+import { SignalLimitsNote } from './SignalLimitsNote'
 
 const G = STRINGS.gauges
 
@@ -44,33 +45,45 @@ const LimitsHeading = (props: DirectionToggleProps) => (
   </div>
 )
 
+interface LimitInputsProps {
+  widgetId: string
+  direction: Direction
+  limits: GaugeThresholds
+}
+
+const LimitInputs = ({ widgetId, direction, limits }: LimitInputsProps) => (
+  <>
+    <LimitInput
+      unit={limits.unit}
+      id={`warn-${widgetId}`}
+      label={LABELS[direction].warning}
+      hint={G.coloursOrange}
+      tone="warning"
+      value={limits.warnAt}
+      placeholder={G.noLimit}
+      onCommit={limits.setWarnAt}
+    />
+    <LimitInput
+      unit={limits.unit}
+      id={`danger-${widgetId}`}
+      label={LABELS[direction].danger}
+      hint={G.coloursRed}
+      tone="danger"
+      value={limits.dangerAt}
+      onCommit={limits.setDangerAt}
+    />
+  </>
+)
+
 export const LimitsField = ({ pageId, widget }: LimitsFieldProps) => {
   const limits = useGaugeThresholds(pageId, widget)
   if (!limits.editable) return null
   const direction: Direction = limits.below ? 'below' : 'above'
-  const shared = { unit: limits.unit }
   return (
     <div className="flex flex-col gap-2">
       <LimitsHeading direction={direction} onChange={limits.setBelow} />
-      <LimitInput
-        {...shared}
-        id={`warn-${widget.id}`}
-        label={LABELS[direction].warning}
-        hint={G.coloursOrange}
-        tone="warning"
-        value={limits.warnAt}
-        placeholder={G.noLimit}
-        onCommit={limits.setWarnAt}
-      />
-      <LimitInput
-        {...shared}
-        id={`danger-${widget.id}`}
-        label={LABELS[direction].danger}
-        hint={G.coloursRed}
-        tone="danger"
-        value={limits.dangerAt}
-        onCommit={limits.setDangerAt}
-      />
+      <LimitInputs widgetId={widget.id} direction={direction} limits={limits} />
+      <SignalLimitsNote widget={widget} />
     </div>
   )
 }
