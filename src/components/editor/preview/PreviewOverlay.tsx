@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react'
-import type { PagePalette } from '@canshift/core'
+import type { CriticalAlert, PagePalette } from '@canshift/core'
 import { CutBand } from './CutBand'
 import { trackColorFor } from '../../../lib/track-color'
 import { AlertTakeover, SplashTakeover } from './Takeover'
 import type { PreviewMode } from './preview-modes'
-import { useCriticalAlert } from '../../../hooks/useCriticalAlert'
+import { useAlertDisplay, useCriticalAlerts } from '../../../hooks/useCriticalAlert'
 import { takeoverTextFor } from '../../../lib/critical-alert'
 
 const SAMPLE_CUT = {
@@ -18,13 +18,15 @@ const SAMPLE_SPLASH = { name: 'ANTI-LAG', state: 'ARMED', detail: 'EGT 780 Â°C Â
 
 const SAMPLE_ALERT = { name: 'OIL PRESS', value: '1.1', rule: 'below 1.5 bar' }
 
+const FirstAlertTakeover = ({ scale, alert }: { scale: number; alert: CriticalAlert }) => {
+  const { shownFiresAt, unit } = useAlertDisplay(alert)
+  return <AlertTakeover scale={scale} {...takeoverTextFor(alert, shownFiresAt, unit)} />
+}
+
 const ConfiguredAlertTakeover = ({ scale }: { scale: number }) => {
-  const { alert, shownFiresAt, unit } = useCriticalAlert()
-  const text =
-    alert === undefined || shownFiresAt === null
-      ? SAMPLE_ALERT
-      : takeoverTextFor(alert, shownFiresAt, unit)
-  return <AlertTakeover scale={scale} {...text} />
+  const [first] = useCriticalAlerts()
+  if (first === undefined) return <AlertTakeover scale={scale} {...SAMPLE_ALERT} />
+  return <FirstAlertTakeover scale={scale} alert={first} />
 }
 
 export interface PreviewOverlayProps {

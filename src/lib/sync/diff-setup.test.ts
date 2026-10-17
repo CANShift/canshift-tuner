@@ -170,3 +170,30 @@ describe('diffSetup for the car', () => {
     expect(revertChange(draft, device, change).car).toEqual(device.car)
   })
 })
+
+describe('diffSetup full-screen alerts', () => {
+  const alert = {
+    signal: 'oil_press_bar',
+    firesAt: 1,
+    direction: 'below',
+    acknowledgeOn: 'dash',
+  } as const
+
+  it('reads a changed list as one Dash change and undoes it', () => {
+    const draft = edit((c) => {
+      c.criticalAlerts = [alert, { ...alert, firesAt: 0.5 }]
+    })
+    const [change] = diffSetup(device, draft)
+    expect(change).toMatchObject({ section: 'dash', what: 'Changed the full-screen alerts' })
+    if (!change) throw new Error('expected a change')
+    expect(diffSetup(device, revertChange(draft, device, change))).toEqual([])
+  })
+
+  it('names a list emptied on the draft', () => {
+    const withAlerts: DashSetup = edit((c) => {
+      c.criticalAlerts = [alert]
+    })
+    const [change] = diffSetup(withAlerts, device)
+    expect(change?.what).toBe('Removed every full-screen alert')
+  })
+})

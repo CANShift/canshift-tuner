@@ -1,7 +1,7 @@
 import type { CriticalAlert, Widget } from '@canshift/core'
 
-export const drivesAlert = (
-  alert: CriticalAlert | undefined,
+export const alertDrivenBy = (
+  alerts: readonly CriticalAlert[],
   widget: Pick<Widget, 'signal'>
-): alert is CriticalAlert =>
-  alert !== undefined && widget.signal !== '' && alert.signal === widget.signal
+): CriticalAlert | undefined =>
+  widget.signal === '' ? undefined : alerts.find((alert) => alert.signal === widget.signal)

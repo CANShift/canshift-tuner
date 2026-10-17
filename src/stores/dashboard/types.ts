@@ -19,7 +19,9 @@ export interface LifecycleSlice {
   setConfig: (config: DashboardConfig) => void
   replaceConfig: (config: DashboardConfig, label: string) => void
   setUnits: (units: UnitSystem) => void
-  setCriticalAlert: (alert: CriticalAlert | null) => void
+  addCriticalAlert: (alert: CriticalAlert) => void
+  updateCriticalAlert: (index: number, alert: CriticalAlert) => void
+  removeCriticalAlert: (index: number) => void
   setPageButton: (role: PageButtonRole, signal: string | null) => void
   markAutosaved: (ts: number) => void
 }

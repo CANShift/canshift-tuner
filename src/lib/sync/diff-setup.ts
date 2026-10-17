@@ -28,9 +28,9 @@ const unitsCopy: TopLevelCopy = {
 
 const TOP_LEVEL: Record<string, TopLevelCopy> = {
   units: unitsCopy,
-  criticalAlert: {
+  criticalAlerts: {
     section: 'dash',
-    what: (after) => (after.criticalAlert === undefined ? C.alertOff : C.alertChanged),
+    what: (after) => (after.criticalAlerts === undefined ? C.alertOff : C.alertChanged),
     was: () => '',
   },
   pageButtons: {
