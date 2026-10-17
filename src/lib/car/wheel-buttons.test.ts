@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { SignalDefSchema } from '@canshift/core'
 import {
+  buttonSignal,
   isPressed,
   isWheelButton,
   wheelButtonMapping,
-  wheelButtonNumber,
   wheelButtonSignal,
 } from './wheel-buttons'
 
@@ -49,10 +49,27 @@ describe('wheelButtonMapping', () => {
   })
 })
 
+describe('buttonSignal', () => {
+  const custom = {
+    ...wheelButtonSignal('flag_cruise', { frameId: 0x300, byte: 1, bit: 2 }),
+    scale: 2,
+    unit: 'x',
+  }
+
+  it('moves an existing custom signal and keeps its reading', () => {
+    const moved = buttonSignal('flag_cruise', { frameId: 0x1a2, byte: 3, bit: null }, custom)
+    expect(moved).toMatchObject({ canFrameId: '0x1A2', startByte: 3, scale: 2, unit: 'x' })
+    expect(moved).not.toHaveProperty('bitMask')
+  })
+
+  it('writes a fresh slot signal for a wheel button', () => {
+    const slot = buttonSignal('wheel_button_1', { frameId: 0x1a2, byte: 3, bit: 0 }, custom)
+    expect(slot).toEqual(wheelButtonSignal('wheel_button_1', { frameId: 0x1a2, byte: 3, bit: 0 }))
+  })
+})
+
 describe('slot helpers', () => {
-  it('numbers the slots from one and recognises them', () => {
-    expect(wheelButtonNumber('wheel_button_1')).toBe(1)
-    expect(wheelButtonNumber('wheel_button_4')).toBe(4)
+  it('recognises the slots', () => {
     expect(isWheelButton('wheel_button_3')).toBe(true)
     expect(isWheelButton('flag_cruise')).toBe(false)
   })

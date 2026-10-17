@@ -6,7 +6,6 @@ import { CarHeader } from './CarHeader'
 import { ChooseCarSheet } from './ChooseCarSheet'
 import { RawFramesLink } from './RawFramesLink'
 import { SignalsCard } from './SignalsCard'
-import { WheelButtonsCard } from './WheelButtonsCard'
 import { LivePlotCard } from './LivePlotCard'
 import { ObdCard } from './ObdCard'
 import { Disclosure } from '../chrome/Disclosure'
@@ -51,7 +50,6 @@ const CarSection = () => {
         <div className={CAR_GRID}>
           <div className="flex min-w-0 flex-col gap-4">
             <SignalsCard onAdjust={setAdjusting} />
-            <WheelButtonsCard />
           </div>
           <LivePlot />
           <CarMore />

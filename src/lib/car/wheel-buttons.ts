@@ -29,14 +29,8 @@ const bitOf = (mask: string | undefined): number | null => {
 export const isWheelButton = (name: string): name is WheelButtonSignal =>
   (WHEEL_BUTTON_SIGNALS as readonly string[]).includes(name)
 
-export const wheelButtonNumber = (slot: WheelButtonSignal): number =>
-  WHEEL_BUTTON_SIGNALS.indexOf(slot) + 1
-
-export const wheelButtonSignal = (
-  slot: WheelButtonSignal,
-  mapping: WheelButtonMapping
-): SignalDef => ({
-  name: slot,
+export const wheelButtonSignal = (name: string, mapping: WheelButtonMapping): SignalDef => ({
+  name,
   canFrameId: formatFrameIdHex(mapping.frameId),
   startByte: mapping.byte,
   byteLength: 1,
@@ -57,9 +51,30 @@ export const wheelButtonMapping = (signal: SignalDef): WheelButtonMapping | null
   return { frameId, byte: signal.startByte, bit: bitOf(signal.bitMask) }
 }
 
+const remappedSignal = (signal: SignalDef, mapping: WheelButtonMapping): SignalDef => {
+  const { bitMask: _bitMask, ...rest } = signal
+  const { canFrameId, startByte, byteLength, bitMask } = wheelButtonSignal(signal.name, mapping)
+  return {
+    ...rest,
+    canFrameId,
+    startByte,
+    byteLength,
+    ...(bitMask === undefined ? {} : { bitMask }),
+  }
+}
+
+export const buttonSignal = (
+  name: string,
+  mapping: WheelButtonMapping,
+  existing: SignalDef | undefined
+): SignalDef =>
+  existing === undefined || isWheelButton(name)
+    ? wheelButtonSignal(name, mapping)
+    : remappedSignal(existing, mapping)
+
 export const isPressed = (value: number | undefined): boolean => value !== undefined && value !== 0
 
 export const mappingText = (mapping: WheelButtonMapping | null): string =>
   mapping === null
-    ? STRINGS.car.notMapped
+    ? STRINGS.dash.notSet
     : STRINGS.car.mappingText(formatFrameIdHex(mapping.frameId), mapping.byte, mapping.bit)

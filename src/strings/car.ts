@@ -19,12 +19,7 @@ export const CAR = {
     unit: 'Unit',
     resetToCatalogue: 'Reset to catalogue value',
     done: 'Done',
-    wheelButtons: 'Steering wheel buttons',
-    wheelButtonsHint:
-      'Map a button on the CAN bus to a slot, then choose what it does on the Dash tab. Press the button to check it lights up.',
-    wheelButton: (n: number): string => `Button ${String(n)}`,
-    notMapped: 'Not mapped',
-    mapButton: 'Map',
+    setButton: 'Set',
     changeButton: 'Change',
     removeButton: 'Remove',
     saveButton: 'Save',
@@ -40,8 +35,8 @@ export const CAR = {
     byteN: (n: number): string => `Byte ${String(n)}`,
     mappingText: (frame: string, byte: number, bit: number | null): string =>
       bit === null
-        ? `${frame} · byte ${String(byte)}`
-        : `${frame} · byte ${String(byte)} · bit ${String(bit)}`,
+        ? `Frame ${frame} · byte ${String(byte)}`
+        : `Frame ${frame} · byte ${String(byte)} · bit ${String(bit)}`,
     rawFrames: 'Raw CAN frames',
     rawFramesHint: 'For mapping signals the catalogue doesn’t know.',
     changeCar: 'Change car',
