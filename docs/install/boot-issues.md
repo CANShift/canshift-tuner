@@ -33,13 +33,19 @@ never see it:
 Once the dash boots far enough to show the UI, the ErrorBar (red strip at the
 bottom of the screen) surfaces problems. The codes you'll see most often:
 
-| Code                  | Meaning                                            | Fix                                                     |
-| --------------------- | -------------------------------------------------- | ------------------------------------------------------- |
-| `MOUNT_FAIL`          | SPIFFS mount failed                                | Re-flash; if persistent, the flash partition is corrupt |
-| `SCHEMA_MISMATCH`     | `dashboard.json` schema doesn't match the firmware | Send to dash again from the tuner                       |
-| `CONFIG_PARSE`        | JSON syntax error in a config file                 | Send to dash again, or restore a known-good backup      |
-| `BOOT_FAIL` (CAN)     | TWAI driver init failed                            | Check CAN wiring, ECU termination                       |
-| `FONT_PROVISION_FAIL` | A SPIFFS font file is missing or unreadable        | Re-flash filesystem partition                           |
+| Code         | Meaning                                                                           | Fix                                                       |
+| ------------ | --------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| `MOUNT_FAIL` | SPIFFS mount failed                                                               | Re-flash; if persistent, the flash partition is corrupt   |
+| `VER_MAJOR`  | `dashboard.json` was written for another major schema; the dash loads what it can | Send to dash again from the tuner                         |
+| `VER_OLD`    | `dashboard.json` predates grid layouts (schema 1.25); the gauges stack up         | Send to dash again from the tuner                         |
+| `READ_FAIL`  | A config file and its `.bak` both fail to read or parse                           | Send to dash again                                        |
+| `CFG_BAK`    | The dash refused the new `dashboard.json` and went back to the previous one       | Check that every gauge fits on its page, then send again  |
+| `BOOT_FAIL`  | TWAI driver init failed (CAN)                                                     | Check CAN wiring, ECU termination                         |
+| `FONT_WRITE` | A built-in font could not be written to SPIFFS at boot                            | Reboot; if it persists, re-flash the filesystem partition |
+
+Firmware 0.20 and older name two of these differently, `VER_MISMATCH` for
+`VER_MAJOR` and `FONT_PROVISION_FAIL` for `FONT_WRITE`, and never report
+`VER_OLD` or `CFG_BAK`.
 
 > [!TIP]
 > **The ErrorBar swipes up**
