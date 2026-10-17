@@ -78,8 +78,10 @@ writes `<firmware.bin>.sig` beside it.
 
 The firmware pins a tuner release by tag and SHA-256 and copies its files into `data/tuner/`.
 The archive is a contract: `canshift-tuner-dash-vX.Y.Z.tar.gz` holds only flat `.gz` files at its
-root (no folders), and `canshift-tuner-dash-vX.Y.Z.tar.gz.sha256` sits beside it. Tell the
-firmware side before changing either.
+root (no folders), and `canshift-tuner-dash-vX.Y.Z.tar.gz.sha256` sits beside it. Among those
+files, `manifest.json.gz` records `tuner_version`, `core_version` and the `schema_version` the
+bundle was built against; the firmware build refuses a bundle whose schema is older than its own
+pin. Tell the firmware side before changing any of it.
 
 1. Bump `version` in `package.json` in a PR and merge it. That version is the release.
 2. Tag the merge commit and push the tag:
