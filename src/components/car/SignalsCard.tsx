@@ -42,25 +42,39 @@ const AllSilent = ({ rows }: { rows: readonly SignalRow[] }) =>
     <p className="text-sm text-app-warning">{C.noData}</p>
   ) : null
 
+const SIGNALS_VIEWPORT = 'lg:max-h-[calc(100dvh-20rem)] lg:min-h-[16rem] lg:overflow-y-auto'
+
+const CardHeader = ({ rows }: { rows: readonly SignalRow[] }) => (
+  <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-app-border px-4 py-3 lg:col-span-full">
+    <h2 className="text-lg font-bold lg:text-xl">{C.signals}</h2>
+    <span className="text-sm text-app-muted">
+      {C.comingIn(liveCount(rows), rows.length)} ·{' '}
+      <span className="lg:hidden">{C.tapToAdjust}</span>
+      <span className="max-lg:hidden">{C.problemsFirst}</span>
+    </span>
+  </div>
+)
+
 interface SignalsTableProps {
   rows: readonly SignalRow[]
   onAdjust: (signal: string) => void
 }
 
 const SignalsTable = ({ rows, onAdjust }: SignalsTableProps) => (
-  <div
+  <section
     className={cn(
       TABLE_COLUMNS,
       'overflow-hidden rounded-card border border-app-border bg-app-surface'
     )}
   >
+    <CardHeader rows={rows} />
     <TableHead />
-    <ul className={SIGNAL_ROW_SUBGRID}>
+    <ul className={cn(SIGNAL_ROW_SUBGRID, SIGNALS_VIEWPORT)}>
       {rows.map((row) => (
         <SignalRowItem key={row.signal.name} row={row} onAdjust={onAdjust} />
       ))}
     </ul>
-  </div>
+  </section>
 )
 
 export const SignalsCard = ({ onAdjust }: { onAdjust: (signal: string) => void }) => {
@@ -69,14 +83,6 @@ export const SignalsCard = ({ onAdjust }: { onAdjust: (signal: string) => void }
   const rows = useMemo(() => signalRows(signals, values), [signals, values])
   return (
     <>
-      <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <h2 className="text-lg font-bold lg:text-xl">{C.signals}</h2>
-        <span className="text-sm text-app-muted">
-          {C.comingIn(liveCount(rows), rows.length)} ·{' '}
-          <span className="lg:hidden">{C.tapToAdjust}</span>
-          <span className="max-lg:hidden">{C.problemsFirst}</span>
-        </span>
-      </div>
       <AllSilent rows={rows} />
       <SignalsTable rows={rows} onAdjust={onAdjust} />
       <NoDataNotes rows={rows} />

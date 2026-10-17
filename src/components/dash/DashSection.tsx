@@ -9,7 +9,7 @@ import { ThemeCard } from './ThemeCard'
 
 const DashSection = () => (
   <div className="flex flex-1 flex-col overflow-y-auto">
-    <div className="flex w-full max-w-[1304px] flex-col gap-3 p-4 lg:gap-5 lg:p-8">
+    <div className="flex w-full flex-col gap-3 p-4 lg:gap-5 lg:p-8">
       <h1 className="text-2xl font-bold lg:text-[28px]">{STRINGS.dash.title}</h1>
       <div className="grid gap-3 lg:grid-cols-2 lg:items-start lg:gap-5">
         <div className="lg:col-start-1 lg:row-start-1">
