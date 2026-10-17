@@ -28,6 +28,8 @@ export const CHANGES = {
     units: (system: string): string => `Units ${system}`,
     alertChanged: 'Changed the full-screen alert',
     alertOff: 'Turned off the full-screen alert',
+    pageButtonsChanged: 'Changed the steering wheel buttons',
+    pageButtonsOff: 'Turned off the steering wheel buttons',
     topBar: 'Changed the top bar',
     theme: 'Changed the dash colours',
     firstPage: (page: string): string => `${page} is the first page`,

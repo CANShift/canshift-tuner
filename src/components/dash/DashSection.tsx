@@ -4,6 +4,7 @@ import { AlertCard } from './AlertCard'
 import { BackupCard } from './BackupCard'
 import { CanSpeedCard } from './CanSpeedCard'
 import { DisplayCard } from './DisplayCard'
+import { PageButtonsCard } from './PageButtonsCard'
 import { ScreenCard } from './ScreenCard'
 import { ThemeCard } from './ThemeCard'
 
@@ -32,6 +33,7 @@ const DashSection = () => (
       <div className="grid gap-3 lg:grid-cols-2 lg:items-start lg:gap-5">
         <ScreenCard />
         <ThemeCard />
+        <PageButtonsCard />
       </div>
     </div>
   </div>

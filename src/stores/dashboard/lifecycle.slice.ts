@@ -1,4 +1,4 @@
-import type { CriticalAlert, DashboardConfig } from '@canshift/core'
+import type { CriticalAlert, DashboardConfig, PageButtonRole, PageButtons } from '@canshift/core'
 import { DEFAULT_UNIT_SYSTEM, defaultThemePreset } from '@canshift/core'
 import type { UnitSystem } from '@canshift/core'
 import { fixupSelection, pushHistory } from './helpers'
@@ -37,6 +37,23 @@ const setCriticalAlertIn = (s: DashboardState, alert: CriticalAlert | null): voi
   else s.config.criticalAlert = alert
 }
 
+const withPageButton = (
+  buttons: PageButtons,
+  role: PageButtonRole,
+  signal: string | null
+): PageButtons => {
+  const { [role]: _replaced, ...others } = buttons
+  return signal === null ? others : { ...others, [role]: signal }
+}
+
+const setPageButtonIn = (s: DashboardState, role: PageButtonRole, signal: string | null): void => {
+  if (!s.config || (s.config.pageButtons?.[role] ?? null) === signal) return
+  pushHistory(s, signal === null ? 'Cleared a page button' : 'Changed a page button')
+  const buttons = withPageButton(s.config.pageButtons ?? {}, role, signal)
+  if (Object.keys(buttons).length === 0) delete s.config.pageButtons
+  else s.config.pageButtons = buttons
+}
+
 export const createLifecycleSlice: SliceCreator<LifecycleSlice> = (set) => ({
   config: null,
   lastSavedAt: null,
@@ -44,5 +61,6 @@ export const createLifecycleSlice: SliceCreator<LifecycleSlice> = (set) => ({
   replaceConfig: (config, label) => set((s) => replaceConfigIn(s, config, label)),
   setUnits: (units) => set((s) => setUnitsIn(s, units)),
   setCriticalAlert: (alert) => set((s) => setCriticalAlertIn(s, alert)),
+  setPageButton: (role, signal) => set((s) => setPageButtonIn(s, role, signal)),
   markAutosaved: (ts) => set({ lastSavedAt: ts }),
 })
