@@ -1,16 +1,19 @@
 import { useState, type ReactNode } from 'react'
+import { cn } from '@/lib/utils'
 import { UiIcon } from '../icons/UiIcons'
 
 export interface DisclosureProps {
   title: string
   hint?: string
+  defaultOpen?: boolean
+  className?: string
   children: ReactNode
 }
 
-export const Disclosure = ({ title, hint, children }: DisclosureProps) => {
-  const [open, setOpen] = useState(false)
+export const Disclosure = ({ title, hint, defaultOpen, className, children }: DisclosureProps) => {
+  const [open, setOpen] = useState(defaultOpen ?? false)
   return (
-    <section className="rounded-card border border-app-border bg-app-surface">
+    <section className={cn('rounded-card border border-app-border bg-app-surface', className)}>
       <button
         type="button"
         aria-expanded={open}

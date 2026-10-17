@@ -18,8 +18,9 @@ const useShownValue = (row: SignalRow): string => {
   return `${value} ${units.unitOf(row.signal.unit)}`.trim()
 }
 
-const GRID =
-  'grid grid-cols-[auto_1fr_auto_auto] items-center gap-3 lg:grid-cols-[2fr_1.4fr_1fr_96px]'
+export const SIGNAL_ROW_SUBGRID = 'lg:col-span-full lg:grid lg:grid-cols-subgrid lg:gap-x-8'
+
+const GRID = cn('grid grid-cols-[auto_1fr_auto_auto] items-center gap-3', SIGNAL_ROW_SUBGRID)
 
 const Dot = ({ live, className }: { live: boolean; className?: string }) => (
   <span
@@ -48,7 +49,7 @@ export const SignalRowItem = ({ row, onAdjust }: SignalRowItemProps) => {
   const tone = row.live ? 'text-app-text' : 'text-app-warning'
   const shown = useShownValue(row)
   return (
-    <li className="border-b border-app-divider last:border-b-0">
+    <li className={cn(SIGNAL_ROW_SUBGRID, 'border-b border-app-divider last:border-b-0')}>
       <button
         type="button"
         onClick={() => {

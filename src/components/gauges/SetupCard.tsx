@@ -41,7 +41,7 @@ const Steps = () => (
 export const SetupCard = () => {
   const navigate = useNavigate()
   return (
-    <section className="flex flex-col gap-3.5 rounded-card border border-app-border bg-app-surface p-4 lg:flex-[1_1_300px] lg:p-6">
+    <section className="flex flex-col gap-3.5 rounded-card border border-app-border bg-app-surface p-4 lg:p-6">
       <h2 className="text-[17px] font-semibold lg:text-lg">{F.setupTitle}</h2>
       <Steps />
       <Button className="h-12 text-base" onClick={() => void navigate(CHOOSE_CAR_PATH)}>
