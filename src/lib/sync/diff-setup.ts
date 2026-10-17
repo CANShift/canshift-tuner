@@ -33,6 +33,11 @@ const TOP_LEVEL: Record<string, TopLevelCopy> = {
     what: (after) => (after.criticalAlert === undefined ? C.alertOff : C.alertChanged),
     was: () => '',
   },
+  pageButtons: {
+    section: 'dash',
+    what: (after) => (after.pageButtons === undefined ? C.pageButtonsOff : C.pageButtonsChanged),
+    was: () => '',
+  },
   topBar: { section: 'gauges', what: () => C.topBar, was: () => '' },
   theme: { section: 'gauges', what: () => C.theme, was: () => '' },
   defaultPageId: {

@@ -3,6 +3,7 @@ import type { StateCreator } from 'zustand'
 import type {
   CriticalAlert,
   DashboardConfig,
+  PageButtonRole,
   PageConfig,
   PageTemplate,
   ThemePreset,
@@ -19,6 +20,7 @@ export interface LifecycleSlice {
   replaceConfig: (config: DashboardConfig, label: string) => void
   setUnits: (units: UnitSystem) => void
   setCriticalAlert: (alert: CriticalAlert | null) => void
+  setPageButton: (role: PageButtonRole, signal: string | null) => void
   markAutosaved: (ts: number) => void
 }
 
