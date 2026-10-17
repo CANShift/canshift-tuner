@@ -41,24 +41,51 @@ const XmlInput = ({ inputRef, onXml }: XmlInputProps) => (
   />
 )
 
-export const XmlCard = () => {
+const C = STRINGS.car
+
+interface CarActionsProps {
+  onChange: () => void
+  onImport: () => void
+  onExport: () => void
+}
+
+const CarActions = ({ onChange, onImport, onExport }: CarActionsProps) => (
+  <div className="ml-auto flex flex-wrap gap-2">
+    <Button variant="secondary" onClick={onChange}>
+      <span className="lg:hidden">{C.change}</span>
+      <span className="max-lg:hidden">{C.changeCar}</span>
+    </Button>
+    <Button variant="outline" onClick={onImport} title={C.importXml}>
+      <UiIcon name="upload" />
+      {C.importShort}
+    </Button>
+    <Button variant="outline" onClick={onExport} title={C.downloadXml}>
+      <UiIcon name="download" />
+      {C.exportShort}
+    </Button>
+  </div>
+)
+
+export const CarHeader = ({ onChange }: { onChange: () => void }) => {
   const input = useRef<HTMLInputElement>(null)
   const profile = useProfileChange()
   const download = useDownload()
+  const label = useCarLabel()
   return (
-    <div className="flex flex-col gap-3 p-3.5 lg:p-5">
-      <PendingCar profile={profile} onDone={() => undefined} />
-      <div className="flex flex-wrap gap-2">
-        <Button variant="secondary" onClick={() => input.current?.click()}>
-          <UiIcon name="upload" />
-          {STRINGS.car.importXml}
-        </Button>
-        <Button variant="outline" onClick={download}>
-          <UiIcon name="download" />
-          {STRINGS.car.downloadXml}
-        </Button>
+    <header className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <h1 className="text-2xl font-bold lg:text-[28px]">{C.yourCar}</h1>
+        <span className="rounded-control bg-app-surface-2 px-2.5 py-1 text-sm text-app-secondary">
+          {label}
+        </span>
+        <CarActions
+          onChange={onChange}
+          onImport={() => input.current?.click()}
+          onExport={download}
+        />
       </div>
+      <PendingCar profile={profile} onDone={() => undefined} />
       <XmlInput inputRef={input} onXml={profile.importXml} />
-    </div>
+    </header>
   )
 }

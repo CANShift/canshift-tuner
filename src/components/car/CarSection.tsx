@@ -2,13 +2,12 @@ import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { STRINGS } from '../../strings'
 import { AdjustReadingSheet } from './AdjustReadingSheet'
-import { CarCard } from './CarCard'
+import { CarHeader } from './CarHeader'
 import { ChooseCarSheet } from './ChooseCarSheet'
 import { RawFramesLink } from './RawFramesLink'
 import { SignalsCard } from './SignalsCard'
 import { LivePlotCard } from './LivePlotCard'
 import { ObdCard } from './ObdCard'
-import { XmlCard } from './XmlCard'
 import { Disclosure } from '../chrome/Disclosure'
 import { useIsLaptop } from '../../hooks/useIsLaptop'
 
@@ -17,9 +16,6 @@ const CarMore = () => (
     <h2 className="text-lg font-bold">{STRINGS.car.more}</h2>
     <Disclosure title={STRINGS.car.obd} hint={STRINGS.car.obdHint}>
       <ObdCard />
-    </Disclosure>
-    <Disclosure title={STRINGS.car.xml} hint={STRINGS.car.xmlHint}>
-      <XmlCard />
     </Disclosure>
     <RawFramesLink />
   </div>
@@ -50,8 +46,7 @@ const CarSection = () => {
   return (
     <div className="flex flex-1 flex-col overflow-y-auto">
       <div className="flex w-full flex-col gap-4 p-4 lg:gap-5 lg:p-8">
-        <h1 className="text-2xl font-bold lg:text-[28px]">{STRINGS.car.yourCar}</h1>
-        <CarCard onChange={() => setChoosing(true)} />
+        <CarHeader onChange={() => setChoosing(true)} />
         <div className={CAR_GRID}>
           <div className="flex min-w-0 flex-col gap-4">
             <SignalsCard onAdjust={setAdjusting} />
