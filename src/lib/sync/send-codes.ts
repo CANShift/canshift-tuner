@@ -1,7 +1,8 @@
 import { STRINGS } from '../../strings'
 import type { Refusal, SendFailure } from './refusal'
 
-type CodeOutcome = 'dropped' | 'outOfSpace' | 'newerFirmware' | 'carRefused' | 'retry'
+type CodeOutcome =
+  'dropped' | 'outOfSpace' | 'newerFirmware' | 'carRefused' | 'layoutRefused' | 'retry'
 
 export const SEND_CODE_OUTCOMES: Record<string, CodeOutcome> = {
   connection_closed: 'dropped',
@@ -39,6 +40,7 @@ export const SEND_CODE_OUTCOMES: Record<string, CodeOutcome> = {
   mismatch: 'retry',
   exception: 'retry',
   invalid_signals: 'carRefused',
+  config_refused: 'layoutRefused',
 }
 
 type Refused = Exclude<CodeOutcome, 'dropped'>
@@ -61,6 +63,12 @@ const REASONS: Record<Refused, Refusal> = {
     text: STRINGS.refused.carSettings,
     target: null,
     section: 'car',
+  },
+  layoutRefused: {
+    where: STRINGS.changes.gaugesWhere,
+    text: STRINGS.refused.layout,
+    target: null,
+    section: 'gauges',
   },
   retry: {
     where: STRINGS.changes.dashWhere,

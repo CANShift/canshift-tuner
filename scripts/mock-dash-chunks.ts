@@ -19,6 +19,7 @@ const commitUpload = (state: MockDashState, parts: readonly Buffer[]): Outcome =
   const config = parseUpload(parts)
   if (config === null) return fail('invalid_config')
   state.config = config
+  state.configReload = 'applied'
   return ok()
 }
 

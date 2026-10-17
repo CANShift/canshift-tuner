@@ -108,6 +108,13 @@ describe('failureForCode', () => {
     })
   })
 
+  it('tells a refused layout apart from a failed save', () => {
+    expect(failureForCode('config_refused')).toEqual({
+      kind: 'refused',
+      reasons: [{ where: 'Gauges', text: STRINGS.refused.layout, target: null, section: 'gauges' }],
+    })
+  })
+
   it('reads a lost link as a drop, not a refusal', () => {
     expect(failureForCode('CONNECTION_CLOSED')).toEqual({ kind: 'dropped' })
   })

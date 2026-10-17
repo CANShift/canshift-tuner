@@ -40,7 +40,8 @@ const queryVersion: CommandHandler = (_command, state) =>
     board_id: BOARD_ID,
   })
 
-const ping: CommandHandler = (_command, state) => ok({ uptime_ms: Date.now() - state.bootedAt })
+const ping: CommandHandler = (_command, state) =>
+  ok({ uptime_ms: Date.now() - state.bootedAt, config_reload: state.configReload })
 
 const getConfig: CommandHandler = (_command, state) =>
   state.config === null ? fail('config_not_found') : ok({ config: state.config })

@@ -60,6 +60,7 @@ export const EVERYWHERE = {
       'This dash runs newer settings than this tuner. Update the tuner (firmware update) before sending changes.',
     fallback: 'The dash couldn’t save this. Try sending again.',
     carSettings: 'The dash couldn’t use these car settings. Nothing changed.',
+    layout: 'The dash couldn’t lay out these gauges. Check that each one fits on its page.',
     showMe: 'Show me',
     notNow: 'Not now',
   },

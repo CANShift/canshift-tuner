@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { HEARTBEAT_MISS_THRESHOLD, HeartbeatTracker } from './heartbeat-tracker'
 
 const MISS = { kind: 'error', error: 'ack_timeout' } as const
-const PONG = { kind: 'ok', uptimeMs: 42 } as const
+const PONG = { kind: 'ok', uptimeMs: 42, configReload: null } as const
 
 const missTimes = (tracker: HeartbeatTracker, count: number, start: number) =>
   Array.from({ length: count }, (_, i) => tracker.record(MISS, start + i))
