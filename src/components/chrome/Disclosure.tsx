@@ -7,10 +7,18 @@ export interface DisclosureProps {
   hint?: string
   defaultOpen?: boolean
   className?: string
+  bodyClassName?: string
   children: ReactNode
 }
 
-export const Disclosure = ({ title, hint, defaultOpen, className, children }: DisclosureProps) => {
+export const Disclosure = ({
+  title,
+  hint,
+  defaultOpen,
+  className,
+  bodyClassName,
+  children,
+}: DisclosureProps) => {
   const [open, setOpen] = useState(defaultOpen ?? false)
   return (
     <section className={cn('rounded-card border border-app-border bg-app-surface', className)}>
@@ -26,7 +34,7 @@ export const Disclosure = ({ title, hint, defaultOpen, className, children }: Di
         </span>
         <UiIcon name={open ? 'chevronDown' : 'chevronRight'} className="text-app-muted" />
       </button>
-      {open && <div className="border-t border-app-divider">{children}</div>}
+      {open && <div className={cn('border-t border-app-divider', bodyClassName)}>{children}</div>}
     </section>
   )
 }
