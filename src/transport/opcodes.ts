@@ -78,7 +78,11 @@ export const KNOWN_OPCODES: readonly KnownOpcode[] = [
     name: 'CMD_QUERY_VERSION',
     description: 'Firmware version handshake',
   },
-  { id: CMD_PING, name: 'CMD_PING', description: 'Liveness probe — replies with uptime_ms' },
+  {
+    id: CMD_PING,
+    name: 'CMD_PING',
+    description: 'Liveness probe — replies with uptime_ms and config_reload',
+  },
   { id: CMD_CAN_SCAN_START, name: 'CMD_CAN_SCAN_START', description: 'Start CAN scan' },
   { id: CMD_CAN_SCAN_STOP, name: 'CMD_CAN_SCAN_STOP', description: 'Stop CAN scan' },
   {

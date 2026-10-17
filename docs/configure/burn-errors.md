@@ -22,20 +22,18 @@ the old config on the next boot, so you keep what you had.
 4. If it keeps failing, the SPIFFS partition may be corrupt. Re-flash the
    filesystem image: `pio run -t uploadfs`.
 
-## "Config reload failed"
+## "Config refused"
 
-The write succeeded but the dash couldn't parse the new file. The tuner sent
-invalid JSON, or the schema version doesn't match the firmware.
+The file reached the dash, but the dash couldn't use it: a gauge runs past the
+screen, the pages hold more gauges than the dash has room for, or the file
+doesn't read back. The dash puts the previous config back from its `.bak` and
+keeps running on it, and the ErrorBar says why, with `CFG_BAK` next to it. The
+tuner reports the same refusal when the send finishes. In workshop mode the dash
+checks the file the same way, before you leave workshop mode.
 
-The dash falls back to the built-in default config and surfaces
-`SCHEMA_MISMATCH` (or similar) in the ErrorBar.
-
-**Recovery:**
-
-- Reload the tuner page and send again — the tuner always writes the schema of
-  the `@canshift/core` it was built with.
-- If the issue persists, update the dash to the firmware that matches your
-  tuner. The schema version is logged at boot: `[BOOT] Schema vN.M`.
+**Recovery:** check that every gauge fits on its page, then send again. A dash
+that had no previous config shows the rejected-config screen until it gets one
+it accepts.
 
 > [!WARNING]
 > **Stop the frame scan before sending over USB**

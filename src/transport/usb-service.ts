@@ -12,8 +12,15 @@ import {
   CMD_SET_DAY_NIGHT,
   CMD_TOGGLE_DAY_NIGHT,
 } from './opcodes'
-import type { BurnPushResult, FirmwareIdentityResult, PingResult, RawAck, UsbResult } from './types'
-import { toUsbResult } from './types'
+import type {
+  BurnPushResult,
+  ConfigReloadState,
+  FirmwareIdentityResult,
+  PingResult,
+  RawAck,
+  UsbResult,
+} from './types'
+import { CONFIG_RELOAD_STATES, toUsbResult } from './types'
 import {
   boardProvisionPayload,
   interpretBoardProfileAck,
@@ -24,6 +31,12 @@ import { getDeviceLink } from './link'
 import { burnConfigChunked } from './chunked-config'
 
 const OK: UsbResult = { success: true }
+
+const isConfigReloadState = (raw: unknown): raw is ConfigReloadState =>
+  CONFIG_RELOAD_STATES.some((state) => state === raw)
+
+const configReloadOf = (raw: unknown): ConfigReloadState | null =>
+  isConfigReloadState(raw) ? raw : null
 
 export const usbService = {
   pushConfig: async (config: DashboardConfig): Promise<BurnPushResult> => {
@@ -72,7 +85,7 @@ export const usbService = {
       return { kind: 'error', error: result.error ?? 'unknown_error' }
     }
     const uptimeMs = typeof result.data?.uptime_ms === 'number' ? result.data.uptime_ms : null
-    return { kind: 'ok', uptimeMs }
+    return { kind: 'ok', uptimeMs, configReload: configReloadOf(result.data?.config_reload) }
   },
 
   queryVersion: async (): Promise<FirmwareIdentityResult> => {

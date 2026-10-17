@@ -29,7 +29,13 @@ export interface FirmwareIdentity {
 export type FirmwareIdentityResult =
   { kind: 'ok'; identity: FirmwareIdentity } | { kind: 'error'; error: string }
 
-export type PingResult = { kind: 'ok'; uptimeMs: number | null } | { kind: 'error'; error: string }
+export const CONFIG_RELOAD_STATES = ['idle', 'pending', 'applied', 'refused', 'unchecked'] as const
+
+export type ConfigReloadState = (typeof CONFIG_RELOAD_STATES)[number]
+
+export type PingResult =
+  | { kind: 'ok'; uptimeMs: number | null; configReload: ConfigReloadState | null }
+  | { kind: 'error'; error: string }
 
 export type RawAck =
   | { kind: 'ok'; data: Record<string, unknown> }
