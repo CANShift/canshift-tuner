@@ -7,6 +7,7 @@ import { useDashboardStore } from '../../stores/dashboard.store'
 import { useDisplayTier } from '../../hooks/useDisplayTier'
 import { useIsLaptop } from '../../hooks/useIsLaptop'
 import { GaugeHitLayer } from './GaugeHitLayer'
+import { useGaugeManipulation, type PreviewArea } from '../../hooks/useGaugeManipulation'
 import { PreviewOverlay } from '../editor/preview/PreviewOverlay'
 import type { PreviewMode } from '../editor/preview/preview-modes'
 
@@ -28,9 +29,10 @@ const useScreen = () => {
 
 const usePreviewGeometry = (page: PageConfig, topBar: TopBarConfig) => {
   const screen = useScreen()
-  const scale = useIsLaptop() ? LAPTOP_SCALE : PHONE_SCALE
+  const isLaptop = useIsLaptop()
+  const scale = isLaptop ? LAPTOP_SCALE : PHONE_SCALE
   const topBarHeight = page.showTopBar !== false ? topBar.height : 0
-  return { screen, scale, topBarHeight, areaHeight: screen.height - topBarHeight }
+  return { screen, scale, isLaptop, topBarHeight, areaHeight: screen.height - topBarHeight }
 }
 
 interface ModeOverlayProps {
@@ -53,8 +55,30 @@ const ModeOverlay = ({ mode, scale, top, page }: ModeOverlayProps) => {
   )
 }
 
+interface EditableHitLayerProps {
+  area: PreviewArea
+  page: PageConfig
+  top: number
+  isLaptop: boolean
+  selectedId: string | null
+  onSelect: (widgetId: string) => void
+}
+
+const EditableHitLayer = ({ area, isLaptop, ...props }: EditableHitLayerProps) => {
+  const selectedIds = useDashboardStore((s) => s.selectedWidgetIds)
+  const manipulation = useGaugeManipulation(props.page, area, isLaptop)
+  return (
+    <GaugeHitLayer
+      {...area}
+      {...props}
+      selectedIds={selectedIds}
+      manipulation={isLaptop ? manipulation : null}
+    />
+  )
+}
+
 export const GaugePreview = ({ page, topBar, selectedId, mode, onSelect }: GaugePreviewProps) => {
-  const { screen, scale, topBarHeight, areaHeight } = usePreviewGeometry(page, topBar)
+  const { screen, scale, isLaptop, topBarHeight, areaHeight } = usePreviewGeometry(page, topBar)
   const tracks = useDisplayTier()
   const colors = useFaceColors(page)
   const area = { scale, areaWidth: screen.width, areaHeight }
@@ -72,10 +96,11 @@ export const GaugePreview = ({ page, topBar, selectedId, mode, onSelect }: Gauge
         revLimiting={false}
       />
       <ModeOverlay mode={mode} scale={scale} top={topBarHeight * scale} page={page} />
-      <GaugeHitLayer
-        {...area}
+      <EditableHitLayer
+        area={area}
         page={page}
         top={topBarHeight * scale}
+        isLaptop={isLaptop}
         selectedId={selectedId}
         onSelect={onSelect}
       />

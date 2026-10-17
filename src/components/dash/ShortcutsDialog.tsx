@@ -2,7 +2,11 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { STRINGS } from '../../strings'
 
 const SHORTCUTS: readonly { keys: string; does: string }[] = [
-  { keys: '← →', does: STRINGS.dash.shortcutSelect },
+  { keys: '← → ↑ ↓', does: STRINGS.dash.shortcutSelect },
+  { keys: '⌥ + arrow', does: STRINGS.dash.shortcutNudge },
+  { keys: '⇧ ⌥ + arrow', does: STRINGS.dash.shortcutResize },
+  { keys: '⇧ + click', does: STRINGS.dash.shortcutMultiSelect },
+  { keys: '⌘ C · X · V', does: STRINGS.dash.shortcutClipboard },
   { keys: 'Esc', does: STRINGS.dash.shortcutDeselect },
 ]
 

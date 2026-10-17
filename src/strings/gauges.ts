@@ -14,6 +14,9 @@ export const GAUGES = {
   },
   gauges: {
     hint: 'Tap a gauge to change it',
+    hintLaptop:
+      'Click a gauge to change it. Drag to move it, drag its right edge to resize, Shift-click to pick several, ⌘C and ⌘V to copy.',
+    resizeHandle: (name: string): string => `Resize ${name}`,
     addPage: 'Add page',
     rename: 'Rename',
     move: 'Move',

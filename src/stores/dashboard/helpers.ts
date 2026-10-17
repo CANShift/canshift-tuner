@@ -33,6 +33,12 @@ export const pushHistory = (s: HistoryHost, label: string): void => {
 export const widgetRef = (w: Pick<Widget, 'signal' | 'type'>): string =>
   w.signal ? w.signal : w.type
 
+export const countLabel = (verb: string, widgets: readonly Widget[]): string => {
+  const [first] = widgets
+  if (widgets.length === 1 && first) return `${verb} ${widgetRef(first)}`
+  return `${verb} ${String(widgets.length)} widgets`
+}
+
 export const pageRef = (index: number): string => `page ${String(index + 1).padStart(2, '0')}`
 
 export const fixupSelection = (s: {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { GridPlacement } from '@canshift/core'
-import { autoPlace } from './layout'
+import { placementsOverlap } from '@canshift/core'
+import { autoPlace, resolveCollisions, type IdentifiedPlacement } from './layout'
 
 const placement = (col: number, colSpan: number, row: number, rowSpan: number): GridPlacement => ({
   col,
@@ -27,5 +28,22 @@ describe('autoPlace', () => {
   it('returns null when nothing fits', () => {
     const occupied = [placement(0, 12, 0, 12)]
     expect(autoPlace({ colSpan: 6, rowSpan: 6 }, occupied)).toBeNull()
+  })
+})
+
+describe('resolveCollisions', () => {
+  it('leaves non-overlapping placements untouched', () => {
+    const moved: IdentifiedPlacement = { id: 'a', ...placement(0, 6, 0, 6) }
+    const others: IdentifiedPlacement[] = [{ id: 'b', ...placement(6, 6, 0, 6) }]
+    expect(resolveCollisions(moved, others).size).toBe(0)
+  })
+
+  it('pushes an overlapping victim out of the moved widget', () => {
+    const moved: IdentifiedPlacement = { id: 'a', ...placement(0, 6, 0, 6) }
+    const others: IdentifiedPlacement[] = [{ id: 'b', ...placement(3, 6, 0, 6) }]
+    const changes = resolveCollisions(moved, others)
+    const b = changes.get('b')
+    expect(b).toBeDefined()
+    if (b) expect(placementsOverlap(moved, { ...placement(b.col, 6, b.row, 6) })).toBe(false)
   })
 })

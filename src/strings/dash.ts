@@ -46,6 +46,10 @@ export const DASH = {
     themeHint: 'The colour preset the dash uses by day and by night.',
     shortcutSelect: 'Select the gauge before or after',
     shortcutDeselect: 'Close the gauge editor',
+    shortcutNudge: 'Move the selected gauges one grid step',
+    shortcutResize: 'Make the selected gauges one grid step wider, narrower, taller or shorter',
+    shortcutMultiSelect: 'Add a gauge to the selection, or take it out',
+    shortcutClipboard: 'Copy, cut or paste the selected gauges',
     backupHint: 'One file with your pages, gauges, car and settings.',
     readsAs: (signal: string, direction: string, value: string): string =>
       `Reads as: alert when ${signal} goes ${direction} ${value}.`,

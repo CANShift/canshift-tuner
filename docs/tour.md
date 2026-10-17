@@ -41,7 +41,7 @@ On the **Not connected** screen, **Keep editing** opens the tuner against the bu
 
 ## Not in the tuner
 
-The command line, the diagnostics panel, profiles and projects, page templates (replaced by **Start from a layout**), board profile provisioning, and dragging, resizing, aligning or copy-pasting widgets on the preview. The board is read-only under **Dash → Hardware**.
+The command line, the diagnostics panel, profiles and projects, page templates (replaced by **Start from a layout**), board profile provisioning, and aligning or distributing widgets. Dragging, resizing and copy-paste stay on a laptop: see [Gauges](layout-editor.md#on-a-laptop). The board is read-only under **Dash → Hardware**.
 
 ## On a laptop
 
