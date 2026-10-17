@@ -1,4 +1,4 @@
-import { create } from 'zustand'
+import { create, type StateCreator } from 'zustand'
 import type { SignalDef } from '@canshift/core'
 import { ECU_PROFILES } from '@canshift/core'
 import { readItem, writeItem, STORAGE_KEYS } from '../lib/local-storage'
@@ -39,6 +39,8 @@ interface SignalState extends StoredState {
   carChosen: boolean
   setSignals: (signals: SignalDef[]) => void
   updateSignal: (name: string, patch: Partial<SignalDef>) => void
+  putSignal: (signal: SignalDef) => void
+  removeSignal: (name: string) => void
   applyProfile: (key: string, signals: SignalDef[]) => void
   setCar: (car: { profileKey: string; signals: SignalDef[] }) => void
 }
@@ -54,6 +56,42 @@ const persisted = (state: SignalState): StoredState => ({
   profileSignals: state.profileSignals,
 })
 
+const withSignal = (signals: readonly SignalDef[], signal: SignalDef): SignalDef[] =>
+  signals.some((s) => s.name === signal.name)
+    ? signals.map((s) => (s.name === signal.name ? signal : s))
+    : [...signals, signal]
+
+const saveSignals = (state: SignalState, signals: SignalDef[]): Pick<SignalState, 'signals'> => {
+  writeStored({ ...persisted(state), signals })
+  return { signals }
+}
+
+type StoreSet = Parameters<StateCreator<SignalState>>[0]
+
+const editActions = (
+  set: StoreSet
+): Pick<SignalState, 'updateSignal' | 'putSignal' | 'removeSignal'> => ({
+  updateSignal: (name, patch) => {
+    set((state) =>
+      saveSignals(
+        state,
+        state.signals.map((signal) => (signal.name === name ? { ...signal, ...patch } : signal))
+      )
+    )
+  },
+  putSignal: (signal) => {
+    set((state) => saveSignals(state, withSignal(state.signals, signal)))
+  },
+  removeSignal: (name) => {
+    set((state) =>
+      saveSignals(
+        state,
+        state.signals.filter((signal) => signal.name !== name)
+      )
+    )
+  },
+})
+
 export const useSignalStore = create<SignalState>()((set) => ({
   signals: initialSignals,
   profileSignals: stored?.profileSignals ?? initialSignals,
@@ -62,15 +100,7 @@ export const useSignalStore = create<SignalState>()((set) => ({
   setSignals: (signals) => {
     set({ signals })
   },
-  updateSignal: (name, patch) => {
-    set((state) => {
-      const signals = state.signals.map((signal) =>
-        signal.name === name ? { ...signal, ...patch } : signal
-      )
-      writeStored({ ...persisted(state), signals })
-      return { signals }
-    })
-  },
+  ...editActions(set),
   setCar: ({ profileKey, signals }) => {
     set((state) => {
       const profileSignals =
