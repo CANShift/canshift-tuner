@@ -16,11 +16,11 @@ export const DASH = {
     off: 'Off',
     pageButtons: 'Steering wheel buttons',
     pageButtonsHint:
-      'Turn dash pages from buttons on the CAN bus. A press is the signal going from 0 to any other value.',
+      'Turn dash pages from buttons on the CAN bus. Map the buttons first in Car → Signals.',
     nextPage: 'Next page',
     previousPage: 'Previous page',
     noButton: 'Not set',
-    clearButton: (role: string): string => `Clear ${role}`,
+    unmappedSlot: (slot: string): string => `${slot} (not mapped yet)`,
     tapEdgesHint: 'You can also tap the left or right edge of the dash to turn pages.',
     canSpeed: 'CAN bus speed',
     canSpeedHint: 'Must match your car. Most cars use 500 kbit/s.',
