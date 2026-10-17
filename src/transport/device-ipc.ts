@@ -1,5 +1,10 @@
 import type { DashboardConfig } from '@canshift/core'
-import { CURRENT_SCHEMA_VERSION, DashboardConfigSchema, migrateConfig } from '@canshift/core'
+import {
+  CURRENT_SCHEMA_VERSION,
+  DashboardConfigSchema,
+  MigrationError,
+  migrateConfig,
+} from '@canshift/core'
 
 import { CMD_GET_CONFIG } from './opcodes'
 import type { DeviceConfigResult } from './types'
@@ -12,6 +17,7 @@ const migrateAndParse = (raw: Record<string, unknown>): DeviceConfigResult => {
   try {
     migrated = migrateConfig(raw, CURRENT_SCHEMA_VERSION)
   } catch (err) {
+    if (err instanceof MigrationError && err.code === 'downgrade') return { kind: 'newer' }
     const message = errorMessage(err)
     return { kind: 'error', error: `config_migration_failed: ${message}` }
   }

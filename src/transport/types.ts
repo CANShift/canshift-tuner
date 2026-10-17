@@ -38,6 +38,7 @@ export type RawAck =
 export type DeviceConfigResult =
   | { kind: 'ok'; config: DashboardConfig; migrationsApplied: string[] }
   | { kind: 'none' }
+  | { kind: 'newer' }
   | { kind: 'error'; error: string }
 
 export type Unsubscribe = () => void

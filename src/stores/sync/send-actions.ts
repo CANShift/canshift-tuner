@@ -1,5 +1,6 @@
 import { dashWriter } from '../../lib/sync/dash-writer'
-import { preflightRefusals } from '../../lib/sync/preflight'
+import { NEWER_DASH_REFUSAL, preflightRefusals } from '../../lib/sync/preflight'
+import type { Refusal } from '../../lib/sync/refusal'
 import { failureForCode } from '../../lib/sync/send-codes'
 import {
   sendSetup,
@@ -16,14 +17,15 @@ import { useToastStore } from '../toast.store'
 import { readDraft } from './draft'
 import { useSyncStore } from './sync.store'
 
-const preflight = (draft: DashSetup) =>
-  draft.dashboard === null
-    ? []
-    : preflightRefusals({
-        config: draft.dashboard,
-        signals: useSignalStore.getState().signals,
-        firmwareMismatch: useDeviceStore.getState().firmwareCompat.kind === 'mismatch',
-      })
+const preflight = (draft: DashSetup): Refusal[] => {
+  if (useSyncStore.getState().dashNewer) return [NEWER_DASH_REFUSAL]
+  if (draft.dashboard === null) return []
+  return preflightRefusals({
+    config: draft.dashboard,
+    signals: useSignalStore.getState().signals,
+    firmwareMismatch: useDeviceStore.getState().firmwareCompat.kind === 'mismatch',
+  })
+}
 
 const thrown = (device: DashSetup): SendResult => {
   const failure = failureForCode('exception')

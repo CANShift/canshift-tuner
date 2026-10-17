@@ -5,6 +5,8 @@ import { transportErrorText } from '../transport/humanize-transport-error'
 import { useDeviceStore } from '../stores/device.store'
 import { useLogStore } from '../stores/log.store'
 import { adoptDayMode, adoptDeviceConfig, adoptDeviceDashboard } from '../stores/sync/draft'
+import { useSyncStore } from '../stores/sync/sync.store'
+import { STRINGS } from '../strings'
 
 type Log = ReturnType<typeof useLogStore.getState>['push']
 
@@ -18,6 +20,9 @@ const ON_DASHBOARD: Record<
   none: () => {
     adoptDeviceDashboard(null)
   },
+  newer: (_result, log) => {
+    log('error', STRINGS.refused.newerDash)
+  },
   error: (result, log) => {
     if (result.kind === 'error') console.error('[sync] the dash setup is unreadable', result.error)
     log('error', `The dash setup could not be read: ${transportErrorText('fetch_failed')}`)
@@ -26,6 +31,7 @@ const ON_DASHBOARD: Record<
 
 const readDashboard = async (log: Log): Promise<void> => {
   const result = await deviceIpc.getConfig()
+  useSyncStore.getState().setDashNewer(result.kind === 'newer')
   ON_DASHBOARD[result.kind](result, log)
 }
 

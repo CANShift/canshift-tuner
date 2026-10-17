@@ -14,6 +14,13 @@ export interface PreflightInputs {
   firmwareMismatch: boolean
 }
 
+export const NEWER_DASH_REFUSAL: Refusal = {
+  where: STRINGS.changes.dashWhere,
+  text: R.newerDash,
+  target: null,
+  section: 'dash',
+}
+
 const firmwareReasons = ({ firmwareMismatch }: PreflightInputs): Refusal[] =>
   firmwareMismatch
     ? [{ where: STRINGS.changes.dashWhere, text: R.newerFirmware, target: null, section: 'dash' }]
