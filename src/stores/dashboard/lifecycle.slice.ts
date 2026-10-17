@@ -1,7 +1,8 @@
-import type { CriticalAlert, DashboardConfig, PageButtonRole, PageButtons } from '@canshift/core'
+import type { DashboardConfig, PageButtonRole, PageButtons } from '@canshift/core'
 import { DEFAULT_UNIT_SYSTEM, defaultThemePreset } from '@canshift/core'
 import type { UnitSystem } from '@canshift/core'
 import { fixupSelection, pushHistory } from './helpers'
+import { addCriticalAlertIn, removeCriticalAlertIn, updateCriticalAlertIn } from './critical-alerts'
 import type { DashboardState, LifecycleSlice, SliceCreator } from './types'
 
 export const withDefaultTheme = (config: DashboardConfig): DashboardConfig => ({
@@ -30,13 +31,6 @@ const setUnitsIn = (s: DashboardState, units: UnitSystem): void => {
   s.config.units = units
 }
 
-const setCriticalAlertIn = (s: DashboardState, alert: CriticalAlert | null): void => {
-  if (!s.config) return
-  pushHistory(s, alert === null ? 'Cleared critical alert' : 'Changed critical alert')
-  if (alert === null) delete s.config.criticalAlert
-  else s.config.criticalAlert = alert
-}
-
 const withPageButton = (
   buttons: PageButtons,
   role: PageButtonRole,
@@ -60,7 +54,9 @@ export const createLifecycleSlice: SliceCreator<LifecycleSlice> = (set) => ({
   setConfig: (config) => set((s) => applyLoadedConfig(s, withDefaultTheme(config))),
   replaceConfig: (config, label) => set((s) => replaceConfigIn(s, config, label)),
   setUnits: (units) => set((s) => setUnitsIn(s, units)),
-  setCriticalAlert: (alert) => set((s) => setCriticalAlertIn(s, alert)),
+  addCriticalAlert: (alert) => set((s) => addCriticalAlertIn(s, alert)),
+  updateCriticalAlert: (index, alert) => set((s) => updateCriticalAlertIn(s, index, alert)),
+  removeCriticalAlert: (index) => set((s) => removeCriticalAlertIn(s, index)),
   setPageButton: (role, signal) => set((s) => setPageButtonIn(s, role, signal)),
   markAutosaved: (ts) => set({ lastSavedAt: ts }),
 })

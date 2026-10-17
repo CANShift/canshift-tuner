@@ -15,33 +15,31 @@ const parsed = (text: string): number | null => {
 export interface LimitTextProps {
   editor: CriticalAlertEditor
   labelClass: string
+  inputId: string
 }
 
 const ReadsAs = ({ editor, shown }: { editor: CriticalAlertEditor; shown: string }) => {
-  const alert = editor.alert
-  if (alert === undefined) return null
   const value = `${shown} ${editor.unit}`.trim()
+  const signal = signalName(editor.alert.signal).toLowerCase()
   return (
     <p className="rounded-[8px] bg-[#2a1515] px-3 py-2.5 text-sm">
-      {D.readsAs(signalName(alert.signal).toLowerCase(), DIRECTION_WORDS[alert.direction], value)}
+      {D.readsAs(signal, DIRECTION_WORDS[editor.alert.direction], value)}
     </p>
   )
 }
 
-export const LimitText = ({ editor, labelClass }: LimitTextProps) => {
-  const shown = editor.shownFiresAt === null ? '' : String(editor.shownFiresAt)
+export const LimitText = ({ editor, labelClass, inputId }: LimitTextProps) => {
+  const shown = String(editor.shownFiresAt)
   const [text, setText] = useState(shown)
   useEffect(() => setText(shown), [shown])
-  const alert = editor.alert
-  if (alert === undefined) return null
   return (
     <>
       <div className="flex items-center gap-3">
-        <label htmlFor="alert-value" className={labelClass}>
+        <label htmlFor={inputId} className={labelClass}>
           {D.value}
         </label>
         <input
-          id="alert-value"
+          id={inputId}
           inputMode="decimal"
           value={text}
           onChange={(event) => setText(event.target.value)}

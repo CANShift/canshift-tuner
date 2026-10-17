@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
 import type { Widget } from '@canshift/core'
 import { STRINGS } from '../../strings'
-import { drivesAlert } from '../../lib/gauges/alert-link'
-import { useDashboardStore } from '../../stores/dashboard.store'
+import { alertDrivenBy } from '../../lib/gauges/alert-link'
+import { useCriticalAlerts } from '../../hooks/useCriticalAlert'
 import { useDisplayUnits } from '../../hooks/useDisplayUnits'
 import { useSignalStore } from '../../stores/signal.store'
 import { formatSignalValue } from '../../lib/format'
@@ -22,9 +22,9 @@ const useThresholdText = (signal: string, firesAt: number | undefined): string =
 const DIRECTION_WORD = { above: STRINGS.gauges.above, below: STRINGS.gauges.below }
 
 export const AlertLink = ({ widget }: AlertLinkProps) => {
-  const alert = useDashboardStore((s) => s.config?.criticalAlert)
+  const alert = alertDrivenBy(useCriticalAlerts(), widget)
   const threshold = useThresholdText(widget.signal, alert?.firesAt)
-  if (!drivesAlert(alert, widget)) return null
+  if (alert === undefined) return null
   return (
     <Link
       to="/dash"
