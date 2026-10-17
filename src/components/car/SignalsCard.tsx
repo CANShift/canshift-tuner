@@ -4,12 +4,21 @@ import { liveCount, signalRows, type SignalRow } from '../../lib/car/signal-rows
 import { signalName } from '../../lib/sync/describe'
 import { useLiveSignals } from '../../hooks/useLiveSignals'
 import { useSignalStore } from '../../stores/signal.store'
-import { SignalRowItem } from './SignalRowItem'
+import { cn } from '@/lib/utils'
+import { SIGNAL_ROW_SUBGRID, SignalRowItem } from './SignalRowItem'
 
 const C = STRINGS.car
 
+const TABLE_COLUMNS =
+  'lg:grid lg:grid-cols-[minmax(9rem,max-content)_minmax(8rem,max-content)_minmax(6rem,max-content)_max-content] lg:gap-x-8'
+
 const TableHead = () => (
-  <div className="hidden h-10 grid-cols-[2fr_1.4fr_1fr_96px] items-center border-b border-app-border px-4 text-[13px] text-app-muted lg:grid">
+  <div
+    className={cn(
+      SIGNAL_ROW_SUBGRID,
+      'hidden h-10 items-center border-b border-app-border px-4 text-[13px] text-app-muted'
+    )}
+  >
     <span>{C.signalColumn}</span>
     <span>{C.valueColumn}</span>
     <span>{C.statusColumn}</span>
@@ -33,6 +42,27 @@ const AllSilent = ({ rows }: { rows: readonly SignalRow[] }) =>
     <p className="text-sm text-app-warning">{C.noData}</p>
   ) : null
 
+interface SignalsTableProps {
+  rows: readonly SignalRow[]
+  onAdjust: (signal: string) => void
+}
+
+const SignalsTable = ({ rows, onAdjust }: SignalsTableProps) => (
+  <div
+    className={cn(
+      TABLE_COLUMNS,
+      'overflow-hidden rounded-card border border-app-border bg-app-surface'
+    )}
+  >
+    <TableHead />
+    <ul className={SIGNAL_ROW_SUBGRID}>
+      {rows.map((row) => (
+        <SignalRowItem key={row.signal.name} row={row} onAdjust={onAdjust} />
+      ))}
+    </ul>
+  </div>
+)
+
 export const SignalsCard = ({ onAdjust }: { onAdjust: (signal: string) => void }) => {
   const signals = useSignalStore((s) => s.signals)
   const values = useLiveSignals()
@@ -48,14 +78,7 @@ export const SignalsCard = ({ onAdjust }: { onAdjust: (signal: string) => void }
         </span>
       </div>
       <AllSilent rows={rows} />
-      <div className="overflow-hidden rounded-card border border-app-border bg-app-surface">
-        <TableHead />
-        <ul>
-          {rows.map((row) => (
-            <SignalRowItem key={row.signal.name} row={row} onAdjust={onAdjust} />
-          ))}
-        </ul>
-      </div>
+      <SignalsTable rows={rows} onAdjust={onAdjust} />
       <NoDataNotes rows={rows} />
     </>
   )

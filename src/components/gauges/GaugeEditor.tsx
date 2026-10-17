@@ -20,7 +20,7 @@ export interface GaugeEditorProps {
 
 const EDITOR = [
   'flex flex-col gap-4 border-t border-app-border bg-app-surface px-4 pb-5 pt-3',
-  'rounded-t-sheet lg:flex-[1_1_320px] lg:rounded-card lg:border lg:p-5',
+  'rounded-t-sheet lg:rounded-card lg:border lg:p-5',
 ].join(' ')
 
 const EditorHeader = ({ page, widget }: GaugeEditorProps) => {

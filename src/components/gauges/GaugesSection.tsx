@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { cn } from '@/lib/utils'
 import type { PageConfig, TopBarConfig, Widget } from '@canshift/core'
 import { STRINGS } from '../../strings'
 import { useConnection } from '../../hooks/useConnection'
 import { useGaugeKeys } from '../../hooks/useGaugeKeys'
 import { useGaugesPage } from '../../hooks/useGaugesPage'
 import { useIsLaptop } from '../../hooks/useIsLaptop'
+import { usePreviewScale } from '../../hooks/usePreviewScale'
 import { useDashboardStore } from '../../stores/dashboard.store'
 import { AddWidgetRow } from './AddWidgetRow'
 import { AddPageSheet } from './AddPageSheet'
@@ -30,26 +32,38 @@ const PreviewHint = ({ selected }: { selected: boolean }) => {
 }
 
 interface PreviewColumnProps {
+  pages: readonly PageConfig[]
   page: PageConfig
   topBar: TopBarConfig
-  selectedId: string | null
+  selected: Widget | null
+  onAddPage: () => void
 }
 
-const PreviewColumn = ({ page, topBar, selectedId }: PreviewColumnProps) => {
+const PreviewColumn = ({ pages, page, topBar, selected, onAddPage }: PreviewColumnProps) => {
+  const selectedId = selected?.id ?? null
   const selectWidget = useDashboardStore((s) => s.selectWidget)
   const [mode, setMode] = useState<PreviewMode>('normal')
+  const { columnRef, scale } = usePreviewScale()
   return (
-    <div className="flex flex-col items-center gap-3 lg:items-start">
-      <GaugePreview
-        page={page}
-        topBar={topBar}
-        selectedId={selectedId}
-        mode={mode}
-        onSelect={selectWidget}
-      />
-      <PreviewHint selected={selectedId !== null} />
-      <AddWidgetRow page={page} />
-      <PreviewModeRow mode={mode} onMode={setMode} />
+    <div ref={columnRef} className="flex min-w-0 flex-col lg:items-center">
+      <div className="flex flex-col gap-4 lg:w-min lg:gap-3">
+        <div className="px-4 lg:px-0">
+          <PageChips pages={pages} current={page} onAddPage={onAddPage} />
+        </div>
+        <div className="flex flex-col items-center gap-3 lg:items-start">
+          <GaugePreview
+            page={page}
+            topBar={topBar}
+            scale={scale}
+            selectedId={selectedId}
+            mode={mode}
+            onSelect={selectWidget}
+          />
+          <PreviewHint selected={selectedId !== null} />
+          <AddWidgetRow page={page} />
+          <PreviewModeRow mode={mode} onMode={setMode} />
+        </div>
+      </div>
     </div>
   )
 }
@@ -67,12 +81,19 @@ const EmptyGauges = ({ onAddPage }: { onAddPage: () => void }) => (
   </div>
 )
 
+const SIDE_PANEL = 'lg:mx-auto lg:w-full lg:max-w-[480px] xl:mx-0 xl:max-w-none'
+
 const SidePanel = ({ page, selected }: { page: PageConfig; selected: Widget | null }) => {
   const carChosen = useSignalStore((s) => s.carChosen)
-  if (selected !== null) return <GaugeEditor page={page} widget={selected} />
+  if (selected !== null)
+    return (
+      <div className={SIDE_PANEL}>
+        <GaugeEditor page={page} widget={selected} />
+      </div>
+    )
   if (carChosen) return null
   return (
-    <div className="px-4 lg:contents">
+    <div className={cn('px-4 lg:px-0', SIDE_PANEL)}>
       <SetupCard />
     </div>
   )
@@ -87,6 +108,11 @@ const FirstOpenTop = () => {
     </div>
   )
 }
+
+const GAUGES_GRID = [
+  'flex flex-col gap-4 xl:grid xl:items-start xl:gap-6',
+  'xl:grid-cols-[minmax(0,1fr)_360px] 2xl:grid-cols-[minmax(0,1fr)_420px]',
+].join(' ')
 
 const GaugesSection = () => {
   const { pages, page, selected } = useGaugesPage()
@@ -103,13 +129,10 @@ const GaugesSection = () => {
       </>
     )
   return (
-    <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden pt-4 lg:px-8 lg:py-6">
+    <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden pt-4 lg:px-6 lg:py-6">
       <FirstOpenTop />
-      <div className="px-4 lg:px-0">
-        <PageChips pages={pages} current={page} onAddPage={openAdd} />
-      </div>
-      <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-start lg:gap-8">
-        <PreviewColumn page={page} topBar={topBar} selectedId={selected?.id ?? null} />
+      <div className={GAUGES_GRID}>
+        <PreviewColumn {...{ pages, page, topBar, selected }} onAddPage={openAdd} />
         <SidePanel page={page} selected={selected} />
       </div>
       {sheet}
