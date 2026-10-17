@@ -59,6 +59,8 @@ export const GAUGES = {
       `Also triggers the full-screen alert ${direction} ${threshold}`,
     above: 'above',
     below: 'below',
+    or: 'or',
+    alsoRed: (sides: string): string => `Also turns red ${sides}, the limits set for this signal.`,
     noSignalMatch: 'No signal matches.',
     searchSignals: 'Search signals',
     paused: 'Preview of your edits · live values paused',

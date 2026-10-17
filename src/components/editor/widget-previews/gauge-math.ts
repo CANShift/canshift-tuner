@@ -1,4 +1,4 @@
-import type { GaugeSeverity, GaugeWidgetConfig, SignalWarnLevels, Widget } from '@canshift/core'
+import type { GaugeSeverity, GaugeWidgetConfig, SignalLimits, Widget } from '@canshift/core'
 import { GAUGE_ARC, WIDGET_ZONE_COLORS, gaugeArcPath, gaugeSeverity } from '@canshift/core'
 
 export const DEMO_PCT = 0.65
@@ -29,7 +29,7 @@ export const shownValue = (
 export const gaugePreviewSeverity = (
   cfg: GaugeWidgetConfig,
   testValue: number | null | undefined,
-  signal?: SignalWarnLevels
+  signal?: SignalLimits
 ): GaugeSeverity => {
   const { raw } = effectiveValue(testValue, cfg.minValue, cfg.maxValue)
   return gaugeSeverity(raw, cfg, signal)
@@ -38,7 +38,7 @@ export const gaugePreviewSeverity = (
 export const widgetSeverity = (
   widget: Widget,
   testValue: number | null | undefined,
-  signal?: SignalWarnLevels
+  signal?: SignalLimits
 ): GaugeSeverity =>
   widget.config.type === 'gauge' ? gaugePreviewSeverity(widget.config, testValue, signal) : 'normal'
 

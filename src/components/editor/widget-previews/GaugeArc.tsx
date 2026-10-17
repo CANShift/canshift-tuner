@@ -6,7 +6,7 @@ import {
   gaugeValueFontSize,
   type GaugeSeverity,
   type GaugeWidgetConfig,
-  type SignalWarnLevels,
+  type SignalLimits,
   type Widget,
 } from '@canshift/core'
 import { cn } from '@/lib/utils'
@@ -23,7 +23,7 @@ export interface GaugeArcRendererProps extends BaseRendererProps {
   testValue?: number | null
   toDisplay: (value: number) => number
   unbound?: boolean
-  signalWarn?: SignalWarnLevels | undefined
+  signalLimits?: SignalLimits | undefined
 }
 
 const SIGNAL_LABEL_FONT_SIZE = 9
@@ -60,7 +60,9 @@ const arcReading = (
   const unbound = props.unbound ?? false
   const bound = shownValue(props.testValue, cfg.minValue, cfg.maxValue, props.toDisplay)
   const valuePct = unbound ? 0 : bound.pct
-  const severity = unbound ? 'normal' : gaugePreviewSeverity(cfg, props.testValue, props.signalWarn)
+  const severity = unbound
+    ? 'normal'
+    : gaugePreviewSeverity(cfg, props.testValue, props.signalLimits)
   return {
     valuePct,
     valueStr: unbound ? STALE_PLACEHOLDER : bound.raw.toFixed(cfg.decimalPlaces),

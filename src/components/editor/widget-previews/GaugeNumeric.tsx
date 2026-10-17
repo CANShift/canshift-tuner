@@ -7,7 +7,7 @@ import {
   valueUnitFontSize,
   type GaugeSeverity,
   type GaugeWidgetConfig,
-  type SignalWarnLevels,
+  type SignalLimits,
   type Widget,
 } from '@canshift/core'
 import { cn } from '@/lib/utils'
@@ -39,7 +39,7 @@ export interface GaugeNumericRendererProps extends BaseRendererProps {
   toDisplay: (value: number) => number
   unbound?: boolean
   scale: number
-  signalWarn?: SignalWarnLevels | undefined
+  signalLimits?: SignalLimits | undefined
 }
 
 const SIGNAL_HEADER_PX = 14
@@ -58,7 +58,9 @@ const numericReading = (
   const unbound = props.unbound ?? false
   const bound = shownValue(props.testValue, cfg.minValue, cfg.maxValue, props.toDisplay)
   const value = unbound ? STALE_PLACEHOLDER : bound.raw.toFixed(cfg.decimalPlaces)
-  const severity = unbound ? 'normal' : gaugePreviewSeverity(cfg, props.testValue, props.signalWarn)
+  const severity = unbound
+    ? 'normal'
+    : gaugePreviewSeverity(cfg, props.testValue, props.signalLimits)
   const ink = severityInk(severity, props.widget.style.textColor, props.widget.style.criticalColor)
   return { text: (cfg.prefix ?? '') + String(value), pct: unbound ? 0 : bound.pct, ink, severity }
 }
