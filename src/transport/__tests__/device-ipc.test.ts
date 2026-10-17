@@ -126,3 +126,14 @@ describe('deviceIpc.getConfig (#1703): returns none when the response', () => {
     expect(result).toEqual({ kind: 'error', error: 'ack_timeout' })
   })
 })
+
+describe('deviceIpc.getConfig: a dash newer than this tuner', () => {
+  it('reports a config from a newer schema as newer, not as an error', async () => {
+    const newer = { ...structuredClone(DEFAULT_SIM_CONFIG), version: '99.0.0' }
+    respondWith({ ok: true, data: { config: newer } })
+
+    const result = await deviceIpc.getConfig()
+
+    expect(result).toEqual({ kind: 'newer' })
+  })
+})

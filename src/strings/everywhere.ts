@@ -56,6 +56,8 @@ export const EVERYWHERE = {
     tooManyGauges: (page: string): string => `Page ${page} has more gauges than fit. Remove one.`,
     outOfSpace: 'The dash is out of space. Remove a page.',
     newerFirmware: 'This setup was made for newer firmware. Update the dash first.',
+    newerDash:
+      'This dash runs newer settings than this tuner. Update the tuner (firmware update) before sending changes.',
     fallback: 'The dash couldn’t save this. Try sending again.',
     carSettings: 'The dash couldn’t use these car settings. Nothing changed.',
     showMe: 'Show me',

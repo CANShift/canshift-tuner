@@ -63,6 +63,7 @@ beforeEach(() => {
     settingsDraft: UNKNOWN_SETTINGS,
     sendState: 'idle',
     refusals: [],
+    dashNewer: false,
   })
 })
 
@@ -100,6 +101,26 @@ describe('sendToDash failing', () => {
     await sendToDash(writer(() => Promise.reject(new Error('must not be called'))))
     expect(useSyncStore.getState().sendState).toBe('refused')
     expect(useSyncStore.getState().refusals.length).toBeGreaterThan(0)
+  })
+})
+
+describe('sendToDash to a dash newer than this tuner', () => {
+  it('refuses without writing anything and keeps the edit', async () => {
+    useSyncStore.getState().setDashNewer(true)
+    editSpeedLimit(250)
+    await sendToDash(writer(() => Promise.reject(new Error('must not be called'))))
+    expect(useSyncStore.getState().sendState).toBe('refused')
+    expect(useSyncStore.getState().refusals.map((reason) => reason.text)).toEqual([
+      STRINGS.refused.newerDash,
+    ])
+    expect(unsent()).toHaveLength(1)
+  })
+
+  it('refuses even when there is no dashboard draft yet', async () => {
+    useSyncStore.getState().setDashNewer(true)
+    useDashboardStore.setState({ config: null })
+    await sendToDash(writer(() => Promise.reject(new Error('must not be called'))))
+    expect(useSyncStore.getState().sendState).toBe('refused')
   })
 })
 
