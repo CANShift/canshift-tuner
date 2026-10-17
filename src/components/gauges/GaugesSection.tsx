@@ -110,7 +110,7 @@ const FirstOpenTop = () => {
 }
 
 const GAUGES_GRID = [
-  'flex flex-col gap-4 xl:grid xl:items-start xl:gap-6',
+  'flex flex-col gap-4 xl:mx-auto xl:grid xl:w-full xl:max-w-[1120px] xl:items-start xl:gap-6',
   'xl:grid-cols-[minmax(0,1fr)_360px] 2xl:grid-cols-[minmax(0,1fr)_420px]',
 ].join(' ')
 
