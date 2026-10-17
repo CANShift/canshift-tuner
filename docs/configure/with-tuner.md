@@ -61,7 +61,7 @@ Choosing another car replaces the car's signals, so map the buttons again afterw
 
 ## Schema vs firmware version
 
-The firmware checks `dashboard.json` against the schema it was built with. After a firmware update, a stored config from an older schema makes the dash boot its built-in default and show `SCHEMA_MISMATCH`. Send to dash again: the tuner always writes the current schema. If the dash answers that the setup was made for newer firmware, [update the dash](firmware-update.md) first.
+The firmware checks the `version` of the stored `dashboard.json` against the schema it was built with. It still loads the file and flags the gap in the ErrorBar: `VER_MAJOR` when the major version differs, `VER_OLD` when the file predates grid layouts (schema 1.25) and the gauges stack up. Send to dash again: the tuner always writes the current schema. If the dash answers that the setup was made for newer firmware, [update the dash](firmware-update.md) first.
 
 ## Next
 
