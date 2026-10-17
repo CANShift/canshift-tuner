@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import type { WheelButtonSignal } from '@canshift/core'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -15,7 +14,6 @@ import { formatFrameIdHex, parseHexFrameId } from '../../utils/frame-id'
 import {
   WHEEL_BUTTON_BITS,
   WHEEL_BUTTON_BYTES,
-  wheelButtonNumber,
   type WheelButtonMapping,
 } from '../../lib/car/wheel-buttons'
 
@@ -26,8 +24,9 @@ const FIELD = 'flex flex-col gap-1.5 text-[15px]'
 const TRIGGER = 'h-12 rounded-control border-app-border px-3 text-[15px] lg:h-11'
 
 export interface WheelButtonSheetProps {
-  slot: WheelButtonSignal
+  title: string
   mapping: WheelButtonMapping | null
+  removable: boolean
   onClose: () => void
   onSave: (mapping: WheelButtonMapping) => void
   onRemove: () => void
@@ -122,7 +121,7 @@ const SheetActions = ({ draft, props }: { draft: Draft; props: WheelButtonSheetP
       >
         {C.saveButton}
       </Button>
-      {props.mapping !== null && (
+      {props.removable && (
         <Button variant="outline" onClick={props.onRemove}>
           {C.removeButton}
         </Button>
@@ -136,11 +135,9 @@ export const WheelButtonSheet = (props: WheelButtonSheetProps) => {
   return (
     <Sheet open onOpenChange={(open) => !open && props.onClose()}>
       <SheetContent className="gap-4">
-        <SheetTitle className="text-xl font-bold">
-          {C.wheelButton(wheelButtonNumber(props.slot))}
-        </SheetTitle>
+        <SheetTitle className="text-xl font-bold">{props.title}</SheetTitle>
         <SheetDescription className="text-[13px] text-app-muted">
-          {C.wheelButtonsHint}
+          {STRINGS.dash.buttonSheetHint}
         </SheetDescription>
         <FrameField draft={draft} onDraft={setDraft} />
         <div className="grid grid-cols-2 gap-3">

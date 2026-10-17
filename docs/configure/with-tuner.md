@@ -25,7 +25,7 @@ The dash talks to one device at a time. A second phone or laptop is turned away 
 
 ## The order to work in
 
-1. **Car** — choose your car from the catalogue and check its signals come in. Map any steering wheel buttons to the four button slots. See [Your car](ecu-profiles.md) and [Live data](live-data.md).
+1. **Car** — choose your car from the catalogue and check its signals come in. See [Your car](ecu-profiles.md) and [Live data](live-data.md).
 2. **Gauges** — add pages and widgets, pick what each one shows, set its limits. See [Gauges & pages](widgets.md).
 3. **Dash** — units, brightness, the full-screen alert, the CAN bus speed, which button turns to the next or previous page, and under **More** the screen and the dash colours. Save a backup.
 
@@ -51,7 +51,7 @@ When you send, the dash shows a "Saving config…" overlay while it writes, then
 
 ## Steering wheel buttons
 
-A button on the CAN bus can turn the dash pages. In **Car → Steering wheel buttons**, map it to one of four slots by giving its CAN frame ID, the byte and the bit; the light next to the slot comes on while the button is pressed, so you can check it from the car. Then on **Dash → Steering wheel buttons**, choose which slot is **Next page** and which is **Previous page**. The same light shows there. Tapping the left or right edge of the dash turns pages too.
+A button on your steering wheel can turn the dash pages. In **Dash → Steering wheel buttons**, press **Set** next to **Next page** or **Previous page** and give the CAN frame ID, the byte and the bit that button changes; **Remove** in the same sheet turns it off again. The light next to each direction comes on while its button is pressed, so you can check it from the car. Tapping the left or right edge of the dash turns pages too.
 
 Choosing another car replaces the car's signals, so map the buttons again afterwards.
 
