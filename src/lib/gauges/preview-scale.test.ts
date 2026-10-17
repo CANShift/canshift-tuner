@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { PREVIEW_VERTICAL_CHROME, fitPreviewScale } from './preview-scale'
+import { MAX_PREVIEW_SCALE, PREVIEW_VERTICAL_CHROME, fitPreviewScale } from './preview-scale'
 
 const SCREEN = { width: 320, height: 240 }
 const tall = (width: number) => ({ width, height: 4000 })
@@ -7,14 +7,16 @@ const tall = (width: number) => ({ width, height: 4000 })
 describe('fitPreviewScale', () => {
   it('takes the largest whole factor that fits the column width', () => {
     expect(fitPreviewScale(tall(648), SCREEN)).toBe(2)
-    expect(fitPreviewScale(tall(960), SCREEN)).toBe(3)
-    expect(fitPreviewScale(tall(959), SCREEN)).toBe(2)
+    expect(fitPreviewScale(tall(639), SCREEN)).toBe(1)
   })
 
   it('stops growing once the preview would not fit the window height', () => {
-    expect(fitPreviewScale({ width: 1300, height: 800 }, SCREEN)).toBe(2)
-    expect(fitPreviewScale({ width: 1300, height: 1000 }, SCREEN)).toBe(3)
-    expect(fitPreviewScale({ width: 1300, height: PREVIEW_VERTICAL_CHROME + 960 }, SCREEN)).toBe(4)
+    expect(fitPreviewScale({ width: 1300, height: PREVIEW_VERTICAL_CHROME + 479 }, SCREEN)).toBe(1)
+    expect(fitPreviewScale({ width: 1300, height: PREVIEW_VERTICAL_CHROME + 480 }, SCREEN)).toBe(2)
+  })
+
+  it('never grows past twice the design size, however large the window', () => {
+    expect(fitPreviewScale({ width: 4000, height: 4000 }, SCREEN)).toBe(MAX_PREVIEW_SCALE)
   })
 
   it('never drops below the pixel-for-pixel size', () => {
