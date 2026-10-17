@@ -8,6 +8,7 @@ import type {
   ThemePreset,
   UnitSystem,
   Widget,
+  WidgetLayout,
 } from '@canshift/core'
 
 export interface LifecycleSlice {
@@ -45,15 +46,36 @@ export interface SelectionSlice {
   selectedWidgetIds: string[]
   selectPage: (pageId: string | null) => void
   selectWidget: (widgetId: string | null) => void
+  toggleWidgetSelection: (widgetId: string) => void
 }
 
 export interface WidgetsSlice {
   addWidget: (pageId: string, widget: Widget) => void
   removeWidget: (pageId: string, widgetId: string) => void
   updateWidget: (pageId: string, widgetId: string, patch: Partial<Widget>) => void
+  moveWidget: (pageId: string, widgetId: string, layout: Partial<WidgetLayout>) => void
+  moveWidgets: (pageId: string, moves: { id: string; col: number; row: number }[]) => void
+  resolveWidgetCollisions: (pageId: string, widgetId: string) => void
+  beginDrag: (pageId: string, widgetIds: string[]) => void
+  nudgeWidgets: (pageId: string, widgetIds: string[], step: { cols: number; rows: number }) => void
+  resizeWidgets: (pageId: string, widgetIds: string[], step: { cols: number; rows: number }) => void
+}
+
+export interface ClipboardSlice {
+  clipboardWidgets: Widget[]
+  copyWidgets: (pageId: string, widgetIds: string[]) => void
+  pasteWidgets: (pageId: string) => void
+  removeWidgets: (pageId: string, widgetIds: string[]) => void
 }
 
 export interface DashboardState
-  extends LifecycleSlice, HistorySlice, PagesSlice, ThemeSlice, SelectionSlice, WidgetsSlice {}
+  extends
+    LifecycleSlice,
+    HistorySlice,
+    PagesSlice,
+    ThemeSlice,
+    SelectionSlice,
+    WidgetsSlice,
+    ClipboardSlice {}
 
 export type SliceCreator<T> = StateCreator<DashboardState, [['zustand/immer', never]], [], T>

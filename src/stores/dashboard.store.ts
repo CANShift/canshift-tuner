@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
+import { createClipboardSlice } from './dashboard/clipboard.slice'
 import { createHistorySlice } from './dashboard/history.slice'
 import { createLifecycleSlice } from './dashboard/lifecycle.slice'
 import { createPagesSlice } from './dashboard/pages.slice'
@@ -19,6 +20,7 @@ export const useDashboardStore = create<DashboardState>()(
     ...createThemeSlice(...a),
     ...createSelectionSlice(...a),
     ...createWidgetsSlice(...a),
+    ...createClipboardSlice(...a),
   }))
 )
 

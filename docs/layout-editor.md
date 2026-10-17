@@ -35,10 +35,18 @@ Limits are outlined in orange and red. When the gauge shows the signal that driv
 > [!NOTE]
 > The tuner holds you inside the firmware's limits on pages and widgets, so a setup that edits here is one the dash can build. See [LVGL ownership](https://github.com/CANShift/canshift-firmware/blob/main/docs/architecture/lvgl-ownership.md) for why the limits exist.
 
-## Not on the canvas
-
-Widgets are not dragged, resized, aligned or copy-pasted on the preview. **Add** places a widget, **Size** sets its size and **Move left** / **Move right** set its order.
-
 ## On a laptop
 
-The arrow keys move the selection to the widget before or after. **Esc** closes the editor.
+From 1024 px wide, the preview is also edited directly. Every edit lands in the draft like the fields do.
+
+| Action               | How                                                                                                                        |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Move                 | Drag a widget. Widgets it lands on are pushed aside; if there is no room, it goes back to a free place.                    |
+| Resize               | Drag the handle on the right edge of the selected widget. It changes the width; **Size** under **More options** sets both. |
+| Pick several         | Shift-click. Dragging one of them moves the group, kept inside the screen.                                                 |
+| Copy, cut, paste     | ⌘C / ⌘X / ⌘V (Ctrl on Windows and Linux). Copies go next to the originals, or into the first free place.                   |
+| Change the selection | The arrow keys move to the widget before or after. **Esc** closes the editor.                                              |
+| Nudge                | ⌥ Option + arrow (Alt on Windows and Linux) moves the selected widgets one grid step.                                      |
+| Resize by a step     | ⇧ Shift + ⌥ Option + arrow makes them one step wider, narrower, taller or shorter.                                         |
+
+**Dash → Keyboard shortcuts** lists them all. There is no align or distribute. On a phone, tap a widget and use the fields.

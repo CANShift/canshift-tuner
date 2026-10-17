@@ -14,4 +14,12 @@ describe('selection', () => {
     store().selectWidget(null)
     expect([store().selectedWidgetId, store().selectedWidgetIds]).toEqual([null, []])
   })
+
+  it('toggles widgets in and out, keeping the last as primary', () => {
+    store().toggleWidgetSelection('a')
+    store().toggleWidgetSelection('b')
+    expect([store().selectedWidgetId, store().selectedWidgetIds]).toEqual(['b', ['a', 'b']])
+    store().toggleWidgetSelection('b')
+    expect([store().selectedWidgetId, store().selectedWidgetIds]).toEqual(['a', ['a']])
+  })
 })

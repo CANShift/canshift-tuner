@@ -18,10 +18,15 @@ import { useSignalStore } from '../../stores/signal.store'
 
 const PreviewHint = ({ selected }: { selected: boolean }) => {
   const { connection } = useConnection()
+  const isLaptop = useIsLaptop()
   if (connection !== 'connected')
     return <p className="text-[13px] text-app-muted">{STRINGS.gauges.paused}</p>
   if (selected) return null
-  return <p className="text-[13px] text-app-muted">{STRINGS.gauges.hint}</p>
+  return (
+    <p className="text-[13px] text-app-muted">
+      {isLaptop ? STRINGS.gauges.hintLaptop : STRINGS.gauges.hint}
+    </p>
+  )
 }
 
 interface PreviewColumnProps {

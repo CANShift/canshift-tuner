@@ -75,3 +75,62 @@ describe('updateWidget', () => {
     expect((layout?.col ?? 0) + (layout?.colSpan ?? 0)).toBeLessThanOrEqual(12)
   })
 })
+
+describe('moving widgets', () => {
+  it('moves live without history, one widget or several', () => {
+    store().moveWidget('p1', 'b', { col: 6 })
+    expect(layoutOf('b')?.col).toBe(6)
+    expect(store().past).toHaveLength(0)
+    store().moveWidgets('p1', [
+      { id: 'a', col: 0, row: 6 },
+      { id: 'b', col: 8, row: 6 },
+    ])
+    expect([layoutOf('a'), layoutOf('b')]).toMatchObject([
+      { col: 0, row: 6 },
+      { col: 8, row: 6 },
+    ])
+  })
+})
+
+describe('dropping and dragging widgets', () => {
+  it('pushes overlapping widgets aside after a drop', () => {
+    store().moveWidget('p1', 'b', { col: 0 })
+    store().resolveWidgetCollisions('p1', 'b')
+    const a = layoutOf('a')
+    const b = layoutOf('b')
+    const overlap =
+      a &&
+      b &&
+      a.row < b.row + b.rowSpan &&
+      b.row < a.row + a.rowSpan &&
+      a.col < b.col + b.colSpan &&
+      b.col < a.col + a.colSpan
+    expect(overlap).toBe(false)
+  })
+
+  it('labels a drag by its widget or by count', () => {
+    store().beginDrag('p1', ['a'])
+    expect(lastLabel()).toBe('Moved rpm')
+    store().beginDrag('p1', ['a', 'b'])
+    expect(lastLabel()).toBe('Moved 2 widgets')
+  })
+})
+
+describe('keyboard steps', () => {
+  it('nudges inside the grid and labels by widget or count', () => {
+    store().nudgeWidgets('p1', ['a'], { cols: -1, rows: 1 })
+    expect(layoutOf('a')).toMatchObject({ col: 0, row: 1 })
+    expect(lastLabel()).toBe('Nudged rpm')
+    store().nudgeWidgets('p1', ['a', 'b'], { cols: 1, rows: 0 })
+    expect([layoutOf('a')?.col, layoutOf('b')?.col]).toEqual([1, 5])
+    expect(lastLabel()).toBe('Nudged 2 widgets')
+  })
+
+  it('resizes by one track, never below one or past the grid edge', () => {
+    store().resizeWidgets('p1', ['a'], { cols: 1, rows: -1 })
+    expect(layoutOf('a')).toMatchObject({ colSpan: 5, rowSpan: 2 })
+    expect(lastLabel()).toBe('Resized rpm')
+    for (let i = 0; i < 20; i++) store().resizeWidgets('p1', ['b'], { cols: 1, rows: -1 })
+    expect(layoutOf('b')).toMatchObject({ colSpan: 8, rowSpan: 1 })
+  })
+})

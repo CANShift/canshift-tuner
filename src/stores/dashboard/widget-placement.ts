@@ -1,5 +1,5 @@
 import type { GridTracks, Widget, WidgetLayout } from '@canshift/core'
-import { isSpanOverflowing, placementsOverlap } from '@canshift/core'
+import { clampGridPlacement, isSpanOverflowing, placementsOverlap } from '@canshift/core'
 import { autoPlace, type IdentifiedPlacement } from '../../utils/layout'
 
 export interface GridSpot {
@@ -44,3 +44,27 @@ export const sizeOf = (widget: Widget): SpanSize => ({
   colSpan: widget.layout.colSpan,
   rowSpan: widget.layout.rowSpan,
 })
+
+const clampedSpot = (spot: GridSpot, size: SpanSize, tracks: GridTracks): GridSpot => {
+  const clamped = clampGridPlacement({ ...spot, ...size }, tracks)
+  return { col: clamped.col, row: clamped.row }
+}
+
+export const firstFreeClampedSpot = (
+  candidates: readonly GridSpot[],
+  size: SpanSize,
+  others: IdentifiedPlacement[],
+  tracks: GridTracks
+): GridSpot | null => {
+  const clamped = candidates.map((candidate) => clampedSpot(candidate, size, tracks))
+  const free = clamped.find(
+    (spot) => !others.some((other) => placementsOverlap({ ...spot, ...size }, other))
+  )
+  return free ?? autoPlace(size, others)
+}
+
+export const spotsForPaste = ({ col, colSpan, row, rowSpan }: WidgetLayout): GridSpot[] => [
+  { col: col + 1, row: row + 1 },
+  { col, row: row + rowSpan },
+  { col: col + colSpan, row },
+]
