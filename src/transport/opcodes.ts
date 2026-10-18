@@ -7,11 +7,12 @@ export const CMD_PUT_FILE = 0x06
 export const CMD_TOGGLE_DAY_NIGHT = 0x07
 export const CMD_CALIBRATE_TOUCH = 0x08
 export const CMD_SET_DAY_NIGHT = 0x09
+export const CMD_RESET_TOUCH_CAL = 0x0a
 export const CMD_GET_INPUT_BINDINGS = 0x0b
 export const CMD_PUT_INPUT_BINDINGS = 0x0c
 export const CMD_SET_BOARD_PROFILE = 0x0d
 export const CMD_PUT_CONFIG_CHUNK = 0x0e
-export const CMD_QUERY_VERSION = 0x10
+export const CMD_GET_STATUS = 0x10
 export const CMD_PING = 0x11
 export const CMD_CAN_SCAN_START = 0x20
 export const CMD_CAN_SCAN_STOP = 0x21
@@ -54,6 +55,11 @@ export const KNOWN_OPCODES: readonly KnownOpcode[] = [
   },
   { id: CMD_CALIBRATE_TOUCH, name: 'CMD_CALIBRATE_TOUCH', description: 'Enter touch calibration' },
   {
+    id: CMD_RESET_TOUCH_CAL,
+    name: 'CMD_RESET_TOUCH_CAL',
+    description: 'Reset touch calibration to its defaults',
+  },
+  {
     id: CMD_SET_DAY_NIGHT,
     name: 'CMD_SET_DAY_NIGHT',
     description: 'Set day/night theme — payload { day: boolean }',
@@ -74,9 +80,9 @@ export const KNOWN_OPCODES: readonly KnownOpcode[] = [
     description: 'Persist board profile to NVS (reboots)',
   },
   {
-    id: CMD_QUERY_VERSION,
-    name: 'CMD_QUERY_VERSION',
-    description: 'Firmware version handshake',
+    id: CMD_GET_STATUS,
+    name: 'CMD_GET_STATUS',
+    description: 'Firmware version, protocol, day mode and board',
   },
   {
     id: CMD_PING,

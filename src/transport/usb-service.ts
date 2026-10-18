@@ -5,7 +5,7 @@ import {
   CMD_CALIBRATE_TOUCH,
   CMD_GET_CONFIG,
   CMD_PING,
-  CMD_QUERY_VERSION,
+  CMD_GET_STATUS,
   CMD_REBOOT,
   CMD_SCREEN_SETTINGS,
   CMD_SET_BOARD_PROFILE,
@@ -89,7 +89,7 @@ export const usbService = {
   },
 
   queryVersion: async (): Promise<FirmwareIdentityResult> => {
-    const result = await getDeviceLink().send(CMD_QUERY_VERSION, {}, { timeoutMs: 2_000 })
+    const result = await getDeviceLink().send(CMD_GET_STATUS, {}, { timeoutMs: 2_000 })
     if (!result.ok) {
       return { kind: 'error', error: result.error ?? 'unknown_error' }
     }
