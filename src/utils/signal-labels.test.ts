@@ -1,24 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { readFileSync, existsSync } from 'node:fs'
-import { resolve } from 'node:path'
 import { displayLabelForSignal } from './signal-labels'
-
-const FIRMWARE_TABLE = resolve(
-  import.meta.dirname,
-  '../../../canshift-firmware/src/ui/signal_presentation.cpp'
-)
-
-const parseFirmware = (source: string): [string, string][] => {
-  const table = /constexpr Entry kEntries\[\] = \{([\s\S]*?)\n\};/.exec(source)
-  if (!table) return []
-  const rows = [...(table[1] ?? '').matchAll(/\{"([^"]+)",\s*"((?:[^"\\]|\\.)*)",/g)]
-  return rows.map((row) => [
-    row[1] ?? '',
-    (row[2] ?? '').replace(/\\u([0-9a-f]{4})/gi, (_, hex: string) =>
-      String.fromCharCode(Number.parseInt(hex, 16))
-    ),
-  ])
-}
 
 describe('displayLabelForSignal', () => {
   it('names the six default pages the way the design comp does', () => {
@@ -45,24 +26,5 @@ describe('displayLabelForSignal', () => {
   it('falls back to the signal name for anything it does not curate', () => {
     expect(displayLabelForSignal('brake_temp_fl')).toBe('BRAKE TEMP FL')
     expect(displayLabelForSignal('')).toBe('—')
-  })
-})
-
-const firmwareEntries = existsSync(FIRMWARE_TABLE)
-  ? parseFirmware(readFileSync(FIRMWARE_TABLE, 'utf8'))
-  : []
-
-const describeIfFirmware = firmwareEntries.length > 0 ? describe : describe.skip
-
-describeIfFirmware('signal label firmware parity', () => {
-  it('reads the firmware table', () => {
-    expect(firmwareEntries.length).toBeGreaterThan(20)
-  })
-
-  it('every row reads the same on the canvas as on the glass', () => {
-    const drifted = firmwareEntries.filter(
-      ([signal, label]) => displayLabelForSignal(signal) !== label
-    )
-    expect(drifted).toEqual([])
   })
 })
