@@ -104,7 +104,7 @@ const fieldChanges = (pair: WidgetPair, base: SetupPath, target: ChangeTarget): 
       })
     )
 
-export const changedWidget = (pair: WidgetPair, base: SetupPath, target: ChangeTarget): Change[] =>
+const changedWidget = (pair: WidgetPair, base: SetupPath, target: ChangeTarget): Change[] =>
   pair.before.type === pair.after.type
     ? [...fieldChanges(pair, base, target), ...configChanges(pair, base, target)]
     : [changeAt(base, pair.where, target, { what: fieldWhat(pair, 'type'), was: '' })]

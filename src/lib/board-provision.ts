@@ -1,7 +1,7 @@
 import type { BoardProfileBlob } from '@canshift/core'
 
-export const INVALID_BOARD_PROFILE = 'invalid_board_profile'
-export const UNKNOWN_BOARD_ID = 'unknown_board_id'
+const INVALID_BOARD_PROFILE = 'invalid_board_profile'
+const UNKNOWN_BOARD_ID = 'unknown_board_id'
 
 export type BoardProfileWriteResult =
   | { kind: 'ok'; restart: boolean }

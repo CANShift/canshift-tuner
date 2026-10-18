@@ -23,7 +23,7 @@ interface PortState {
 
 const FLUSH_TICKS = 20
 
-export const closeOnce = (rx: RxHandle) => {
+const closeOnce = (rx: RxHandle) => {
   const controller = rx.controller
   rx.controller = null
   controller?.close()
@@ -106,7 +106,7 @@ export const makeReopenablePort = (): { port: SerialPort; dropConnection: () => 
   return { port, dropConnection: () => closeOnce(rx) }
 }
 
-export const installNavigatorSerial = (getPortsResult: SerialPort[] = []): void => {
+const installNavigatorSerial = (getPortsResult: SerialPort[] = []): void => {
   const fakeSerial = {
     requestPort: vi.fn(async () => {
       throw new Error('test should pass a port directly')

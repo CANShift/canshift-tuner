@@ -5,7 +5,7 @@ import { useDeviceStore } from './device.store'
 
 export const SIMULATED_DTCS = ['P0301', 'P0420', 'C1234', 'U0100']
 
-export type DtcStatus = 'idle' | 'reading' | 'clearing'
+type DtcStatus = 'idle' | 'reading' | 'clearing'
 
 interface DtcData {
   codes: string[]

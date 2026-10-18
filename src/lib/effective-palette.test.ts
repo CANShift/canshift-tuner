@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import type { PagePalette } from '@canshift/core'
 import { DEFAULT_PAGE_PALETTE } from '@canshift/core'
 import { DAY_PALETTE_DEFAULT, DAY_BG_DEFAULT } from '../constants/theme'
-import { resolveBgColor, resolvePalette } from './useEffectivePalette'
+import { resolveBgColor, resolvePalette } from './effective-palette'
 
 const day = { accent: '#111111' } as unknown as PagePalette
 const night = { accent: '#222222' } as unknown as PagePalette

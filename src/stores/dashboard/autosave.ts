@@ -3,8 +3,8 @@ import type { DashboardConfig } from '@canshift/core'
 import { readItem, writeItem, removeItem, STORAGE_KEYS } from '../../lib/local-storage'
 import { parseJsonRecord } from '../../lib/json-record'
 
-export const AUTOSAVE_KEY = STORAGE_KEYS.autosave
-export const AUTOSAVE_DEBOUNCE_MS = 500
+const AUTOSAVE_KEY = STORAGE_KEYS.autosave
+const AUTOSAVE_DEBOUNCE_MS = 500
 
 export interface AutosavePayload {
   config: DashboardConfig

@@ -2,7 +2,7 @@ import type { KeyObject } from 'node:crypto'
 import type { ConfigReloadState } from '../src/transport/types'
 import simConfig from '../src/config/default-sim-config.json' with { type: 'json' }
 
-export interface ChunkUpload {
+interface ChunkUpload {
   total: number
   parts: Buffer[]
 }

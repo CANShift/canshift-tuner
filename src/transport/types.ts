@@ -5,7 +5,7 @@ export interface UsbResult {
   error?: string
 }
 
-export interface BurnChunkPosition {
+interface BurnChunkPosition {
   index: number
   total: number
 }

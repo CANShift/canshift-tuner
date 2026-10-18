@@ -5,7 +5,7 @@ import { STRINGS } from '../../strings'
 
 const F = STRINGS.firstOpen
 
-export const CHOOSE_CAR_PATH = '/car?choose=1'
+const CHOOSE_CAR_PATH = '/car?choose=1'
 
 const STEPS = [F.stepSignals, F.stepGauges]
 

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-export const SAMPLE_INTERVAL_MS = 100
+const SAMPLE_INTERVAL_MS = 100
 export const WINDOW_MIN_S = 5
 export const WINDOW_MAX_S = 120
 export const WINDOW_STEP_S = 5

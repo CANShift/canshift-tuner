@@ -48,7 +48,7 @@ const GLYPH_WIDTH_RATIO = 0.65
 const snapButtonFontSize = (target: number): number =>
   BUTTON_FONT_STEPS.find((step) => target >= step.minTarget)?.size ?? 12
 
-export const computeButtonPreviewMetrics = (
+const computeButtonPreviewMetrics = (
   w: number,
   h: number,
   hasKicker: boolean,

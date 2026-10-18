@@ -8,7 +8,7 @@ const NO_IDS: ReadonlySet<string> = new Set()
 const NO_SELECTION: string[] = []
 const noop = () => {}
 
-export interface PageFrameInteraction {
+interface PageFrameInteraction {
   surfaceRef: Ref<HTMLDivElement>
   surfaceProps: HTMLAttributes<HTMLDivElement>
   selectedWidgetId: string | null

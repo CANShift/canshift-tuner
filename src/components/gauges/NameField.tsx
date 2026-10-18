@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input'
 import { STRINGS } from '../../strings'
 import { authoredKicker, derivedKicker } from '../../lib/widget-kicker'
 
-export const DASH_NAME_MAX = 8
+const DASH_NAME_MAX = 8
 
 export interface NameFieldProps {
   widget: Widget

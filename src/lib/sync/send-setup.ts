@@ -118,7 +118,7 @@ const allSteps = (snapshot: DashSetup, device: DashSetup): SendStep[] => [
   ...rotationStep(snapshot, device),
 ]
 
-export const sendSteps = (snapshot: DashSetup, device: DashSetup): SendStep[] => {
+const sendSteps = (snapshot: DashSetup, device: DashSetup): SendStep[] => {
   const steps = allSteps(snapshot, device)
   const live = steps.filter((step) => step.restarts === null)
   const firstRestart = steps.find((step) => step.restarts !== null)

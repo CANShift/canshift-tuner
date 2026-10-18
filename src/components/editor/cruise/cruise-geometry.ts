@@ -1,7 +1,7 @@
 const OUTER_PAD = 6
 const QUADRANT_GAP = 2
-export const CENTER_W = 100
-export const CENTER_H = 76
+const CENTER_W = 100
+const CENTER_H = 76
 const NOTCH_MARGIN = 6
 const CORNER_R = 8
 const INNER_R = 5
@@ -21,12 +21,12 @@ interface PathPoint {
   y: number
 }
 
-export interface Notch {
+interface Notch {
   w: number
   h: number
 }
 
-export const NOTCH: Notch = {
+const NOTCH: Notch = {
   w: Math.round(CENTER_W / 2 + NOTCH_MARGIN),
   h: Math.round(CENTER_H / 2 + NOTCH_MARGIN),
 }

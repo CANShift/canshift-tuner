@@ -11,14 +11,14 @@ export interface TransportEnv {
   hasWebSerial: boolean
 }
 
-export const DASH_HOST_PARAM = 'dash'
-export const DASH_SOCKET_PATH = '/ws'
+const DASH_HOST_PARAM = 'dash'
+const DASH_SOCKET_PATH = '/ws'
 
 const LOCAL_DEV_NAMES = new Set(['localhost', '127.0.0.1', '::1', '[::1]'])
 
 export const isLocalDevOrigin = (hostname: string): boolean => LOCAL_DEV_NAMES.has(hostname)
 
-export const dashSocketUrl = (host: string, pageProtocol: string): string =>
+const dashSocketUrl = (host: string, pageProtocol: string): string =>
   `${pageProtocol === 'https:' ? 'wss' : 'ws'}://${host}${DASH_SOCKET_PATH}`
 
 const overrideHost = (env: TransportEnv): string | null => {

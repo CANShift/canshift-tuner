@@ -122,7 +122,7 @@ export const PALETTE_ITEMS: readonly PaletteItem[] = (
 
 const configFor = (item: PaletteItem): Widget['config'] => PALETTE[item.type].config(item)
 
-export const paletteItemFor = (type: PaletteWidgetType): PaletteItem | undefined =>
+const paletteItemFor = (type: PaletteWidgetType): PaletteItem | undefined =>
   PALETTE_ITEMS.find((item) => item.type === type)
 
 export const retypeWidget = (widget: Widget, type: PaletteWidgetType): Partial<Widget> | null => {

@@ -1,6 +1,6 @@
 import { WebSocketClient } from '../websocket-client'
 
-export const URL = 'ws://192.168.4.1/ws'
+const URL = 'ws://192.168.4.1/ws'
 
 export class FakeSocket {
   readyState = 0

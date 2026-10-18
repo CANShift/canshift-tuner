@@ -52,7 +52,7 @@ const deviceOf = (value: JsonRecord): DashSetup => ({
   car: carOf(value.car),
 })
 
-export const parseStoredSetup = (raw: string): StoredSetup => {
+const parseStoredSetup = (raw: string): StoredSetup => {
   const record = parseJsonRecord(raw)
   if (record === null || !isJsonRecord(record.device)) return EMPTY_STORED
   return { device: deviceOf(record.device), settingsDraft: settingsOf(record.settingsDraft) }

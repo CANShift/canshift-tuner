@@ -3,7 +3,7 @@ import type { Refusal } from '../../lib/sync/refusal'
 import type { DashSetup, DeviceSettings } from '../../lib/sync/setup'
 import { readStoredSetup, writeStoredSetup } from './setup-storage'
 
-export type SendState = 'idle' | 'sending' | 'refused' | 'failed'
+type SendState = 'idle' | 'sending' | 'refused' | 'failed'
 
 interface SyncState {
   device: DashSetup

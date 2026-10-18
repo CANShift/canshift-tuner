@@ -1,7 +1,7 @@
 import type { GaugeSeverity, GaugeWidgetConfig, SignalLimits, Widget } from '@canshift/core'
 import { GAUGE_ARC, WIDGET_ZONE_COLORS, gaugeArcPath, gaugeSeverity } from '@canshift/core'
 
-export const DEMO_PCT = 0.65
+const DEMO_PCT = 0.65
 
 export const effectiveValue = (
   testValue: number | null | undefined,

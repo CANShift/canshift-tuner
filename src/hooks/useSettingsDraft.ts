@@ -3,7 +3,7 @@ import type { CanSpeedKbps } from '@canshift/core'
 import { useSyncStore } from '../stores/sync/sync.store'
 import type { ScreenRotation } from '../lib/sync/setup'
 
-export const DEFAULT_BRIGHTNESS = 80
+const DEFAULT_BRIGHTNESS = 80
 
 export interface DraftValue<T> {
   value: T
