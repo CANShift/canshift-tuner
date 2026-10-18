@@ -1,6 +1,10 @@
 import type { DashboardConfig, GridPlacement, ScreenProfile, Widget } from '@canshift/core'
-import { LAYOUT_GRID, isSpanOverflowing, resolveScreenProfile } from '@canshift/core'
-import { displayLabelForSignal } from '../utils/signal-labels'
+import {
+  LAYOUT_GRID,
+  isSpanOverflowing,
+  resolveScreenProfile,
+  signalDisplayLabel,
+} from '@canshift/core'
 
 export interface LayoutOverflow {
   pageId: string
@@ -68,7 +72,7 @@ const worstViolation = (bounds: WidgetBounds, screen: ScreenProfile): EdgeViolat
 }
 
 const widgetLabel = (widget: Widget): string =>
-  widget.signal ? displayLabelForSignal(widget.signal) : widget.type.toUpperCase()
+  widget.signal ? signalDisplayLabel(widget.signal) : widget.type.toUpperCase()
 
 interface OffenderCopy {
   violation: EdgeViolation

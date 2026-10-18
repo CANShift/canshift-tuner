@@ -4,7 +4,7 @@ import type {
   GearWidgetConfig,
   Widget,
 } from '@canshift/core'
-import { displayLabelForSignal } from '../utils/signal-labels'
+import { signalDisplayLabel } from '@canshift/core'
 
 type KickerConfig = GaugeWidgetConfig | GearWidgetConfig | ButtonWidgetConfig
 
@@ -21,7 +21,7 @@ export const authoredKicker = (widget: Widget): string | undefined => {
 }
 
 export const derivedKicker = (widget: Widget): string =>
-  displayLabelForSignal(widget.signal).toUpperCase()
+  signalDisplayLabel(widget.signal).toUpperCase()
 
 export const shownKicker = (widget: Widget): string =>
   (authoredKicker(widget) ?? derivedKicker(widget)).toUpperCase()

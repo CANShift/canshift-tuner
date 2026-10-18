@@ -1,6 +1,6 @@
+import { signalDisplayLabel } from '@canshift/core'
 import type { DisplayUnits } from '../../hooks/useDisplayUnits'
 import { formatSignalValue } from '../../lib/format'
-import { displayLabelForSignal } from '../../utils/signal-labels'
 import { STRIP_VIEW_HEIGHT, STRIP_VIEW_WIDTH, type StripSeries } from './strip-series'
 
 export interface SignalStripProps {
@@ -46,12 +46,12 @@ export const SignalStrip = ({ name, unit, series, units }: SignalStripProps) => 
   const readout = readoutOf(series, unit, units)
   return (
     <section
-      aria-label={`${displayLabelForSignal(name)} trace`}
+      aria-label={`${signalDisplayLabel(name)} trace`}
       className="flex h-[72px] flex-none flex-col gap-1 border-b border-app-divider px-3 py-1.5 md:px-4 min-[1100px]:h-auto min-[1100px]:min-h-[96px] min-[1100px]:flex-1 min-[1100px]:py-2.5"
     >
       <header className="flex items-baseline gap-3">
         <span className="text-[11px] font-extrabold tracking-[0.18em] text-app-muted uppercase">
-          {displayLabelForSignal(name)}
+          {signalDisplayLabel(name)}
         </span>
         <span className="font-mono text-[18px] leading-none tabular-nums text-app-text min-[1100px]:text-[26px]">
           {readout.value}

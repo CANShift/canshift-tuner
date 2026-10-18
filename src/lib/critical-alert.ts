@@ -1,5 +1,5 @@
 import type { CriticalAlert, CriticalAlertDirection, SignalDef } from '@canshift/core'
-import { displayLabelForSignal } from '../utils/signal-labels'
+import { signalDisplayLabel } from '@canshift/core'
 
 type AlertLevels = Pick<
   SignalDef,
@@ -41,7 +41,7 @@ export const takeoverTextFor = (
 ): TakeoverText => {
   const value = String(shownFiresAt)
   return {
-    name: displayLabelForSignal(alert.signal),
+    name: signalDisplayLabel(alert.signal),
     value,
     rule: describeCriticalRule(alert, value, unit),
   }

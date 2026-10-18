@@ -1,6 +1,6 @@
 import type { PageConfig, Widget } from '@canshift/core'
+import { signalDisplayLabel } from '@canshift/core'
 import { STRINGS } from '../../strings'
-import { displayLabelForSignal } from '../../utils/signal-labels'
 
 const C = STRINGS.changes
 
@@ -33,14 +33,14 @@ const kickerOf = (widget: Widget): string | undefined => {
 }
 
 const baseName = (widget: Widget): string =>
-  widget.signal === '' ? widgetNoun(widget) : displayLabelForSignal(widget.signal)
+  widget.signal === '' ? widgetNoun(widget) : signalDisplayLabel(widget.signal)
 
 const ACRONYM_MAX = 3
 
 const prettyLabel = (label: string): string =>
   label.length <= ACRONYM_MAX ? label.toUpperCase() : titleCase(label.toLowerCase())
 
-export const signalName = (signal: string): string => prettyLabel(displayLabelForSignal(signal))
+export const signalName = (signal: string): string => prettyLabel(signalDisplayLabel(signal))
 
 export const widgetName = (widget: Widget): string =>
   prettyLabel(kickerOf(widget) ?? baseName(widget))
