@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RealDashCAN version="2">
+<CanXml version="2">
   <frames>
     <frame id="0x360" endianess="big">
       <value targetId="37" offset="0" length="2"></value> <!-- rpm -->
@@ -186,5 +186,5 @@
 	</frame>
 
   </frames>
-</RealDashCAN>
+</CanXml>
 

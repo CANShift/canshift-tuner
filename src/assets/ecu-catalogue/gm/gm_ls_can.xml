@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!-- RealDash CAN XML description file, version 2 Requires RealDash version 1.5.8 or newer -->
-<RealDashCAN version="2">
+<CanXml version="2">
   <frames>
   <!-- Tested ecu,E38 LS3 L99. 6L80e -->
     <frame id="0x00c9" endianess="big">
@@ -136,4 +135,4 @@
       <value targetId="138" offset="1" length="1" conversion="V-40"></value> <!-- Transmission fluid temp -->
     </frame>
   </frames>
-</RealDashCAN>
+</CanXml>

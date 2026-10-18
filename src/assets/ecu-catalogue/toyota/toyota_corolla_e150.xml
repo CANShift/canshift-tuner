@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!-- RealDash CAN XML description file, version 2 Requires RealDash version 1.5.8 or newer -->
-<RealDashCAN version="2">
+<CanXml version="2">
   <frames>
 	 <frame id="0x191">	 
 		<value targetId="188" offset="0" length="1"></value> <!-- Steering wheel button 1, name="Button 1" -->
@@ -64,5 +63,5 @@
 		<value targetId="164" startbit="6" bitcount="1" ></value> <!-- Parking Brake -->
 	</frame>
   </frames>
-</RealDashCAN>
+</CanXml>
 

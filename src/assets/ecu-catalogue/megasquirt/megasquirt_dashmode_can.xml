@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- RealDash CAN XML description file, version 2 Requires RealDash version 1.5.8 or newer -->
-<RealDashCAN version="2">
+<CanXml version="2">
   <frames>
     <frame id="1512" endianness="big" readOnly="true" timeout="2000">
       <value targetId="31" units="kPA" offset="0" length="2" conversion="V*0.1"></value>
@@ -38,4 +37,4 @@
     </frame>
 
   </frames>
-</RealDashCAN>
+</CanXml>

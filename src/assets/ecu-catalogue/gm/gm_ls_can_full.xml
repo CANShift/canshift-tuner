@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!-- RealDash CAN XML description file, version 2 Requires RealDash version 1.5.8 or newer -->
-<RealDashCAN version="2">
+<CanXml version="2">
   <frames>
 
   <!-- Tested ecu,E38 LS3 L99. 6L80e -->
@@ -315,4 +314,4 @@
       <value name="0x01af B8" offset="7" length="1" conversion="V"></value>
     </frame>
   </frames>
-</RealDashCAN>
+</CanXml>

@@ -64,6 +64,13 @@ describe('parseProfileFile', () => {
     expect(result).toEqual({ kind: 'ok', signals: [RPM], warnings: [] })
   })
 
+  it('reads a CAN XML file rooted on the neutral tag', () => {
+    const xml =
+      '<CanXml version="2"><frames><frame id="0x520"><value name="rpm" offset="0" length="2"/></frame></frames></CanXml>'
+    const result = parseProfileFile('vendor.xml', xml)
+    expect(result.kind).toBe('ok')
+  })
+
   it('falls through to the vendor parser for a foreign CAN XML', () => {
     const result = parseProfileFile('vendor.xml', '<RealDashCAN version="2"></RealDashCAN>')
     expect(result.kind).toBe('error')

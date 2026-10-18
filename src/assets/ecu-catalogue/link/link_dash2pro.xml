@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<RealDashCAN version="2">
+<CanXml version="2">
   <!-- Link ECU DASH2PRO stream -->
   <frames>
     <frame id="0x3E8" readOnly="true" endianness="big">
@@ -32,4 +32,4 @@
       <value targetId="29" offset="6" length="2"/> <!-- knock -->
     </frame>
   </frames>
-</RealDashCAN>
+</CanXml>

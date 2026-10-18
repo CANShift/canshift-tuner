@@ -2,7 +2,7 @@
 <!-- File created by DBCtoRDXML Converter https://github.com/wjcloudy/DBCtoRDXML -->
 <!-- 2012 Toyota FJ Cruiser by M. Main -->
 <!-- 27/07/2024 -->
-<RealDashCAN version="2">
+<CanXml version="2">
 	<frames>
 		<frame canId="0x24" endianess="big"> 
 			<!-- MP01 - Kinematics [36] -->
@@ -74,7 +74,6 @@
 			<value name="MP: Turbine_RPM" offset="0" length="2" signed="false" conversion="V/2.56"></value>
 			<!--Comment = Turbine RPM-->
 			<value name="MP: Gear_Code" offset="2" length="1" signed="false" conversion="V &amp; 15"></value>
-			<!--Comment = Gear Code for RealDash Trigger-->
 			<value targetId="141" offset="2" length="1" signed="false" conversion="V &amp; 127" enum="2:R,9:P,12:N,16:D,#:"></value>
 			<!--Comment = Gear Shift Position-->
 			<value targetId="140" offset="3" length="1" signed="false" enum="1:L,2:2,4:3,8:4,0:D,#:"></value>
@@ -138,4 +137,4 @@
 			<!--Comment = Vehicle Speed 8 bit (VSS2)-->
 		</frame>
 	</frames>
-</RealDashCAN>
+</CanXml>

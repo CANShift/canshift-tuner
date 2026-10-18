@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<RealDashCAN version="2">
+<CanXml version="2">
   <frames>
     <frame id="0x18ff0ff2">
       <value name="Grayhill Touch: Rotation Right" offset="3" length="1" units="bit" conversion="V>>7"/>
@@ -14,4 +14,4 @@
       <value name="Grayhill Touch: Touch-Y" offset="4" length="2"/>
     </frame>
   </frames>
-</RealDashCAN>
+</CanXml>
