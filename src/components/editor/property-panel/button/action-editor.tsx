@@ -85,7 +85,6 @@ const CanRawFields = ({ action, onUpdate }: FieldEditorProps<CanRawAction>) => (
 
 const withoutStep = (action: CruiseControlAction, nextOp: CruiseControlOp): CruiseControlAction => {
   const { stepKmh: _drop, ...rest } = action
-  void _drop
   return { ...rest, op: nextOp }
 }
 

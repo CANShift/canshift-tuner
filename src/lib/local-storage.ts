@@ -34,11 +34,13 @@ export const writeItem = (name: string, value: string): boolean => {
   }
 }
 
-export const removeItem = (name: string): void => {
+export const removeItem = (name: string): boolean => {
   try {
     localStorage.removeItem(name)
+    return true
   } catch {
     console.warn(`[storage] could not remove ${name}`)
+    return false
   }
 }
 
