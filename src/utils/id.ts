@@ -1,3 +1,5 @@
+import { STRING_CAPS } from '@canshift/core'
+
 let fallbackCounter = 0
 
 export const newId = (): string => {
@@ -8,4 +10,7 @@ export const newId = (): string => {
   return `id_${Date.now().toString(36)}_${fallbackCounter.toString(36)}`
 }
 
-export const createId = (prefix: string): string => `${prefix}_${newId()}`
+export const createId = (prefix: string): string => {
+  const room = STRING_CAPS.ID - prefix.length - 1
+  return `${prefix}_${newId().replaceAll('-', '').slice(-room)}`
+}
