@@ -1,5 +1,5 @@
 import type { Widget } from '@canshift/core'
-import { displayLabelForSignal } from '../../../utils/signal-labels'
+import { signalDisplayLabel } from '@canshift/core'
 
 export interface BaseRendererProps {
   widget: Widget
@@ -8,5 +8,5 @@ export interface BaseRendererProps {
 }
 
 export const formatSignalLabel = (signal: string): string => {
-  return displayLabelForSignal(signal)
+  return signalDisplayLabel(signal)
 }
