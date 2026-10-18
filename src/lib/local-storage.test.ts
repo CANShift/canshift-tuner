@@ -57,11 +57,18 @@ describe('storage access never throws', () => {
 
     expect(readItem('x')).toBeNull()
     expect(writeItem('x', '1')).toBe(false)
-    expect(() => {
-      removeItem('x')
-    }).not.toThrow()
+    expect(removeItem('x')).toBe(false)
     expect(warn).toHaveBeenCalled()
     warn.mockRestore()
+  })
+})
+
+describe('removeItem', () => {
+  it('reports a successful removal', () => {
+    localStorage.setItem('x', '1')
+
+    expect(removeItem('x')).toBe(true)
+    expect(localStorage.getItem('x')).toBeNull()
   })
 })
 

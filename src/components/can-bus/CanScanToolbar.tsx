@@ -1,5 +1,5 @@
 import { cva } from 'class-variance-authority'
-import { useEffect, useState } from 'react'
+import { useEffect, useReducer } from 'react'
 import type { CanScannerStatus } from '../../hooks/useCanScanner'
 import type { LearnWindow } from '../../stores/can-scan/accumulator'
 import { cn } from '@/lib/utils'
@@ -142,17 +142,14 @@ export const CanScanToolbar = (props: CanScanToolbarProps) => (
 )
 
 const useElapsedSeconds = (startedAt: number | null, running: boolean): number => {
-  const [tick, setTick] = useState(0)
+  const [, rerender] = useReducer((count: number) => count + 1, 0)
   useEffect(() => {
     if (!running) return
-    const id = window.setInterval(() => {
-      setTick((t) => t + 1)
-    }, 500)
+    const id = window.setInterval(rerender, 500)
     return () => {
       window.clearInterval(id)
     }
   }, [running])
-  void tick
   if (startedAt === null) return 0
   return Math.floor((performance.now() - startedAt) / 1000)
 }
