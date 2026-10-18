@@ -1,6 +1,7 @@
 import { parseCanXml } from '@canshift/core'
 import type { DashboardConfig, SignalDef } from '@canshift/core'
 import { parseProfileXml } from './profile-xml'
+import { plural } from '../strings/plural'
 
 export type ProfileParse =
   | { kind: 'ok'; signals: SignalDef[]; warnings: readonly string[] }
@@ -34,9 +35,6 @@ export const lostBindingCount = (
   )
 }
 
-const plural = (count: number, noun: string): string =>
-  `${String(count)} ${noun}${count === 1 ? '' : 's'}`
-
 export const changeSummary = (
   label: string,
   current: readonly SignalDef[],
@@ -46,8 +44,8 @@ export const changeSummary = (
   const head = `${label} — ${String(next.length)} signals replacing ${String(current.length)}.`
   if (lost === 0) return `${head} No bound widget loses its signal.`
   const verb = lost === 1 ? 'loses its' : 'lose their'
-  return `${head} ${plural(lost, 'bound widget')} ${verb} signal.`
+  return `${head} ${plural(lost, 'bound widget', 'bound widgets')} ${verb} signal.`
 }
 
 export const appliedSummary = (label: string, count: number): string =>
-  `${label} applied — ${plural(count, 'signal')} in the profile. Save to keep it, burn to send it to the dash.`
+  `${label} applied — ${plural(count, 'signal', 'signals')} in the profile. Save to keep it, burn to send it to the dash.`
