@@ -2,15 +2,15 @@ import type { ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
-export type InlineStateSeverity = 'neutral' | 'warning' | 'failure' | 'empty'
+type InlineStateSeverity = 'neutral' | 'warning' | 'failure' | 'empty'
 
-export interface InlineStateAction {
+interface InlineStateAction {
   label: string
   onClick: () => void
   disabled?: boolean
 }
 
-export interface InlineStateHeader {
+interface InlineStateHeader {
   label: string
   status: string
 }
@@ -121,11 +121,11 @@ const InlineStateActions = ({
   )
 }
 
-export interface InlineStateHeaderRowProps {
+interface InlineStateHeaderRowProps {
   header: InlineStateHeader | undefined
 }
 
-export const InlineStateHeaderRow = ({ header }: InlineStateHeaderRowProps) => {
+const InlineStateHeaderRow = ({ header }: InlineStateHeaderRowProps) => {
   if (!header) return null
   return (
     <div className={HEADER_ROW}>

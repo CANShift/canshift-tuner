@@ -3,7 +3,7 @@ import type { SignalDef } from '@canshift/core'
 import { formatByteRange, parseByteRange } from './signal-bytes'
 import { slugForFileName } from './file-name'
 
-export const PROFILE_XML_ROOT = 'canshift-profile'
+const PROFILE_XML_ROOT = 'canshift-profile'
 export const PROFILE_XML_MIME = 'application/xml'
 export const PROFILE_XML_ACCEPT = '.xml,application/xml,text/xml'
 

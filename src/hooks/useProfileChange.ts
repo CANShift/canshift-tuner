@@ -13,7 +13,7 @@ import {
 } from '../lib/profile-change'
 import { loadCatalogueProfile } from '../lib/catalogue-profile'
 
-export type ProfileChange =
+type ProfileChange =
   | { kind: 'idle' }
   | {
       kind: 'pending'

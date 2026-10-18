@@ -1,7 +1,7 @@
 export const RATE_WINDOW_MS = 1_000
-export const MAX_PAYLOAD_BYTES = 8
+const MAX_PAYLOAD_BYTES = 8
 
-export interface CanFrame {
+interface CanFrame {
   id: number
   len: number
   data: number[]

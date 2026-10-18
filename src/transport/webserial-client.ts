@@ -10,7 +10,6 @@ import type { AckResult, SendOptions } from './ack-queue'
 import type { SerialActivityDirection, SerialStatus, StatusListener } from './serial-events'
 import type { DeviceLink } from './device-link'
 
-export { putConfigTimeoutMs } from './ack-queue'
 export type { AckResult, SendOptions } from './ack-queue'
 export type { SerialActivityDirection, SerialStatus } from './serial-events'
 

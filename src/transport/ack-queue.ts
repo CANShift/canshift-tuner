@@ -44,7 +44,7 @@ export interface AckQueueDeps {
   deviceHeard?: () => boolean
 }
 
-export const putConfigTimeoutMs = (payloadBytes: number): number => {
+const putConfigTimeoutMs = (payloadBytes: number): number => {
   const sizeKB = payloadBytes / BYTES_PER_KB
   const scaled = Math.ceil(sizeKB * PUT_CONFIG_PER_KB_MS) + PUT_CONFIG_BASE_TIMEOUT_MS
   return Math.min(PUT_CONFIG_MAX_TIMEOUT_MS, Math.max(PUT_CONFIG_BASE_TIMEOUT_MS, scaled))

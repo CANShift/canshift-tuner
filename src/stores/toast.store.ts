@@ -4,7 +4,7 @@ export const TOAST_MS = 4_000
 
 export type ToastTone = 'success' | 'warning'
 
-export interface Toast {
+interface Toast {
   id: number
   message: string
   tone: ToastTone

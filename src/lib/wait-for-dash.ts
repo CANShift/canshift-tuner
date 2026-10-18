@@ -1,7 +1,7 @@
 import { useConnectionStore } from '../stores/connection.store'
 
-export const RECONNECT_TIMEOUT_MS = 150_000
-export const RECONNECT_RETRY_MS = 3_000
+const RECONNECT_TIMEOUT_MS = 150_000
+const RECONNECT_RETRY_MS = 3_000
 
 export interface WaitOptions {
   timeoutMs: number

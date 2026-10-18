@@ -3,7 +3,7 @@ import type { CanScanStatus } from '../stores/can-scan/can-scan.store'
 import type { CanFrameStats, CanScanSnapshot } from '../stores/can-scan/accumulator'
 
 export type { CanFrameStats }
-export type CanScannerSnapshot = CanScanSnapshot
+type CanScannerSnapshot = CanScanSnapshot
 export type CanScannerStatus = CanScanStatus
 
 export interface UseCanScanner {

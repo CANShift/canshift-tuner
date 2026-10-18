@@ -29,7 +29,7 @@ Non-negotiable. Reviewed on every PR, ahead of feature count.
 - Stacked `cond && <X/>`, chained `else if` and `kind === 'a' ? … : kind === 'b' ? …` are a union that lost its type. Use a `Record<Kind, …>` lookup table — `WidgetPreview.tsx` and `widget-editor-panel.tsx` are the reference implementations.
 - ~30 lines per function, ~300 per file. Past that, split before adding.
 - Third copy gets extracted. Cross-file boilerplate (localStorage access, JSON parsing, error→string) lives in one shared helper under `src/lib/` and is imported, never re-typed. Storage keys come from one `STORAGE_KEYS` map.
-- A constant must be read by the code it names. Unimported stores, components and exports get deleted, not kept "for later".
+- A constant must be read by the code it names. Unimported stores, components and exports get deleted, not kept "for later". `npm run knip` fails the `lint` job on an unused file, export, type or dependency; only the shadcn primitives in `src/components/ui/` may keep unused exports.
 - CI gates must cover every file extension in the repo. A green check that silently skipped files is a broken gate.
 
 ## Workflow

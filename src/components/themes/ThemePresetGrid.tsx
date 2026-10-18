@@ -8,7 +8,7 @@ export interface ThemePresetGridProps {
   onSelect: (preset: ThemePreset) => void
 }
 
-export const samePreset = (a: ThemePreset | undefined, b: ThemePreset): boolean =>
+const samePreset = (a: ThemePreset | undefined, b: ThemePreset): boolean =>
   a !== undefined && JSON.stringify(a) === JSON.stringify(b)
 
 export const ThemePresetGrid = ({ activeTheme, face, onSelect }: ThemePresetGridProps) => (

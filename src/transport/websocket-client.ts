@@ -11,7 +11,7 @@ import type { SerialActivityDirection, SerialStatus, StatusListener } from './se
 export type SocketFactory = (url: string) => WebSocket
 
 const OPEN = 1
-export const CLOSE_BUSY = 4001
+const CLOSE_BUSY = 4001
 
 const defaultFactory: SocketFactory = (url) => new WebSocket(url)
 

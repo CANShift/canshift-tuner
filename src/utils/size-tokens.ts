@@ -20,7 +20,7 @@ export const SIZE_TOKENS: Record<SizeTokenId, SizeToken> = {
   'V-M': { id: 'V-M', label: 'V-M', description: '2×6', colSpan: 2, rowSpan: 6 },
 }
 
-export const SIZE_TOKEN_LIST: SizeToken[] = Object.values(SIZE_TOKENS)
+const SIZE_TOKEN_LIST: SizeToken[] = Object.values(SIZE_TOKENS)
 
 export const tokenFromSpans = (colSpan: number, rowSpan: number): SizeTokenId | null =>
   SIZE_TOKEN_LIST.find((t) => t.colSpan === colSpan && t.rowSpan === rowSpan)?.id ?? null

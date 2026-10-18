@@ -1,19 +1,19 @@
-export const RECONNECT_INITIAL_MS = 500
+const RECONNECT_INITIAL_MS = 500
 const RECONNECT_MAX_MS = 30_000
 const RECONNECT_FACTOR = 2
 const RECONNECT_MAX_ATTEMPTS = 6
 const STABLE_UPTIME_MS = 10_000
 
-export type ReconnectAction = 'idle' | 'reconnect' | 'reset-backoff'
+type ReconnectAction = 'idle' | 'reconnect' | 'reset-backoff'
 
-export interface ReconnectContext {
+interface ReconnectContext {
   wasConnected: boolean
   backedOff: boolean
   openedAt: number | null
   now: number
 }
 
-export const nextReconnectAction = (ctx: ReconnectContext): ReconnectAction => {
+const nextReconnectAction = (ctx: ReconnectContext): ReconnectAction => {
   if (!ctx.wasConnected && !ctx.backedOff) return 'idle'
   const stableUptime = ctx.openedAt !== null && ctx.now - ctx.openedAt >= STABLE_UPTIME_MS
   return stableUptime ? 'reset-backoff' : 'reconnect'

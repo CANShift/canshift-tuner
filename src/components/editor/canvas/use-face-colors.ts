@@ -1,7 +1,7 @@
 import type { PageConfig, PagePalette } from '@canshift/core'
 import { useDashboardStore } from '../../../stores/dashboard.store'
 import { useActiveDayMode } from '../../../hooks/useActiveDayMode'
-import { resolveBgColor, resolvePalette } from '../../../hooks/useEffectivePalette'
+import { resolveBgColor, resolvePalette } from '../../../lib/effective-palette'
 
 export interface FaceColors {
   isDayMode: boolean

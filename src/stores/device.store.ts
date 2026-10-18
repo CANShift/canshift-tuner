@@ -2,7 +2,7 @@ import type { LinkKind } from '../transport/device-link'
 import { create, type StoreApi } from 'zustand'
 import { readItem, writeItem, STORAGE_KEYS } from '../lib/local-storage'
 
-export type ConnectionStatus = 'disconnected' | 'connected' | 'burning' | 'error'
+type ConnectionStatus = 'disconnected' | 'connected' | 'burning' | 'error'
 
 export type Transport = LinkKind
 

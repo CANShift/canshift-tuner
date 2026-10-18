@@ -2,7 +2,7 @@ import { errorMessage } from '../lib/error-message'
 
 const PREVIEW_CHARS = 80
 
-export const isRecord = (value: unknown): value is Record<string, unknown> =>
+const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null
 
 export const parseFrame = (line: string): Record<string, unknown> | null => {

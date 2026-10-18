@@ -28,7 +28,7 @@ const readTransportEnv = (): TransportEnv => ({
 let choice: TransportChoice | null = null
 let link: DeviceLink | null = null
 
-export const transportChoice = (): TransportChoice => {
+const transportChoice = (): TransportChoice => {
   choice ??= chooseTransport(readTransportEnv())
   return choice
 }
