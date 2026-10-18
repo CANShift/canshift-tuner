@@ -8,6 +8,12 @@ export interface ShiftLightRendererProps extends BaseRendererProps {
   testValue?: number | null
 }
 
+const segmentColor = (index: number, lit: number, redFrom: number, textColor: string): string => {
+  if (index >= lit) return SHIFT_LIGHT.trackColor
+  if (index >= redFrom) return SHIFT_LIGHT.redColor
+  return textColor
+}
+
 export const ShiftLightPreview = memo(function ShiftLightPreview({
   widget,
   w,
@@ -27,14 +33,15 @@ export const ShiftLightPreview = memo(function ShiftLightPreview({
   const segW = (w - gap * (SHIFT_LIGHT.segments - 1)) / SHIFT_LIGHT.segments
   const redFrom =
     cfg.redSegments >= SHIFT_LIGHT.segments ? 0 : SHIFT_LIGHT.segments - cfg.redSegments
+  const fills = Array.from({ length: SHIFT_LIGHT.segments }, (_, i) =>
+    segmentColor(i, lit, redFrom, st.textColor)
+  )
 
   return (
     <svg width={w} height={h} className="block" aria-hidden="true">
-      {Array.from({ length: SHIFT_LIGHT.segments }, (_, i) => {
-        const fill =
-          i >= lit ? SHIFT_LIGHT.trackColor : i >= redFrom ? SHIFT_LIGHT.redColor : st.textColor
-        return <rect key={i} x={i * (segW + gap)} y={0} width={segW} height={h} fill={fill} />
-      })}
+      {fills.map((fill, i) => (
+        <rect key={i} x={i * (segW + gap)} y={0} width={segW} height={h} fill={fill} />
+      ))}
     </svg>
   )
 })

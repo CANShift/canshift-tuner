@@ -73,7 +73,7 @@ export default tseslint.config(
     languageOptions: {
       parserOptions: {
         projectService: {
-          allowDefaultProject: ['*.mjs', '*.config.ts', 'scripts/*.ts'],
+          allowDefaultProject: ['*.mjs', '*.cjs'],
         },
         tsconfigRootDir: import.meta.dirname,
       },
@@ -106,6 +106,14 @@ export default tseslint.config(
       'max-depth': ['error', 2],
       complexity: ['error', 10],
       'max-lines': ['error', { max: 300, skipBlankLines: true }],
+      'no-nested-ternary': 'error',
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'IfStatement > IfStatement.alternate',
+          message: 'A chained `else if` is a union that lost its type: use a lookup table.',
+        },
+      ],
     },
   },
   {
@@ -116,22 +124,16 @@ export default tseslint.config(
     },
   },
   {
+    files: ['**/*.cjs'],
+    languageOptions: { sourceType: 'commonjs', globals: { module: 'writable' } },
+  },
+  {
     files: ['eslint.config.mjs'],
     rules: {
       '@typescript-eslint/no-deprecated': 'off',
     },
   },
   {
-    ignores: [
-      'dist/**',
-      'node_modules/**',
-      '.vite/**',
-      'scripts/**',
-      'vite.config.ts',
-      'tailwind.config.ts',
-      'postcss.config.cjs',
-      '**/*.config.cjs',
-      '**/*.config.js',
-    ],
+    ignores: ['dist/**', 'node_modules/**', '.vite/**'],
   }
 )
