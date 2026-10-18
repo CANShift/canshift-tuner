@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -13,7 +12,7 @@ const HEADER = [
   '',
 ].join('\n')
 
-const buildCss = (cssVars) => {
+const buildCss = (cssVars: Record<string, string>): string => {
   const lines = [':root {']
   for (const [name, value] of Object.entries(cssVars)) {
     lines.push(`  ${name}: ${value};`)
@@ -22,7 +21,7 @@ const buildCss = (cssVars) => {
   return `${HEADER}\n${lines.join('\n')}`
 }
 
-const writeIfChanged = (path, content) => {
+const writeIfChanged = (path: string, content: string): boolean => {
   if (existsSync(path)) {
     const previous = readFileSync(path, 'utf8')
     if (previous === content) return false

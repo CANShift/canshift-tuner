@@ -14,8 +14,8 @@
     "mock-dash": "tsx scripts/mock-dash.ts",
     "mock-dash:sign": "tsx scripts/mock-dash-sign.ts",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src",
-    "lint:fix": "eslint src --fix",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
@@ -76,6 +76,6 @@
   },
   "lint-staged": {
     "*.{ts,tsx,css,json,md,yml,yaml,html}": "prettier --write --ignore-unknown",
-    "*.{ts,tsx}": "eslint --fix --no-warn-ignored"
+    "*.{ts,tsx,mjs,cjs}": "eslint --fix --no-warn-ignored"
   }
 }
