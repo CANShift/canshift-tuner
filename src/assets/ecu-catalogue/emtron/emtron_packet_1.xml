@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- RealDash CAN XML description file, version 2 Requires RealDash version 1.5.8 or newer -->
-<RealDashCAN version="2">
+<CanXml version="2">
   <frames>
     <frame id="1250">
       <value targetId="37" units="RPM" offset="0" length="2"></value> <!-- RPM -->
@@ -74,5 +73,5 @@
 	</frame>
 	  
   </frames>
-</RealDashCAN>
+</CanXml>
 

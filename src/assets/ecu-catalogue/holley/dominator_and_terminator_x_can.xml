@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<RealDashCAN version="2">
+<CanXml version="2">
   <frames>
     <frame id="0x1E005000" endianness="big" readOnly="true" timeout="2000">
       <value targetId="37" offset="0" length="4" float="true"/> <!-- RPM -->
@@ -830,4 +830,4 @@
       <value name="Holley EFI: Race Launch Status" offset="0" length="4" float="true"/>
     </frame>
   </frames>
-</RealDashCAN>
+</CanXml>

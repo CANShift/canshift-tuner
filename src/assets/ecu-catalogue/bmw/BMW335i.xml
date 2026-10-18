@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- RealDash CAN XML description file,
- BMW E93 335I
-Author: Countryman-->
-<RealDashCAN version="2">
+<!-- BMW E93 335I, author: Countryman -->
+<CanXml version="2">
     <frames>
         <frame canId="0x26E">
 		    <value targetId="26" startbit="0" length="1" units="bit"></value> <!-- Ignition on -->
@@ -73,4 +71,4 @@ Author: Countryman-->
 		</frame>
 		
    </frames>
-</RealDashCAN>
+</CanXml>

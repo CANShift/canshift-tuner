@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RealDashCAN version="2">
+<CanXml version="2">
   <frames>
 	<frame id="0x77e:0x01,0,1" endianess="big"> <!-- Left Front -->
 		<value targetId="240" offset="1" length="2" units="bar" conversion="V*0.01"></value> <!-- pressure -->
@@ -38,5 +38,5 @@
 		<value name="Tiremagic TPMS: Sensor Signal Lost" offset="5" length="1" units="bit" conversion="V>>5"></value>
 	</frame>
   </frames>
-</RealDashCAN>
+</CanXml>
 

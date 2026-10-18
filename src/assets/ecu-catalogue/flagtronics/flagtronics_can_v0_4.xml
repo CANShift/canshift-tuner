@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<RealDashCAN version="2">
+<CanXml version="2">
   <frames>
     <frame id="0x600">
       <value name="Flagtronics: Case Temp" offset="2" length="1" units="C" conversion="V*0.67-20"/>
@@ -52,4 +52,4 @@
       <value name="Flagtronics: Future_5" length="1"/>
     </frame>
   </frames>
-</RealDashCAN>
+</CanXml>
