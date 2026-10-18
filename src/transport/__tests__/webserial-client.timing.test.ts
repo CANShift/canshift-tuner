@@ -115,15 +115,15 @@ describe('SerialClient — stale ack discard after timeout: discards a late ack 
     const first = client.send(0x01)
     const second = client.send(0x02)
     await flush()
-    expect(fake.written.join('')).toBe('{"cmd":1}\n')
+    expect(fake.written.join('')).toBe('{"cmd":1,"seq":1}\n')
 
     await vi.advanceTimersByTimeAsync(5_000)
     expect(await first).toEqual({ ok: false, error: 'ack_timeout' })
-    expect(fake.written.join('')).toBe('{"cmd":1}\n')
+    expect(fake.written.join('')).toBe('{"cmd":1,"seq":1}\n')
 
     fake.pushBytes('{"status":"ok","uptime_ms":1}\n')
     await flush()
-    expect(fake.written.join('')).toBe('{"cmd":1}\n{"cmd":2}\n')
+    expect(fake.written.join('')).toBe('{"cmd":1,"seq":1}\n{"cmd":2,"seq":2}\n')
 
     expect(await settledWithin(second)).toBe(false)
 
@@ -151,11 +151,11 @@ describe('SerialClient — stale ack discard after timeout: dispatches the next 
 
     const second = client.send(0x02)
     await flush()
-    expect(fake.written.join('')).toBe('{"cmd":1}\n')
+    expect(fake.written.join('')).toBe('{"cmd":1,"seq":1}\n')
 
     await vi.advanceTimersByTimeAsync(1_000)
     await flush()
-    expect(fake.written.join('')).toBe('{"cmd":1}\n{"cmd":2}\n')
+    expect(fake.written.join('')).toBe('{"cmd":1,"seq":1}\n{"cmd":2,"seq":2}\n')
 
     fake.pushBytes('{"status":"ok"}\n')
     const ack = await second

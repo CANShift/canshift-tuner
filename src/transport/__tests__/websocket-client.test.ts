@@ -21,7 +21,7 @@ describe('WebSocketClient commands', () => {
   it('sends one JSON line per frame and resolves on the status frame', async () => {
     const { client, latest } = await connected()
     const result = client.send(0x11)
-    expect(latest().sent).toEqual(['{"cmd":17}'])
+    expect(latest().sent).toEqual(['{"cmd":17,"seq":1}'])
     latest().receive('{"status":"ok","uptime_ms":42}\n')
     await expect(result).resolves.toEqual({
       ok: true,

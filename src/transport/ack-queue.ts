@@ -1,3 +1,4 @@
+import { USB_SEQ_MAX } from '@canshift/core'
 import { bestEffort } from './best-effort'
 import { errorMessage } from '../lib/error-message'
 
@@ -22,9 +23,13 @@ export interface AckResult {
 }
 
 interface PendingAck {
+  seq: number
   resolve: (result: AckResult) => void
   timer: ReturnType<typeof setTimeout>
 }
+
+const replySeq = (parsed: Record<string, unknown>): number | undefined =>
+  typeof parsed.seq === 'number' ? parsed.seq : undefined
 
 interface QueuedSend {
   cmd: number
@@ -50,6 +55,7 @@ export class AckQueue {
   private pendingSends: QueuedSend[] = []
   private staleAckDiscards = 0
   private staleAckFlushTimer: ReturnType<typeof setTimeout> | null = null
+  private lastSeq = 0
 
   constructor(private readonly deps: AckQueueDeps) {}
 
@@ -80,6 +86,10 @@ export class AckQueue {
       return true
     }
     const ack = this.pendingAck
+    if (this.answersAnotherCommand(parsed, ack)) {
+      console.warn('[serial] discarded a status frame for an earlier command')
+      return true
+    }
     if (!ack) return false
     this.pendingAck = null
     clearTimeout(ack.timer)
@@ -115,6 +125,16 @@ export class AckQueue {
     }
   }
 
+  private answersAnotherCommand(parsed: Record<string, unknown>, ack: PendingAck | null): boolean {
+    const seq = replySeq(parsed)
+    return seq !== undefined && seq !== ack?.seq
+  }
+
+  private takeSeq(): number {
+    this.lastSeq = this.lastSeq >= USB_SEQ_MAX ? 1 : this.lastSeq + 1
+    return this.lastSeq
+  }
+
   private idleTimeoutMs(): number {
     const heard = this.deps.deviceHeard?.() ?? true
     return heard ? ACK_TIMEOUT_MS : UNHEARD_DEVICE_TIMEOUT_MS
@@ -125,7 +145,8 @@ export class AckQueue {
     fields: Record<string, unknown>,
     opts: SendOptions
   ): Promise<AckResult> {
-    const payload = JSON.stringify({ cmd, ...fields }) + '\n'
+    const seq = this.takeSeq()
+    const payload = JSON.stringify({ cmd, seq, ...fields }) + '\n'
     const timeoutMs = opts.scaleWithPayload
       ? putConfigTimeoutMs(payload.length)
       : (opts.timeoutMs ?? this.idleTimeoutMs())
@@ -137,7 +158,7 @@ export class AckQueue {
         resolve({ ok: false, error: 'ack_timeout' })
       }, timeoutMs)
 
-      this.pendingAck = { resolve, timer }
+      this.pendingAck = { seq, resolve, timer }
 
       this.deps.write(payload).catch((err: unknown) => {
         clearTimeout(timer)

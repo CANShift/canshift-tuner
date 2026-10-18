@@ -75,7 +75,7 @@ describe('SerialClient — ack matching: resolves the next non-discriminated `{s
     const ackPromise = client.send(0x02, { payload: { a: 1 } })
     await flush()
 
-    expect(fake.written.join('')).toBe('{"cmd":2,"payload":{"a":1}}\n')
+    expect(fake.written.join('')).toBe('{"cmd":2,"seq":1,"payload":{"a":1}}\n')
 
     fake.pushBytes('{"status":"ok","echo":true}\n')
     const ack = await ackPromise
