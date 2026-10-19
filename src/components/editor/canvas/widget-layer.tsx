@@ -62,7 +62,6 @@ const CruiseControlBody = (props: WidgetLayerProps) => (
     scale={props.effScale}
     canvasW={props.canvasW}
     contentH={props.areaHeight * props.effScale}
-    palette={props.palette}
   />
 )
 

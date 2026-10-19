@@ -1,4 +1,3 @@
-import type { PagePalette } from '@canshift/core'
 import { UI_FONT, UI_LABEL_TRACKING, UI_LABEL_WEIGHT } from '../../lib/typography'
 import {
   buttonPathD,
@@ -19,7 +18,7 @@ const L_BUTTON_TEXT = '#FFFFFF'
 const CENTER = 'absolute box-border flex flex-col items-center justify-center'
 
 const CENTER_LABEL = [
-  'text-center font-sans font-extrabold leading-none tracking-[0.18em] text-[#BABAB8]',
+  'text-center font-sans font-extrabold leading-none tracking-[0.18em] text-[#888888]',
 ].join(' ')
 
 const CENTER_VALUE = [
@@ -27,6 +26,7 @@ const CENTER_VALUE = [
 ].join(' ')
 
 const DEMO_SET_SPEED = 0
+const CENTER_VALUE_DEVICE_PX = 24
 const SPEED_UNIT = 'km/h'
 
 interface CruiseButton {
@@ -47,7 +47,6 @@ interface CruiseControlPreviewProps {
   scale: number
   canvasW: number
   contentH: number
-  palette: PagePalette
 }
 
 interface CruiseButtonShapeProps {
@@ -115,15 +114,7 @@ const CenterLabel = ({ fontSize, text }: { fontSize: number; text: string }) => 
   </span>
 )
 
-const CruiseCenter = ({
-  box,
-  scale,
-  palette,
-}: {
-  box: Box
-  scale: number
-  palette: PagePalette
-}) => (
+const CruiseCenter = ({ box, scale }: { box: Box; scale: number }) => (
   <div
     className={CENTER}
     // eslint-disable-next-line no-inline-style/no-inline-style
@@ -133,14 +124,14 @@ const CruiseCenter = ({
       width: box.w * scale,
       height: box.h * scale,
       gap: 2 * scale,
-      color: palette.text,
+      color: L_BUTTON_TEXT,
     }}
   >
     <CenterLabel fontSize={10 * scale} text="SET" />
     <span
       className={CENTER_VALUE}
       // eslint-disable-next-line no-inline-style/no-inline-style
-      style={{ color: palette.text, fontSize: Math.round(40 * scale) }}
+      style={{ color: L_BUTTON_TEXT, fontSize: Math.round(CENTER_VALUE_DEVICE_PX * scale) }}
     >
       {DEMO_SET_SPEED}
     </span>
@@ -148,12 +139,7 @@ const CruiseCenter = ({
   </div>
 )
 
-export const CruiseControlPreview = ({
-  scale,
-  canvasW,
-  contentH,
-  palette,
-}: CruiseControlPreviewProps) => {
+export const CruiseControlPreview = ({ scale, canvasW, contentH }: CruiseControlPreviewProps) => {
   const fwCanvasW = canvasW / scale
   const fwContentH = contentH / scale
   const boxes: Record<Corner, Box> = quadrants(fwCanvasW, fwContentH)
@@ -167,7 +153,7 @@ export const CruiseControlPreview = ({
           scale={scale}
         />
       ))}
-      <CruiseCenter box={centerBox(fwCanvasW, fwContentH)} scale={scale} palette={palette} />
+      <CruiseCenter box={centerBox(fwCanvasW, fwContentH)} scale={scale} />
     </div>
   )
 }
