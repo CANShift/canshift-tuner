@@ -1,5 +1,7 @@
 import { lazy, Suspense, useState } from 'react'
 import { OBD2_DEFAULT_INTERVAL_MS, OBD2_MODE01_PIDS } from '@canshift/core'
+import { STRINGS } from '../../strings'
+import { Obd2PollRate } from './Obd2PollRate'
 import { Obd2Table } from './Obd2Table'
 import { RouteLoading } from '../shell/RouteLoading'
 import { useSignalStore } from '../../stores/signal.store'
@@ -30,22 +32,21 @@ export const Obd2Pane = () => {
   const togglePolled = usePolling(intervalMs)
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="flex flex-col gap-4">
+      <p className="text-pretty text-sm leading-snug text-app-secondary">
+        {STRINGS.car.obdContext}
+      </p>
+      <Obd2PollRate intervalMs={intervalMs} intervals={POLL_INTERVALS} onInterval={setIntervalMs} />
       <Obd2Table
         signals={signals}
         values={values}
         usage={usage}
         units={units}
-        intervalMs={intervalMs}
-        intervals={POLL_INTERVALS}
-        onInterval={setIntervalMs}
         onTogglePolled={togglePolled}
       />
-      <div className="shrink-0 border-t-2 border-app-border">
-        <Suspense fallback={<RouteLoading />}>
-          <DtcPanel />
-        </Suspense>
-      </div>
+      <Suspense fallback={<RouteLoading />}>
+        <DtcPanel />
+      </Suspense>
     </div>
   )
 }

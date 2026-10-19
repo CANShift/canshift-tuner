@@ -7,16 +7,14 @@ import { ChooseCarSheet } from './ChooseCarSheet'
 import { RawFramesLink } from './RawFramesLink'
 import { SignalsCard } from './SignalsCard'
 import { LivePlotCard } from './LivePlotCard'
-import { ObdCard } from './ObdCard'
+import { ObdLink } from './ObdLink'
 import { Disclosure } from '../chrome/Disclosure'
 import { useIsLaptop } from '../../hooks/useIsLaptop'
 
 const CarMore = () => (
   <div className="flex flex-col gap-4 lg:gap-5">
     <h2 className="text-lg font-bold xl:sr-only">{STRINGS.car.more}</h2>
-    <Disclosure title={STRINGS.car.obd} hint={STRINGS.car.obdHint}>
-      <ObdCard />
-    </Disclosure>
+    <ObdLink />
     <RawFramesLink />
   </div>
 )
@@ -29,8 +27,8 @@ const LivePlot = () => (
     title={STRINGS.car.livePlot}
     hint={STRINGS.car.livePlotHint}
     defaultOpen={useIsLaptop()}
-    className="xl:flex xl:min-h-0 xl:flex-1 xl:flex-col"
-    bodyClassName="xl:flex xl:min-h-0 xl:flex-1 xl:flex-col"
+    className="xl:flex xl:min-h-0 xl:flex-1 xl:flex-col xl:overflow-hidden"
+    bodyClassName="xl:flex xl:min-h-0 xl:flex-1 xl:flex-col xl:overflow-hidden"
   >
     <LivePlotCard />
   </Disclosure>
