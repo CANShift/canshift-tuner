@@ -17,9 +17,11 @@ export interface PaletteItem {
 const GAUGE_MAX_RPM = 8_000
 const GAUGE_DANGER_RPM = 7_000
 const SHIFT_LIGHT_START_RPM = 3_000
-const SHIFT_LIGHT_RED_SEGMENTS = 5
+export const SHIFT_LIGHT_RED_SEGMENTS = 5
 const WARNING_THRESHOLD_BAR = 1
 const WIDGET_FONT_SIZE = 16
+
+export const NEW_WIDGET_STYLE = { ...DEFAULT_WIDGET_STYLE, fontSize: WIDGET_FONT_SIZE }
 
 const DEFAULT_BUTTON_ACTION: ButtonAction = {
   category: 'device',
@@ -146,6 +148,6 @@ export const buildWidget = (item: PaletteItem): Widget => ({
     rowSpan: item.defaultRowSpan,
     zOrder: 0,
   },
-  style: { ...DEFAULT_WIDGET_STYLE, fontSize: WIDGET_FONT_SIZE },
+  style: { ...NEW_WIDGET_STYLE },
   config: configFor(item),
 })
