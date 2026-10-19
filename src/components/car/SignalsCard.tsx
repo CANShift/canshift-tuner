@@ -42,7 +42,7 @@ const AllSilent = ({ rows }: { rows: readonly SignalRow[] }) =>
     <p className="text-sm text-app-warning">{C.noData}</p>
   ) : null
 
-const SIGNALS_VIEWPORT = 'lg:max-h-[calc(100dvh-20rem)] lg:min-h-64 lg:overflow-y-auto'
+const SIGNALS_VIEWPORT = 'xl:min-h-0 xl:overflow-y-auto'
 
 const CardHeader = ({ rows }: { rows: readonly SignalRow[] }) => (
   <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-app-border px-4 py-3 lg:col-span-full">
@@ -64,7 +64,7 @@ const SignalsTable = ({ rows, onAdjust }: SignalsTableProps) => (
   <section
     className={cn(
       TABLE_COLUMNS,
-      'overflow-hidden rounded-card border border-app-border bg-app-surface'
+      'overflow-hidden rounded-card border border-app-border bg-app-surface xl:min-h-0 xl:flex-1 xl:grid-rows-[auto_auto_minmax(0,1fr)]'
     )}
   >
     <CardHeader rows={rows} />
