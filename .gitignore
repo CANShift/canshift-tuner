@@ -2,6 +2,7 @@ node_modules/
 dist/
 .vite/
 src/styles/tokens.generated.css
+src/styles/theme.generated.css
 public/sitemap.xml
 .dev.vars
 dist-tuner/

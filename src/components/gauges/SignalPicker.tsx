@@ -36,7 +36,7 @@ const SignalRow = ({ signal, current, reading, onPick }: SignalRowProps) => (
       onClick={() => {
         onPick(signal.name)
       }}
-      className="flex min-h-[52px] w-full items-center gap-3 border-b border-app-divider bg-transparent px-3.5 py-2 text-left text-app-text transition-colors hover:bg-app-surface-2 focus-visible:bg-app-surface-2 aria-[current=true]:bg-app-surface-2 aria-[current=true]:shadow-[inset_3px_0_0_var(--app-accent)]"
+      className="flex min-h-[52px] w-full items-center gap-3 border-b border-app-divider bg-transparent px-3.5 py-2 text-left text-app-text transition-colors hover:bg-app-surface-2 focus-visible:bg-app-surface-2 aria-current:bg-app-surface-2 aria-current:shadow-[inset_3px_0_0_var(--app-accent)]"
     >
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="text-[15px]">{signalName(signal.name)}</span>

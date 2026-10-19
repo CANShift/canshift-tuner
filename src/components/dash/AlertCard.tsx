@@ -36,7 +36,9 @@ export const AlertCard = () => (
       <span className="text-base font-bold lg:text-[17px]">{D.alert}</span>
     </div>
     <div className="flex flex-col gap-4 px-3.5 pb-3 pt-2.5 lg:px-5 lg:pb-5 lg:pt-4">
-      <p className="text-[13px] leading-snug text-app-secondary lg:text-sm">{D.alertHint}</p>
+      <p className="text-[13px] leading-snug text-app-secondary lg:text-sm lg:leading-5">
+        {D.alertHint}
+      </p>
       <ConfiguredAlerts />
       <div className="border-t border-app-divider" />
       <BuiltInAlertList />

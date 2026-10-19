@@ -1,7 +1,7 @@
 import { cva } from 'class-variance-authority'
 import { WIDGET_DIM_COLORS, WIDGET_TOP_RULE } from '@canshift/core'
 
-export const BLINK = '[animation:canshift-blink_0.7s_step-end_infinite]'
+export const BLINK = 'animate-[canshift-blink_0.7s_step-end_infinite]'
 
 export const WIDGET_DIM_COLOR: string = WIDGET_DIM_COLORS.night
 

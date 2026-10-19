@@ -71,7 +71,7 @@ const SplashDetail = ({ scale, trackColor, dimColor, detail }: SplashDetailProps
 
 export const SplashTakeover = ({ scale, bgColor, name, state, ...detail }: SplashTakeoverProps) => (
   <div
-    className="absolute inset-0 z-[3] flex flex-col"
+    className="absolute inset-0 z-3 flex flex-col"
     // eslint-disable-next-line no-inline-style/no-inline-style
     style={{ background: bgColor, padding: 4 * scale }}
   >
@@ -119,7 +119,7 @@ const AlertFooter = ({ scale }: { scale: number }) => (
 
 export const AlertTakeover = ({ scale, name, value, rule }: AlertTakeoverProps) => (
   <div
-    className="absolute inset-0 z-[3] flex flex-col text-white"
+    className="absolute inset-0 z-3 flex flex-col text-white"
     // eslint-disable-next-line no-inline-style/no-inline-style
     style={{ background: CS_DANGER, padding: 4 * scale }}
   >

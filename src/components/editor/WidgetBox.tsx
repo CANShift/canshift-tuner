@@ -48,8 +48,8 @@ const box = cva('absolute box-border cursor-move select-none overflow-hidden', {
       none: '',
     },
     ring: {
-      flashing: 'outline outline-2 -outline-offset-2 outline-brand-accent',
-      selected: 'outline outline-2 -outline-offset-2 outline-selection',
+      flashing: 'outline-solid outline-2 -outline-offset-2 outline-brand-accent',
+      selected: 'outline-solid outline-2 -outline-offset-2 outline-selection',
       none: '',
     },
   },
@@ -161,7 +161,7 @@ const ResizeGrip = ({
     onMouseDown={(e) => {
       e.stopPropagation()
     }}
-    className="absolute inset-y-0 right-0 z-[2] cursor-ew-resize bg-transparent hover:bg-white/10"
+    className="absolute inset-y-0 right-0 z-2 cursor-ew-resize bg-transparent hover:bg-white/10"
     // eslint-disable-next-line no-inline-style/no-inline-style
     style={{ width: GRIP_WIDTH_PX }}
   />

@@ -16,7 +16,7 @@ const DropdownMenuContent = forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        'z-50 min-w-[13rem] overflow-hidden rounded-card border border-app-border bg-app-surface p-1 text-app-text shadow-overlay',
+        'z-50 min-w-52 overflow-hidden rounded-card border border-app-border bg-app-surface p-1 text-app-text shadow-overlay',
         'data-[state=open]:animate-in data-[state=closed]:animate-out',
         className
       )}
@@ -33,9 +33,9 @@ const DropdownMenuItem = forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex min-h-11 cursor-pointer select-none items-center gap-2 rounded-control px-3 text-[15px] outline-none transition-colors',
+      'relative flex min-h-11 cursor-pointer select-none items-center gap-2 rounded-control px-3 text-[15px] outline-hidden transition-colors',
       'focus:bg-app-surface-2 focus:text-app-text active:brightness-95',
-      'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'data-disabled:pointer-events-none data-disabled:opacity-50',
       className
     )}
     {...props}

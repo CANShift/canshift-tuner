@@ -45,7 +45,7 @@ interface OverlayContext {
 const OVERLAYS: Record<PreviewMode, (ctx: OverlayContext) => ReactNode> = {
   normal: () => null,
   cut: ({ scale, palette }) => (
-    <div className="absolute inset-x-0 top-0 z-[3]">
+    <div className="absolute inset-x-0 top-0 z-3">
       <CutBand scale={scale} dimColor={palette.textDim} inkColor={palette.text} {...SAMPLE_CUT} />
     </div>
   ),

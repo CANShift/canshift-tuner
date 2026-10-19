@@ -28,7 +28,7 @@ export interface GaugeArcRendererProps extends BaseRendererProps {
 
 const SIGNAL_LABEL_FONT_SIZE = 9
 
-const BLINK = '[animation:canshift-blink_0.7s_step-end_infinite]'
+const BLINK = 'animate-[canshift-blink_0.7s_step-end_infinite]'
 
 interface ArcGeometry {
   cx: number

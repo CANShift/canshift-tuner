@@ -71,7 +71,7 @@ export const GaugePreview = ({ page, topBar, scale, ...props }: GaugePreviewProp
   const { screen, isLaptop, topBarHeight, areaHeight } = usePreviewGeometry(page, topBar)
   const area = { scale, areaWidth: screen.width, areaHeight }
   return (
-    <div className="relative w-fit font-sans outline outline-1 outline-app-border">
+    <div className="relative w-fit font-sans outline-solid outline-1 outline-app-border">
       <PageFace page={page} topBar={topBar} scale={scale} />
       <ModeOverlay mode={props.mode} scale={scale} top={topBarHeight * scale} page={page} />
       <EditableHitLayer

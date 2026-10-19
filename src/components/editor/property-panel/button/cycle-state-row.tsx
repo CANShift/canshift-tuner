@@ -36,7 +36,7 @@ const removeButton = cva('flex border-none bg-transparent p-0', {
   defaultVariants: { enabled: true },
 })
 
-const CATEGORY = 'text-[9px] font-semibold uppercase tracking-[0.05em]'
+const CATEGORY = 'text-[9px] font-semibold uppercase tracking-wider'
 
 interface CycleStateRowProps {
   state: CycleState
