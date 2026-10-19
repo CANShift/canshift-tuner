@@ -56,7 +56,7 @@ const Obd2Header = () => (
   <div
     className={cn(
       GRID,
-      'sticky top-0 z-[2] border-b-2 border-t border-app-border border-t-app-divider bg-app-surface px-7 py-3',
+      'sticky top-0 z-2 border-b-2 border-t border-app-border border-t-app-divider bg-app-surface px-7 py-3',
       'font-mono text-[10px] tracking-[0.16em] text-app-muted'
     )}
   >

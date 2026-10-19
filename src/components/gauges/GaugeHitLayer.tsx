@@ -23,7 +23,7 @@ interface HitAreaProps extends Omit<GaugeHitLayerProps, 'page' | 'top'> {
 }
 
 const RING = {
-  primary: 'outline outline-2 outline-app-text lg:outline-[3px]',
+  primary: 'outline-solid outline-2 outline-app-text lg:outline-[3px]',
   member: 'outline-dashed outline-2 outline-app-text',
   none: '',
 } as const

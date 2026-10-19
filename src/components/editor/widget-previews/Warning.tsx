@@ -14,7 +14,7 @@ const frame = cva(
   'relative box-border flex flex-col items-center justify-center gap-1 overflow-hidden rounded-none',
   {
     variants: {
-      blink: { true: '[animation:canshift-blink_0.7s_step-end_infinite]', false: '' },
+      blink: { true: 'animate-[canshift-blink_0.7s_step-end_infinite]', false: '' },
     },
     defaultVariants: { blink: false },
   }

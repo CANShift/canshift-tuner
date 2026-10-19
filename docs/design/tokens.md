@@ -12,7 +12,7 @@ outside the dash preview follows this page; the preview follows [the dash design
 and keeps the dash's own fonts.
 
 Defined in [`src/styles/ui-tokens.css`](../../src/styles/ui-tokens.css), exposed to Tailwind as the `app`
-colour family in `tailwind.config.ts`. The `app` family is the only app colour family: there is no
+colour family in the `@theme` blocks of `src/index.css`. The `app` family is the only app colour family: there is no
 other set of app colours to reach for. Never hard-code these values in a component.
 
 ## Colours
@@ -55,7 +55,8 @@ the safe area. Every touch target is at least 44 px.
 ## Relation to `@canshift/core`
 
 Core owns the dash's tokens and the brand mark, and publishes them through
-`scripts/generate-tokens.css.ts` into `src/styles/tokens.generated.css`. That file stays: the canvas
+`scripts/generate-tokens.css.ts` into `src/styles/tokens.generated.css` (the variables) and
+`src/styles/theme.generated.css` (the Tailwind `@theme` that maps them to utilities). Those files stay: the canvas
 preview renders the dash and reads only the dash's tokens and fonts (`font-sans` is the dash's
 Archivo, `font-mono` its JetBrains Mono), never the app's. Restyling the app can never move the
 preview.

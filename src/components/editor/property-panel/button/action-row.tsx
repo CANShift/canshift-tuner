@@ -8,7 +8,7 @@ const CARD = [
   'mb-[5px] border border-solid border-brand-neutral-300 bg-brand-neutral-100 px-2 py-1.5',
 ].join(' ')
 
-const CATEGORY = 'text-[10px] font-semibold uppercase tracking-[0.05em]'
+const CATEGORY = 'text-[10px] font-semibold uppercase tracking-wider'
 
 const REMOVE_BUTTON = 'flex cursor-pointer border-none bg-transparent p-0 text-[#553333]'
 

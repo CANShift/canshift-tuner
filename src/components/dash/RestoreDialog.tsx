@@ -30,7 +30,7 @@ const FileCard = ({ summary }: { summary: BackupSummary }) => (
   <div className="flex items-start gap-3 rounded-control border border-app-border bg-app-bg p-3">
     <UiIcon name="file" className="mt-0.5 text-app-muted" />
     <div className="flex min-w-0 flex-col gap-0.5">
-      <span className="text-[15px] font-semibold [overflow-wrap:anywhere]">{summary.fileName}</span>
+      <span className="text-[15px] font-semibold wrap-anywhere">{summary.fileName}</span>
       <span className="text-[13px] text-app-muted">
         {D.restoreSummary(
           summary.savedAt === null ? '—' : DATE_FORMAT.format(summary.savedAt),

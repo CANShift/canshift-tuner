@@ -92,7 +92,7 @@ export const PageButtonsPanel = ({ editor }: { editor: PageButtonsEditor }) => {
         <span className="text-base font-bold lg:text-[17px]">{D.pageButtons}</span>
       </div>
       <div className="flex flex-col gap-2 px-3.5 pb-3 pt-2.5 lg:px-5 lg:pb-5 lg:pt-4">
-        <p className="text-[13px] leading-snug text-app-secondary lg:text-sm">
+        <p className="text-[13px] leading-snug text-app-secondary lg:text-sm lg:leading-5">
           {D.pageButtonsHint}
         </p>
         <ul className="flex flex-col">

@@ -26,7 +26,7 @@ const FRAME = [
 const KICKER = 'font-sans text-[10px] font-extrabold uppercase leading-none tracking-[0.18em]'
 
 const LABEL = [
-  'min-w-0 overflow-visible whitespace-normal break-words',
+  'min-w-0 overflow-visible whitespace-normal wrap-break-word',
   'text-left font-sans font-extrabold leading-none',
 ].join(' ')
 

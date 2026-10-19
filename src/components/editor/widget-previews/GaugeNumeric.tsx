@@ -26,7 +26,7 @@ const BAR_FILL = 'block h-full'
 const VALUE_ROW = 'flex w-full shrink-0 flex-row items-baseline justify-center gap-1'
 
 const VALUE = [
-  'overflow-hidden whitespace-nowrap text-left [text-overflow:clip]',
+  'overflow-hidden whitespace-nowrap text-left text-clip',
   'font-mono font-extrabold leading-none',
 ].join(' ')
 

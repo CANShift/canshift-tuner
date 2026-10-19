@@ -15,7 +15,7 @@ const value = cva('font-mono tracking-[0.06em] tabular-nums', {
 
 const KICKER = [
   'absolute left-[3px] top-0.5 font-sans text-[9px] font-medium uppercase',
-  'leading-none tracking-[0.05em] text-[#BABAB8]',
+  'leading-none tracking-wider text-[#BABAB8]',
 ].join(' ')
 
 export const TimerPreview = memo(function TimerPreview({ widget, w, h }: BaseRendererProps) {

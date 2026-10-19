@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
@@ -13,7 +14,7 @@ export default defineConfig({
   define: {
     __EXPECTED_FIRMWARE_MAJOR__: JSON.stringify(firmwareMajor),
   },
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),

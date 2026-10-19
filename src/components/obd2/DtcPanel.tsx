@@ -136,7 +136,7 @@ export const DtcPanel = () => {
   )
 }
 
-const EMPTY = 'px-5 py-4 text-[12px] leading-[1.5] text-brand-neutral-500'
+const EMPTY = 'px-5 py-4 text-[12px] leading-normal text-brand-neutral-500'
 
 const dtcButton = cva(
   'border border-brand-accent px-3.5 py-1.5 text-[11px] font-extrabold tracking-[0.09em]',

@@ -87,7 +87,7 @@ export const ThemeSampleCard = ({ entry, face, active, onSelect }: ThemeSampleCa
       aria-pressed={active}
       className={cn(
         'cursor-pointer border-0 p-0 text-left',
-        active ? 'outline outline-2 outline-app-accent' : 'hover:opacity-90'
+        active ? 'outline-solid outline-2 outline-app-accent' : 'hover:opacity-90'
       )}
     >
       {/* eslint-disable-next-line no-inline-style/no-inline-style */}

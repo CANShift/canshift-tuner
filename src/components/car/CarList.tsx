@@ -23,7 +23,7 @@ const CarRow = ({
       type="button"
       aria-current={current}
       onClick={() => onPick(option.key)}
-      className="flex min-h-[52px] w-full flex-col justify-center border-b border-app-divider px-3.5 py-2 text-left aria-[current=true]:bg-app-surface-2"
+      className="flex min-h-[52px] w-full flex-col justify-center border-b border-app-divider px-3.5 py-2 text-left aria-current:bg-app-surface-2"
     >
       <span className="text-[15px]">{option.label}</span>
       <span className="text-xs text-app-muted">{option.make}</span>

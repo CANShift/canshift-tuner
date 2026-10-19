@@ -15,7 +15,7 @@ export const CanByteHistogram = ({ frame }: CanByteHistogramProps) => {
       <div className="mb-2 text-[11px] uppercase tracking-[0.06em] text-app-muted">
         Per-byte value distribution (most-common first)
       </div>
-      <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(110px,1fr))]">
+      <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(110px,1fr))]">
         {frame.byteValueCounts.slice(0, frame.lastDlc).map((counts, byteIndex) => (
           <ByteColumn key={byteIndex} byteIndex={byteIndex} counts={counts} />
         ))}

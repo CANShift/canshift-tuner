@@ -68,7 +68,7 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        'relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-card border border-app-border bg-app-surface text-app-text shadow-overlay',
+        'relative z-50 max-h-96 min-w-32 overflow-hidden rounded-card border border-app-border bg-app-surface text-app-text shadow-overlay',
         'data-[state=open]:animate-in data-[state=closed]:animate-out',
         position === 'popper' && 'data-[side=bottom]:translate-y-1 data-[side=top]:-translate-y-1',
         className
@@ -80,7 +80,7 @@ const SelectContent = React.forwardRef<
         className={cn(
           'p-1',
           position === 'popper' &&
-            'h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]'
+            'h-(--radix-select-trigger-height) w-full min-w-(--radix-select-trigger-width)'
         )}
       >
         {children}
@@ -109,7 +109,7 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex min-h-11 w-full cursor-default select-none items-center rounded-control pl-8 pr-2 text-[15px] outline-none focus:bg-app-surface-2 focus:text-app-text data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'relative flex min-h-11 w-full cursor-default select-none items-center rounded-control pl-8 pr-2 text-[15px] outline-hidden focus:bg-app-surface-2 focus:text-app-text data-disabled:pointer-events-none data-disabled:opacity-50',
       className
     )}
     {...props}

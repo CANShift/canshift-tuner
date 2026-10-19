@@ -44,7 +44,7 @@ export const FileSlot = ({ label, extension, chosen, onChoose }: FileSlotProps) 
     >
       <UiIcon name="file" className={chosen === null ? 'text-app-muted' : 'text-app-success'} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <span className="text-[15px] [overflow-wrap:anywhere]">{chosen ?? label}</span>
+        <span className="text-[15px] wrap-anywhere">{chosen ?? label}</span>
         <span className="text-[13px] text-app-muted">
           {chosen === null ? STRINGS.firmware.notChosen(extension) : label}
         </span>
