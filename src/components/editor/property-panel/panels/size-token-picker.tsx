@@ -3,10 +3,11 @@ import type { Widget } from '@canshift/core'
 
 import { SIZE_TOKENS, STANDARD_TOKEN_IDS, tokenFromSpans } from '../../../../utils/size-tokens'
 import { PanelField, segmentPill } from '@/components/ui/form-field'
+import type { WidgetPatch } from '../../../../lib/widget-patch'
 
 interface SizeTokenPickerProps {
   widget: Widget
-  onChange: (patch: Partial<Widget>) => void
+  onChange: (patch: WidgetPatch) => void
 }
 
 export const SizeTokenPicker = ({ widget, onChange }: SizeTokenPickerProps) => {

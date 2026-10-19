@@ -1,8 +1,9 @@
 import type { GaugeDisplayStyle, SignalDef, Widget } from '@canshift/core'
+import type { WidgetPatch } from '../../../lib/widget-patch'
 
 export interface ConfigFieldsProps {
   widget: Widget
-  onChange: (patch: Partial<Widget>) => void
+  onChange: (patch: WidgetPatch) => void
   signalDef?: SignalDef | undefined
 }
 

@@ -5,6 +5,7 @@ import { gridTracksForConfig } from '../../lib/grid-tracks'
 import { pushHistory, toPlacement, widgetRef } from './helpers'
 import { firstFreeSpot, sizeOf, spotsAround } from './widget-placement'
 import type { DashboardState } from './types'
+import { patchWidget, type WidgetPatch } from '../../lib/widget-patch'
 
 export type DashboardDraft = Draft<DashboardState>
 
@@ -47,7 +48,7 @@ export const removeWidgetFrom = (s: DashboardDraft, pageId: string, widgetId: st
   s.selectedWidgetIds = s.selectedWidgetIds.filter((id) => id !== widgetId)
 }
 
-const editLabel = (existing: Widget, patch: Partial<Widget>): string => {
+const editLabel = (existing: Widget, patch: WidgetPatch): string => {
   const rebound = patch.signal !== undefined && patch.signal !== existing.signal
   if (rebound)
     return `Rebound ${widgetRef(existing)} to ${patch.signal !== '' ? String(patch.signal) : 'nothing'}`
@@ -76,12 +77,12 @@ export const updateWidgetIn = (
   s: DashboardDraft,
   pageId: string,
   widgetId: string,
-  patch: Partial<Widget>
+  patch: WidgetPatch
 ): void => {
   const slot = widgetIn(s, pageId, widgetId)
   if (!slot) return
   pushHistory(s, editLabel(slot.widget, patch))
-  const merged = { ...slot.widget, ...patch }
+  const merged = patchWidget(slot.widget, patch)
   const clamped = clampGridPlacement(merged.layout, gridTracksForConfig(s.config))
   merged.layout = { ...clamped, zOrder: merged.layout.zOrder }
   slot.page.widgets[slot.index] = merged

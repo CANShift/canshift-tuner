@@ -19,13 +19,13 @@ describe('the Add menu', () => {
   it('keeps the signal when a gauge becomes a warning light', () => {
     const gauge = { ...buildWidget(PALETTE_ITEMS[0]!), signal: 'coolant_temp' }
     expect(retypeWidget(gauge, 'warning')).toMatchObject({
-      type: 'warning',
+      config: { type: 'warning' },
       signal: 'coolant_temp',
     })
   })
 
   it('clears the signal for a widget type that has none', () => {
     const gauge = buildWidget(PALETTE_ITEMS[0]!)
-    expect(retypeWidget(gauge, 'image')).toMatchObject({ type: 'image', signal: '' })
+    expect(retypeWidget(gauge, 'image')).toMatchObject({ config: { type: 'image' }, signal: '' })
   })
 })

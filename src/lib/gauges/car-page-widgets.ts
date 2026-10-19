@@ -1,5 +1,6 @@
-import type { GaugeWidgetConfig, SignalDef, Widget, WidgetType } from '@canshift/core'
+import type { GaugeWidgetConfig, SignalDef, Widget } from '@canshift/core'
 import { NEW_WIDGET_STYLE, SHIFT_LIGHT_RED_SEGMENTS } from '../new-widget'
+import { pairWidget } from '../widget-patch'
 import type { SignalSlotKind, SignalSlotPlan, TimerSlotPlan } from './car-page-plans'
 
 const SHIFT_LIGHT_START_SHARE = 0.72
@@ -31,30 +32,25 @@ const shiftLightStart = (def: SignalDef): number =>
   SHIFT_LIGHT_STEP
 
 interface SignalKindSpec {
-  type: WidgetType
   claimsSignal: boolean
   config: (def: SignalDef, big: number | undefined) => Widget['config']
 }
 
 export const SIGNAL_KINDS: Record<SignalSlotKind, SignalKindSpec> = {
-  gauge: { type: 'gauge', claimsSignal: true, config: gaugeConfig },
+  gauge: { claimsSignal: true, config: gaugeConfig },
   barGauge: {
-    type: 'gauge',
     claimsSignal: true,
     config: (def, big) => ({ ...gaugeConfig(def, big), showBar: true }),
   },
   revGauge: {
-    type: 'gauge',
     claimsSignal: true,
     config: (def, big) => ({ ...gaugeConfig(def, big), revFlash: true }),
   },
   gear: {
-    type: 'gear',
     claimsSignal: true,
     config: (_def, big) => ({ type: 'gear', decimalPlaces: 0, ...sizeOf(big) }),
   },
   shiftLight: {
-    type: 'shift_light',
     claimsSignal: false,
     config: (def) => ({
       type: 'shift_light',
@@ -64,24 +60,13 @@ export const SIGNAL_KINDS: Record<SignalSlotKind, SignalKindSpec> = {
   },
 }
 
-const widgetOf = (
-  id: string,
-  type: WidgetType,
-  signal: string,
-  config: Widget['config']
-): Widget => ({
-  id,
-  type,
-  signal,
-  layout: { ...UNPLACED },
-  style: { ...NEW_WIDGET_STYLE },
-  config,
-})
+const widgetOf = (id: string, signal: string, config: Widget['config']): Widget =>
+  pairWidget({ id, signal, layout: { ...UNPLACED }, style: { ...NEW_WIDGET_STYLE } }, config)
 
 export const signalWidget = (id: string, slot: SignalSlotPlan, def: SignalDef): Widget => {
   const spec = SIGNAL_KINDS[slot.kind]
-  return widgetOf(id, spec.type, def.name, spec.config(def, slot.big))
+  return widgetOf(id, def.name, spec.config(def, slot.big))
 }
 
 export const lapTimerWidget = (id: string, slot: TimerSlotPlan): Widget =>
-  widgetOf(id, 'timer', '', { type: 'timer', source: 'lap', ...sizeOf(slot.big) })
+  widgetOf(id, '', { type: 'timer', source: 'lap', ...sizeOf(slot.big) })

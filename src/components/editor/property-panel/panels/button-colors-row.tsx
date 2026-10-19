@@ -1,6 +1,7 @@
 import type { ButtonWidgetConfig, HexColor, Widget } from '@canshift/core'
 
 import { PanelField, PanelRow } from '@/components/ui/form-field'
+import type { WidgetPatch } from '../../../../lib/widget-patch'
 
 const SECTION_LABEL = 'mb-1.5 mt-1 text-[10px] uppercase tracking-[0.06em] text-brand-neutral-600'
 
@@ -13,7 +14,7 @@ interface ButtonColorsRowProps {
   widget: Widget
   colorError: string | null
   safeParseHex: (raw: string) => HexColor | null
-  onChange: (patch: Partial<Widget>) => void
+  onChange: (patch: WidgetPatch) => void
 }
 
 type ColorRole = 'normal' | 'active'

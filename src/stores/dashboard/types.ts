@@ -11,6 +11,7 @@ import type {
   Widget,
   WidgetLayout,
 } from '@canshift/core'
+import type { WidgetPatch } from '../../lib/widget-patch'
 
 export interface LifecycleSlice {
   config: DashboardConfig | null
@@ -56,7 +57,7 @@ export interface SelectionSlice {
 export interface WidgetsSlice {
   addWidget: (pageId: string, widget: Widget) => void
   removeWidget: (pageId: string, widgetId: string) => void
-  updateWidget: (pageId: string, widgetId: string, patch: Partial<Widget>) => void
+  updateWidget: (pageId: string, widgetId: string, patch: WidgetPatch) => void
   moveWidget: (pageId: string, widgetId: string, layout: Partial<WidgetLayout>) => void
   moveWidgets: (pageId: string, moves: { id: string; col: number; row: number }[]) => void
   resolveWidgetCollisions: (pageId: string, widgetId: string) => void

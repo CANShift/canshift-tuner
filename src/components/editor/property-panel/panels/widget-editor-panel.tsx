@@ -12,6 +12,7 @@ import { WarningFields } from '../warning-fields'
 import { ImageFields } from '../image-fields'
 import { ConfigFieldsProps } from '../shared'
 import { PanelField } from '@/components/ui/form-field'
+import type { WidgetPatch } from '../../../../lib/widget-patch'
 
 export const CONFIG_FIELDS: Partial<
   Record<WidgetType, (props: ConfigFieldsProps) => React.JSX.Element | null>
@@ -28,7 +29,7 @@ export const SIGNAL_HIDDEN_TYPES = new Set<WidgetType>(['button', 'timer', 'imag
 
 interface DayModeFieldProps {
   widget: Widget
-  patch: (p: Partial<Widget>) => void
+  patch: (p: WidgetPatch) => void
 }
 
 export const dayModeStyle = (style: Widget['style'], follow: boolean): Widget['style'] => {
