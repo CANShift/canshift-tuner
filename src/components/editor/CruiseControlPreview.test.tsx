@@ -1,31 +1,30 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { DEFAULT_PAGE_PALETTE, HexColorSchema } from '@canshift/core'
 import { describe, expect, it } from 'vitest'
 import { CruiseControlPreview } from './CruiseControlPreview'
 
-const LOUD_PALETTE = {
-  ...DEFAULT_PAGE_PALETTE,
-  primary: HexColorSchema.parse('#00FF00'),
-  text: HexColorSchema.parse('#0000FF'),
-}
+const SCALE = 2
 
 const render = (): string =>
-  renderToStaticMarkup(
-    <CruiseControlPreview scale={2} canvasW={640} contentH={440} palette={LOUD_PALETTE} />
-  )
+  renderToStaticMarkup(<CruiseControlPreview scale={SCALE} canvasW={640} contentH={440} />)
 
-describe('CruiseControlPreview L-buttons', () => {
-  it('draws the fixed dash outline whatever the page palette', () => {
-    const html = render()
-    expect(html.match(/stroke="#E03030"/g)).toHaveLength(4)
-    expect(html).not.toContain('stroke="#00FF00"')
+describe('CruiseControlPreview', () => {
+  it('draws the L-buttons with the fixed dash outline', () => {
+    expect(render().match(/stroke="#E03030"/g)).toHaveLength(4)
   })
 
-  it('draws the labels in the fixed dash text colour', () => {
+  it('draws the L-button labels in the fixed dash text colour', () => {
     expect(render().match(/fill="#FFFFFF"/g)).toHaveLength(4)
   })
 
-  it('draws the buttons opaque', () => {
+  it('draws the L-buttons opaque', () => {
     expect(render()).not.toContain('opacity')
+  })
+
+  it('draws the set-speed value at the dash value size in the fixed text colour', () => {
+    expect(render()).toContain(`color:#FFFFFF;font-size:${String(24 * SCALE)}px`)
+  })
+
+  it('draws the centre captions in the dash dim colour', () => {
+    expect(render().match(/text-\[#888888\]/g)).toHaveLength(2)
   })
 })
