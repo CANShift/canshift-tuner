@@ -1,3 +1,2 @@
 invalid: @types/react@19.2.18
 invalid: eslint@10.9.0
-invalid: picomatch@2.3.2
