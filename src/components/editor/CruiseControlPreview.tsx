@@ -1,3 +1,4 @@
+import { DISPLAY_TIERS } from '@canshift/core'
 import { UI_FONT, UI_LABEL_TRACKING, UI_LABEL_WEIGHT } from '../../lib/typography'
 import {
   buttonPathD,
@@ -27,6 +28,11 @@ const CENTER_VALUE = [
 
 const DEMO_SET_SPEED = 0
 const CENTER_VALUE_DEVICE_PX = 24
+
+const snapToValueFace = (px: number): number => {
+  const faces = DISPLAY_TIERS.base.valueFaces
+  return faces.filter((face) => face <= px).at(-1) ?? faces[0] ?? px
+}
 const SPEED_UNIT = 'km/h'
 
 interface CruiseButton {
@@ -131,7 +137,10 @@ const CruiseCenter = ({ box, scale }: { box: Box; scale: number }) => (
     <span
       className={CENTER_VALUE}
       // eslint-disable-next-line no-inline-style/no-inline-style
-      style={{ color: L_BUTTON_TEXT, fontSize: Math.round(CENTER_VALUE_DEVICE_PX * scale) }}
+      style={{
+        color: L_BUTTON_TEXT,
+        fontSize: Math.round(snapToValueFace(CENTER_VALUE_DEVICE_PX) * scale),
+      }}
     >
       {DEMO_SET_SPEED}
     </span>

@@ -20,8 +20,8 @@ describe('CruiseControlPreview', () => {
     expect(render()).not.toContain('opacity')
   })
 
-  it('draws the set-speed value at the dash value size in the fixed text colour', () => {
-    expect(render()).toContain(`color:#FFFFFF;font-size:${String(24 * SCALE)}px`)
+  it('draws the set-speed value with the 22 px face the dash snaps value(24) to', () => {
+    expect(render()).toContain(`color:#FFFFFF;font-size:${String(22 * SCALE)}px`)
   })
 
   it('draws the centre captions in the dash dim colour', () => {
