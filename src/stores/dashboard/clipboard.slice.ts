@@ -1,19 +1,20 @@
 import { current, type Draft } from 'immer'
 import type { PageConfig, Widget } from '@canshift/core'
 import { gridTracksForConfig } from '../../lib/grid-tracks'
+import { patchWidget } from '../../lib/widget-patch'
 import { createId } from '../../utils/id'
 import { countLabel, pushHistory, toPlacement } from './helpers'
 import { pageOf, type DashboardDraft } from './widget-actions'
 import { firstFreeClampedSpot, sizeOf, spotsForPaste, type GridSpot } from './widget-placement'
 import type { ClipboardSlice, SliceCreator } from './types'
 
-const cloneAt = (source: Widget, spot: GridSpot): Widget => ({
-  ...source,
-  id: createId(source.type),
-  layout: { ...source.layout, ...spot },
-  style: { ...source.style },
-  config: { ...source.config },
-})
+const cloneAt = (source: Widget, spot: GridSpot): Widget =>
+  patchWidget(source, {
+    id: createId(source.type),
+    layout: { ...source.layout, ...spot },
+    style: { ...source.style },
+    config: { ...source.config },
+  })
 
 const placeCopies = (s: DashboardDraft, page: Draft<PageConfig>, sources: readonly Widget[]) => {
   const others = page.widgets.map(toPlacement)

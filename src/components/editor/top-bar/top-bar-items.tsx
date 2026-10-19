@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { TopBarItem } from '@canshift/core'
-import { TopBarMetrics } from '@canshift/core'
+import { TOP_BAR_METRICS } from '@canshift/core'
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
@@ -66,13 +66,13 @@ export const barMetrics = (height: number, scale: number): BarMetrics => {
   const h = height * scale
   return {
     h,
-    dot: Math.round(h * TopBarMetrics.dotRatio),
-    fs: Math.round(TopBarMetrics.labelFontPx * scale),
-    sep: Math.round(h * TopBarMetrics.separatorRatio),
-    gap: Math.round(h * TopBarMetrics.gapRatio),
-    px: Math.round(h * TopBarMetrics.paddingRatio),
-    flagSquare: Math.round(TopBarMetrics.flagSquarePx * scale),
-    flagGap: Math.round(TopBarMetrics.flagGapPx * scale),
+    dot: Math.round(h * TOP_BAR_METRICS.dotRatio),
+    fs: Math.round(TOP_BAR_METRICS.labelFontPx * scale),
+    sep: Math.round(h * TOP_BAR_METRICS.separatorRatio),
+    gap: Math.round(h * TOP_BAR_METRICS.gapRatio),
+    px: Math.round(h * TOP_BAR_METRICS.paddingRatio),
+    flagSquare: Math.round(TOP_BAR_METRICS.flagSquarePx * scale),
+    flagGap: Math.round(TOP_BAR_METRICS.flagGapPx * scale),
   }
 }
 

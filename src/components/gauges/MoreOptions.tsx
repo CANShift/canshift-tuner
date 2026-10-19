@@ -14,6 +14,7 @@ import {
 import { ButtonColorsRow } from '../editor/property-panel/panels/button-colors-row'
 import { SizeTokenPicker } from '../editor/property-panel/panels/size-token-picker'
 import { UiIcon } from '../icons/UiIcons'
+import type { WidgetPatch } from '../../lib/widget-patch'
 
 export interface MoreOptionsProps {
   page: PageConfig
@@ -22,7 +23,7 @@ export interface MoreOptionsProps {
 
 const TYPE_OPTIONS = PALETTE_ITEMS.map((item) => ({ value: item.type, label: item.label }))
 
-const TypeField = ({ widget, patch }: { widget: Widget; patch: (p: Partial<Widget>) => void }) => (
+const TypeField = ({ widget, patch }: { widget: Widget; patch: (p: WidgetPatch) => void }) => (
   <PanelField label={STRINGS.gauges.widgetType}>
     <CompactSelect
       value={widget.type}
@@ -39,7 +40,7 @@ const Fields = ({ page, widget }: MoreOptionsProps) => {
   const updateWidget = useDashboardStore((s) => s.updateWidget)
   const signals = useSignalStore((s) => s.signals)
   const { colorError, safeParseHex } = useHexParser()
-  const patch = (next: Partial<Widget>) => {
+  const patch = (next: WidgetPatch) => {
     updateWidget(page.id, widget.id, next)
   }
   const ConfigFields = CONFIG_FIELDS[widget.type]

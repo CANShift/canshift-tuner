@@ -2,6 +2,7 @@ import type { ButtonAction, SensorIconName, Widget, WidgetType } from '@canshift
 import { SIZE_TOKENS } from '../utils/size-tokens'
 import { createId } from '../utils/id'
 import { DEFAULT_WIDGET_STYLE } from '../utils/default-widget'
+import { pairWidget, type WidgetPatch } from './widget-patch'
 
 export type PaletteWidgetType = WidgetType
 
@@ -127,27 +128,28 @@ const configFor = (item: PaletteItem): Widget['config'] => PALETTE[item.type].co
 const paletteItemFor = (type: PaletteWidgetType): PaletteItem | undefined =>
   PALETTE_ITEMS.find((item) => item.type === type)
 
-export const retypeWidget = (widget: Widget, type: PaletteWidgetType): Partial<Widget> | null => {
+export const retypeWidget = (widget: Widget, type: PaletteWidgetType): WidgetPatch | null => {
   const item = paletteItemFor(type)
   if (item === undefined || widget.type === type) return null
   return {
-    type,
     config: configFor(item),
     signal: item.defaultSignal.length > 0 ? widget.signal || item.defaultSignal : '',
   }
 }
 
-export const buildWidget = (item: PaletteItem): Widget => ({
-  id: createId(item.type),
-  type: item.type,
-  signal: item.defaultSignal,
-  layout: {
-    col: 0,
-    colSpan: item.defaultColSpan,
-    row: 0,
-    rowSpan: item.defaultRowSpan,
-    zOrder: 0,
-  },
-  style: { ...NEW_WIDGET_STYLE },
-  config: configFor(item),
-})
+export const buildWidget = (item: PaletteItem): Widget =>
+  pairWidget(
+    {
+      id: createId(item.type),
+      signal: item.defaultSignal,
+      layout: {
+        col: 0,
+        colSpan: item.defaultColSpan,
+        row: 0,
+        rowSpan: item.defaultRowSpan,
+        zOrder: 0,
+      },
+      style: { ...NEW_WIDGET_STYLE },
+    },
+    configFor(item)
+  )

@@ -2,6 +2,14 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import type { DashboardConfig } from '@canshift/core'
 import { useDashboardStore } from '../dashboard.store'
 
+const gaugeAt = (id: string, col: number) => ({
+  id,
+  type: 'gauge',
+  signal: '',
+  layout: { col, colSpan: 4, row: 0, rowSpan: 3, zOrder: 0 },
+  config: { type: 'gauge' },
+})
+
 const makeConfig = (): DashboardConfig =>
   ({
     version: '1.24.0',
@@ -13,20 +21,7 @@ const makeConfig = (): DashboardConfig =>
         backgroundColor: '#000000',
         showTopBar: true,
         visible: true,
-        widgets: [
-          {
-            id: 'gauge_a',
-            type: 'gauge',
-            signal: '',
-            layout: { col: 0, colSpan: 4, row: 0, rowSpan: 3, zOrder: 0 },
-          },
-          {
-            id: 'gauge_b',
-            type: 'gauge',
-            signal: '',
-            layout: { col: 4, colSpan: 4, row: 0, rowSpan: 3, zOrder: 0 },
-          },
-        ],
+        widgets: [gaugeAt('gauge_a', 0), gaugeAt('gauge_b', 4)],
       },
       { id: 'p2', backgroundColor: '#000000', showTopBar: true, visible: true, widgets: [] },
     ],
