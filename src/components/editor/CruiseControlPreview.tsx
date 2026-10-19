@@ -13,6 +13,8 @@ import {
 const STROKE_W = 2
 
 const L_BUTTON_FILL = '#1A1A1A'
+const L_BUTTON_STROKE = '#E03030'
+const L_BUTTON_TEXT = '#FFFFFF'
 
 const CENTER = 'absolute box-border flex flex-col items-center justify-center'
 
@@ -52,7 +54,6 @@ interface CruiseButtonShapeProps {
   button: CruiseButton
   box: Box
   scale: number
-  palette: PagePalette
 }
 
 interface ButtonLabelProps {
@@ -81,7 +82,7 @@ const ButtonLabel = ({ button, w, h, color }: ButtonLabelProps) => {
   )
 }
 
-const CruiseButtonShape = ({ button, box, scale, palette }: CruiseButtonShapeProps) => {
+const CruiseButtonShape = ({ button, box, scale }: CruiseButtonShapeProps) => {
   const { w, h } = box
   const title = `${button.label} — ${button.hint}`
   return (
@@ -89,7 +90,7 @@ const CruiseButtonShape = ({ button, box, scale, palette }: CruiseButtonShapePro
       width={w * scale}
       height={h * scale}
       viewBox={`0 0 ${String(w)} ${String(h)}`}
-      className="absolute overflow-visible opacity-[0.92]"
+      className="absolute overflow-visible"
       // eslint-disable-next-line no-inline-style/no-inline-style
       style={{ left: box.x * scale, top: box.y * scale }}
       aria-label={title}
@@ -98,11 +99,11 @@ const CruiseButtonShape = ({ button, box, scale, palette }: CruiseButtonShapePro
       <path
         d={buttonPathD(w, h, button.corner)}
         fill={L_BUTTON_FILL}
-        stroke={palette.primary}
+        stroke={L_BUTTON_STROKE}
         strokeWidth={STROKE_W}
         strokeLinejoin="round"
       />
-      <ButtonLabel button={button} w={w} h={h} color={palette.text} />
+      <ButtonLabel button={button} w={w} h={h} color={L_BUTTON_TEXT} />
     </svg>
   )
 }
@@ -164,7 +165,6 @@ export const CruiseControlPreview = ({
           button={button}
           box={boxes[button.corner]}
           scale={scale}
-          palette={palette}
         />
       ))}
       <CruiseCenter box={centerBox(fwCanvasW, fwContentH)} scale={scale} palette={palette} />
