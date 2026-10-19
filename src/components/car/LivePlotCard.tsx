@@ -57,7 +57,7 @@ export const LivePlotCard = () => {
   const session = useLiveSession(signals)
   const plot = useSignalSelection(useDefaultPlotted())
   return (
-    <div className="flex flex-col gap-3 p-3.5 lg:p-5 xl:min-h-0 xl:flex-1 min-[1600px]:h-[max(540px,calc(100dvh-320px))] min-[1600px]:flex-none">
+    <div className="flex flex-col gap-3 p-3.5 lg:p-5 xl:min-h-72 xl:flex-1">
       <LiveControls session={session} />
       <div className="min-h-0 xl:flex-1">
         <SignalStrips selected={plot.selected} samples={session.history} />

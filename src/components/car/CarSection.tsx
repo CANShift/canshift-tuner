@@ -13,7 +13,7 @@ import { useIsLaptop } from '../../hooks/useIsLaptop'
 
 const CarMore = () => (
   <div className="flex flex-col gap-4 lg:gap-5">
-    <h2 className="text-lg font-bold xl:sr-only min-[1600px]:not-sr-only">{STRINGS.car.more}</h2>
+    <h2 className="text-lg font-bold xl:sr-only">{STRINGS.car.more}</h2>
     <Disclosure title={STRINGS.car.obd} hint={STRINGS.car.obdHint}>
       <ObdCard />
     </Disclosure>
@@ -21,17 +21,15 @@ const CarMore = () => (
   </div>
 )
 
-const CAR_GRID = [
-  'flex flex-col gap-4 lg:gap-5 xl:grid xl:min-h-0 xl:flex-1 xl:grid-rows-[minmax(0,1fr)] xl:items-start',
-  'xl:grid-cols-[auto_minmax(0,1fr)] min-[1600px]:grid-cols-[auto_minmax(0,1fr)_minmax(280px,360px)]',
-].join(' ')
+const CAR_GRID =
+  'flex flex-col gap-4 lg:gap-5 xl:grid xl:min-h-0 xl:flex-1 xl:grid-cols-[auto_minmax(0,1fr)] xl:grid-rows-[minmax(0,1fr)]'
 
 const LivePlot = () => (
   <Disclosure
     title={STRINGS.car.livePlot}
     hint={STRINGS.car.livePlotHint}
     defaultOpen={useIsLaptop()}
-    className="xl:flex xl:min-h-0 xl:flex-1 xl:flex-col min-[1600px]:sticky min-[1600px]:top-0"
+    className="xl:flex xl:min-h-0 xl:flex-1 xl:flex-col"
     bodyClassName="xl:flex xl:min-h-0 xl:flex-1 xl:flex-col"
   >
     <LivePlotCard />
@@ -49,10 +47,10 @@ const CarSection = () => {
       <div className="flex w-full flex-col gap-4 p-4 lg:gap-5 lg:p-8 xl:min-h-0 xl:flex-1">
         <CarHeader onChange={() => setChoosing(true)} />
         <div className={CAR_GRID}>
-          <div className="flex min-w-0 flex-col gap-4">
+          <div className="flex min-w-0 flex-col gap-4 xl:min-h-0">
             <SignalsCard onAdjust={setAdjusting} />
           </div>
-          <div className="flex min-w-0 flex-col gap-4 lg:gap-5 xl:min-h-0 xl:self-stretch min-[1600px]:contents">
+          <div className="flex min-w-0 flex-col gap-4 lg:gap-5 xl:min-h-0 xl:overflow-y-auto">
             <LivePlot />
             <CarMore />
           </div>

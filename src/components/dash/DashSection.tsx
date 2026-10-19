@@ -1,4 +1,6 @@
+import type { ReactNode } from 'react'
 import { STRINGS } from '../../strings'
+import { useIsLaptop } from '../../hooks/useIsLaptop'
 import { AboutCard } from './AboutCard'
 import { AlertCard } from './AlertCard'
 import { BackupCard } from './BackupCard'
@@ -8,28 +10,43 @@ import { PageButtonsCard } from './PageButtonsCard'
 import { ScreenCard } from './ScreenCard'
 import { ThemeCard } from './ThemeCard'
 
-const PrimaryCards = () => (
-  <div className="grid gap-3 lg:grid-cols-2 lg:items-start lg:gap-5">
-    <div className="lg:col-start-1 lg:row-start-1">
-      <DisplayCard />
-    </div>
-    <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
-      <AlertCard />
-    </div>
-    <div className="lg:col-start-1 lg:row-start-2">
-      <CanSpeedCard />
-    </div>
-    <div className="lg:col-start-1 lg:row-start-3">
-      <PageButtonsCard />
-    </div>
-    <div className="lg:col-start-2 lg:row-start-3">
-      <AboutCard />
-    </div>
-    <div className="lg:col-start-1 lg:row-start-4">
-      <BackupCard />
-    </div>
+const CardColumn = ({ children }: { children: ReactNode }) => (
+  <div className="flex min-w-0 flex-col gap-3 lg:gap-5">{children}</div>
+)
+
+const TwoColumns = ({ children }: { children: ReactNode }) => (
+  <div className="flex flex-col gap-3 lg:grid lg:grid-cols-2 lg:items-start lg:gap-5">
+    {children}
   </div>
 )
+
+const PhoneCards = () => (
+  <CardColumn>
+    <DisplayCard />
+    <AlertCard />
+    <CanSpeedCard />
+    <PageButtonsCard />
+    <AboutCard />
+    <BackupCard />
+  </CardColumn>
+)
+
+const LaptopCards = () => (
+  <TwoColumns>
+    <CardColumn>
+      <DisplayCard />
+      <CanSpeedCard />
+      <PageButtonsCard />
+      <BackupCard />
+    </CardColumn>
+    <CardColumn>
+      <AlertCard />
+      <AboutCard />
+    </CardColumn>
+  </TwoColumns>
+)
+
+const PrimaryCards = () => (useIsLaptop() ? <LaptopCards /> : <PhoneCards />)
 
 const DashSection = () => (
   <div className="flex flex-1 flex-col overflow-y-auto">
@@ -37,10 +54,14 @@ const DashSection = () => (
       <h1 className="text-2xl font-bold lg:text-[28px]">{STRINGS.dash.title}</h1>
       <PrimaryCards />
       <h2 className="text-lg font-bold">{STRINGS.dash.more}</h2>
-      <div className="grid gap-3 lg:grid-cols-2 lg:items-start lg:gap-5">
-        <ScreenCard />
-        <ThemeCard />
-      </div>
+      <TwoColumns>
+        <CardColumn>
+          <ScreenCard />
+        </CardColumn>
+        <CardColumn>
+          <ThemeCard />
+        </CardColumn>
+      </TwoColumns>
     </div>
   </div>
 )
