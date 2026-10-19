@@ -12,6 +12,8 @@ import {
 
 const STROKE_W = 2
 
+const L_BUTTON_FILL = '#1A1A1A'
+
 const CENTER = 'absolute box-border flex flex-col items-center justify-center'
 
 const CENTER_LABEL = [
@@ -95,7 +97,7 @@ const CruiseButtonShape = ({ button, box, scale, palette }: CruiseButtonShapePro
       <title>{title}</title>
       <path
         d={buttonPathD(w, h, button.corner)}
-        fill={palette.surface}
+        fill={L_BUTTON_FILL}
         stroke={palette.primary}
         strokeWidth={STROKE_W}
         strokeLinejoin="round"
