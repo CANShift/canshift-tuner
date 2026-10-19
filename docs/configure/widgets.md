@@ -4,7 +4,8 @@ Everything here happens in **Gauges** (`/gauges`). The screen itself is describe
 
 ## Pages
 
-- **Add page** offers **Start from a layout**, a ready arrangement of gauges, or **Blank page**.
+- **Add page** offers **Build from my car**, **Start from a layout**, a ready arrangement of gauges, or **Blank page**.
+- **Build from my car** proposes ready pages made only from your car's signals: **Street** (speed, gear, engine speed, temperatures, oil, battery, fuel), **Track** (shift light, gear, lap time and the fast engine signals) and **Engine** (temperatures and pressures). While the tuner is connected to the dash, it uses only the signals actually coming in; otherwise every signal your car defines. A page is offered only when the car has enough signals for it, and a slot the car cannot fill is left out, its neighbours taking the room. Each proposal shows the page as the dash will draw it; tick one or several, then **Add**. The pages land in the draft like any other edit, and only as many as still fit on the dash can be ticked.
 - A page's menu moves it **earlier** or **later**, or removes it.
 - **Make it a cruise control page** turns the page into the dash's cruise control page; **Make it a gauges page** turns it back. See [Cruise control](https://github.com/CANShift/canshift-firmware/blob/main/docs/guide/cruise-control.md) for what the dash shows there.
 - The chip order is the order you swipe through on the dash.

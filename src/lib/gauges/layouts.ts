@@ -28,7 +28,10 @@ export const nextPageId = (base: string, taken: ReadonlySet<string>): string => 
   return `${base}_${String(suffix)}`
 }
 
-export const pageFromLayout = (layout: StartingLayout, taken: ReadonlySet<string>): PageConfig => ({
+export const pageFromLayout = (
+  layout: Pick<StartingLayout, 'page'>,
+  taken: ReadonlySet<string>
+): PageConfig => ({
   ...structuredClone(layout.page),
   id: nextPageId(layout.page.id, taken),
   widgets: layout.page.widgets.map((widget) => ({

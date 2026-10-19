@@ -4,7 +4,7 @@
 
 ## The screen
 
-- **Page chips** along the top, one per page, plus **Add page**. Each page's menu offers **Move earlier**, **Move later**, **Remove page**, and **Make it a cruise control page** (or **Make it a gauges page** to turn it back).
+- **Page chips** along the top, one per page, plus **Add page**: build pages from your car's signals, start from a layout, or start blank. Each page's menu offers **Move earlier**, **Move later**, **Remove page**, and **Make it a cruise control page** (or **Make it a gauges page** to turn it back).
 - **The dash preview** draws the selected page as the dash renders it: 1× on a phone, 2× on a laptop. Tap a widget to edit it; a ring marks the selection.
 - **Preview: Normal · Cut · Splash · Alert**, under the preview, shows the page as it renders, with a protection cut banded under the status row, with a splash taking the screen, or under the critical-alert takeover.
 - **Add** opens **Add to this page**: pick a gauge, a button, a gear indicator or a shift light, and the tuner places it in the page's free space.

@@ -6,7 +6,7 @@ The Tuner is a browser app that talks to the dash over its Wi-Fi (a WebSocket) o
 
 | Section    | Path      | What it holds                                                                                                                                                                                                                                          |
 | ---------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Gauges** | `/gauges` | Pages, the dash preview with its preview modes, and the editor for every widget: gauges, buttons, gear indicators and shift lights. A page can be a cruise control page. See [Gauges](layout-editor.md).                                               |
+| **Gauges** | `/gauges` | Pages, ready-made or built from your car's signals, the dash preview with its preview modes, and the editor for every widget: gauges, buttons, gear indicators and shift lights. A page can be a cruise control page. See [Gauges](layout-editor.md).  |
 | **Car**    | `/car`    | Your car from the built-in catalogue, its signals with live values next to the live plot, adjusting a reading, and under **More** OBD-II polling and trouble codes, profile files (XML) and raw CAN frames. See [Your car](configure/ecu-profiles.md). |
 | **Dash**   | `/dash`   | Units, brightness, the full-screen alert, CAN bus speed, the steering wheel buttons, backup and restore, the firmware update and the hardware; under **More**, the screen (day or night, turn, calibrate touch) and the dash colours.                  |
 

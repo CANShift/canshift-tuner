@@ -23,6 +23,24 @@ export const GAUGES = {
     removePage: 'Remove page',
     startFromLayout: 'Start from a layout',
     blankPage: 'Blank page',
+    buildFromCar: 'Build from my car',
+    buildFromCarSub: 'Pages made from the signals your car sends',
+    fromIncoming: (n: number): string =>
+      `Made from the ${plural(n, 'signal', 'signals')} coming in from your car.`,
+    fromDefined: (n: number): string =>
+      `Made from the ${plural(n, 'signal', 'signals')} your car defines.`,
+    notEnoughSignals:
+      'Your car doesn’t send enough signals to fill a page. Start from a layout instead.',
+    roomFor: (n: number): string =>
+      `Room for ${plural(n, 'more page', 'more pages')} on your dash.`,
+    pickPages: 'Pick pages to add',
+    addPages: (n: number): string => `Add ${plural(n, 'page', 'pages')}`,
+    back: 'Back',
+    carPageAbout: {
+      street: 'Speed, gear, engine and the essentials',
+      track: 'Shift light, gear, lap time and the fast signals',
+      engine: 'Temperatures and pressures',
+    },
     shows: 'Shows',
     nameOnDash: 'Name on dash',
     nameHint: 'Up to 8 letters',
