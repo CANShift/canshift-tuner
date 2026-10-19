@@ -31,7 +31,7 @@ interface PickerProps {
 const PlotPicker = ({ selected, onToggle }: PickerProps) => {
   const signals = useSignalStore((s) => s.signals)
   return (
-    <div className="flex flex-wrap gap-1.5">
+    <div className="flex flex-wrap gap-1.5 xl:max-h-[7.5rem] xl:shrink-0 xl:overflow-y-auto">
       {signals.map((signal) => (
         <button
           key={signal.name}
@@ -57,9 +57,9 @@ export const LivePlotCard = () => {
   const session = useLiveSession(signals)
   const plot = useSignalSelection(useDefaultPlotted())
   return (
-    <div className="flex flex-col gap-3 p-3.5 lg:min-h-0 lg:flex-1 lg:p-5 min-[1600px]:h-[max(540px,calc(100dvh-320px))] min-[1600px]:flex-none">
+    <div className="flex flex-col gap-3 p-3.5 lg:p-5 xl:min-h-0 xl:flex-1 min-[1600px]:h-[max(540px,calc(100dvh-320px))] min-[1600px]:flex-none">
       <LiveControls session={session} />
-      <div className="min-h-0 lg:flex-1">
+      <div className="min-h-0 xl:flex-1">
         <SignalStrips selected={plot.selected} samples={session.history} />
       </div>
       <PlotPicker selected={plot.selected} onToggle={plot.toggle} />

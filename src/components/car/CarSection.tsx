@@ -13,7 +13,7 @@ import { useIsLaptop } from '../../hooks/useIsLaptop'
 
 const CarMore = () => (
   <div className="flex flex-col gap-4 lg:gap-5">
-    <h2 className="text-lg font-bold lg:sr-only min-[1600px]:not-sr-only">{STRINGS.car.more}</h2>
+    <h2 className="text-lg font-bold xl:sr-only min-[1600px]:not-sr-only">{STRINGS.car.more}</h2>
     <Disclosure title={STRINGS.car.obd} hint={STRINGS.car.obdHint}>
       <ObdCard />
     </Disclosure>
@@ -22,8 +22,8 @@ const CarMore = () => (
 )
 
 const CAR_GRID = [
-  'flex flex-col gap-4 lg:grid lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)] lg:items-start lg:gap-5',
-  'lg:grid-cols-[auto_minmax(0,1fr)] min-[1600px]:grid-cols-[auto_minmax(0,1fr)_minmax(280px,360px)]',
+  'flex flex-col gap-4 lg:gap-5 xl:grid xl:min-h-0 xl:flex-1 xl:grid-rows-[minmax(0,1fr)] xl:items-start',
+  'xl:grid-cols-[auto_minmax(0,1fr)] min-[1600px]:grid-cols-[auto_minmax(0,1fr)_minmax(280px,360px)]',
 ].join(' ')
 
 const LivePlot = () => (
@@ -31,8 +31,8 @@ const LivePlot = () => (
     title={STRINGS.car.livePlot}
     hint={STRINGS.car.livePlotHint}
     defaultOpen={useIsLaptop()}
-    className="lg:flex lg:min-h-0 lg:flex-1 lg:flex-col min-[1600px]:sticky min-[1600px]:top-0"
-    bodyClassName="lg:flex lg:min-h-0 lg:flex-1 lg:flex-col"
+    className="xl:flex xl:min-h-0 xl:flex-1 xl:flex-col min-[1600px]:sticky min-[1600px]:top-0"
+    bodyClassName="xl:flex xl:min-h-0 xl:flex-1 xl:flex-col"
   >
     <LivePlotCard />
   </Disclosure>
@@ -46,13 +46,13 @@ const CarSection = () => {
   const [adjusting, setAdjusting] = useState<string | null>(null)
   return (
     <div className="flex flex-1 flex-col overflow-y-auto">
-      <div className="flex w-full flex-col gap-4 p-4 lg:min-h-0 lg:flex-1 lg:gap-5 lg:p-8">
+      <div className="flex w-full flex-col gap-4 p-4 lg:gap-5 lg:p-8 xl:min-h-0 xl:flex-1">
         <CarHeader onChange={() => setChoosing(true)} />
         <div className={CAR_GRID}>
           <div className="flex min-w-0 flex-col gap-4">
             <SignalsCard onAdjust={setAdjusting} />
           </div>
-          <div className="flex min-w-0 flex-col gap-4 lg:min-h-0 lg:self-stretch lg:gap-5 min-[1600px]:contents">
+          <div className="flex min-w-0 flex-col gap-4 lg:gap-5 xl:min-h-0 xl:self-stretch min-[1600px]:contents">
             <LivePlot />
             <CarMore />
           </div>
