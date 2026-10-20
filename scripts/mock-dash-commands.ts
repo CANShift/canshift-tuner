@@ -1,4 +1,6 @@
 import {
+  CMD_BUS_SCAN_POLL,
+  CMD_BUS_SCAN_START,
   CMD_CALIBRATE_TOUCH,
   CMD_CAN_SCAN_START,
   CMD_CAN_SCAN_STOP,
@@ -22,6 +24,7 @@ import {
   CMD_SET_DAY_NIGHT,
   CMD_TOGGLE_DAY_NIGHT,
 } from '../src/transport/opcodes'
+import { busScanPoll, busScanStart } from './mock-dash-bus-scan'
 import { putConfigChunk, putFileChunk } from './mock-dash-chunks'
 import { otaBegin, otaEnd, otaWrite } from './mock-dash-ota'
 import { fail, ok, okThenReboot, type Command, type Outcome } from './mock-dash-replies'
@@ -91,6 +94,8 @@ export const COMMAND_HANDLERS: Record<number, CommandHandler> = {
   [CMD_CAN_SCAN_STOP]: acknowledge,
   [CMD_OBD_READ_DTC]: readDtc,
   [CMD_OBD_CLEAR_DTC]: acknowledge,
+  [CMD_BUS_SCAN_START]: busScanStart,
+  [CMD_BUS_SCAN_POLL]: busScanPoll,
   [CMD_OTA_BEGIN]: otaBegin,
   [CMD_OTA_WRITE]: otaWrite,
   [CMD_OTA_END]: otaEnd,

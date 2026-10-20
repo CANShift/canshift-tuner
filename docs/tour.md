@@ -4,11 +4,11 @@ The Tuner is a browser app that talks to the dash over its Wi-Fi (a WebSocket) o
 
 ## The sections
 
-| Section    | Path      | What it holds                                                                                                                                                                                                                                          |
-| ---------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Gauges** | `/gauges` | Pages, ready-made or built from your car's signals, the dash preview with its preview modes, and the editor for every widget: gauges, buttons, gear indicators and shift lights. A page can be a cruise control page. See [Gauges](layout-editor.md).  |
-| **Car**    | `/car`    | Your car from the built-in catalogue, its signals with live values next to the live plot, adjusting a reading, and under **More** OBD-II polling and trouble codes, profile files (XML) and raw CAN frames. See [Your car](configure/ecu-profiles.md). |
-| **Dash**   | `/dash`   | Units, brightness, the full-screen alert, CAN bus speed, the steering wheel buttons, backup and restore, the firmware update and the hardware; under **More**, the screen (day or night, turn, calibrate touch) and the dash colours.                  |
+| Section    | Path      | What it holds                                                                                                                                                                                                                                                                         |
+| ---------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Gauges** | `/gauges` | Pages, ready-made or built from your car's signals, the dash preview with its preview modes, and the editor for every widget: gauges, buttons, gear indicators and shift lights. A page can be a cruise control page. See [Gauges](layout-editor.md).                                 |
+| **Car**    | `/car`    | Your car from the built-in catalogue, its signals with live values next to the live plot, adjusting a reading, and under **More** a scan that suggests your car, OBD-II polling and trouble codes, profile files (XML) and raw CAN frames. See [Your car](configure/ecu-profiles.md). |
+| **Dash**   | `/dash`   | Units, brightness, the full-screen alert, CAN bus speed, the steering wheel buttons, backup and restore, the firmware update and the hardware; under **More**, the screen (day or night, turn, calibrate touch) and the dash colours.                                                 |
 
 The first time, with no car chosen, Gauges shows a three-step card: choose your car, check the signals come in, arrange your gauges. Once the car is set, the card goes away.
 

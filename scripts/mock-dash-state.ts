@@ -23,6 +23,7 @@ export interface MockDashState {
   bootedAt: number
   upload: ChunkUpload | null
   ota: OtaSession | null
+  busScanStartedAt: number | null
   firmwareVersion: string
   signingKey: KeyObject
 }
@@ -38,6 +39,7 @@ export const freshState = (signingKey: KeyObject): MockDashState => ({
   bootedAt: Date.now(),
   upload: null,
   ota: null,
+  busScanStartedAt: null,
   firmwareVersion: DEFAULT_FIRMWARE_VERSION,
   signingKey,
 })
@@ -47,4 +49,5 @@ export const reboot = (state: MockDashState): void => {
   state.configReload = 'idle'
   state.upload = null
   state.ota = null
+  state.busScanStartedAt = null
 }

@@ -28,6 +28,13 @@ const KNOWN_CODES = [
   'invalid_board_profile',
   'invalid_device_config',
   'replaced',
+  'unknown_command',
+  'bus_scan_busy',
+  'bus_scan_timeout',
+  'bus_scan_too_long',
+  'invalid_bus_scan_reply',
+  'can_unavailable',
+  'out_of_memory',
 ]
 
 describe('humanizeTransportError', () => {
