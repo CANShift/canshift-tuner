@@ -41,7 +41,16 @@ const queryVersion: CommandHandler = (_command, state) =>
     protocol: PROTOCOL_VERSION,
     is_day: state.isDay ? 1 : 0,
     board_id: BOARD_ID,
+    volume: state.volume,
+    sounds: state.sounds,
   })
+
+const screenSettings: CommandHandler = (command, state) => {
+  if (typeof command.volume === 'number') state.volume = command.volume
+  const sounds = command.sounds as Partial<MockDashState['sounds']> | undefined
+  if (sounds !== undefined) state.sounds = { ...state.sounds, ...sounds }
+  return ok()
+}
 
 const ping: CommandHandler = (_command, state) =>
   ok({ uptime_ms: Date.now() - state.bootedAt, config_reload: state.configReload })
@@ -81,7 +90,7 @@ export const COMMAND_HANDLERS: Record<number, CommandHandler> = {
   [CMD_PUT_FILE]: putFileChunk,
   [CMD_GET_DEVICE_CONFIG]: getDeviceConfig,
   [CMD_PUT_DEVICE_CONFIG]: putDeviceConfig,
-  [CMD_SCREEN_SETTINGS]: acknowledge,
+  [CMD_SCREEN_SETTINGS]: screenSettings,
   [CMD_TOGGLE_DAY_NIGHT]: toggleDayNight,
   [CMD_CALIBRATE_TOUCH]: acknowledge,
   [CMD_SET_DAY_NIGHT]: setDayNight,
