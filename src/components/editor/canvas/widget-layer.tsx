@@ -1,4 +1,5 @@
 import type { PageConfig, PagePalette, PageTemplate, Widget } from '@canshift/core'
+import { pageHasShiftStrip } from '@canshift/core'
 import { CruiseControlPreview } from '../CruiseControlPreview'
 import { WidgetBox } from '../WidgetBox'
 
@@ -39,6 +40,7 @@ const CustomBody = (props: WidgetLayerProps) => (
         scale={props.effScale}
         areaWidth={props.areaWidth}
         areaHeight={props.areaHeight}
+        hasShiftStrip={pageHasShiftStrip(props.page)}
         isSelected={widget.id === props.selectedWidgetId}
         isInMultiSelection={
           props.selectedWidgetIds.length > 1 && props.selectedWidgetIds.includes(widget.id)

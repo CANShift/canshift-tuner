@@ -1,6 +1,6 @@
 import { memo, type CSSProperties, type DragEvent, type MouseEvent, type PointerEvent } from 'react'
 import type { GridRect, PagePalette, Widget } from '@canshift/core'
-import { resolveGridRect } from '@canshift/core'
+import { resolvePageWidgetRect } from '@canshift/core'
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 import { WidgetPreview } from './WidgetPreview'
@@ -12,6 +12,7 @@ export interface WidgetBoxProps {
   scale: number
   areaWidth: number
   areaHeight: number
+  hasShiftStrip: boolean
   isSelected: boolean
   isInMultiSelection: boolean
   isOverlapping: boolean
@@ -144,6 +145,9 @@ const boxStyle = (rect: GridRect, scale: number, ground: string | null): CSSProp
   ...(ground === null ? {} : { background: ground }),
 })
 
+const boxRect = ({ widget, areaWidth, areaHeight, hasShiftStrip }: WidgetBoxProps): GridRect =>
+  resolvePageWidgetRect(widget, { width: areaWidth, height: areaHeight }, hasShiftStrip)
+
 const ResizeGrip = ({
   widget,
   onResizeStart,
@@ -170,7 +174,7 @@ const ResizeGrip = ({
 export const WidgetBox = memo(function WidgetBox(props: WidgetBoxProps) {
   const { widget, scale, isSelected, isOverflowing, onResizeStart } = props
   const { layout } = widget
-  const rect = resolveGridRect(layout, { width: props.areaWidth, height: props.areaHeight })
+  const rect = boxRect(props)
   const isPlain =
     fillOf(props.isOverlapping, isOverflowing, isSelected, props.isInMultiSelection) === 'plain'
   return (

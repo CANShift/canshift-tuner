@@ -1,12 +1,12 @@
 import type { CSSProperties, MouseEvent } from 'react'
 import type { PageConfig, ValueFit, Widget } from '@canshift/core'
-import { resolveGridRect } from '@canshift/core'
 import { cn } from '@/lib/utils'
 import { STRINGS } from '../../strings'
 import { widgetName } from '../../lib/sync/describe'
 import type { GaugeManipulation } from '../../hooks/useGaugeManipulation'
 import { useUnfitWidgets } from '../../hooks/useUnfitWidgets'
 import { fitReading } from '../../lib/value-fit'
+import { widgetRectOn } from '../../lib/page-rect'
 
 export interface GaugeHitLayerProps {
   page: PageConfig
@@ -20,7 +20,7 @@ export interface GaugeHitLayerProps {
   onSelect: (widgetId: string) => void
 }
 
-interface HitAreaProps extends Omit<GaugeHitLayerProps, 'page' | 'top'> {
+interface HitAreaProps extends Omit<GaugeHitLayerProps, 'top'> {
   widget: Widget
   fit: ValueFit | undefined
 }
@@ -49,8 +49,8 @@ const ResizeHandle = ({ widget, manipulation }: Pick<HitAreaProps, 'widget' | 'm
   />
 )
 
-const rectStyle = ({ widget, scale, areaWidth, areaHeight }: HitAreaProps): CSSProperties => {
-  const rect = resolveGridRect(widget.layout, { width: areaWidth, height: areaHeight })
+const rectStyle = ({ page, widget, scale, areaWidth, areaHeight }: HitAreaProps): CSSProperties => {
+  const rect = widgetRectOn(page, widget, { width: areaWidth, height: areaHeight })
   return {
     left: rect.x * scale,
     top: rect.y * scale,
@@ -99,7 +99,7 @@ export const GaugeHitLayer = ({ page, top, ...area }: GaugeHitLayerProps) => {
       style={{ top }}
     >
       {page.widgets.map((widget) => (
-        <HitArea key={widget.id} widget={widget} fit={unfit.get(widget.id)} {...area} />
+        <HitArea key={widget.id} page={page} widget={widget} fit={unfit.get(widget.id)} {...area} />
       ))}
     </div>
   )

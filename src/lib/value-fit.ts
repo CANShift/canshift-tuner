@@ -1,8 +1,6 @@
 import {
   DEFAULT_UNIT_SYSTEM,
   measureGaugeFit,
-  pageHasShiftStrip,
-  resolveContentRect,
   resolveScreenProfile,
   type DashboardConfig,
   type GaugeWidgetConfig,
@@ -12,6 +10,7 @@ import {
   type ValueFit,
   type Widget,
 } from '@canshift/core'
+import { widgetRectOn } from './page-rect'
 import { widgetUnitOf } from './unit-display'
 
 export interface UnfitWidget {
@@ -27,7 +26,7 @@ interface GridArea {
 
 interface FitContext {
   area: GridArea
-  hasShiftStrip: boolean
+  page: PageConfig
   signals: readonly SignalDef[]
   system: UnitSystem
 }
@@ -38,7 +37,7 @@ const gaugeConfigOf = (widget: Widget): GaugeWidgetConfig | null =>
 const widgetFit = (widget: Widget, ctx: FitContext): ValueFit | null => {
   const cfg = gaugeConfigOf(widget)
   if (cfg === null) return null
-  const rect = resolveContentRect(widget.layout, ctx.area, ctx.hasShiftStrip)
+  const rect = widgetRectOn(ctx.page, widget, ctx.area)
   const unit = widgetUnitOf(widget, ctx.signals, ctx.system)
   return measureGaugeFit({
     config: cfg,
@@ -63,7 +62,7 @@ const pageUnfit = (
 ): UnfitWidget[] => {
   const ctx = {
     area: pageArea(config, page),
-    hasShiftStrip: pageHasShiftStrip(page),
+    page,
     signals,
     system: config.units ?? DEFAULT_UNIT_SYSTEM,
   }
