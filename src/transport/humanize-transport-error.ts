@@ -26,6 +26,13 @@ export const TRANSPORT_ERROR_MESSAGES: Record<string, string> = {
   clear_failed: 'The dash refused to clear the trouble codes — check the link and retry.',
   fetch_failed: 'Could not fetch that from the dash — check the link and retry.',
   invalid_device_config: 'The dash rejected that device setting — pick another value and retry.',
+  unknown_command: 'This dash firmware does not know that command yet. Update the firmware.',
+  bus_scan_busy: 'The dash is already scanning. Wait for it to finish.',
+  bus_scan_timeout: 'The scan did not finish in time. Try again.',
+  bus_scan_too_long: 'The scan result was too large to send. Try again.',
+  invalid_bus_scan_reply: 'The dash sent a scan result this tuner cannot read. Update the tuner.',
+  can_unavailable: 'The dash’s CAN driver is down. Check the wiring and reboot the dash.',
+  out_of_memory: 'The dash ran out of memory. Reboot it and try again.',
   invalid_board_profile:
     'The firmware rejected this board profile — re-check the board definition and re-provision.',
 }

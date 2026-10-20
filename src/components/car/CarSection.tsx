@@ -8,12 +8,14 @@ import { RawFramesLink } from './RawFramesLink'
 import { SignalsCard } from './SignalsCard'
 import { LivePlotCard } from './LivePlotCard'
 import { ObdLink } from './ObdLink'
+import { ScanCarLink } from './ScanCarLink'
 import { Disclosure } from '../chrome/Disclosure'
 import { useIsLaptop } from '../../hooks/useIsLaptop'
 
 const CarMore = () => (
   <div className="flex flex-col gap-4 lg:gap-5">
     <h2 className="text-lg font-bold xl:sr-only">{STRINGS.car.more}</h2>
+    <ScanCarLink />
     <ObdLink />
     <RawFramesLink />
   </div>

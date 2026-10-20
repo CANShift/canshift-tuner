@@ -28,11 +28,14 @@ Compare with a gauge you trust, engine running, and change one number at a time.
 
 The **More** row holds the tools most setups never need:
 
-| Tool                                 | What it does                                                                                             |
-| ------------------------------------ | -------------------------------------------------------------------------------------------------------- |
-| **OBD-II polling and trouble codes** | For cars that answer OBD-II requests instead of broadcasting: choose what to poll, read and clear codes. |
-| **Profile file (XML)**               | **Import XML…** loads a CAN profile; **Download XML** saves this car as one.                             |
-| **Raw CAN frames**                   | Every frame on the bus (`/car/frames`). Use it to map a signal the catalogue doesn't know.               |
+| Tool                                 | What it does                                                                                                                                                                                                                                                                    |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Scan my car**                      | The dash listens to the bus without sending anything, finds its speed and the frame IDs, and suggests the catalogue cars whose frames it saw. **Review** stages the car and **Use this car** also sets the detected bus speed; nothing reaches the dash until **Send to dash**. |
+| **OBD-II polling and trouble codes** | For cars that answer OBD-II requests instead of broadcasting: choose what to poll, read and clear codes.                                                                                                                                                                        |
+| **Profile file (XML)**               | **Import XML…** loads a CAN profile; **Download XML** saves this car as one.                                                                                                                                                                                                    |
+| **Raw CAN frames**                   | Every frame on the bus (`/car/frames`). Use it to map a signal the catalogue doesn't know.                                                                                                                                                                                      |
+
+A suggestion is **strong** when the bus carries at least 80 % of the car's frames (and at least two), **possible** from 50 %. The OBD-II profile is never suggested: it is polled, so a listen-only scan cannot see it.
 
 ## Sending the car to the dash
 
