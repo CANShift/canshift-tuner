@@ -113,6 +113,6 @@ server.on('connection', (socket) => {
 
 console.log(`[mock-dash] listening on ws://localhost:${String(port)}${SOCKET_PATH}`)
 console.log(`[mock-dash] open the tuner with ?dash=localhost:${String(port)}`)
-console.log(`[mock-dash] session logs: ${logsMode} (MOCK_DASH_LOGS=no-card|old-firmware)`)
+console.log(`[mock-dash] session logs: ${logsMode} (MOCK_DASH_LOGS=no-card|old-firmware|not-owner)`)
 console.log(`[mock-dash] throwaway signing key in ${MOCK_SIGNING_KEY_PATH}`)
 console.log('[mock-dash] sign a test image with: npm run mock-dash:sign -- <firmware.bin>')

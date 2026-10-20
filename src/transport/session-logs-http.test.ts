@@ -90,3 +90,17 @@ describe('deleteLogFile', () => {
     expect(await deleteLogFile(ORIGIN, 'S00001.csl')).toEqual({ kind: 'unreachable' })
   })
 })
+
+describe('a dash that refuses the request', () => {
+  it.each([
+    [403, 'refused'],
+    [409, 'notOwner'],
+  ] as const)('reads %i as %s on every route', async (status, kind) => {
+    respond(null, status)
+    expect(await fetchLogIndex(ORIGIN)).toEqual({ kind })
+    respond(null, status)
+    expect(await fetchLogFile(ORIGIN, 'S00001.csl')).toEqual({ kind })
+    respond(null, status)
+    expect(await deleteLogFile(ORIGIN, 'S00001.csl')).toEqual({ kind })
+  })
+})

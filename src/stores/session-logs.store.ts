@@ -23,7 +23,14 @@ const L = STRINGS.sessionLogs
 const RAW_MIME = 'application/octet-stream'
 
 export type LogsAvailability =
-  'checking' | 'listed' | 'noCard' | 'unsupported' | 'unreachable' | 'noWifi'
+  | 'checking'
+  | 'listed'
+  | 'noCard'
+  | 'unsupported'
+  | 'unreachable'
+  | 'refused'
+  | 'notOwner'
+  | 'noWifi'
 
 export type LogFormat = 'raw' | 'csv'
 
@@ -70,6 +77,8 @@ type FileProblem = Exclude<LogFileResult['kind'], 'fetched'>
 const FILE_PROBLEMS: Record<FileProblem, { message: string; reload: boolean }> = {
   missing: { message: L.gone, reload: true },
   unreachable: { message: L.downloadFailed, reload: false },
+  refused: { message: L.refused, reload: false },
+  notOwner: { message: L.notOwner, reload: false },
 }
 
 const DELETE_OUTCOMES: Record<
@@ -79,6 +88,8 @@ const DELETE_OUTCOMES: Record<
   deleted: { message: L.removed, tone: 'success', reload: true },
   missing: { message: L.gone, tone: 'success', reload: true },
   unreachable: { message: L.removeFailed, tone: 'warning', reload: false },
+  refused: { message: L.refused, tone: 'warning', reload: false },
+  notOwner: { message: L.notOwner, tone: 'warning', reload: false },
 }
 
 type Listing = Pick<SessionLogsState, 'availability' | 'logs'>

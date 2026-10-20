@@ -18,6 +18,8 @@ const STATUS: Record<Unlisted, StatusCopy> = {
   noCard: { icon: 'file', message: L.noCard, retry: true },
   unsupported: { icon: 'chip', message: L.unsupported, retry: false },
   unreachable: { icon: 'wifiOff', message: L.unreachable, retry: true },
+  refused: { icon: 'warning', message: L.refused, retry: false },
+  notOwner: { icon: 'dash', message: L.notOwner, retry: true },
   noWifi: { icon: 'wifiOff', message: L.noWifi, retry: false },
 }
 

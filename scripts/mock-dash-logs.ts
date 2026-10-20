@@ -5,7 +5,7 @@ const LOGS_PATH = '/api/logs'
 const LOG_NAME = /^S\d{5}\.csl$/
 const TWO_PI = 2 * Math.PI
 
-type LogsMode = 'card' | 'no-card' | 'old-firmware'
+type LogsMode = 'card' | 'no-card' | 'old-firmware' | 'not-owner'
 
 const SIGNALS: readonly MockSignal[] = [
   { id: 0, name: 'rpm', at: (s) => 4_500 + 2_500 * Math.sin((s * TWO_PI) / 9) },
@@ -25,7 +25,12 @@ const logs = new Map<string, Buffer>([
   ],
 ])
 
-const MODES: Record<string, LogsMode> = { 'no-card': 'no-card', 'old-firmware': 'old-firmware' }
+const MODES: Record<string, LogsMode> = {
+  'no-card': 'no-card',
+  'old-firmware': 'old-firmware',
+  'not-owner': 'not-owner',
+}
+const HTTP_CONFLICT = 409
 
 export const logsMode: LogsMode = MODES[process.env.MOCK_DASH_LOGS ?? ''] ?? 'card'
 
@@ -78,6 +83,10 @@ export const answerLogs = (req: IncomingMessage, res: ServerResponse): void => {
     res
       .writeHead(200, { 'Content-Type': 'text/html' })
       .end('<!doctype html><title>CANShift</title>')
+    return
+  }
+  if (logsMode === 'not-owner') {
+    res.writeHead(HTTP_CONFLICT).end()
     return
   }
   if (path === LOGS_PATH) sendIndex(res)
