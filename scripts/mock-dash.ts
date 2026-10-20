@@ -1,3 +1,4 @@
+import { createServer } from 'node:http'
 import { WebSocketServer, type WebSocket } from 'ws'
 import { CMD_OTA_WRITE, CMD_PING } from '../src/transport/opcodes'
 import { COMMAND_HANDLERS, unknownCommand } from './mock-dash-commands'
@@ -5,6 +6,7 @@ import { canStatFrame, heapFrame, teleFrame } from './mock-dash-telemetry'
 import { freshState, reboot, type MockDashState } from './mock-dash-state'
 import { MOCK_SIGNING_KEY_PATH, startSigningKey } from './mock-dash-signing'
 import type { Command, Outcome } from './mock-dash-replies'
+import { answerLogs, logsMode } from './mock-dash-logs'
 
 const DEFAULT_PORT = 8787
 const SOCKET_PATH = '/ws'
@@ -68,7 +70,9 @@ const streamTelemetry = (socket: WebSocket, dash: MockDashState): (() => void) =
   }
 }
 
-const server = new WebSocketServer({ port, path: SOCKET_PATH })
+const http = createServer(answerLogs)
+const server = new WebSocketServer({ server: http, path: SOCKET_PATH })
+http.listen(port)
 
 const OWNERSHIP_MS = 5_000
 const CLOSE_BUSY = 4001
@@ -109,5 +113,6 @@ server.on('connection', (socket) => {
 
 console.log(`[mock-dash] listening on ws://localhost:${String(port)}${SOCKET_PATH}`)
 console.log(`[mock-dash] open the tuner with ?dash=localhost:${String(port)}`)
+console.log(`[mock-dash] session logs: ${logsMode} (MOCK_DASH_LOGS=no-card|old-firmware)`)
 console.log(`[mock-dash] throwaway signing key in ${MOCK_SIGNING_KEY_PATH}`)
 console.log('[mock-dash] sign a test image with: npm run mock-dash:sign -- <firmware.bin>')

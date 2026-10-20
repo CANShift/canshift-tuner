@@ -41,3 +41,8 @@ export const chooseTransport = (env: TransportEnv): TransportChoice => {
   if (env.hasWebSerial) return { kind: 'webserial' }
   return { kind: 'none' }
 }
+
+export const chooseDashOrigin = (env: TransportEnv): string | null => {
+  const dashHost = servedByDashHost(env)
+  return dashHost === null ? null : `${env.protocol}//${dashHost}`
+}

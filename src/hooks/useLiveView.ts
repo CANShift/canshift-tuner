@@ -2,11 +2,10 @@ import { useState } from 'react'
 import type { SignalDef } from '@canshift/core'
 import { WINDOW_MAX_S, WINDOW_MIN_S, WINDOW_STEP_S, type LiveSampler } from './useLiveSampler'
 import type { DisplayUnits } from './useDisplayUnits'
-import { buildLiveCsv, liveCsvFilename } from '../lib/live-csv'
+import { CSV_MIME, buildLiveCsv, liveCsvFilename } from '../lib/live-csv'
 import { downloadFile } from '../lib/download'
 
 const DEFAULT_WINDOW_S = 30
-const CSV_MIME = 'text/csv;charset=utf-8'
 
 export const usePausableValues = (live: Record<string, number>) => {
   const [paused, setPaused] = useState(false)

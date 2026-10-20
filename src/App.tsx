@@ -21,7 +21,7 @@ import { useFirmwareLogBridge } from './hooks/useFirmwareLogBridge'
 import { useWidgetOverflowWarnings } from './hooks/useWidgetOverflowWarnings'
 import { useDocumentMeta } from './hooks/useDocumentMeta'
 import { RAW_FRAMES_PATH } from './components/car/RawFramesLink'
-import { FIRMWARE_PATH } from './components/dash/AboutCard'
+import { FIRMWARE_PATH, SESSION_LOGS_PATH } from './components/dash/AboutCard'
 import { FirmwareOverlay } from './components/firmware/FirmwareOverlay'
 import { HOME_PATH, LEGACY_REDIRECTS, ROUTE_PATHS, type RoutePath } from './constants/routes'
 
@@ -30,6 +30,7 @@ const CarSection = lazy(() => import('./components/car/CarSection'))
 const RawFramesView = lazy(() => import('./components/car/RawFramesView'))
 const DashSection = lazy(() => import('./components/dash/DashSection'))
 const FirmwareScreen = lazy(() => import('./components/firmware/FirmwareScreen'))
+const SessionLogsScreen = lazy(() => import('./components/session-logs/SessionLogsScreen'))
 
 const ROUTE_ELEMENTS: Record<RoutePath, ReactNode> = {
   '/gauges': (
@@ -64,6 +65,7 @@ const AppRoutes = () => (
     ))}
     <Route path={RAW_FRAMES_PATH} element={<RawFramesView />} />
     <Route path={FIRMWARE_PATH} element={<FirmwareScreen />} />
+    <Route path={SESSION_LOGS_PATH} element={<SessionLogsScreen />} />
     {LEGACY_PATHS.map((path) => (
       <Route
         key={path}
