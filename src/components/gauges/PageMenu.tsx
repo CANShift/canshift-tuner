@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { PageConfig } from '@canshift/core'
 import {
   DropdownMenu,
@@ -8,6 +9,7 @@ import {
 import { STRINGS } from '../../strings'
 import { useDashboardStore } from '../../stores/dashboard.store'
 import { UiIcon } from '../icons/UiIcons'
+import { StatusRowSheet } from './StatusRowSheet'
 
 export interface PageMenuProps {
   pages: readonly PageConfig[]
@@ -28,7 +30,11 @@ const TemplateItem = ({ page }: { page: PageConfig }) => {
   )
 }
 
-const PageMenuItems = ({ pages, current }: PageMenuProps) => {
+interface PageMenuItemsProps extends PageMenuProps {
+  onEditStatusRow: () => void
+}
+
+const PageMenuItems = ({ pages, current, onEditStatusRow }: PageMenuItemsProps) => {
   const movePage = useDashboardStore((s) => s.movePage)
   const removePage = useDashboardStore((s) => s.removePage)
   const index = pages.findIndex((page) => page.id === current.id)
@@ -44,6 +50,7 @@ const PageMenuItems = ({ pages, current }: PageMenuProps) => {
         {STRINGS.gauges.moveLater}
       </DropdownMenuItem>
       <TemplateItem page={current} />
+      <DropdownMenuItem onSelect={onEditStatusRow}>{STRINGS.statusRow.menuItem}</DropdownMenuItem>
       <DropdownMenuItem
         disabled={pages.length <= MIN_PAGES}
         onSelect={() => removePage(current.id)}
@@ -55,14 +62,25 @@ const PageMenuItems = ({ pages, current }: PageMenuProps) => {
   )
 }
 
-export const PageMenu = (props: PageMenuProps) => (
-  <DropdownMenu>
-    <DropdownMenuTrigger
-      aria-label={STRINGS.gauges.pageOptions}
-      className="grid size-11 shrink-0 place-items-center rounded-control border border-app-border bg-app-surface text-app-text"
-    >
-      <UiIcon name="chevronDown" />
-    </DropdownMenuTrigger>
-    <PageMenuItems {...props} />
-  </DropdownMenu>
-)
+export const PageMenu = (props: PageMenuProps) => {
+  const [statusRowOpen, setStatusRowOpen] = useState(false)
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          aria-label={STRINGS.gauges.pageOptions}
+          className="grid size-11 shrink-0 place-items-center rounded-control border border-app-border bg-app-surface text-app-text"
+        >
+          <UiIcon name="chevronDown" />
+        </DropdownMenuTrigger>
+        <PageMenuItems
+          {...props}
+          onEditStatusRow={() => {
+            setStatusRowOpen(true)
+          }}
+        />
+      </DropdownMenu>
+      <StatusRowSheet page={props.current} open={statusRowOpen} onOpenChange={setStatusRowOpen} />
+    </>
+  )
+}

@@ -7,11 +7,13 @@ import type {
   PageConfig,
   PageTemplate,
   ThemePreset,
+  TopBarItem,
   UnitSystem,
   Widget,
   WidgetLayout,
 } from '@canshift/core'
 import type { WidgetPatch } from '../../lib/widget-patch'
+import type { StatusSlot } from '../../lib/status-row'
 
 export interface LifecycleSlice {
   config: DashboardConfig | null
@@ -39,6 +41,7 @@ export interface PagesSlice {
   removePage: (pageId: string) => void
   setPageTemplate: (pageId: string, template: PageTemplate) => void
   movePage: (fromIndex: number, toIndex: number) => void
+  setStatusItem: (pageId: string, slot: StatusSlot, item: TopBarItem | null) => void
 }
 
 export interface ThemeSlice {
