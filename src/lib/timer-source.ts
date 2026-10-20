@@ -1,4 +1,5 @@
-import type { TimerSource } from '@canshift/core'
+import type { TimerSource, UnitSystem } from '@canshift/core'
+import { TIMER_SOURCE_KICKERS } from '@canshift/core'
 
 export const DEFAULT_TIMER_SOURCE: TimerSource = 'elapsed'
 
@@ -9,15 +10,8 @@ export const TIMER_SOURCE_LABELS: Record<TimerSource, string> = {
   last: 'Last lap',
   lapCount: 'Lap count',
   delta: 'Delta to best',
-}
-
-const KICKERS: Record<TimerSource, string> = {
-  elapsed: 'TIMER',
-  lap: 'LAP',
-  best: 'BEST',
-  last: 'LAST',
-  lapCount: 'LAPS',
-  delta: 'DELTA',
+  launchSprint: 'Launch to 100 km/h (60 mph)',
+  launchStrip: 'Launch to 400 m (¼ mile)',
 }
 
 const DEMO_VALUES: Record<TimerSource, string> = {
@@ -27,12 +21,14 @@ const DEMO_VALUES: Record<TimerSource, string> = {
   last: '1:38.42',
   lapCount: '4',
   delta: '+0.31',
+  launchSprint: '0:05.42',
+  launchStrip: '0:13.87',
 }
 
 const DEMO_ELAPSED_SS_MMM = '12.847'
 
-export const timerKicker = (source: TimerSource | undefined): string =>
-  KICKERS[source ?? DEFAULT_TIMER_SOURCE]
+export const timerKicker = (source: TimerSource | undefined, units: UnitSystem): string =>
+  TIMER_SOURCE_KICKERS[source ?? DEFAULT_TIMER_SOURCE][units]
 
 export const timerDemoValue = (
   source: TimerSource | undefined,

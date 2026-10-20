@@ -3,6 +3,7 @@ import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 import type { BaseRendererProps } from './shared'
 import { timerDemoValue, timerKicker } from '../../../lib/timer-source'
+import { useDisplayUnits } from '../../../hooks/useDisplayUnits'
 
 const FRAME = 'relative flex items-center justify-center overflow-hidden'
 
@@ -19,6 +20,7 @@ const KICKER = [
 ].join(' ')
 
 export const TimerPreview = memo(function TimerPreview({ widget, w, h }: BaseRendererProps) {
+  const units = useDisplayUnits().system
   if (widget.config.type !== 'timer') return null
   const cfg = widget.config
   const st = widget.style
@@ -35,7 +37,7 @@ export const TimerPreview = memo(function TimerPreview({ widget, w, h }: BaseRen
       >
         {timeStr}
       </span>
-      <span className={KICKER}>{timerKicker(cfg.source)}</span>
+      <span className={KICKER}>{timerKicker(cfg.source, units)}</span>
     </div>
   )
 })
