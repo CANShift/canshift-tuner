@@ -26,6 +26,19 @@ describe('status-row preview text', () => {
 })
 
 describe('status-row preview text for a session max', () => {
+  it('drops a decimal where the converted pressure gains a digit', () => {
+    const item = {
+      type: 'signalMax',
+      signal: 'boost_bar',
+      text: 'PEAK',
+      format: '%.2f',
+      unit: 'bar',
+      position: 'right',
+    } as const
+    expect(previewItemText(item, 'imperial')).toBe('PEAK 23.4')
+    expect(previewItemText(item, 'metric')).toBe('PEAK 1.61')
+  })
+
   it('converts a session max without a symbol', () => {
     const item = {
       type: 'signalMax',
