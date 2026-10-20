@@ -1,43 +1,53 @@
 import { memo } from 'react'
-import { cva } from 'class-variance-authority'
-import { cn } from '@/lib/utils'
+import { deviceValueFontPx } from '@canshift/core'
 import type { BaseRendererProps } from './shared'
-import { timerDemoValue, timerKicker } from '../../../lib/timer-source'
+import { timerDemoValue, timerKicker, timerUnit } from '../../../lib/timer-source'
 import { useDisplayUnits } from '../../../hooks/useDisplayUnits'
+import { TopRule } from './TopRule'
+import { Kicker, ValueRow } from './ValueCluster'
 
-const FRAME = 'relative flex items-center justify-center overflow-hidden'
+const FRAME = 'relative box-border overflow-hidden'
 
-const HEAVY_FONT_MIN_PX = 32
+const LARGE_TIME = { minH: 55, minW: 150, px: 40 } as const
 
-const value = cva('font-mono tracking-[0.06em] tabular-nums', {
-  variants: { heavy: { true: 'font-black', false: 'font-bold' } },
-  defaultVariants: { heavy: false },
-})
+const MEDIUM_TIME = { minH: 28, px: 22 } as const
 
-const KICKER = [
-  'absolute left-[3px] top-0.5 font-sans text-[9px] font-medium uppercase',
-  'leading-none tracking-wider text-[#BABAB8]',
-].join(' ')
+const SMALL_TIME_PX = 17
 
-export const TimerPreview = memo(function TimerPreview({ widget, w, h }: BaseRendererProps) {
+const timeFontPx = (w: number, h: number): number => {
+  if (h >= LARGE_TIME.minH && w >= LARGE_TIME.minW) return LARGE_TIME.px
+  return h >= MEDIUM_TIME.minH ? MEDIUM_TIME.px : SMALL_TIME_PX
+}
+
+interface TimerRendererProps extends BaseRendererProps {
+  scale: number
+}
+
+export const TimerPreview = memo(function TimerPreview({
+  widget,
+  w,
+  h,
+  scale,
+}: TimerRendererProps) {
   const units = useDisplayUnits().system
   if (widget.config.type !== 'timer') return null
   const cfg = widget.config
-  const st = widget.style
-  const timeStr = timerDemoValue(cfg.source, cfg.format)
-  const fontSize = Math.max(9, Math.min(h * 0.44, w * 0.22))
+  const ink = widget.style.textColor
+  const devicePx =
+    cfg.big !== undefined ? deviceValueFontPx(cfg.big) : timeFontPx(w / scale, h / scale)
 
   return (
     // eslint-disable-next-line no-inline-style/no-inline-style
     <div className={FRAME} style={{ width: w, height: h }}>
-      <span
-        className={cn(value({ heavy: fontSize >= HEAVY_FONT_MIN_PX }))}
-        // eslint-disable-next-line no-inline-style/no-inline-style
-        style={{ color: st.textColor, fontSize }}
-      >
-        {timeStr}
-      </span>
-      <span className={KICKER}>{timerKicker(cfg.source, units)}</span>
+      <TopRule devicePx={devicePx} scale={scale} inkColor={ink} />
+      <Kicker text={timerKicker(cfg.source, units)} scale={scale} />
+      <ValueRow
+        text={timerDemoValue(cfg.source, cfg.format)}
+        unit={timerUnit(cfg.source)}
+        color={ink}
+        devicePx={devicePx}
+        scale={scale}
+      />
     </div>
   )
 })

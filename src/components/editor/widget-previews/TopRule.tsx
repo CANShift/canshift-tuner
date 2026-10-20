@@ -5,17 +5,18 @@ import {
   type GaugeSeverity,
 } from '@canshift/core'
 import { cn } from '@/lib/utils'
-import { ruleTier, widgetTopRule } from '../widget-preview.styles'
+import { isPrimaryRule, widgetTopRule } from '../widget-preview.styles'
 
 export interface TopRuleProps {
-  fontSize: number
+  devicePx: number
+  scale: number
   inkColor: string
   severity?: GaugeSeverity
   blink?: boolean
 }
 
 const plainRuleColor = (rulePx: number, inkColor: string): string =>
-  rulePx === WIDGET_TOP_RULE.primaryPx ? inkColor : WIDGET_TOP_RULE.trackColor
+  isPrimaryRule(rulePx) ? inkColor : WIDGET_TOP_RULE.trackColor
 
 const ruleColor = (rulePx: number, inkColor: string, severity: GaugeSeverity): string =>
   ({
@@ -25,18 +26,19 @@ const ruleColor = (rulePx: number, inkColor: string, severity: GaugeSeverity): s
   })[severity]
 
 export const TopRule = ({
-  fontSize,
+  devicePx,
+  scale,
   inkColor,
   severity = 'normal',
   blink = false,
 }: TopRuleProps) => {
-  const rulePx = widgetTopRulePx(Math.round(fontSize))
+  const rulePx = widgetTopRulePx(Math.round(devicePx))
   return (
     <span
       aria-hidden="true"
-      className={cn(widgetTopRule({ tier: ruleTier(rulePx), blink }))}
+      className={cn(widgetTopRule({ blink }))}
       // eslint-disable-next-line no-inline-style/no-inline-style
-      style={{ background: ruleColor(rulePx, inkColor, severity) }}
+      style={{ height: rulePx * scale, background: ruleColor(rulePx, inkColor, severity) }}
     />
   )
 }

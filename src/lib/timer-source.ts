@@ -27,6 +27,11 @@ const DEMO_VALUES: Record<TimerSource, string> = {
 
 const DEMO_ELAPSED_SS_MMM = '12.847'
 
+const DELTA_UNIT = 's'
+
+export const timerUnit = (source: TimerSource | undefined): string =>
+  source === 'delta' ? DELTA_UNIT : ''
+
 export const timerKicker = (source: TimerSource | undefined, units: UnitSystem): string =>
   TIMER_SOURCE_KICKERS[source ?? DEFAULT_TIMER_SOURCE][units]
 

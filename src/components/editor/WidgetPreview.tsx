@@ -96,12 +96,13 @@ const RENDERERS: RendererDispatch = {
       h={ctx.h}
       state={ctx.buttonState}
       cycleStateIndex={ctx.cycleStateIndex}
+      scale={ctx.scale}
     />
   ),
   gear: (widget, ctx) => (
     <GearPreview widget={widget} w={ctx.w} h={ctx.h} unbound={ctx.unbound} scale={ctx.scale} />
   ),
-  timer: (widget, ctx) => <TimerPreview widget={widget} w={ctx.w} h={ctx.h} />,
+  timer: (widget, ctx) => <TimerPreview widget={widget} w={ctx.w} h={ctx.h} scale={ctx.scale} />,
   image: (widget, ctx) => <ImagePreview widget={widget} w={ctx.w} h={ctx.h} />,
   g_meter: (widget, ctx) => (
     <GMeterPreview widget={widget} w={ctx.w} h={ctx.h} scale={ctx.scale} locked={ctx.imuMissing} />

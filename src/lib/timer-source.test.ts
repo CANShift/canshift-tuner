@@ -4,6 +4,7 @@ import {
   isTouchInteractive,
   timerDemoValue,
   timerKicker,
+  timerUnit,
   TIMER_SOURCE_LABELS,
 } from './timer-source'
 
@@ -58,6 +59,18 @@ describe('the source tables', () => {
     for (const source of TIMER_SOURCES) {
       expect(TIMER_SOURCE_LABELS[source]).toBeTruthy()
       expect(timerKicker(source, 'metric')).toBeTruthy()
+    }
+  })
+})
+
+describe('timerUnit', () => {
+  it('gives the delta its seconds unit, as the dash does', () => {
+    expect(timerUnit('delta')).toBe('s')
+  })
+
+  it('leaves every lap time and count without a unit', () => {
+    for (const source of ['elapsed', 'lap', 'best', 'last', 'lapCount', undefined] as const) {
+      expect(timerUnit(source)).toBe('')
     }
   })
 })

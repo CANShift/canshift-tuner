@@ -4,33 +4,21 @@ import {
   STALE_PLACEHOLDER,
   WIDGET_TOP_RULE,
   gaugeValueFontSize,
-  valueUnitFontSize,
   type GaugeSeverity,
   type GaugeWidgetConfig,
   type SignalLimits,
-  type Widget,
 } from '@canshift/core'
-import { cn } from '@/lib/utils'
-import { BLINK, WIDGET_DIM_COLOR, WIDGET_KICKER } from '../widget-preview.styles'
 import { TopRule } from './TopRule'
+import { Kicker, ValueRow } from './ValueCluster'
 import { gaugePreviewSeverity, severityInk, shownValue } from './gauge-math'
 import { type BaseRendererProps } from './shared'
 import { shownKicker } from '../../../lib/widget-kicker'
 
-const FRAME = 'relative box-border flex flex-col items-center justify-center gap-0 overflow-hidden'
+const FRAME = 'relative box-border overflow-hidden'
 
-const BAR_TRACK = 'absolute bottom-0 left-1 right-1'
+const BAR_TRACK = 'absolute bottom-0 left-0 right-0'
 
 const BAR_FILL = 'block h-full'
-
-const VALUE_ROW = 'flex w-full shrink-0 flex-row items-baseline justify-center gap-1'
-
-const VALUE = [
-  'overflow-hidden whitespace-nowrap text-left text-clip',
-  'font-mono font-extrabold leading-none',
-].join(' ')
-
-const UNIT = 'pointer-events-none whitespace-nowrap font-mono font-medium leading-none'
 
 export interface GaugeNumericRendererProps extends BaseRendererProps {
   danger: boolean
@@ -42,8 +30,6 @@ export interface GaugeNumericRendererProps extends BaseRendererProps {
   scale: number
   signalLimits?: SignalLimits | undefined
 }
-
-const SIGNAL_HEADER_PX = 14
 
 interface NumericReading {
   text: string
@@ -69,70 +55,27 @@ const numericReading = (
 const fillPercent = (pct: number): string =>
   `${String(Math.round(Math.max(0, Math.min(1, pct)) * 100))}%`
 
-const SecondaryBar = ({ pct, color }: { pct: number; color: string }) => (
+const hasBar = (cfg: GaugeWidgetConfig): boolean =>
+  cfg.showBar === true && cfg.maxValue > cfg.minValue
+
+const kickerInkOf = (reading: NumericReading): string | undefined =>
+  reading.severity === 'normal' ? undefined : reading.ink
+
+interface SecondaryBarProps {
+  pct: number
+  color: string
+  scale: number
+}
+
+const SecondaryBar = ({ pct, color, scale }: SecondaryBarProps) => (
   <span
     aria-hidden="true"
     className={BAR_TRACK}
     // eslint-disable-next-line no-inline-style/no-inline-style
-    style={{ height: SECONDARY_BAR.heightPx, background: WIDGET_TOP_RULE.trackColor }}
+    style={{ height: SECONDARY_BAR.heightPx * scale, background: WIDGET_TOP_RULE.trackColor }}
   >
     {/* eslint-disable-next-line no-inline-style/no-inline-style */}
     <span className={BAR_FILL} style={{ width: fillPercent(pct), background: color }} />
-  </span>
-)
-
-interface ValueRowProps {
-  text: string
-  unit: string
-  color: string
-  fontSize: number
-  danger: boolean
-}
-
-const ValueRow = ({ text, unit, color, fontSize, danger }: ValueRowProps) => (
-  <div className={VALUE_ROW}>
-    <span
-      className={cn(VALUE, danger && BLINK)}
-      // eslint-disable-next-line no-inline-style/no-inline-style
-      style={{ color, fontSize }}
-    >
-      {text}
-    </span>
-    {unit !== '' && (
-      <span
-        className={UNIT}
-        // eslint-disable-next-line no-inline-style/no-inline-style
-        style={{ color: WIDGET_DIM_COLOR, fontSize: valueUnitFontSize(Math.round(fontSize)) }}
-      >
-        {unit}
-      </span>
-    )}
-  </div>
-)
-
-interface NumericRuleProps {
-  fontSize: number
-  widget: Widget
-  reading: NumericReading
-  blink: boolean
-}
-
-const NumericRule = ({ fontSize, widget, reading, blink }: NumericRuleProps) => (
-  <TopRule
-    fontSize={fontSize}
-    inkColor={widget.style.textColor}
-    severity={reading.severity}
-    blink={blink}
-  />
-)
-
-const NumericKicker = ({ widget, reading }: { widget: Widget; reading: NumericReading }) => (
-  <span
-    className={WIDGET_KICKER}
-    // eslint-disable-next-line no-inline-style/no-inline-style
-    style={reading.severity === 'normal' ? undefined : { color: reading.ink }}
-  >
-    {shownKicker(widget)}
   </span>
 )
 
@@ -143,23 +86,26 @@ export const GaugeNumericPreview = memo(function GaugeNumericPreview(
   if (widget.config.type !== 'gauge') return null
   const cfg = widget.config
   const reading = numericReading(cfg, props)
-  const fontSize = gaugeValueFontSize(h / scale, cfg.big) * scale
-  const showBar = cfg.showBar === true && cfg.maxValue > cfg.minValue
+  const devicePx = gaugeValueFontSize(h / scale, cfg.big)
   return (
-    <div
-      className={FRAME}
-      // eslint-disable-next-line no-inline-style/no-inline-style
-      style={{ width: w, height: h, padding: `${String(SIGNAL_HEADER_PX + 2)}px 4px 2px` }}
-    >
-      <NumericRule fontSize={fontSize} widget={widget} reading={reading} blink={danger} />
-      {showBar && <SecondaryBar pct={reading.pct} color={reading.ink} />}
-      <NumericKicker widget={widget} reading={reading} />
+    // eslint-disable-next-line no-inline-style/no-inline-style
+    <div className={FRAME} style={{ width: w, height: h }}>
+      <TopRule
+        devicePx={devicePx}
+        scale={scale}
+        inkColor={widget.style.textColor}
+        severity={reading.severity}
+        blink={danger}
+      />
+      {hasBar(cfg) && <SecondaryBar pct={reading.pct} color={reading.ink} scale={scale} />}
+      <Kicker text={shownKicker(widget)} scale={scale} color={kickerInkOf(reading)} />
       <ValueRow
         text={reading.text}
         unit={signalUnit}
         color={reading.ink}
-        fontSize={fontSize}
-        danger={danger}
+        devicePx={devicePx}
+        scale={scale}
+        blink={danger}
       />
     </div>
   )
