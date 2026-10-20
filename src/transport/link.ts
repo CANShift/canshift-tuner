@@ -1,4 +1,9 @@
-import { chooseTransport, type TransportChoice, type TransportEnv } from '../lib/transport-choice'
+import {
+  chooseDashOrigin,
+  chooseTransport,
+  type TransportChoice,
+  type TransportEnv,
+} from '../lib/transport-choice'
 import { getSerialClient } from './webserial-client'
 import { WebSocketClient } from './websocket-client'
 import type { DeviceLink } from './device-link'
@@ -25,11 +30,17 @@ const readTransportEnv = (): TransportEnv => ({
   hasWebSerial: typeof navigator !== 'undefined' && 'serial' in navigator,
 })
 
+let bootEnv: TransportEnv | null = null
 let choice: TransportChoice | null = null
 let link: DeviceLink | null = null
 
+const transportEnv = (): TransportEnv => {
+  bootEnv ??= readTransportEnv()
+  return bootEnv
+}
+
 const transportChoice = (): TransportChoice => {
-  choice ??= chooseTransport(readTransportEnv())
+  choice ??= chooseTransport(transportEnv())
   return choice
 }
 
@@ -40,3 +51,5 @@ export const getDeviceLink = (): DeviceLink => {
   link ??= createLink(transportChoice())
   return link
 }
+
+export const getDashOrigin = (): string | null => chooseDashOrigin(transportEnv())

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { chooseTransport, isLocalDevOrigin, type TransportEnv } from './transport-choice'
+import {
+  chooseDashOrigin,
+  chooseTransport,
+  isLocalDevOrigin,
+  type TransportEnv,
+} from './transport-choice'
 
 const env = (overrides: Partial<TransportEnv> = {}): TransportEnv => ({
   protocol: 'http:',
@@ -68,5 +73,21 @@ describe('isLocalDevOrigin', () => {
     expect(isLocalDevOrigin('localhost')).toBe(true)
     expect(isLocalDevOrigin('192.168.4.1')).toBe(false)
     expect(isLocalDevOrigin('canshift.local')).toBe(false)
+  })
+})
+
+describe('chooseDashOrigin', () => {
+  it('reads files from the dash that served the page', () => {
+    expect(chooseDashOrigin(env())).toBe('http://192.168.4.1')
+  })
+
+  it('reads files from the dash or mock named by ?dash= in local dev', () => {
+    expect(chooseDashOrigin(localDev('localhost', { search: '?dash=localhost:8787' }))).toBe(
+      'http://localhost:8787'
+    )
+  })
+
+  it('has no dash to read from on a bare local dev origin', () => {
+    expect(chooseDashOrigin(localDev('localhost', { hasWebSerial: true }))).toBeNull()
   })
 })

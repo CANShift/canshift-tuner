@@ -8,6 +8,7 @@ import { ShortcutsDialog } from './ShortcutsDialog'
 const D = STRINGS.dash
 
 export const FIRMWARE_PATH = '/dash/firmware'
+export const SESSION_LOGS_PATH = '/dash/sessions'
 
 const ROW =
   'flex min-h-12 items-center gap-3 border-b border-app-divider text-[15px] last:border-b-0 lg:min-h-14'
@@ -39,6 +40,11 @@ export const AboutCard = () => {
         <UiIcon name="chip" className="text-app-accent" />
         <span className="flex-1">{STRINGS.firmware.title}</span>
         <span className="text-[13px] text-app-muted lg:text-sm">{D.version(version)}</span>
+        <UiIcon name="chevronRight" className="text-app-muted" />
+      </Link>
+      <Link to={SESSION_LOGS_PATH} className={`${ROW} text-app-text no-underline`}>
+        <UiIcon name="file" className="text-app-accent" />
+        <span className="flex-1">{STRINGS.sessionLogs.row}</span>
         <UiIcon name="chevronRight" className="text-app-muted" />
       </Link>
       <div className={`${ROW} text-app-secondary`}>
