@@ -17,7 +17,7 @@ const PREVIEW_SIGNAL_VALUES: Record<string, number> = {
 const PREVIEW_CAN_RATE = '842 Hz'
 const PREVIEW_LAP = 'LAP 4\u00A0\u00A0\u00A01:38.42'
 
-const dimText = cva('leading-none tracking-widest', {
+const dimText = cva('font-mono leading-none tracking-widest', {
   variants: {
     day: { true: 'text-[#5A5A5A]', false: 'text-[#BABABA]' },
   },
