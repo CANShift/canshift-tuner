@@ -89,6 +89,7 @@ export const GAUGES = {
     widgetType: 'Type',
     add: 'Add',
     addWhat: 'Add to this page',
+    needsImu: 'needs a board with an IMU',
     previewAs: 'Preview',
     cruisePage: 'Make it a cruise control page',
     customPage: 'Make it a gauges page',

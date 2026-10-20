@@ -58,5 +58,6 @@ export const CHANGES = {
     timer: 'timer',
     image: 'image',
     shift_light: 'shift lights',
+    g_meter: 'g-meter',
   },
 } as const

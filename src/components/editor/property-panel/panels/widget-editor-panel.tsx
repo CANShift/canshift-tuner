@@ -6,6 +6,7 @@ import { useLogStore } from '../../../../stores/log.store'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ButtonFields } from '../button-fields'
 import { GaugeFields } from '../gauge-fields'
+import { GMeterFields } from '../g-meter-fields'
 import { ShiftLightFields } from '../shift-light-fields'
 import { TimerFields } from '../timer-fields'
 import { WarningFields } from '../warning-fields'
@@ -23,9 +24,10 @@ export const CONFIG_FIELDS: Partial<
   timer: TimerFields,
   warning: WarningFields,
   image: ImageFields,
+  g_meter: GMeterFields,
 }
 
-export const SIGNAL_HIDDEN_TYPES = new Set<WidgetType>(['button', 'timer', 'image'])
+export const SIGNAL_HIDDEN_TYPES = new Set<WidgetType>(['button', 'timer', 'image', 'g_meter'])
 
 interface DayModeFieldProps {
   widget: Widget

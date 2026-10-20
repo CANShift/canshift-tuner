@@ -2,7 +2,16 @@ import { describe, expect, it } from 'vitest'
 import { WidgetSchema } from '@canshift/core'
 import { PALETTE_ITEMS, buildWidget, retypeWidget } from './new-widget'
 
-const SCHEMA_WIDGET_TYPES = ['gauge', 'warning', 'button', 'timer', 'gear', 'image', 'shift_light']
+const SCHEMA_WIDGET_TYPES = [
+  'gauge',
+  'warning',
+  'button',
+  'timer',
+  'gear',
+  'image',
+  'shift_light',
+  'g_meter',
+]
 
 describe('the Add menu', () => {
   it('offers every widget type the dash knows', () => {
