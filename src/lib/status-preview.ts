@@ -1,4 +1,10 @@
-import { displayUnit, displayValue, type TopBarItem, type UnitSystem } from '@canshift/core'
+import {
+  displayDecimals,
+  displayUnit,
+  displayValue,
+  type TopBarItem,
+  type UnitSystem,
+} from '@canshift/core'
 import { timerDemoValue } from './timer-source'
 
 const PREVIEW_SIGNAL_VALUES: Record<string, number> = {
@@ -19,18 +25,32 @@ type ValueItem = Extract<TopBarItem, { type: 'signal' | 'signalMax' }>
 
 type TextItem = Extract<TopBarItem, { type: 'signal' | 'signalMax' | 'timer' | 'flagWord' }>
 
-const formatNumber = (value: number, format: string | undefined): string => {
-  if (!format) return value.toFixed(1)
-  const m = /^(.*?)%\.(\d+)f(.*)$/.exec(format)
-  if (!m) return format.replace('%f', value.toFixed(1))
-  return `${m[1] ?? ''}${value.toFixed(parseInt(m[2] ?? '1', 10))}${m[3] ?? ''}`
+const DEFAULT_DECIMALS = 1
+
+interface PreviewNumber {
+  value: number
+  unit: string
+  units: UnitSystem
+}
+
+const formatNumber = (
+  { value, unit, units }: PreviewNumber,
+  format: string | undefined
+): string => {
+  const shown = displayValue(value, unit, units)
+  const m = /^(.*?)%\.(\d+)f(.*)$/.exec(format ?? '')
+  const decimals = m ? parseInt(m[2] ?? '1', 10) : DEFAULT_DECIMALS
+  const number = shown.toFixed(displayDecimals(decimals, unit, units))
+  if (!format) return number
+  if (!m) return format.replace('%f', number)
+  return `${m[1] ?? ''}${number}${m[3] ?? ''}`
 }
 
 const valueText = (item: ValueItem, units: UnitSystem): string => {
   const raw = PREVIEW_SIGNAL_VALUES[item.signal]
   if (raw === undefined) return PREVIEW_STALE
   const unit = item.unit ?? ''
-  const number = formatNumber(displayValue(raw, unit, units), item.format)
+  const number = formatNumber({ value: raw, unit, units }, item.format)
   return item.showUnit && unit !== '' ? `${number} ${displayUnit(unit, units)}` : number
 }
 
