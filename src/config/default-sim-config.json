@@ -49,6 +49,16 @@
       "backgroundImage": "",
       "backgroundColor": "#121212",
       "showTopBar": true,
+      "statusRow": {
+        "right": {
+          "type": "signal",
+          "signal": "trip_km",
+          "format": "TRIP %.0f",
+          "unit": "km",
+          "showUnit": true,
+          "position": "right"
+        }
+      },
       "widgets": [
         {
           "id": "street_speed",
@@ -520,6 +530,7 @@
           "signal": "oil_temp_c",
           "text": "MAX OIL",
           "format": "%.0f",
+          "unit": "°C",
           "position": "right"
         }
       },
@@ -739,9 +750,10 @@
       "statusRow": {
         "right": {
           "type": "signalMax",
-          "signal": "map_kpa",
+          "signal": "boost_bar",
           "text": "PEAK",
-          "format": "%.0f",
+          "format": "%.2f",
+          "unit": "bar",
           "position": "right"
         }
       },
@@ -955,6 +967,20 @@
       "backgroundImage": "",
       "backgroundColor": "#121212",
       "showTopBar": true,
+      "statusRow": {
+        "center": {
+          "type": "timer",
+          "source": "lapCount",
+          "text": "LAP",
+          "position": "center"
+        },
+        "right": {
+          "type": "timer",
+          "source": "best",
+          "text": "BEST",
+          "position": "right"
+        }
+      },
       "widgets": [
         {
           "id": "timing_lap",
@@ -1158,6 +1184,22 @@
       "backgroundImage": "",
       "backgroundColor": "#121212",
       "showTopBar": true,
+      "statusRow": {
+        "center": {
+          "type": "flagWord",
+          "signal": "flag_anti_lag",
+          "text": "ALS ON",
+          "offText": "ALS OFF",
+          "position": "center"
+        },
+        "right": {
+          "type": "flagWord",
+          "signal": "flag_launch_ctrl",
+          "text": "ARMED",
+          "offText": "LAUNCH OFF",
+          "position": "right"
+        }
+      },
       "widgets": [
         {
           "id": "controls_rpm",
