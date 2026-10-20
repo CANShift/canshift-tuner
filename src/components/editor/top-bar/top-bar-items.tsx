@@ -1,18 +1,10 @@
 import type { ReactNode } from 'react'
-import type { TopBarItem } from '@canshift/core'
+import type { TopBarItem, UnitSystem } from '@canshift/core'
 import { TOP_BAR_METRICS } from '@canshift/core'
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
-
-const PREVIEW_SIGNAL_VALUES: Record<string, number> = {
-  battery_volts: 12.4,
-  rpm: 3500,
-  speed_kph: 80,
-  coolant_temp_c: 88,
-  oil_press_bar: 4.2,
-  oil_temp_c: 95,
-  map_number: 1,
-}
+import { previewItemText } from '../../../lib/status-preview'
+import { isStatusItem } from '../../../lib/status-row'
 
 const PREVIEW_CAN_RATE = '842 Hz'
 const PREVIEW_LAP = 'LAP 4\u00A0\u00A0\u00A01:38.42'
@@ -39,17 +31,6 @@ const FLAG_BADGE = 'inline-flex items-center opacity-40'
 const FLAG_SQUARE = 'shrink-0 bg-[#FF8800]'
 
 const FLAG_TEXT = 'leading-none text-[#FF8800]'
-
-const formatPreviewSignal = (signal: string, format?: string): string => {
-  const value = PREVIEW_SIGNAL_VALUES[signal]
-  if (value === undefined) return '--'
-  if (!format) return value.toFixed(1)
-  const m = /%\.(\d+)f(.*)/.exec(format)
-  if (!m) return format.replace('%f', value.toFixed(1))
-  const decimals = parseInt(m[1] ?? '1', 10)
-  const suffix = m[2] ?? ''
-  return value.toFixed(decimals) + suffix
-}
 
 export interface BarMetrics {
   h: number
@@ -80,6 +61,7 @@ export interface ItemContext {
   metrics: BarMetrics
   isDayMode: boolean
   textColor: string
+  units: UnitSystem
 }
 
 type ItemRenderer = (item: TopBarItem, ctx: ItemContext) => ReactNode
@@ -106,14 +88,11 @@ const FlagBadge = ({ text, metrics }: { text: string; metrics: BarMetrics }) => 
   </span>
 )
 
-const signalText = (item: TopBarItem): string => {
-  if (item.type === 'signal') return formatPreviewSignal(item.signal, item.format)
-  if (item.type === 'signalMax')
-    return `${item.text} ${formatPreviewSignal(item.signal, item.format)}`
-  return ''
-}
+const StatusText = ({ item, ctx }: { item: TopBarItem; ctx: ItemContext }) => (
+  <DimText ctx={ctx}>{isStatusItem(item) ? previewItemText(item, ctx.units) : ''}</DimText>
+)
 
-const itemText = (item: TopBarItem): string => ('text' in item ? item.text : '')
+const itemText = (item: TopBarItem): string => ('text' in item ? (item.text ?? '') : '')
 
 const ITEM_RENDERERS: Record<TopBarItem['type'], ItemRenderer> = {
   statusDot: (_item, { metrics }) => (
@@ -123,8 +102,10 @@ const ITEM_RENDERERS: Record<TopBarItem['type'], ItemRenderer> = {
   label: (item, ctx) => <DimText ctx={ctx}>{itemText(item)}</DimText>,
   // eslint-disable-next-line no-inline-style/no-inline-style
   separator: (_item, { metrics }) => <span className={SEPARATOR} style={{ height: metrics.sep }} />,
-  signal: (item, ctx) => <DimText ctx={ctx}>{signalText(item)}</DimText>,
-  signalMax: (item, ctx) => <DimText ctx={ctx}>{signalText(item)}</DimText>,
+  signal: (item, ctx) => <StatusText item={item} ctx={ctx} />,
+  signalMax: (item, ctx) => <StatusText item={item} ctx={ctx} />,
+  timer: (item, ctx) => <StatusText item={item} ctx={ctx} />,
+  flagWord: (item, ctx) => <StatusText item={item} ctx={ctx} />,
   canRate: (_item, ctx) => <DimText ctx={ctx}>{PREVIEW_CAN_RATE}</DimText>,
   bleIcon: (_item, { metrics }) => (
     // eslint-disable-next-line no-inline-style/no-inline-style

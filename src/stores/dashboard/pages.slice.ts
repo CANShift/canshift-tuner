@@ -1,5 +1,6 @@
 import type { Draft } from 'immer'
-import type { DashboardConfig, PageConfig, PageTemplate } from '@canshift/core'
+import type { DashboardConfig, PageConfig, PageTemplate, TopBarItem } from '@canshift/core'
+import { withStatusItem, type StatusSlot } from '../../lib/status-row'
 import { pageRef, pushHistory } from './helpers'
 import type { DashboardDraft } from './widget-actions'
 import type { PagesSlice, SliceCreator } from './types'
@@ -51,6 +52,19 @@ const setPageTemplateIn = (s: DashboardDraft, pageId: string, template: PageTemp
     (page) => withTemplate(page, template)
   )
 
+const setStatusItemIn = (
+  s: DashboardDraft,
+  pageId: string,
+  slot: StatusSlot,
+  item: TopBarItem | null
+): void =>
+  replacePage(
+    s,
+    pageId,
+    (ref) => `Changed ${ref} status row`,
+    (page) => withStatusItem(page, slot, item)
+  )
+
 const movePageIn = (s: DashboardDraft, fromIndex: number, toIndex: number): void => {
   if (!s.config) return
   pushHistory(s, 'Reordered pages')
@@ -66,4 +80,5 @@ export const createPagesSlice: SliceCreator<PagesSlice> = (set) => ({
   removePage: (pageId) => set((s) => removePageFrom(s, pageId)),
   setPageTemplate: (pageId, template) => set((s) => setPageTemplateIn(s, pageId, template)),
   movePage: (fromIndex, toIndex) => set((s) => movePageIn(s, fromIndex, toIndex)),
+  setStatusItem: (pageId, slot, item) => set((s) => setStatusItemIn(s, pageId, slot, item)),
 })

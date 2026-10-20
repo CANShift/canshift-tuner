@@ -1,9 +1,10 @@
 import { Fragment, useRef, type PointerEvent } from 'react'
 import type { TopBarConfig, TopBarItem, PageStatusRow } from '@canshift/core'
-import { DEFAULT_TOP_BAR_LAYOUT } from '@canshift/core'
+import { DEFAULT_TOP_BAR_LAYOUT, DEFAULT_UNIT_SYSTEM } from '@canshift/core'
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 import { mergePageStatusRow } from '../../lib/top-bar-layout'
+import { useDashboardStore } from '../../stores/dashboard.store'
 import { barMetrics, renderTopBarItem, type ItemContext } from './top-bar/top-bar-items'
 
 const SWIPE_DOWN_THRESHOLD = 18
@@ -80,8 +81,9 @@ const ItemGroup = ({ items, ctx, className }: ItemGroupProps) => (
 export const DashTopBar = (props: DashTopBarProps) => {
   const { topBar, settingsOpen, isDayMode } = props
   const swipe = useSettingsSwipe(settingsOpen, props.onOpenSettings)
+  const units = useDashboardStore((s) => s.config?.units) ?? DEFAULT_UNIT_SYSTEM
   const metrics = barMetrics(topBar.height, props.scale)
-  const ctx: ItemContext = { metrics, isDayMode, textColor: topBar.textColor }
+  const ctx: ItemContext = { metrics, isDayMode, textColor: topBar.textColor, units }
   const layout = mergePageStatusRow(topBar.layout ?? DEFAULT_TOP_BAR_LAYOUT, props.statusRow)
   const centerItems = itemsAt(layout, 'center')
   return (

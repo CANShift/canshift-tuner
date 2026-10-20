@@ -75,4 +75,14 @@ describe('removePage', () => {
     expect(pageIds()).toEqual(['p2'])
     expect(store().config?.defaultPageId).toBe('p2')
   })
+
+  it('sets and clears a status-row slot with one undo step each', () => {
+    store().setConfig(makeConfig())
+    const item = { type: 'timer', source: 'best', text: 'BEST', position: 'right' } as const
+    store().setStatusItem('p2', 'right', item)
+    expect(store().config?.pages[1]?.statusRow).toEqual({ right: item })
+    expect(lastLabel()).toBe('Changed page 02 status row')
+    store().setStatusItem('p2', 'right', null)
+    expect(store().config?.pages[1]).not.toHaveProperty('statusRow')
+  })
 })
