@@ -31,6 +31,7 @@ const valueInk = (testValue: number, unbound = false, widget = oilPressure): str
       danger={false}
       testValue={testValue}
       toDisplay={(value) => value}
+      decimalsOf={(decimals) => decimals}
       unbound={unbound}
     />
   )

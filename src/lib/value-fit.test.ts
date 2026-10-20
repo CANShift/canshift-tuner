@@ -17,6 +17,11 @@ const withGauge = (
     if (widget?.config.type === 'gauge') Object.assign(widget.config, patch)
   })
 
+const imperial = (config: DashboardConfig): DashboardConfig =>
+  produce(config, (c) => {
+    c.units = 'imperial'
+  })
+
 const summary = (config: DashboardConfig) =>
   unfitWidgets(config, signals).map(({ page, widget, fit }) => ({
     page: page.id,
@@ -47,11 +52,12 @@ describe('unfitWidgets', () => {
 })
 
 describe('unfitWidgets units', () => {
+  it('fits the shipped pages in imperial too', () => {
+    expect(summary(imperial(DEFAULT_SIM_CONFIG))).toEqual([])
+  })
+
   it('measures the reading in the unit system the dash shows', () => {
-    const imperial = produce(DEFAULT_SIM_CONFIG, (c) => {
-      c.units = 'imperial'
-    })
-    expect(summary(imperial)).toEqual([
+    expect(summary(imperial(withGauge('track_boost', { decimalPlaces: 2 })))).toEqual([
       {
         page: 'track',
         widget: 'track_boost',
