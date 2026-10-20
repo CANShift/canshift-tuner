@@ -1,6 +1,6 @@
 {
   "name": "canshift-tuner",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "type": "module",
   "description": "CANShift Tuner — web configurator served by the dash in workshop mode; talks WebSocket on the dash's Wi-Fi, or WebSerial over USB from a desktop browser.",
