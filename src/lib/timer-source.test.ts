@@ -9,16 +9,25 @@ import {
 
 describe('timerKicker', () => {
   it('derives the kicker from the source, as the device does', () => {
-    expect(timerKicker('elapsed')).toBe('TIMER')
-    expect(timerKicker('lap')).toBe('LAP')
-    expect(timerKicker('best')).toBe('BEST')
-    expect(timerKicker('last')).toBe('LAST')
-    expect(timerKicker('lapCount')).toBe('LAPS')
-    expect(timerKicker('delta')).toBe('DELTA')
+    expect(timerKicker('elapsed', 'metric')).toBe('TIMER')
+    expect(timerKicker('lap', 'metric')).toBe('LAP')
+    expect(timerKicker('best', 'metric')).toBe('BEST')
+    expect(timerKicker('last', 'metric')).toBe('LAST')
+    expect(timerKicker('lapCount', 'metric')).toBe('LAPS')
+    expect(timerKicker('delta', 'metric')).toBe('DELTA')
   })
 
   it('treats a config with no source as the elapsed timer', () => {
-    expect(timerKicker(undefined)).toBe('TIMER')
+    expect(timerKicker(undefined, 'metric')).toBe('TIMER')
+  })
+})
+
+describe('timerKicker for launch sources', () => {
+  it('follows the unit system the way the dash does', () => {
+    expect(timerKicker('launchSprint', 'metric')).toBe('0-100')
+    expect(timerKicker('launchSprint', 'imperial')).toBe('0-60')
+    expect(timerKicker('launchStrip', 'metric')).toBe('400 M')
+    expect(timerKicker('launchStrip', 'imperial')).toBe('1/4 MI')
   })
 })
 
@@ -48,7 +57,7 @@ describe('the source tables', () => {
   it('cover every source core declares', () => {
     for (const source of TIMER_SOURCES) {
       expect(TIMER_SOURCE_LABELS[source]).toBeTruthy()
-      expect(timerKicker(source)).toBeTruthy()
+      expect(timerKicker(source, 'metric')).toBeTruthy()
     }
   })
 })

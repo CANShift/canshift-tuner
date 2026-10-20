@@ -15,6 +15,14 @@ const FORMATS = [
 
 const READOUT_NOTE = 'A readout — only the elapsed timer answers a touch on the device.'
 
+const LAUNCH_NOTE =
+  'Starts by itself on a launch from rest. Needs a board with an IMU and a speed signal.'
+
+const NOTES: Partial<Record<TimerSource, string>> = {
+  launchSprint: LAUNCH_NOTE,
+  launchStrip: LAUNCH_NOTE,
+}
+
 type TimerConfig = Extract<ConfigFieldsProps['widget']['config'], { type: 'timer' }>
 type TimerFormat = NonNullable<TimerConfig['format']>
 
@@ -58,7 +66,9 @@ export const TimerFields = ({ widget, onChange }: ConfigFieldsProps) => {
         {source === 'elapsed' && <FormatField cfg={cfg} onChange={onChange} />}
       </PanelRow>
       {!isTouchInteractive(source) && (
-        <p className="mt-1.5 text-[11px] leading-normal text-app-muted">{READOUT_NOTE}</p>
+        <p className="mt-1.5 text-[11px] leading-normal text-app-muted">
+          {NOTES[source] ?? READOUT_NOTE}
+        </p>
       )}
     </>
   )
