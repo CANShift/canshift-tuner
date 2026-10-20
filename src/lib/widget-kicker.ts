@@ -2,13 +2,18 @@ import type {
   ButtonWidgetConfig,
   GaugeWidgetConfig,
   GearWidgetConfig,
+  GMeterWidgetConfig,
   Widget,
 } from '@canshift/core'
-import { signalDisplayLabel } from '@canshift/core'
+import { G_METER, signalDisplayLabel } from '@canshift/core'
 
-type KickerConfig = GaugeWidgetConfig | GearWidgetConfig | ButtonWidgetConfig
+type KickerConfig = GaugeWidgetConfig | GearWidgetConfig | ButtonWidgetConfig | GMeterWidgetConfig
 
-const KICKER_TYPES: ReadonlySet<string> = new Set(['gauge', 'gear', 'button'])
+const KICKER_TYPES: ReadonlySet<string> = new Set(['gauge', 'gear', 'button', 'g_meter'])
+
+const FIXED_KICKERS: Readonly<Partial<Record<Widget['type'], string>>> = {
+  g_meter: G_METER.defaultKicker,
+}
 
 const kickerConfigOf = (widget: Widget): KickerConfig | null =>
   KICKER_TYPES.has(widget.config.type) ? (widget.config as KickerConfig) : null
@@ -21,7 +26,7 @@ export const authoredKicker = (widget: Widget): string | undefined => {
 }
 
 export const derivedKicker = (widget: Widget): string =>
-  signalDisplayLabel(widget.signal).toUpperCase()
+  (FIXED_KICKERS[widget.type] ?? signalDisplayLabel(widget.signal)).toUpperCase()
 
 export const shownKicker = (widget: Widget): string =>
   (authoredKicker(widget) ?? derivedKicker(widget)).toUpperCase()

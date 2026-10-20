@@ -13,6 +13,7 @@ import { MAXXECU_SIGNAL_UNITS } from '@canshift/core'
 import { useSignalStore } from '../../stores/signal.store'
 import { ButtonPreview } from './widget-previews/Button'
 import { GearPreview } from './widget-previews/Gear'
+import { GMeterPreview } from './widget-previews/GMeter'
 import { GaugeArcPreview, type GaugeArcRendererProps } from './widget-previews/GaugeArc'
 import { GaugeNumericPreview, type GaugeNumericRendererProps } from './widget-previews/GaugeNumeric'
 import { ShiftLightPreview } from './widget-previews/ShiftLight'
@@ -22,6 +23,7 @@ import { WarningPreview } from './widget-previews/Warning'
 import { widgetSeverity } from './widget-previews/gauge-math'
 import { isUnboundWidget } from '../../utils/unbound-widgets'
 import { useDisplayUnits } from '../../hooks/useDisplayUnits'
+import { useBoardLacksImu } from '../../hooks/useBoardLacksImu'
 import { convertibleUnitFor, displayUnitFor } from '../../lib/unit-display'
 
 const FALLBACK_UNIT_TABLE: Readonly<Record<string, string>> = MAXXECU_SIGNAL_UNITS
@@ -51,6 +53,7 @@ interface RenderContext {
   toDisplay: (value: number) => number
   unbound: boolean
   scale: number
+  imuMissing: boolean
 }
 
 type WidgetTypeKey = WidgetConfig['type']
@@ -107,6 +110,9 @@ const RENDERERS: RendererDispatch = {
   ),
   timer: (widget, ctx) => <TimerPreview widget={widget} w={ctx.w} h={ctx.h} />,
   image: (widget, ctx) => <ImagePreview widget={widget} w={ctx.w} h={ctx.h} />,
+  g_meter: (widget, ctx) => (
+    <GMeterPreview widget={widget} w={ctx.w} h={ctx.h} scale={ctx.scale} locked={ctx.imuMissing} />
+  ),
 }
 
 interface WidgetPreviewProps {
@@ -177,6 +183,7 @@ const WidgetPreviewImpl = (props: WidgetPreviewProps) => {
   const resolved = palette ? applyPalette(widget, palette) : widget
   const { symbol: signalUnit, toDisplay } = useResolvedSignalUnit(resolved)
   const signalLimits = useSignalLimits(resolved)
+  const imuMissing = useBoardLacksImu()
   const ctx: RenderContext = {
     w: Math.max(0, props.displayW),
     h: Math.max(0, props.displayH),
@@ -186,6 +193,7 @@ const WidgetPreviewImpl = (props: WidgetPreviewProps) => {
     toDisplay,
     unbound: isUnboundWidget(resolved),
     scale,
+    imuMissing,
     ...liveFlags(props, resolved, signalLimits),
   }
   return RENDERERS[resolved.config.type](resolved, ctx)

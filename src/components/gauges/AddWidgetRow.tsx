@@ -11,6 +11,7 @@ import { STRINGS } from '../../strings'
 import { canAddGauge, freePlaceFor } from '../../lib/gauges/layouts'
 import { buildWidget, PALETTE_ITEMS, type PaletteItem } from '../../lib/new-widget'
 import { useDashboardStore } from '../../stores/dashboard.store'
+import { useBoardLacksImu } from '../../hooks/useBoardLacksImu'
 import { UiIcon } from '../icons/UiIcons'
 
 const addWidget = (page: PageConfig, item: PaletteItem): void => {
@@ -20,6 +21,17 @@ const addWidget = (page: PageConfig, item: PaletteItem): void => {
   widget.layout = { ...widget.layout, ...place }
   useDashboardStore.getState().selectWidget(null)
   useDashboardStore.getState().addWidget(page.id, widget)
+}
+
+const PaletteEntry = ({ page, item }: { page: PageConfig; item: PaletteItem }) => {
+  const lacksImu = useBoardLacksImu()
+  const unavailable = item.needsImu === true && lacksImu
+  return (
+    <DropdownMenuItem disabled={unavailable} onSelect={() => addWidget(page, item)}>
+      {item.label}
+      {unavailable && <span className="ml-auto text-app-muted">{STRINGS.gauges.needsImu}</span>}
+    </DropdownMenuItem>
+  )
 }
 
 const AddMenu = ({ page }: { page: PageConfig }) => (
@@ -32,9 +44,7 @@ const AddMenu = ({ page }: { page: PageConfig }) => (
     </DropdownMenuTrigger>
     <DropdownMenuContent align="start" aria-label={STRINGS.gauges.addWhat}>
       {PALETTE_ITEMS.map((item) => (
-        <DropdownMenuItem key={item.type} onSelect={() => addWidget(page, item)}>
-          {item.label}
-        </DropdownMenuItem>
+        <PaletteEntry key={item.type} page={page} item={item} />
       ))}
     </DropdownMenuContent>
   </DropdownMenu>

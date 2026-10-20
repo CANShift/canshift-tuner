@@ -1,4 +1,5 @@
 import type { ButtonAction, SensorIconName, Widget, WidgetType } from '@canshift/core'
+import { G_METER_RANGE_G } from '@canshift/core'
 import { SIZE_TOKENS } from '../utils/size-tokens'
 import { createId } from '../utils/id'
 import { DEFAULT_WIDGET_STYLE } from '../utils/default-widget'
@@ -13,6 +14,7 @@ export interface PaletteItem {
   defaultSignal: string
   defaultColSpan: number
   defaultRowSpan: number
+  needsImu?: boolean
 }
 
 const GAUGE_MAX_RPM = 8_000
@@ -101,6 +103,15 @@ const PALETTE: Record<PaletteWidgetType, PaletteEntry> = {
     defaultSignal: '',
     ...LARGE,
     config: () => ({ type: 'timer', source: 'lap' }),
+  },
+  g_meter: {
+    label: 'G-meter',
+    icon: 'speed',
+    defaultSignal: '',
+    defaultColSpan: SIZE_TOKENS.XL.colSpan,
+    defaultRowSpan: SIZE_TOKENS.XL.rowSpan,
+    needsImu: true,
+    config: () => ({ type: 'g_meter', rangeG: G_METER_RANGE_G.default }),
   },
   image: {
     label: 'Image',
