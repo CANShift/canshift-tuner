@@ -1,7 +1,8 @@
 import {
   DEFAULT_UNIT_SYSTEM,
   measureGaugeFit,
-  resolveGridRect,
+  pageHasShiftStrip,
+  resolveContentRect,
   resolveScreenProfile,
   type DashboardConfig,
   type GaugeWidgetConfig,
@@ -26,6 +27,7 @@ interface GridArea {
 
 interface FitContext {
   area: GridArea
+  hasShiftStrip: boolean
   signals: readonly SignalDef[]
   system: UnitSystem
 }
@@ -36,7 +38,7 @@ const gaugeConfigOf = (widget: Widget): GaugeWidgetConfig | null =>
 const widgetFit = (widget: Widget, ctx: FitContext): ValueFit | null => {
   const cfg = gaugeConfigOf(widget)
   if (cfg === null) return null
-  const rect = resolveGridRect(widget.layout, ctx.area)
+  const rect = resolveContentRect(widget.layout, ctx.area, ctx.hasShiftStrip)
   const unit = widgetUnitOf(widget, ctx.signals, ctx.system)
   return measureGaugeFit({
     config: cfg,
@@ -61,6 +63,7 @@ const pageUnfit = (
 ): UnfitWidget[] => {
   const ctx = {
     area: pageArea(config, page),
+    hasShiftStrip: pageHasShiftStrip(page),
     signals,
     system: config.units ?? DEFAULT_UNIT_SYSTEM,
   }
