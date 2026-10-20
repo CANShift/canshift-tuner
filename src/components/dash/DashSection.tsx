@@ -8,6 +8,7 @@ import { CanSpeedCard } from './CanSpeedCard'
 import { DisplayCard } from './DisplayCard'
 import { PageButtonsCard } from './PageButtonsCard'
 import { ScreenCard } from './ScreenCard'
+import { SoundCard } from './SoundCard'
 import { ThemeCard } from './ThemeCard'
 
 const CardColumn = ({ children }: { children: ReactNode }) => (
@@ -23,6 +24,7 @@ const TwoColumns = ({ children }: { children: ReactNode }) => (
 const PhoneCards = () => (
   <CardColumn>
     <DisplayCard />
+    <SoundCard />
     <AlertCard />
     <CanSpeedCard />
     <PageButtonsCard />
@@ -35,6 +37,7 @@ const LaptopCards = () => (
   <TwoColumns>
     <CardColumn>
       <DisplayCard />
+      <SoundCard />
       <CanSpeedCard />
       <PageButtonsCard />
       <BackupCard />

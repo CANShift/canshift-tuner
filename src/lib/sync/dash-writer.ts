@@ -1,4 +1,5 @@
 import type { DashboardConfig, DeviceConfig } from '@canshift/core'
+import type { SoundSettings } from '@canshift/core/wire'
 import { deviceConfigIpc, usbService } from '../../transport'
 import { verifyBurnedConfig, type VerifyResult } from '../verify-burned-config'
 import { SIGNALS_FILE_PATH, putFile } from '../../transport/file-ipc'
@@ -34,6 +35,10 @@ export const dashWriter: DashWriter = {
   writeDayMode: async (day: boolean) => fromSuccess(await usbService.setDayNight(day)),
   writeRotation: async (rotation: ScreenRotation, brightness: number) =>
     fromSuccess(await usbService.pushScreenSettings({ brightness, rotation })),
+  writeSound: async ({ volume, boot, shiftTone }: SoundSettings, brightness: number) =>
+    fromSuccess(
+      await usbService.pushScreenSettings({ brightness, volume, sounds: { boot, shiftTone } })
+    ),
   writeSignals: async (file: string) => {
     const result = await putFile(SIGNALS_FILE_PATH, file)
     return result.kind === 'ok' ? OK : { ok: false, code: result.code }

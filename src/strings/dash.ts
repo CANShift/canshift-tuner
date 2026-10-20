@@ -6,6 +6,14 @@ export const DASH = {
     metric: 'Metric',
     imperial: 'Imperial',
     brightness: 'Brightness',
+    sound: 'Sound',
+    volume: 'Volume',
+    criticalSoundHint:
+      'The full-screen alert always sounds, at half volume or louder, whatever you set here.',
+    bootSound: 'Start-up sound',
+    bootSoundHint: 'A short chirp when the dash has started.',
+    shiftTone: 'Shift tone',
+    shiftToneHint: 'Beeps with the shift lights while the engine is at the rev limit.',
     alert: 'Full-screen alerts',
     alertHint:
       'Takes over the whole dash screen until you acknowledge it. Use it for what must stop you.',

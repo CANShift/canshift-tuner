@@ -113,6 +113,8 @@ interface SettingCopy {
 
 const modeName = (value: SettingValue): string => (value === true ? C.day : C.night)
 
+const onOff = (value: SettingValue): string => (value === true ? C.on : C.off)
+
 const SETTINGS: readonly SettingCopy[] = [
   {
     path: ['settings', 'brightness'],
@@ -130,6 +132,13 @@ const SETTINGS: readonly SettingCopy[] = [
     shown: (v) => C.degrees(Number(v)),
   },
   { path: ['settings', 'dayMode'], what: (v) => C.dayMode(modeName(v)), shown: modeName },
+  {
+    path: ['settings', 'sound', 'volume'],
+    what: (v) => C.volume(Number(v)),
+    shown: (v) => C.percent(Number(v)),
+  },
+  { path: ['settings', 'sound', 'boot'], what: (v) => C.bootSound(onOff(v)), shown: onOff },
+  { path: ['settings', 'sound', 'shiftTone'], what: (v) => C.shiftTone(onOff(v)), shown: onOff },
 ]
 
 const isSetting = (value: unknown): value is SettingValue =>

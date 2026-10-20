@@ -1,4 +1,5 @@
 import type { DashboardConfig, DeviceConfig } from '@canshift/core'
+import type { SoundSettings } from '@canshift/core/wire'
 import type { Refusal } from './refusal'
 import { failureForCode } from './send-codes'
 import type { DashSetup, ScreenRotation } from './setup'
@@ -14,6 +15,7 @@ export interface DashWriter {
   writeSignals: (file: string) => Promise<WriteResult>
   writeDayMode: (day: boolean) => Promise<WriteResult>
   writeRotation: (rotation: ScreenRotation, brightness: number) => Promise<WriteResult>
+  writeSound: (sound: SoundSettings, brightness: number) => Promise<WriteResult>
 }
 
 export type RestartReason = 'canSpeed' | 'car' | 'rotation'
@@ -67,11 +69,26 @@ const dayModeStep = (snapshot: DashSetup, device: DashSetup): SendStep[] => {
 
 const DEFAULT_BRIGHTNESS = 80
 
+const brightnessToKeep = (snapshot: DashSetup, device: DashSetup): number =>
+  snapshot.settings.brightness ?? device.settings.brightness ?? DEFAULT_BRIGHTNESS
+
+const soundStep = (snapshot: DashSetup, device: DashSetup): SendStep[] => {
+  const sound = snapshot.settings.sound
+  if (sound === null || sameValue(sound, device.settings.sound)) return []
+  const brightness = brightnessToKeep(snapshot, device)
+  return [
+    {
+      write: (writer) => writer.writeSound(sound, brightness),
+      confirm: (confirmed) => ({ ...confirmed, settings: { ...confirmed.settings, sound } }),
+      restarts: null,
+    },
+  ]
+}
+
 const rotationStep = (snapshot: DashSetup, device: DashSetup): SendStep[] => {
   const rotation = snapshot.settings.rotation
   if (rotation === null || rotation === device.settings.rotation) return []
-  const brightness =
-    snapshot.settings.brightness ?? device.settings.brightness ?? DEFAULT_BRIGHTNESS
+  const brightness = brightnessToKeep(snapshot, device)
   return [
     {
       write: (writer) => writer.writeRotation(rotation, brightness),
@@ -113,6 +130,7 @@ const allSteps = (snapshot: DashSetup, device: DashSetup): SendStep[] => [
   ...dashboardStep(snapshot, device),
   ...brightnessStep(snapshot, device),
   ...dayModeStep(snapshot, device),
+  ...soundStep(snapshot, device),
   ...deviceConfigStep(snapshot, device),
   ...carStep(snapshot, device),
   ...rotationStep(snapshot, device),

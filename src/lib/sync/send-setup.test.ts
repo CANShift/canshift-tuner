@@ -9,7 +9,13 @@ import type { DashSetup } from './setup'
 
 const device: DashSetup = {
   dashboard: DEFAULT_SIM_CONFIG,
-  settings: { deviceConfig: { canSpeedKbps: 500 }, brightness: 80, rotation: null, dayMode: null },
+  settings: {
+    deviceConfig: { canSpeedKbps: 500 },
+    brightness: 80,
+    rotation: null,
+    dayMode: null,
+    sound: null,
+  },
   car: { profileKey: 'demo:canshift', signals: DEFAULT_SIM_SIGNALS },
 }
 
@@ -17,7 +23,13 @@ const edited: DashSetup = {
   dashboard: produce(DEFAULT_SIM_CONFIG, (c) => {
     c.pages.pop()
   }),
-  settings: { deviceConfig: { canSpeedKbps: 250 }, brightness: 40, rotation: null, dayMode: null },
+  settings: {
+    deviceConfig: { canSpeedKbps: 250 },
+    brightness: 40,
+    rotation: null,
+    dayMode: null,
+    sound: null,
+  },
   car: { profileKey: 'demo:canshift', signals: DEFAULT_SIM_SIGNALS },
 }
 
@@ -30,6 +42,7 @@ const writer = (overrides: Partial<DashWriter> = {}): DashWriter => ({
   writeSignals: vi.fn(() => Promise.resolve(OK)),
   writeDayMode: vi.fn(() => Promise.resolve(OK)),
   writeRotation: vi.fn(() => Promise.resolve(OK)),
+  writeSound: vi.fn(() => Promise.resolve(OK)),
   ...overrides,
 })
 

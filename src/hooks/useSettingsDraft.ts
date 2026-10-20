@@ -1,5 +1,6 @@
 import { DEFAULT_DEVICE_CONFIG } from '@canshift/core'
 import type { CanSpeedKbps } from '@canshift/core'
+import type { SoundSettings } from '@canshift/core/wire'
 import { useSyncStore } from '../stores/sync/sync.store'
 import type { ScreenRotation } from '../lib/sync/setup'
 
@@ -55,6 +56,25 @@ export const useDayModeDraft = (): DraftValue<boolean> => {
     value: draft ?? device ?? false,
     set: (dayMode) => {
       setSettingsDraft({ dayMode })
+    },
+  }
+}
+
+export interface SoundDraft {
+  value: SoundSettings
+  set: (patch: Partial<SoundSettings>) => void
+}
+
+export const useSoundDraft = (): SoundDraft | null => {
+  const draft = useSyncStore((s) => s.settingsDraft.sound)
+  const device = useSyncStore((s) => s.device.settings.sound)
+  const setSettingsDraft = useSyncStore((s) => s.setSettingsDraft)
+  if (device === null) return null
+  const value = draft ?? device
+  return {
+    value,
+    set: (patch) => {
+      setSettingsDraft({ sound: { ...value, ...patch } })
     },
   }
 }

@@ -7,6 +7,7 @@ import { transportErrorText } from '../transport/humanize-transport-error'
 import { errorMessage } from '../lib/error-message'
 import { handshakeVerdict } from '../lib/firmware-handshake'
 import { useLiveTransport } from './useLiveTransport'
+import { adoptSound } from '../stores/sync/draft'
 
 const handshakeFailed = (reason: string) => {
   useLogStore.getState().push('warn', `Version handshake failed: ${reason}`)
@@ -19,10 +20,11 @@ const applyIdentity = (result: FirmwareIdentityResult) => {
     return
   }
   const device = useDeviceStore.getState()
-  const { version, isDay, boardId } = result.identity
+  const { version, isDay, boardId, sound } = result.identity
   device.setFirmwareVersion(version)
   device.setBoardId(boardId ?? null)
   device.setIsDayMode(isDay)
+  adoptSound(sound ?? null)
   const verdict = handshakeVerdict(result.identity, __EXPECTED_FIRMWARE_MAJOR__)
   useLogStore.getState().push(verdict.level, verdict.message)
   device.setFirmwareCompat(verdict.compat)

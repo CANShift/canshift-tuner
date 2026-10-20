@@ -8,6 +8,7 @@ import { useDashboardStore } from '../dashboard.store'
 import { withDefaultTheme } from '../dashboard/lifecycle.slice'
 import { useSyncStore } from './sync.store'
 import type { DashboardConfig, DeviceConfig } from '@canshift/core'
+import type { SoundSettings } from '@canshift/core/wire'
 import { STRINGS } from '../../strings'
 
 const readCar = (): CarSetup => {
@@ -67,4 +68,13 @@ export const adoptDayMode = (dayMode: boolean): void => {
   const draft = sync.settingsDraft.dayMode
   if (draft === null || draft === sync.device.settings.dayMode) sync.setSettingsDraft({ dayMode })
   sync.setDevice({ settings: { ...sync.device.settings, dayMode } })
+}
+
+export const adoptSound = (sound: SoundSettings | null): void => {
+  const sync = useSyncStore.getState()
+  const draft = sync.settingsDraft.sound
+  if (sound === null || draft === null || sameValue(draft, sync.device.settings.sound)) {
+    sync.setSettingsDraft({ sound })
+  }
+  sync.setDevice({ settings: { ...sync.device.settings, sound } })
 }

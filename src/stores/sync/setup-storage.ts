@@ -1,6 +1,7 @@
 import * as z from 'zod'
 import { DeviceConfigSchema, SCREEN_SETTINGS_BOUNDS, SignalDefSchema } from '@canshift/core'
 import type { DeviceConfig, SignalDef } from '@canshift/core'
+import type { SoundSettings } from '@canshift/core/wire'
 import { isJsonRecord, parseJsonRecord, type JsonRecord } from '../../lib/json-record'
 import { readItem, removeItem, STORAGE_KEYS, writeItem } from '../../lib/local-storage'
 import { EMPTY_SETUP, UNKNOWN_SETTINGS } from '../../lib/sync/setup'
@@ -33,7 +34,23 @@ const settingsOf = (value: unknown): DeviceSettings => {
     brightness: brightnessOf(value.brightness),
     rotation: value.rotation === 0 || value.rotation === 180 ? value.rotation : null,
     dayMode: typeof value.dayMode === 'boolean' ? value.dayMode : null,
+    sound: soundOf(value.sound),
   }
+}
+
+const SoundSchema = z.object({
+  volume: z
+    .number()
+    .int()
+    .min(SCREEN_SETTINGS_BOUNDS.volumeMinPct)
+    .max(SCREEN_SETTINGS_BOUNDS.volumeMaxPct),
+  boot: z.boolean(),
+  shiftTone: z.boolean(),
+})
+
+const soundOf = (value: unknown): SoundSettings | null => {
+  const parsed = SoundSchema.safeParse(value)
+  return parsed.success ? parsed.data : null
 }
 
 const SignalListSchema = z.array(SignalDefSchema)
