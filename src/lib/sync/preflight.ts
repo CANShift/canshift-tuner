@@ -3,6 +3,7 @@ import type { DashboardConfig, SignalDef } from '@canshift/core'
 import { STRINGS } from '../../strings'
 import { describeLayoutOverflow } from '../layout-overflow'
 import { unreadableWidgets } from '../../utils/unbound-widgets'
+import { fitReading, unfitWidgets } from '../value-fit'
 import { pageName, widgetName } from './describe'
 import type { Refusal } from './refusal'
 
@@ -55,6 +56,14 @@ const overflowReasons = ({ config }: PreflightInputs): Refusal[] => {
   ]
 }
 
+const fitReasons = ({ config, signals }: PreflightInputs): Refusal[] =>
+  unfitWidgets(config, signals).map(({ page, widget, fit }) => ({
+    where: STRINGS.changes.pageWhere(pageName(page)),
+    text: R.tooWide(widgetName(widget), pageName(page), fitReading(fit)),
+    target: { pageId: page.id, widgetId: widget.id },
+    section: 'gauges',
+  }))
+
 const signalReasons = ({ config, signals }: PreflightInputs): Refusal[] =>
   unreadableWidgets(config, signals).map(({ page, widget }) => ({
     where: STRINGS.changes.pageWhere(pageName(page)),
@@ -68,6 +77,7 @@ const CHECKS: readonly ((inputs: PreflightInputs) => Refusal[])[] = [
   spaceReasons,
   crowdedPages,
   overflowReasons,
+  fitReasons,
   signalReasons,
 ]
 

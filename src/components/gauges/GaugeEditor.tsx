@@ -8,6 +8,7 @@ import { SIGNAL_HIDDEN_TYPES } from '../editor/property-panel/panels/widget-edit
 import { MoreOptions } from './MoreOptions'
 import { useDashboardStore } from '../../stores/dashboard.store'
 import { AlertLink } from './AlertLink'
+import { FitWarning } from './FitWarning'
 import { GaugeActions } from './GaugeActions'
 import { LimitsField } from './LimitsField'
 import { NameField } from './NameField'
@@ -64,6 +65,7 @@ export const GaugeEditor = ({ page, widget }: GaugeEditorProps) => {
     <section aria-label={STRINGS.gauges.editGauge} className={EDITOR}>
       <div aria-hidden="true" className="h-1 w-9 self-center rounded-full bg-[#3a3f46] lg:hidden" />
       <EditorHeader page={page} widget={widget} />
+      <FitWarning widget={widget} />
       {!SIGNAL_HIDDEN_TYPES.has(widget.type) && <ShowsField widget={widget} onPick={writes.pick} />}
       {carriesKicker(widget) && <NameField widget={widget} onRename={writes.rename} />}
       <LimitsField pageId={page.id} widget={widget} />

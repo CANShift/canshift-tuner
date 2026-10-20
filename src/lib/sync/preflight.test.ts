@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { produce } from 'immer'
 import { ECU_PROFILES } from '@canshift/core'
 import { DEFAULT_SIM_CONFIG } from '../../config/default-sim-config'
+import { DEFAULT_SIM_SIGNALS } from '../../config/default-sim-signals'
 import { STRINGS } from '../../strings'
 import { preflightRefusals } from './preflight'
 
@@ -44,5 +45,23 @@ describe('preflightRefusals beyond signals', () => {
     })
     const texts = preflightRefusals({ ...inputs, config }).map((reason) => reason.text)
     expect(texts).toContain(STRINGS.refused.tooManyGauges('Street'))
+  })
+})
+
+describe('preflightRefusals on content width', () => {
+  it('refuses a gauge whose widest reading does not fit its column', () => {
+    const config = produce(DEFAULT_SIM_CONFIG, (c) => {
+      const boost = c.pages.flatMap((page) => page.widgets).find((w) => w.id === 'track_boost')
+      if (boost?.config.type === 'gauge') boost.config.decimalPlaces = 2
+    })
+    const reasons = preflightRefusals({ ...inputs, signals: DEFAULT_SIM_SIGNALS, config })
+    expect(reasons).toEqual([
+      {
+        where: 'Gauges · Track',
+        text: STRINGS.refused.tooWide('Boost', 'Track', '3.00 bar'),
+        target: { pageId: 'track', widgetId: 'track_boost' },
+        section: 'gauges',
+      },
+    ])
   })
 })

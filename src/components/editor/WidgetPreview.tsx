@@ -1,15 +1,7 @@
 import * as React from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import type { ComponentType } from 'react'
-import type {
-  ControlState,
-  SignalDef,
-  SignalLimits,
-  Widget,
-  WidgetConfig,
-  PagePalette,
-} from '@canshift/core'
-import { MAXXECU_SIGNAL_UNITS } from '@canshift/core'
+import type { ControlState, SignalLimits, Widget, WidgetConfig, PagePalette } from '@canshift/core'
 import { useSignalStore } from '../../stores/signal.store'
 import { ButtonPreview } from './widget-previews/Button'
 import { GearPreview } from './widget-previews/Gear'
@@ -24,9 +16,7 @@ import { widgetSeverity } from './widget-previews/gauge-math'
 import { isUnboundWidget } from '../../utils/unbound-widgets'
 import { useDisplayUnits } from '../../hooks/useDisplayUnits'
 import { useBoardLacksImu } from '../../hooks/useBoardLacksImu'
-import { convertibleUnitFor, displayUnitFor } from '../../lib/unit-display'
-
-const FALLBACK_UNIT_TABLE: Readonly<Record<string, string>> = MAXXECU_SIGNAL_UNITS
+import { widgetUnitOf } from '../../lib/unit-display'
 
 const applyPalette = (widget: Widget, palette: PagePalette): Widget => {
   if (widget.style.respectDayMode === false) return widget
@@ -133,25 +123,10 @@ interface ResolvedUnit {
   toDisplay: (value: number) => number
 }
 
-const configSuffixOf = (widget: Widget): string => {
-  const cfg = widget.config
-  if (cfg.type !== 'gauge' && cfg.type !== 'timer') return ''
-  return (cfg as { suffix?: string }).suffix ?? ''
-}
-
-const declaredUnitOf = (widget: Widget, signals: readonly SignalDef[]): string => {
-  if (!widget.signal) return ''
-  const def = signals.find((s) => s.name === widget.signal)
-  return def?.unit ?? FALLBACK_UNIT_TABLE[widget.signal] ?? ''
-}
-
 const useResolvedSignalUnit = (widget: Widget): ResolvedUnit => {
   const signals = useSignalStore((s) => s.signals)
   const units = useDisplayUnits()
-  const suffix = configSuffixOf(widget)
-  const declared = declaredUnitOf(widget, signals)
-  const convertible = convertibleUnitFor(suffix, declared)
-  const symbol = displayUnitFor(suffix, declared, units.system)
+  const { symbol, convertible } = widgetUnitOf(widget, signals, units.system)
   const toDisplay = useCallback(
     (value: number) => units.valueOf(value, convertible),
     [units, convertible]

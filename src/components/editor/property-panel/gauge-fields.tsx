@@ -19,7 +19,7 @@ const BIG_CHOICES = [
   { label: 'XL', big: 96, title: 'Hero 96 — device 48' },
   { label: 'L', big: 88, title: 'Hero 88 — device 44' },
   { label: 'M', big: 64, title: 'Primary 64 — device 32' },
-  { label: 'S', big: 48, title: 'Mid 48 — device 24' },
+  { label: 'S', big: 48, title: 'Mid 48 — device 22' },
   { label: 'XS', big: 34, title: 'Secondary 34 — device 17' },
 ] as const
 

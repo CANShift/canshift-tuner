@@ -17,6 +17,8 @@ export const GAUGES = {
     hintLaptop:
       'Click a gauge to change it. Drag to move it, drag its right edge to resize, Shift-click to pick several, ⌘C and ⌘V to copy.',
     resizeHandle: (name: string): string => `Resize ${name}`,
+    tooWide: (reading: string): string =>
+      `Too narrow to show ${reading} on the dash. Make it wider or pick a smaller size.`,
     addPage: 'Add page',
     rename: 'Rename',
     move: 'Move',
