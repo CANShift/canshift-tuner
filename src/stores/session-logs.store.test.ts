@@ -59,6 +59,8 @@ describe('listing the sessions', () => {
     [{ kind: 'listed', card: false, logs: [] }, 'noCard'],
     [{ kind: 'unsupported' }, 'unsupported'],
     [{ kind: 'unreachable' }, 'unreachable'],
+    [{ kind: 'refused' }, 'refused'],
+    [{ kind: 'notOwner' }, 'notOwner'],
   ])('shows %o as %s', async (index, availability) => {
     vi.mocked(fetchLogIndex).mockResolvedValue(index)
     await useSessionLogsStore.getState().load()
@@ -125,5 +127,21 @@ describe('deleting a session', () => {
     await useSessionLogsStore.getState().remove('S00001.csl')
     expect(toast()).toBe(L.removeFailed)
     expect(fetchLogIndex).not.toHaveBeenCalled()
+  })
+})
+
+describe('a dash held by another tuner', () => {
+  it('keeps the session and says who holds the dash', async () => {
+    vi.mocked(deleteLogFile).mockResolvedValue({ kind: 'notOwner' })
+    await useSessionLogsStore.getState().remove('S00001.csl')
+    expect(toast()).toBe(L.notOwner)
+    expect(fetchLogIndex).not.toHaveBeenCalled()
+  })
+
+  it('does not download from a dash that refused the page', async () => {
+    vi.mocked(fetchLogFile).mockResolvedValue({ kind: 'refused' })
+    await useSessionLogsStore.getState().download('S00001.csl', 'raw')
+    expect(downloadFile).not.toHaveBeenCalled()
+    expect(toast()).toBe(L.refused)
   })
 })

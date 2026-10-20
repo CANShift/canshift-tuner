@@ -20,6 +20,10 @@ export const SESSION_LOGS = {
     unreachable: 'The dash didn’t answer. Check you are on its Wi-Fi, then try again.',
     noWifi:
       'Sessions come off the dash over its Wi-Fi. Open the tuner from the dash in workshop mode to see them.',
+    refused:
+      'The dash only answers the tuner it serves itself. Open the tuner from the dash’s own Wi-Fi address.',
+    notOwner:
+      'Another phone or laptop is connected to the dash. Close the tuner there, or wait until this one reconnects, then try again.',
     retry: 'Try again',
     size: sizeLabel,
     downloadCsv: 'Spreadsheet (.csv)',

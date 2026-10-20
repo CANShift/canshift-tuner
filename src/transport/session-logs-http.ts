@@ -3,6 +3,8 @@ import { z } from 'zod'
 const LOGS_PATH = '/api/logs'
 const HTTP_NOT_FOUND = 404
 const HTTP_METHOD_NOT_ALLOWED = 405
+const HTTP_FORBIDDEN = 403
+const HTTP_CONFLICT = 409
 
 const LogIndexWireSchema = z.object({
   card: z.boolean(),
@@ -14,17 +16,27 @@ export interface SessionLog {
   bytes: number
 }
 
+type LogRefusal = { kind: 'refused' } | { kind: 'notOwner' }
+
 export type LogIndexResult =
   | { kind: 'listed'; card: boolean; logs: SessionLog[] }
   | { kind: 'unsupported' }
   | { kind: 'unreachable' }
+  | LogRefusal
 
 export type LogFileResult =
   | { kind: 'fetched'; bytes: Uint8Array<ArrayBuffer> }
   | { kind: 'missing' }
   | { kind: 'unreachable' }
+  | LogRefusal
 
-export type LogDeleteResult = { kind: 'deleted' } | { kind: 'missing' } | { kind: 'unreachable' }
+export type LogDeleteResult =
+  { kind: 'deleted' } | { kind: 'missing' } | { kind: 'unreachable' } | LogRefusal
+
+const REFUSALS: Readonly<Record<number, LogRefusal>> = {
+  [HTTP_FORBIDDEN]: { kind: 'refused' },
+  [HTTP_CONFLICT]: { kind: 'notOwner' },
+}
 
 const indexUrl = (origin: string): string => `${origin}${LOGS_PATH}`
 
@@ -66,6 +78,8 @@ const parseIndex = async (response: Response): Promise<LogIndexResult> => {
 export const fetchLogIndex = async (origin: string): Promise<LogIndexResult> => {
   const response = await request(indexUrl(origin), { cache: 'no-store' })
   if (response === null) return { kind: 'unreachable' }
+  const refusal = REFUSALS[response.status]
+  if (refusal !== undefined) return refusal
   if (isUnsupported(response.status)) return { kind: 'unsupported' }
   if (!response.ok) return { kind: 'unreachable' }
   return parseIndex(response)
@@ -74,6 +88,8 @@ export const fetchLogIndex = async (origin: string): Promise<LogIndexResult> => 
 export const fetchLogFile = async (origin: string, name: string): Promise<LogFileResult> => {
   const response = await request(fileUrl(origin, name), { cache: 'no-store' })
   if (response === null) return { kind: 'unreachable' }
+  const refusal = REFUSALS[response.status]
+  if (refusal !== undefined) return refusal
   if (response.status === HTTP_NOT_FOUND) return { kind: 'missing' }
   const bytes = response.ok ? await readBytes(response) : null
   return bytes === null ? { kind: 'unreachable' } : { kind: 'fetched', bytes }
@@ -82,6 +98,8 @@ export const fetchLogFile = async (origin: string, name: string): Promise<LogFil
 export const deleteLogFile = async (origin: string, name: string): Promise<LogDeleteResult> => {
   const response = await request(fileUrl(origin, name), { method: 'DELETE' })
   if (response === null) return { kind: 'unreachable' }
+  const refusal = REFUSALS[response.status]
+  if (refusal !== undefined) return refusal
   if (response.status === HTTP_NOT_FOUND) return { kind: 'missing' }
   return response.ok ? { kind: 'deleted' } : { kind: 'unreachable' }
 }
