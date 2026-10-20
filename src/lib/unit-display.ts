@@ -1,12 +1,10 @@
 import {
-  MAXXECU_SIGNAL_UNITS,
   displayUnit,
+  signalUnitOnDash,
   type SignalDef,
   type UnitSystem,
   type Widget,
 } from '@canshift/core'
-
-const FALLBACK_UNIT_TABLE: Readonly<Record<string, string>> = MAXXECU_SIGNAL_UNITS
 
 export const convertibleUnitFor = (configSuffix: string, declaredUnit: string): string =>
   configSuffix === '' ? declaredUnit : ''
@@ -26,7 +24,7 @@ const configSuffixOf = (widget: Widget): string => {
 const declaredUnitOf = (widget: Widget, signals: readonly SignalDef[]): string => {
   if (!widget.signal) return ''
   const def = signals.find((s) => s.name === widget.signal)
-  return def?.unit ?? FALLBACK_UNIT_TABLE[widget.signal] ?? ''
+  return signalUnitOnDash(widget.signal, def?.unit)
 }
 
 export interface WidgetUnit {

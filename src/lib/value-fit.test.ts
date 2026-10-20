@@ -3,7 +3,7 @@ import { produce } from 'immer'
 import type { DashboardConfig } from '@canshift/core'
 import { DEFAULT_SIM_CONFIG } from '../config/default-sim-config'
 import { DEFAULT_SIM_SIGNALS } from '../config/default-sim-signals'
-import { unfitWidgets } from './value-fit'
+import { fitReading, unfitWidgets } from './value-fit'
 
 const signals = DEFAULT_SIM_SIGNALS
 
@@ -76,5 +76,36 @@ describe('unfitWidgets units', () => {
 
   it('returns nothing without a config', () => {
     expect(unfitWidgets(null, signals)).toEqual([])
+  })
+})
+
+const asWideKnock = (config: DashboardConfig, widgetId: string): DashboardConfig =>
+  produce(config, (c) => {
+    const widget = c.pages.flatMap((page) => page.widgets).find((w) => w.id === widgetId)
+    if (widget?.config.type !== 'gauge') return
+    widget.signal = 'knock_count'
+    widget.layout = { ...widget.layout, col: 0, colSpan: 4, row: 8, rowSpan: 4 }
+    Object.assign(widget.config, { minValue: 0, maxValue: 99999, decimalPlaces: 0 })
+    delete widget.config.big
+  })
+
+describe('unfitWidgets on the dash band', () => {
+  it('measures a shift-light page with the shorter rows the dash gives it', () => {
+    const config = asWideKnock(asWideKnock(DEFAULT_SIM_CONFIG, 'track_oilp'), 'engine_gearbox')
+    expect(summary(config)).toEqual([
+      {
+        page: 'track',
+        widget: 'track_oilp',
+        reading: '99999',
+        unit: '',
+        neededPx: 91,
+        availablePx: 89,
+      },
+    ])
+  })
+
+  it('falls back to the unit the dash draws when no car is chosen', () => {
+    const config = withGauge('track_boost', { decimalPlaces: 2 })
+    expect(unfitWidgets(config, []).map(({ fit }) => fitReading(fit))).toEqual(['3.00 bar'])
   })
 })
