@@ -14,16 +14,18 @@ import {
   defaultControlColors,
   type ControlSurface,
 } from '../../../lib/control-paint'
-import { BLINK } from '../widget-preview.styles'
+import { BLINK, KICKER_METRICS } from '../widget-preview.styles'
 import { type BaseRendererProps, formatSignalLabel } from './shared'
 
 const FRAME = [
   'box-border flex flex-col items-start justify-center gap-0.5 overflow-visible',
-  'rounded-none border-2 border-solid px-[7px] py-1',
+  'rounded-none border-solid',
   '[transition:background_0.1s,border-color_0.1s]',
 ].join(' ')
 
-const KICKER = 'font-sans text-[10px] font-extrabold uppercase leading-none tracking-[0.18em]'
+const KICKER = 'font-sans font-extrabold uppercase leading-none'
+
+const BOX_METRICS = { borderPx: 2, padYPx: 6, padXPx: 7 } as const
 
 const LABEL = [
   'min-w-0 overflow-visible whitespace-normal wrap-break-word',
@@ -33,6 +35,7 @@ const LABEL = [
 export interface ButtonRendererProps extends BaseRendererProps {
   state: ControlState
   cycleStateIndex?: number | undefined
+  scale: number
 }
 
 const BUTTON_FONT_STEPS = [
@@ -157,11 +160,16 @@ const buttonPaint = (
   }
 }
 
-const ButtonKicker = ({ paint }: { paint: ButtonPaint }) => (
+const ButtonKicker = ({ paint, scale }: { paint: ButtonPaint; scale: number }) => (
   <span
     className={KICKER}
     // eslint-disable-next-line no-inline-style/no-inline-style
-    style={{ color: paint.surface.kickerColor, opacity: paint.surface.kickerOpacity }}
+    style={{
+      color: paint.surface.kickerColor,
+      opacity: paint.surface.kickerOpacity,
+      fontSize: KICKER_METRICS.fontPx * scale,
+      letterSpacing: KICKER_METRICS.trackingPx * scale,
+    }}
   >
     {paint.kicker}
     {paint.qualifier !== '' && (
@@ -187,13 +195,15 @@ const ButtonBody = ({
   paint,
   showLabel,
   state,
+  scale,
 }: {
   paint: ButtonPaint
   showLabel: boolean
   state: ControlState
+  scale: number
 }) => (
   <>
-    {showLabel && paint.kicker !== '' && <ButtonKicker paint={paint} />}
+    {showLabel && paint.kicker !== '' && <ButtonKicker paint={paint} scale={scale} />}
     {showLabel && <ButtonWord paint={paint} />}
     {paint.stepper && state !== 'unavailable' && (
       <SegmentRow
@@ -206,7 +216,7 @@ const ButtonBody = ({
 )
 
 export const ButtonPreview = memo(function ButtonPreview(props: ButtonRendererProps) {
-  const { widget, w, h, state } = props
+  const { widget, w, h, state, scale } = props
   if (widget.config.type !== 'button') return null
   const paint = buttonPaint(widget, widget.config, props)
   return (
@@ -216,11 +226,18 @@ export const ButtonPreview = memo(function ButtonPreview(props: ButtonRendererPr
       style={{
         width: w,
         height: h,
+        borderWidth: BOX_METRICS.borderPx * scale,
+        padding: `${String(BOX_METRICS.padYPx * scale)}px ${String(BOX_METRICS.padXPx * scale)}px`,
         background: paint.surface.background,
         borderColor: paint.surface.borderColor,
       }}
     >
-      <ButtonBody paint={paint} showLabel={widget.config.showLabel !== false} state={state} />
+      <ButtonBody
+        paint={paint}
+        showLabel={widget.config.showLabel !== false}
+        state={state}
+        scale={scale}
+      />
     </div>
   )
 })

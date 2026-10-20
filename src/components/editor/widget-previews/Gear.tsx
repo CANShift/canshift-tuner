@@ -2,14 +2,12 @@ import { memo } from 'react'
 import { STALE_PLACEHOLDER, deviceValueFontPx, gearFontSize } from '@canshift/core'
 import { type BaseRendererProps } from './shared'
 import { shownKicker } from '../../../lib/widget-kicker'
-import { WIDGET_KICKER } from '../widget-preview.styles'
 import { TopRule } from './TopRule'
+import { Kicker, ValueRow } from './ValueCluster'
 
-const FRAME = 'relative box-border flex flex-col items-center justify-center overflow-hidden'
+const FRAME = 'relative box-border overflow-hidden'
 
-const VALUE_ROW = 'flex w-full shrink-0 items-center justify-center'
-
-const VALUE = 'inline-block w-full text-center font-mono font-extrabold leading-none'
+const DEMO_GEAR = '3'
 
 interface GearRendererProps extends BaseRendererProps {
   scale: number
@@ -25,23 +23,22 @@ export const GearPreview = memo(function GearPreview({
 }: GearRendererProps) {
   if (widget.config.type !== 'gear') return null
   const cfg = widget.config
-  const st = widget.style
-  const fontSize = cfg.big !== undefined ? deviceValueFontPx(cfg.big) * scale : gearFontSize(w, h)
+  const ink = widget.style.textColor
+  const devicePx =
+    cfg.big !== undefined ? deviceValueFontPx(cfg.big) : gearFontSize(w / scale, h / scale)
 
   return (
     // eslint-disable-next-line no-inline-style/no-inline-style
     <div className={FRAME} style={{ width: w, height: h }}>
-      <TopRule fontSize={fontSize} inkColor={st.textColor} />
-      <span className={WIDGET_KICKER}>{shownKicker(widget)}</span>
-      <div className={VALUE_ROW}>
-        <span
-          className={VALUE}
-          // eslint-disable-next-line no-inline-style/no-inline-style
-          style={{ color: st.textColor, fontSize }}
-        >
-          {unbound ? STALE_PLACEHOLDER : '3'}
-        </span>
-      </div>
+      <TopRule devicePx={devicePx} scale={scale} inkColor={ink} />
+      <Kicker text={shownKicker(widget)} scale={scale} />
+      <ValueRow
+        text={unbound ? STALE_PLACEHOLDER : DEMO_GEAR}
+        unit=""
+        color={ink}
+        devicePx={devicePx}
+        scale={scale}
+      />
     </div>
   )
 })

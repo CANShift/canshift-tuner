@@ -13,14 +13,14 @@ import {
 } from '@canshift/core'
 import { shownKicker } from '../../../lib/widget-kicker'
 import { MONO_FONT } from '../../../lib/typography'
-import { WIDGET_DIM_COLOR, WIDGET_KICKER } from '../widget-preview.styles'
+import { WIDGET_DIM_COLOR } from '../widget-preview.styles'
 import { type BaseRendererProps } from './shared'
 import { TopRule } from './TopRule'
+import { Kicker, UNIT_FONT_PX } from './ValueCluster'
 
 const DEMO_FELT_G: readonly [number, number] = [0.55, 0.35]
 const DEMO_PEAKS_G = [0.9, 0.7, 1.0, 0.5, 0.6, 0.5, 0.95, 0.7] as const
 const KICKER_SEPARATOR = ' · '
-const UNIT_FONT_PX = 10
 const HUNDREDTHS = 100
 
 const truncatedReading = (value: number): string =>
@@ -111,16 +111,22 @@ const Readout = ({ scale, ink }: { scale: number; ink: string }) => (
   </span>
 )
 
-const Kicker = ({ widget, locked }: { widget: Widget; locked: boolean }) => (
-  <span
-    className={WIDGET_KICKER}
-    // eslint-disable-next-line no-inline-style/no-inline-style
-    style={locked ? { color: WIDGET_LOCK_INK_COLORS.night } : undefined}
-  >
-    {locked
-      ? `${shownKicker(widget)}${KICKER_SEPARATOR}${G_METER.noImuReason}`
-      : shownKicker(widget)}
-  </span>
+interface GMeterKickerProps {
+  widget: Widget
+  locked: boolean
+  scale: number
+}
+
+const GMeterKicker = ({ widget, locked, scale }: GMeterKickerProps) => (
+  <Kicker
+    text={
+      locked
+        ? `${shownKicker(widget)}${KICKER_SEPARATOR}${G_METER.noImuReason}`
+        : shownKicker(widget)
+    }
+    scale={scale}
+    color={locked ? WIDGET_LOCK_INK_COLORS.night : undefined}
+  />
 )
 
 const PlotFrame = ({ box, scale, children }: PlotFrameProps) => (
@@ -151,8 +157,8 @@ export const GMeterPreview = memo(function GMeterPreview({
   return (
     // eslint-disable-next-line no-inline-style/no-inline-style
     <div className="relative box-border overflow-hidden" style={{ width: w, height: h }}>
-      <TopRule fontSize={WIDGET_TOP_RULE.primaryFontMin} inkColor={ink} />
-      <Kicker widget={widget} locked={locked} />
+      <TopRule devicePx={WIDGET_TOP_RULE.primaryFontMin} scale={scale} inkColor={ink} />
+      <GMeterKicker widget={widget} locked={locked} scale={scale} />
       {!locked && <Readout scale={scale} ink={ink} />}
       <PlotFrame box={box} scale={scale}>
         <Plot
