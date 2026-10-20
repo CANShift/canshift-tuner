@@ -1,5 +1,5 @@
 import type { DashboardConfig, ScreenSettings } from '@canshift/core'
-import { validateDashboard } from '@canshift/core'
+import { screenSettingsToWire, validateDashboard } from '@canshift/core'
 
 import {
   CMD_CALIBRATE_TOUCH,
@@ -28,6 +28,7 @@ import {
   type BoardProvision,
 } from '../lib/board-provision'
 import { getDeviceLink } from './link'
+import { statusSound } from './status-sound'
 import { burnConfigChunked } from './chunked-config'
 
 const OK: UsbResult = { success: true }
@@ -66,7 +67,7 @@ export const usbService = {
   },
 
   pushScreenSettings: async (settings: ScreenSettings): Promise<UsbResult> => {
-    const result = await getDeviceLink().send(CMD_SCREEN_SETTINGS, { ...settings })
+    const result = await getDeviceLink().send(CMD_SCREEN_SETTINGS, screenSettingsToWire(settings))
     return toUsbResult(result)
   },
 
@@ -104,6 +105,7 @@ export const usbService = {
         protocol: d.protocol,
         isDay: d.is_day === 1,
         ...(typeof d.board_id === 'string' ? { boardId: d.board_id } : {}),
+        ...statusSound(d),
       },
     }
   },

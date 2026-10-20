@@ -35,6 +35,7 @@ export const SEND_CODE_OUTCOMES: Record<string, CodeOutcome> = {
   missing_payload: 'retry',
   missing_device_config: 'retry',
   invalid_device_config: 'retry',
+  invalid_sound_settings: 'retry',
   device_error: 'retry',
   unknown_error: 'retry',
   mismatch: 'retry',

@@ -1,4 +1,5 @@
 import type { DashboardConfig } from '@canshift/core'
+import type { SoundSettings } from '@canshift/core/wire'
 
 export interface UsbResult {
   success: boolean
@@ -24,6 +25,7 @@ export interface FirmwareIdentity {
   protocol: number
   isDay: boolean
   boardId?: string
+  sound?: SoundSettings
 }
 
 export type FirmwareIdentityResult =

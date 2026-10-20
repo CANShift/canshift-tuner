@@ -49,6 +49,11 @@ export const CHANGES = {
     dayMode: (mode: string): string => `Dash in ${mode} mode`,
     day: 'day',
     night: 'night',
+    volume: (percent: number): string => `Sound volume ${String(percent)}%`,
+    bootSound: (state: string): string => `Start-up sound ${state}`,
+    shiftTone: (state: string): string => `Shift tone ${state}`,
+    on: 'on',
+    off: 'off',
   },
   nouns: {
     gauge: 'gauge',
