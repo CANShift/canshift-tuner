@@ -15,6 +15,9 @@ interface NoticeProps {
 
 const SHOWN_REASONS = 3
 
+const noticeTitle = (refusals: readonly Refusal[]): string =>
+  refusals[0]?.title ?? STRINGS.refused.title
+
 const NoticeActions = ({ refusals }: NoticeProps) => {
   const showMe = useShowMe()
   return (
@@ -41,7 +44,7 @@ const RefusedBanner = ({ refusals }: NoticeProps) => (
   >
     <UiIcon name="warning" className="size-6 text-app-warning" />
     <div className="flex min-w-0 flex-[1_1_360px] flex-col gap-1">
-      <span className="text-base font-bold">{STRINGS.refused.title}</span>
+      <span className="text-base font-bold">{noticeTitle(refusals)}</span>
       {refusals.slice(0, SHOWN_REASONS).map((refusal) => (
         <span key={refusal.text} className="text-[15px] leading-snug text-[#ffd9a8]">
           {refusal.text}
@@ -62,7 +65,7 @@ const RefusedSheet = ({ refusals }: NoticeProps) => (
         </span>
         <div className="flex flex-col gap-1">
           <SheetTitle className="text-[21px] font-bold leading-tight">
-            {STRINGS.refused.title}
+            {noticeTitle(refusals)}
           </SheetTitle>
           <SheetDescription className="text-[15px] leading-snug text-app-secondary">
             {STRINGS.refused.body}
