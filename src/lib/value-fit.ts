@@ -1,11 +1,8 @@
 import {
   DEFAULT_UNIT_SYSTEM,
-  displayValue,
-  gaugeDeviceValuePx,
-  measureValueFit,
+  measureGaugeFit,
   resolveGridRect,
   resolveScreenProfile,
-  widestConfiguredValue,
   type DashboardConfig,
   type GaugeWidgetConfig,
   type PageConfig,
@@ -41,14 +38,13 @@ const widgetFit = (widget: Widget, ctx: FitContext): ValueFit | null => {
   if (cfg === null) return null
   const rect = resolveGridRect(widget.layout, ctx.area)
   const unit = widgetUnitOf(widget, ctx.signals, ctx.system)
-  const widest = widestConfiguredValue(cfg.minValue, cfg.maxValue)
-  return measureValueFit({
-    widestValue: displayValue(widest, unit.convertible, ctx.system),
-    decimalPlaces: cfg.decimalPlaces,
-    prefix: cfg.prefix ?? '',
-    unit: unit.symbol,
-    valueFontPx: gaugeDeviceValuePx(cfg, rect.w, rect.h),
-    columnWidth: rect.w,
+  return measureGaugeFit({
+    config: cfg,
+    width: rect.w,
+    height: rect.h,
+    convertibleUnit: unit.convertible,
+    unitSymbol: unit.symbol,
+    system: ctx.system,
   })
 }
 

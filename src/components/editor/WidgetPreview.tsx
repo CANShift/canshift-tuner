@@ -2,6 +2,7 @@ import * as React from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import type { ComponentType } from 'react'
 import type { ControlState, SignalLimits, Widget, WidgetConfig, PagePalette } from '@canshift/core'
+import { displayDecimals } from '@canshift/core'
 import { useSignalStore } from '../../stores/signal.store'
 import { ButtonPreview } from './widget-previews/Button'
 import { GearPreview } from './widget-previews/Gear'
@@ -41,6 +42,7 @@ interface RenderContext {
   signalLimits: SignalLimits | undefined
   signalUnit: string
   toDisplay: (value: number) => number
+  decimalsOf: (decimals: number) => number
   unbound: boolean
   scale: number
   imuMissing: boolean
@@ -78,6 +80,7 @@ const RENDERERS: RendererDispatch = {
         testValue={ctx.testValue}
         signalUnit={ctx.signalUnit}
         toDisplay={ctx.toDisplay}
+        decimalsOf={ctx.decimalsOf}
         unbound={ctx.unbound}
         scale={ctx.scale}
       />
@@ -121,6 +124,7 @@ interface WidgetPreviewProps {
 interface ResolvedUnit {
   symbol: string
   toDisplay: (value: number) => number
+  decimalsOf: (decimals: number) => number
 }
 
 const useResolvedSignalUnit = (widget: Widget): ResolvedUnit => {
@@ -131,7 +135,11 @@ const useResolvedSignalUnit = (widget: Widget): ResolvedUnit => {
     (value: number) => units.valueOf(value, convertible),
     [units, convertible]
   )
-  return useMemo(() => ({ symbol, toDisplay }), [symbol, toDisplay])
+  const decimalsOf = useCallback(
+    (decimals: number) => displayDecimals(decimals, convertible, units.system),
+    [units.system, convertible]
+  )
+  return useMemo(() => ({ symbol, toDisplay, decimalsOf }), [symbol, toDisplay, decimalsOf])
 }
 
 const useSignalLimits = (widget: Widget): SignalLimits | undefined =>
@@ -156,7 +164,7 @@ const liveFlags = (
 const WidgetPreviewImpl = (props: WidgetPreviewProps) => {
   const { widget, palette, scale = 1, buttonState = 'off', cycleStateIndex } = props
   const resolved = palette ? applyPalette(widget, palette) : widget
-  const { symbol: signalUnit, toDisplay } = useResolvedSignalUnit(resolved)
+  const { symbol: signalUnit, toDisplay, decimalsOf } = useResolvedSignalUnit(resolved)
   const signalLimits = useSignalLimits(resolved)
   const imuMissing = useBoardLacksImu()
   const ctx: RenderContext = {
@@ -166,6 +174,7 @@ const WidgetPreviewImpl = (props: WidgetPreviewProps) => {
     cycleStateIndex,
     signalUnit,
     toDisplay,
+    decimalsOf,
     unbound: isUnboundWidget(resolved),
     scale,
     imuMissing,

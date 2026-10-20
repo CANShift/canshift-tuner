@@ -22,6 +22,7 @@ export interface GaugeArcRendererProps extends BaseRendererProps {
   danger: boolean
   testValue?: number | null
   toDisplay: (value: number) => number
+  decimalsOf: (decimals: number) => number
   unbound?: boolean
   signalLimits?: SignalLimits | undefined
 }
@@ -65,7 +66,7 @@ const arcReading = (
     : gaugePreviewSeverity(cfg, props.testValue, props.signalLimits)
   return {
     valuePct,
-    valueStr: unbound ? STALE_PLACEHOLDER : bound.raw.toFixed(cfg.decimalPlaces),
+    valueStr: unbound ? STALE_PLACEHOLDER : bound.raw.toFixed(props.decimalsOf(cfg.decimalPlaces)),
     inkColor: severityInk(severity, widget.style.textColor, widget.style.criticalColor),
     severity,
   }

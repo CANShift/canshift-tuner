@@ -37,6 +37,7 @@ export interface GaugeNumericRendererProps extends BaseRendererProps {
   testValue?: number | null
   signalUnit: string
   toDisplay: (value: number) => number
+  decimalsOf: (decimals: number) => number
   unbound?: boolean
   scale: number
   signalLimits?: SignalLimits | undefined
@@ -57,7 +58,7 @@ const numericReading = (
 ): NumericReading => {
   const unbound = props.unbound ?? false
   const bound = shownValue(props.testValue, cfg.minValue, cfg.maxValue, props.toDisplay)
-  const value = unbound ? STALE_PLACEHOLDER : bound.raw.toFixed(cfg.decimalPlaces)
+  const value = unbound ? STALE_PLACEHOLDER : bound.raw.toFixed(props.decimalsOf(cfg.decimalPlaces))
   const severity = unbound
     ? 'normal'
     : gaugePreviewSeverity(cfg, props.testValue, props.signalLimits)
