@@ -1,10 +1,12 @@
 import type { CSSProperties, MouseEvent } from 'react'
-import type { PageConfig, Widget } from '@canshift/core'
+import type { PageConfig, ValueFit, Widget } from '@canshift/core'
 import { resolveGridRect } from '@canshift/core'
 import { cn } from '@/lib/utils'
 import { STRINGS } from '../../strings'
 import { widgetName } from '../../lib/sync/describe'
 import type { GaugeManipulation } from '../../hooks/useGaugeManipulation'
+import { useUnfitWidgets } from '../../hooks/useUnfitWidgets'
+import { fitReading } from '../../lib/value-fit'
 
 export interface GaugeHitLayerProps {
   page: PageConfig
@@ -20,6 +22,7 @@ export interface GaugeHitLayerProps {
 
 interface HitAreaProps extends Omit<GaugeHitLayerProps, 'page' | 'top'> {
   widget: Widget
+  fit: ValueFit | undefined
 }
 
 const RING = {
@@ -27,6 +30,8 @@ const RING = {
   member: 'outline-dashed outline-2 outline-app-text',
   none: '',
 } as const
+
+const UNFIT_MARK = 'shadow-[inset_0_0_0_2px_var(--app-warning),0_0_8px_#FF880088]'
 
 const ringOf = ({ widget, selectedId, selectedIds }: HitAreaProps): keyof typeof RING => {
   if (widget.id === selectedId) return 'primary'
@@ -57,10 +62,13 @@ const rectStyle = ({ widget, scale, areaWidth, areaHeight }: HitAreaProps): CSSP
 const HitArea = (props: HitAreaProps) => {
   const { widget, manipulation, onSelect } = props
   const ring = ringOf(props)
+  const tooWide =
+    props.fit === undefined ? undefined : STRINGS.gauges.tooWide(fitReading(props.fit))
   return (
     <button
       type="button"
       aria-label={widgetName(widget)}
+      title={tooWide}
       aria-pressed={ring !== 'none'}
       onMouseDown={(event) => manipulation?.onPress(event, widget)}
       onClick={(event: MouseEvent) => {
@@ -69,6 +77,7 @@ const HitArea = (props: HitAreaProps) => {
       className={cn(
         'absolute rounded-[4px] bg-transparent focus-visible:outline-2',
         manipulation !== null && 'cursor-grab active:cursor-grabbing',
+        tooWide !== undefined && UNFIT_MARK,
         RING[ring]
       )}
       // eslint-disable-next-line no-inline-style/no-inline-style
@@ -81,14 +90,17 @@ const HitArea = (props: HitAreaProps) => {
   )
 }
 
-export const GaugeHitLayer = ({ page, top, ...area }: GaugeHitLayerProps) => (
-  <div
-    className="absolute inset-x-0 bottom-0"
-    // eslint-disable-next-line no-inline-style/no-inline-style
-    style={{ top }}
-  >
-    {page.widgets.map((widget) => (
-      <HitArea key={widget.id} widget={widget} {...area} />
-    ))}
-  </div>
-)
+export const GaugeHitLayer = ({ page, top, ...area }: GaugeHitLayerProps) => {
+  const unfit = useUnfitWidgets()
+  return (
+    <div
+      className="absolute inset-x-0 bottom-0"
+      // eslint-disable-next-line no-inline-style/no-inline-style
+      style={{ top }}
+    >
+      {page.widgets.map((widget) => (
+        <HitArea key={widget.id} widget={widget} fit={unfit.get(widget.id)} {...area} />
+      ))}
+    </div>
+  )
+}

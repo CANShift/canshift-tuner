@@ -45,7 +45,7 @@ const signalsForEveryGauge = () =>
   DEFAULT_SIM_CONFIG.pages
     .flatMap((page) => page.widgets.map((widget) => widget.signal))
     .filter((name) => name !== '')
-    .flatMap((name) => (TEMPLATE ? [{ ...TEMPLATE, name }] : []))
+    .flatMap((name) => (TEMPLATE ? [{ ...TEMPLATE, name, unit: '' }] : []))
 
 const unsent = () => diffSetup(useSyncStore.getState().device, readDraft())
 

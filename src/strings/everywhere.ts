@@ -54,6 +54,8 @@ export const EVERYWHERE = {
     unknownSignal: (gauge: string, page: string): string =>
       `${gauge} on page ${page} uses a signal your car doesn’t send. Choose another signal or remove the gauge.`,
     tooManyGauges: (page: string): string => `Page ${page} has more gauges than fit. Remove one.`,
+    tooWide: (gauge: string, page: string, reading: string): string =>
+      `${gauge} on page ${page} is too narrow to show ${reading}. Make it wider or pick a smaller size.`,
     outOfSpace: 'The dash is out of space. Remove a page.',
     newerFirmware: 'This setup was made for newer firmware. Update the dash first.',
     newerDash:
