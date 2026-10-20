@@ -50,6 +50,7 @@ export const EVERYWHERE = {
   },
   refused: {
     title: 'The dash didn’t accept these changes',
+    layoutTitle: 'This layout doesn’t fit the dash',
     body: 'Nothing changed on the dash. Your changes are still here.',
     unknownSignal: (gauge: string, page: string): string =>
       `${gauge} on page ${page} uses a signal your car doesn’t send. Choose another signal or remove the gauge.`,

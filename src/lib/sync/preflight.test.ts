@@ -61,6 +61,7 @@ describe('preflightRefusals on content width', () => {
         text: STRINGS.refused.tooWide('Boost', 'Track', '3.00 bar'),
         target: { pageId: 'track', widgetId: 'track_boost' },
         section: 'gauges',
+        title: STRINGS.refused.layoutTitle,
       },
     ])
   })

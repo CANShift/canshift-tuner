@@ -52,6 +52,7 @@ const overflowReasons = ({ config }: PreflightInputs): Refusal[] => {
       text: R.tooManyGauges(page),
       target: { pageId: overflow.pageId, widgetId: overflow.widgetId },
       section: 'gauges',
+      title: R.layoutTitle,
     },
   ]
 }
@@ -62,6 +63,7 @@ const fitReasons = ({ config, signals }: PreflightInputs): Refusal[] =>
     text: R.tooWide(widgetName(widget), pageName(page), fitReading(fit)),
     target: { pageId: page.id, widgetId: widget.id },
     section: 'gauges',
+    title: R.layoutTitle,
   }))
 
 const signalReasons = ({ config, signals }: PreflightInputs): Refusal[] =>
