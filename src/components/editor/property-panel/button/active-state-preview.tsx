@@ -1,8 +1,9 @@
 import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 import type { ButtonWidgetConfig, ControlState, Widget } from '@canshift/core'
-import { resolveGridRect, resolveScreenProfile } from '@canshift/core'
+import { resolveScreenProfile } from '@canshift/core'
 import { useDashboardStore } from '../../../../stores/dashboard.store'
+import { widgetRectOn } from '../../../../lib/page-rect'
 import { WidgetPreview } from '../../WidgetPreview'
 import { PanelField } from '@/components/ui/form-field'
 import { controlFor, statesFor } from '../../../../lib/control-paint'
@@ -53,7 +54,8 @@ const usePreviewBox = (widget: Widget) => {
   const profile = resolveScreenProfile(targetProfile)
   const areaHeight =
     ownerPage?.showTopBar !== false ? profile.height - topBarHeight : profile.height
-  const { w, h } = resolveGridRect(widget.layout, { width: profile.width, height: areaHeight })
+  const area = { width: profile.width, height: areaHeight }
+  const { w, h } = widgetRectOn(ownerPage ?? { widgets: [] }, widget, area)
   const scale = Math.min(PREVIEW_MAX_SCALE, PREVIEW_BUDGET_W / w, PREVIEW_BUDGET_H / h)
   return { w: Math.round(w * scale), h: Math.round(h * scale), scale }
 }
