@@ -13,8 +13,8 @@ const fromSuccess = (result: { success: boolean; error?: string | undefined }): 
 
 const VERIFY_OUTCOMES: Record<VerifyResult['kind'], WriteResult> = {
   ok: OK,
-  unreachable: OK,
-  fetch_failed: OK,
+  unreachable: { ok: false, code: 'unreachable' },
+  fetch_failed: { ok: false, code: 'unreachable' },
   mismatch: { ok: false, code: 'mismatch' },
   refused: { ok: false, code: 'config_refused' },
 }

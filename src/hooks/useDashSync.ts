@@ -26,10 +26,11 @@ const ON_DASHBOARD: Record<
   error: (result, log) => {
     if (result.kind === 'error') console.error('[sync] the dash setup is unreadable', result.error)
     log('error', `The dash setup could not be read: ${transportErrorText('fetch_failed')}`)
+    useSyncStore.getState().setDevice({ dashboard: null })
   },
 }
 
-const readDashboard = async (log: Log): Promise<void> => {
+export const readDashboard = async (log: Log): Promise<void> => {
   const result = await deviceIpc.getConfig()
   useSyncStore.getState().setDashNewer(result.kind === 'newer')
   ON_DASHBOARD[result.kind](result, log)
