@@ -81,6 +81,7 @@ export class WebSocketClient implements DeviceLink {
     this.keepAlive.stop()
     this.intentionalDisconnect = true
     this.reconnect.cancel()
+    this.opening = null
     this.failAll('disconnected')
     const socket = this.socket
     this.socket = null
@@ -95,7 +96,7 @@ export class WebSocketClient implements DeviceLink {
       let opened = false
       socket.onopen = () => {
         opened = true
-        this.adopt(socket)
+        this.settleOpen(socket)
         resolve()
       }
       socket.onmessage = (event: MessageEvent) => {
@@ -114,6 +115,12 @@ export class WebSocketClient implements DeviceLink {
         this.handleClose(socket)
       }
     })
+  }
+
+  private settleOpen(socket: WebSocket): void {
+    const superseded = this.intentionalDisconnect || this.socket !== null
+    if (superseded) socket.close()
+    else this.adopt(socket)
   }
 
   private adopt(socket: WebSocket): void {
