@@ -4,6 +4,7 @@ const SAMPLE_INTERVAL_MS = 100
 export const WINDOW_MIN_S = 5
 export const WINDOW_MAX_S = 120
 export const WINDOW_STEP_S = 5
+export const MAX_RECORDED_SAMPLES = 36_000
 
 export interface LiveSample {
   t: number
@@ -27,6 +28,9 @@ export const appendSample = (history: readonly LiveSample[], sample: LiveSample)
   return first > 0 ? next.slice(first) : next
 }
 
+export const recordingFull = (recordedCount: number): boolean =>
+  recordedCount >= MAX_RECORDED_SAMPLES
+
 export const lastSeconds = (history: readonly LiveSample[], seconds: number): LiveSample[] => {
   const latest = history[history.length - 1]?.t ?? 0
   return history.filter((entry) => entry.t >= latest - seconds)
@@ -48,7 +52,7 @@ const useRecorder = (): Recorder => {
   recordingRef.current = recording
 
   const record = useCallback((sample: LiveSample) => {
-    if (!recordingRef.current) return
+    if (!recordingRef.current || recordingFull(recordedRef.current.length)) return
     recordedRef.current.push(sample)
     setRecordedCount(recordedRef.current.length)
   }, [])
