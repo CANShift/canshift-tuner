@@ -55,6 +55,8 @@ export const CAR = {
     noCarMatch: 'No car matches.',
     back: 'Back',
     more: 'More',
+    savedSignalsUnreadable:
+      'Your saved signals could not be read. They were kept aside and the default car is loaded.',
     livePlot: 'Live plot',
     livePlotHint: 'Tap signals to draw them over time.',
     obd: 'OBD-II polling and trouble codes',

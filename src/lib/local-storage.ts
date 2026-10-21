@@ -9,6 +9,7 @@ export const STORAGE_KEYS = {
   setup: key('setup'),
   simulationMode: key('simulation-mode'),
   signals: key('signals'),
+  signalsUnreadable: key('signals.unreadable'),
 } as const
 
 const LEGACY_KEYS: Record<string, string> = {
