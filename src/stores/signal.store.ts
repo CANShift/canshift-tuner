@@ -1,6 +1,7 @@
 import { create, type StateCreator } from 'zustand'
+import * as z from 'zod'
 import type { SignalDef } from '@canshift/core'
-import { ECU_PROFILES } from '@canshift/core'
+import { ECU_PROFILES, SignalDefSchema } from '@canshift/core'
 import { readItem, writeItem, STORAGE_KEYS } from '../lib/local-storage'
 import { parseJsonRecord } from '../lib/json-record'
 
@@ -17,17 +18,23 @@ interface StoredState {
   profileSignals: SignalDef[]
 }
 
+const SignalListSchema = z.array(SignalDefSchema)
+
+const signalsOf = (value: unknown): SignalDef[] | null => {
+  const parsed = SignalListSchema.safeParse(value)
+  return parsed.success ? (parsed.data as SignalDef[]) : null
+}
+
 const readStored = (): StoredState | null => {
   const raw = readItem(STORAGE_KEY)
   const parsed = raw === null ? null : parseJsonRecord(raw)
-  if (parsed === null) return null
-  const { selectedProfileKey, signals, profileSignals } = parsed
-  if (typeof selectedProfileKey !== 'string' || !Array.isArray(signals)) return null
-  const stored = signals as SignalDef[]
+  if (parsed === null || typeof parsed.selectedProfileKey !== 'string') return null
+  const signals = signalsOf(parsed.signals)
+  if (signals === null) return null
   return {
-    selectedProfileKey,
-    signals: stored,
-    profileSignals: Array.isArray(profileSignals) ? (profileSignals as SignalDef[]) : stored,
+    selectedProfileKey: parsed.selectedProfileKey,
+    signals,
+    profileSignals: signalsOf(parsed.profileSignals) ?? signals,
   }
 }
 
