@@ -2,8 +2,10 @@ import { create, type StateCreator } from 'zustand'
 import * as z from 'zod'
 import type { SignalDef } from '@canshift/core'
 import { ECU_PROFILES, SignalDefSchema } from '@canshift/core'
-import { readItem, writeItem, STORAGE_KEYS } from '../lib/local-storage'
+import { readItem, removeItem, writeItem, STORAGE_KEYS } from '../lib/local-storage'
 import { parseJsonRecord } from '../lib/json-record'
+import { STRINGS } from '../strings'
+import { useToastStore } from './toast.store'
 
 const FALLBACK_PROFILE_ID = 'maxxecu-street'
 const FALLBACK_SIGNALS: SignalDef[] =
@@ -25,9 +27,8 @@ const signalsOf = (value: unknown): SignalDef[] | null => {
   return parsed.success ? (parsed.data as SignalDef[]) : null
 }
 
-const readStored = (): StoredState | null => {
-  const raw = readItem(STORAGE_KEY)
-  const parsed = raw === null ? null : parseJsonRecord(raw)
+const parseStored = (raw: string): StoredState | null => {
+  const parsed = parseJsonRecord(raw)
   if (parsed === null || typeof parsed.selectedProfileKey !== 'string') return null
   const signals = signalsOf(parsed.signals)
   if (signals === null) return null
@@ -36,6 +37,19 @@ const readStored = (): StoredState | null => {
     signals,
     profileSignals: signalsOf(parsed.profileSignals) ?? signals,
   }
+}
+
+const keepAside = (raw: string): void => {
+  if (writeItem(STORAGE_KEYS.signalsUnreadable, raw)) removeItem(STORAGE_KEY)
+  useToastStore.getState().show(STRINGS.car.savedSignalsUnreadable, 'warning')
+}
+
+const readStored = (): StoredState | null => {
+  const raw = readItem(STORAGE_KEY)
+  if (raw === null) return null
+  const stored = parseStored(raw)
+  if (stored === null) keepAside(raw)
+  return stored
 }
 
 const writeStored = (state: StoredState): void => {
