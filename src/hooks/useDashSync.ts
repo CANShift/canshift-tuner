@@ -42,13 +42,14 @@ const readDeviceConfig = async (log: Log): Promise<void> => {
   if (!result.success) log('warn', `CAN bus speed unknown: ${transportErrorText(result.error)}`)
 }
 
-const readDash = async (log: Log): Promise<void> => {
+export const readDash = async (log: Log): Promise<void> => {
   try {
     await readDashboard(log)
     await readDeviceConfig(log)
   } catch (err) {
     console.error('[sync] reading the dash threw', err)
     log('error', transportErrorText('fetch_failed'))
+    useSyncStore.getState().setDevice({ dashboard: null })
   }
 }
 
