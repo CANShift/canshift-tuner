@@ -109,3 +109,45 @@ describe('WebSocketClient subscriptions', () => {
     expect(busWatch).toHaveBeenCalledTimes(1)
   })
 })
+
+describe('WebSocketClient attempts that open late', () => {
+  it('closes an attempt that opens after a deliberate disconnect', async () => {
+    const { client, latest } = harness()
+    const pending = client.connect()
+    client.disconnect()
+    latest().accept()
+    await pending
+    expect(latest().readyState).toBe(3)
+    expect(client.getStatus()).toBe('disconnected')
+  })
+
+  it('keeps the adopted socket when a reconnect attempt opens after it', async () => {
+    const { client, sockets, latest } = await connected()
+    latest().drop()
+    await vi.advanceTimersByTimeAsync(600)
+    const retry = latest()
+    const manual = client.connect()
+    expect(sockets).toHaveLength(3)
+    latest().accept()
+    await manual
+    retry.accept()
+    expect(retry.readyState).toBe(3)
+    expect(latest().readyState).toBe(1)
+    expect(client.getStatus()).toBe('connected')
+    await vi.advanceTimersByTimeAsync(5_000)
+    expect(sockets).toHaveLength(3)
+  })
+})
+
+describe('WebSocketClient reconnecting by hand', () => {
+  it('starts a fresh attempt when asked to connect again after a disconnect', async () => {
+    const { client, sockets, latest } = harness()
+    void client.connect()
+    client.disconnect()
+    const again = client.connect()
+    latest().accept()
+    await again
+    expect(sockets).toHaveLength(2)
+    expect(client.getStatus()).toBe('connected')
+  })
+})
