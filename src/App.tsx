@@ -5,6 +5,7 @@ import { RouteLoading } from './components/shell/RouteLoading'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { AppHeader } from './components/chrome/AppHeader'
 import { ConnectionGate } from './components/chrome/ConnectionGate'
+import { DashCompareNotice } from './components/chrome/DashCompareNotice'
 import { NotSentSheet } from './components/chrome/NotSentSheet'
 import { ReconnectBanner } from './components/chrome/ReconnectBanner'
 import { SectionRail } from './components/chrome/SectionRail'
@@ -80,6 +81,7 @@ const AppRoutes = () => (
 const SectionContent = () => (
   <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
     <SendNotice />
+    <DashCompareNotice />
     <ConnectionGate>
       <Suspense fallback={<RouteLoading />}>
         <AppRoutes />

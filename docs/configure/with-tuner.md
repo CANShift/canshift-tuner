@@ -20,6 +20,18 @@ The indicator at the top left turns to **Connected**. While connected, the tuner
 
 The dash talks to one device at a time. A second phone or laptop is turned away (WebSocket close code `4001`) and sees **Another device is connected to the dash**: close the tuner on the other device, then **Try again**.
 
+On connect, the tuner compares the dash's gauges and pages with the ones in this browser, using the setup this browser last read from or sent to the dash as the common ground, and says which applies:
+
+| Case          | When                                                          | What happens                                                           |
+| ------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Same          | The dash holds exactly the browser's setup                    | Nothing to do                                                          |
+| Browser newer | Only the browser changed since the last sync                  | **Send to dash**, or **Pull from dash** to drop the browser edits      |
+| Dash newer    | Only the dash changed (or the browser had nothing of its own) | The dash's setup opens here on its own                                 |
+| Different     | Both changed, or this browser never synced with this dash     | **Pull from dash** replaces the browser setup; **Undo** brings it back |
+| Empty         | The dash has no setup yet                                     | **Send to dash** puts this one on it                                   |
+
+**Pull from dash** is how a lost browser setup comes back from the car. The dash cannot hand back its signal list, so the car's signals stay as this browser has them.
+
 > [!TIP]
 > **No dash on hand?** Press **Keep editing** on the **Not connected** screen and the Tuner runs against the built-in simulator. Useful for laying out pages the night before fitting.
 
