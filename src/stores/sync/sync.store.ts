@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { DashComparison } from '../../lib/sync/compare-dash'
+import type { ShownComparison } from '../../lib/sync/compare-dash'
 import type { Refusal } from '../../lib/sync/refusal'
 import type { DashSetup, DeviceSettings } from '../../lib/sync/setup'
 import { readStoredSetup, writeStoredSetup } from './setup-storage'
@@ -12,12 +12,12 @@ interface SyncState {
   sendState: SendState
   refusals: Refusal[]
   dashNewer: boolean
-  comparison: DashComparison | null
+  comparison: ShownComparison | null
   setDevice: (patch: Partial<DashSetup>) => void
   setSettingsDraft: (patch: Partial<DeviceSettings>) => void
   setSendState: (sendState: SendState, refusals?: Refusal[]) => void
   setDashNewer: (dashNewer: boolean) => void
-  setComparison: (comparison: DashComparison | null) => void
+  setComparison: (comparison: ShownComparison | null) => void
 }
 
 const stored = readStoredSetup()

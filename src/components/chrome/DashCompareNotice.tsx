@@ -1,16 +1,15 @@
 import { Button } from '@/components/ui/button'
-import type { DashComparison } from '../../lib/sync/compare-dash'
+import type { ShownComparison } from '../../lib/sync/compare-dash'
 import { STRINGS } from '../../strings'
 import { useConnectionStore } from '../../stores/connection.store'
 import { pullFromDash } from '../../stores/sync/draft'
 import { useSyncStore } from '../../stores/sync/sync.store'
 
 interface DashCompareBannerProps {
-  comparison: DashComparison
+  comparison: ShownComparison
 }
 
-const CAN_PULL: Record<DashComparison, boolean> = {
-  identical: false,
+const CAN_PULL: Record<ShownComparison, boolean> = {
   projectNewer: true,
   deviceNewer: false,
   differentProject: true,

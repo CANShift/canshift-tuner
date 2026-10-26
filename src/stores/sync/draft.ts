@@ -50,7 +50,8 @@ export const adoptDeviceDashboard = (raw: DashboardConfig | null): void => {
   const config = raw === null ? null : withDefaultTheme(raw)
   const sync = useSyncStore.getState()
   const draft = useDashboardStore.getState().config
-  sync.setComparison(compareDash(config, draft, sync.device.dashboard))
+  const comparison = compareDash(config, draft, sync.device.dashboard)
+  sync.setComparison(comparison === 'identical' ? null : comparison)
   if (config !== null && untouched(draft, sync.device.dashboard)) {
     useDashboardStore.getState().setConfig(config)
   }
