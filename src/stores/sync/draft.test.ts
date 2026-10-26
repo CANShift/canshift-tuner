@@ -33,6 +33,11 @@ describe('connecting to a dash that holds another setup', () => {
     expect(useDashboardStore.getState().config?.name).toBe('Edited here')
   })
 
+  it('shows nothing when the dash holds the browser setup', () => {
+    adoptDeviceDashboard(named('Edited here'))
+    expect(useSyncStore.getState().comparison).toBeNull()
+  })
+
   it('reports an empty dash without touching the browser setup', () => {
     adoptDeviceDashboard(null)
     expect(useSyncStore.getState().comparison).toBe('deviceEmpty')

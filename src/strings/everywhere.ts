@@ -21,7 +21,6 @@ export const EVERYWHERE = {
     pull: 'Pull from dash',
     pulled: 'Pulled from the dash',
     compared: {
-      identical: 'The dash shows the same gauges as this browser.',
       projectNewer: 'This browser has gauge changes the dash doesn’t have yet.',
       deviceNewer: 'Opened the gauges from the dash. They are newer than what this browser had.',
       differentProject: 'The dash shows different gauges from this browser.',

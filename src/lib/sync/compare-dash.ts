@@ -5,6 +5,8 @@ import { sameValue } from './setup-path'
 export type DashComparison =
   'identical' | 'projectNewer' | 'deviceNewer' | 'differentProject' | 'deviceEmpty'
 
+export type ShownComparison = Exclude<DashComparison, 'identical'>
+
 export const untouched = (
   draft: DashboardConfig | null,
   baseline: DashboardConfig | null
