@@ -8,6 +8,7 @@ import { useDashboardStore } from '../dashboard.store'
 import { withDefaultTheme } from '../dashboard/lifecycle.slice'
 import { useSyncStore } from './sync.store'
 import type { DashboardConfig, DeviceConfig } from '@canshift/core'
+import { compareDash, untouched } from '../../lib/sync/compare-dash'
 import type { SoundSettings } from '@canshift/core/wire'
 import { STRINGS } from '../../strings'
 
@@ -40,13 +41,16 @@ export const undoAllChanges = (): void => {
   applyDraft(revertAll(readDraft(), useSyncStore.getState().device), STRINGS.sync.undoAll)
 }
 
-const untouched = (draft: DashboardConfig | null, baseline: DashboardConfig | null): boolean =>
-  draft === null || sameValue(draft, baseline ?? DEFAULT_SIM_CONFIG)
+export const pullFromDash = (): void => {
+  applyDraft(revertAll(readDraft(), useSyncStore.getState().device), STRINGS.sync.pulled)
+  useSyncStore.getState().setComparison(null)
+}
 
 export const adoptDeviceDashboard = (raw: DashboardConfig | null): void => {
   const config = raw === null ? null : withDefaultTheme(raw)
   const sync = useSyncStore.getState()
   const draft = useDashboardStore.getState().config
+  sync.setComparison(compareDash(config, draft, sync.device.dashboard))
   if (config !== null && untouched(draft, sync.device.dashboard)) {
     useDashboardStore.getState().setConfig(config)
   }
